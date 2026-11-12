@@ -143,7 +143,9 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 .dmg.pet{color:#ffd27a}
 .tag.m{background:rgba(89,200,255,.3);color:#9fe8ff}
 #unsaved{font-size:11px;margin-top:3px;opacity:.85}#unsaved.warn{color:#ffc85a;opacity:1}
-#clock{margin-top:4px;font-size:13px;font-weight:800;text-shadow:0 1px 3px #000}
+#clock{margin-top:4px;font-size:13px;font-weight:800;text-shadow:0 1px 3px #000}#region{margin-top:2px;font-size:12px;font-weight:800;color:#ffe8b0;text-shadow:0 1px 3px #000}
+#uwp{position:absolute;left:0;top:0;text-align:center;font-size:12px;font-weight:800;color:#59c8ff;text-shadow:0 1px 3px #000;width:90px;margin-left:-45px;pointer-events:none}#uwp .arr{font-size:20px;line-height:22px}
+#mapUI{position:fixed;inset:0;z-index:40;background:#120e0b;touch-action:none}#mapC{position:absolute;inset:0;width:100%;height:100%;touch-action:none}.mapbar{position:absolute;left:calc(10px + var(--sl));right:calc(10px + var(--sr));top:calc(10px + var(--st));display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}.mapbar>*{pointer-events:auto}.mapbar .sbtn{margin:0;min-height:46px;min-width:46px;padding:0 14px}.mapbar .mz{font-size:24px;font-weight:900;width:50px}#mapInfo{background:rgba(0,0,0,.55);padding:8px 12px;border-radius:10px;font-weight:800;font-size:13px}.maphint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--sb));background:rgba(0,0,0,.55);padding:6px 12px;border-radius:10px;font-size:12px;opacity:.85;pointer-events:none;white-space:nowrap}
 #haze{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 60%,rgba(200,140,80,.2),rgba(150,95,50,.75));z-index:4}
 #transit{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;z-index:30;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(10,40,60,.75),rgba(0,8,16,.97));overflow:hidden}
 #transit.on{opacity:1;pointer-events:auto}#transit.quick{background:radial-gradient(circle,rgba(120,60,180,.6),rgba(10,0,20,.9))}
@@ -193,10 +195,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261112T203315-b459e816">
+<meta name="dr-build" content="20261112T225017-51172a70">
 <script>
 (function(){
-var BUILD='20261112T203315-b459e816';window.DR_BUILD=BUILD;
+var BUILD='20261112T225017-51172a70';window.DR_BUILD=BUILD;
 try{var href=location.href.split('#')[0];if(/^https?:/.test(location.protocol)){
 var m={name:'Dustreach — Kessra Frontier',short_name:'Dustreach',start_url:href,scope:href.replace(/[^\/]*$/,''),display:'standalone',orientation:'landscape',background_color:'#1a0f0a',theme_color:'#1a0f0a',icons:[{src:'data:image/png;base64,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',sizes:'180x180',type:'image/png',purpose:'any'}]};
 var l=document.createElement('link');l.rel='manifest';l.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(m));document.head.appendChild(l);}}catch(e){}
@@ -222,8 +224,8 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <div id="pframe"><div id="pname"></div><div class="bar hp"><i></i><span></span></div><div class="bar en"><i></i><span></span></div><div class="bar xp"><i></i><span></span></div><div id="unsaved"></div><div id="buffs"></div><div id="petf" class="hidden"><div class="pn"></div><div class="bar php"><i></i><span></span></div><div class="pcmd"><button id="pc_attack">⚔ Attack</button><button id="pc_follow">↩ Follow</button><button id="pc_stay">✋ Stay</button></div></div></div>
   <div id="log"></div>
   <div id="tframe" class="hidden"><div id="tname"></div><div class="bar thp"><i></i><span></span></div><div id="tstate"></div></div>
-  <div id="topright"><canvas id="mini" width="300" height="300"></canvas><div id="credits"></div><div id="clock"></div><div id="mtrack"></div></div>
-  <div id="topbtns"><button class="tb" id="bTgt" title="Next target (Tab)">◎</button><button class="tb" id="bSk" title="Skills (K)">📈<span id="spBadge"></span></button><button class="tb" id="bBook" title="Weave Book (B)">📖</button><button class="tb" id="bJournal" title="Journal (L)">📜</button><button class="tb" id="bInv" title="Inventory (I)">🎒</button><button class="tb" id="bMenu" title="Menu (Esc)">☰</button></div>
+  <div id="topright"><canvas id="mini" width="300" height="300"></canvas><div id="credits"></div><div id="clock"></div><div id="region"></div><div id="mtrack"></div></div>
+  <div id="topbtns"><button class="tb" id="bTgt" title="Next target (Tab)">◎</button><button class="tb" id="bSk" title="Skills (K)">📈<span id="spBadge"></span></button><button class="tb" id="bBook" title="Weave Book (B)">📖</button><button class="tb" id="bJournal" title="Journal (L)">📜</button><button class="tb" id="bInv" title="Inventory (I)">🎒</button><button class="tb" id="bMap" title="Map (M)">🗺</button><button class="tb" id="bMenu" title="Menu (Esc)">☰</button></div>
   <div id="dmgLayer"></div>
   <div id="wp" class="hidden"><div class="arr">▼</div><span></span></div>
   <div id="joy"><div id="joyKnob"></div></div>
@@ -354,17 +356,41 @@ function vnoise(x,z){const xi=Math.floor(x),zi=Math.floor(z),xf=x-xi,zf=z-zi;con
   return lerp(lerp(hash(xi,zi),hash(xi+1,zi),u),lerp(hash(xi,zi+1),hash(xi+1,zi+1),u),v);}
 function fbm(x,z){let s=0,a=1,f=1,n=0;for(let i=0;i<4;i++){s+=vnoise(x*f,z*f)*a;n+=a;a*=0.5;f*=2.03;}return s/n;}
 function smooth(e0,e1,x){const t=clamp((x-e0)/(e1-e0),0,1);return t*t*(3-2*t);}
-const WORLD=520,HALF=WORLD/2,SEG=130,CELL=WORLD/SEG,N1=SEG+1;
+const WORLD=880,HALF=WORLD/2,SEG=220,CELL=WORLD/SEG,N1=SEG+1,CORE_HALF=260;// world grew from 520 m to 880 m square (~2.9x area); the old 520 m core is unchanged
 const TOWN=31;
 // small desert outposts (safe zones with a Conduit node, Save Point and teleporter pad)
 const OUTPOSTS=[{id:'cinderwell',name:'Cinderwell Post',x:0,z:-80,r:11},{id:'glassreach',name:'Glassreach Camp',x:172,z:-10,r:11}];
-function rawH(x,z){
+/* ---------- biomes: the old desert core ringed by six regions (blended borders) ---------- */
+const BIOMES=[
+  {id:'dunes',name:'Kessra Dunes',sub:'Open desert around Halden\'s Rest',lv:[1,10],fog:0xe9b98a,hemi:0xffe2c0,c1:0xc9a07a,c2:0xb48660},
+  {id:'glass',name:'Shimmerfield',sub:'Crystal glass fields',lv:[7,10],gate:'glassreach',a:0,fog:0xbfe6ee,hemi:0xd8f6ff,c1:0x9fb8b6,c2:0x7f9ea2},
+  {id:'ash',name:'Cinderveil Badlands',sub:'Ash and volcanic ridges',lv:[8,10],gate:'vault',a:1,fog:0x6a5650,hemi:0xffa080,c1:0x2e2826,c2:0x221d1c},
+  {id:'scrap',name:'Rustmaw Scrapyard',sub:'Ruined Combine city and tech scrap',lv:[6,9],gate:'factions',a:2,fog:0xa89a8c,hemi:0xe0d4c8,c1:0x5c5e62,c2:0x4a4c50},
+  {id:'oasis',name:'Mirewell Oasis',sub:'Scrubland, palms and springs',lv:[3,6],a:3,fog:0xc4ccaa,hemi:0xe4ecd0,c1:0x55783a,c2:0x6a8a44},
+  {id:'canyon',name:'Redspire Canyons',sub:'Red rock canyons and mesas',lv:[5,8],gate:'mine',a:4,fog:0xe0906a,hemi:0xffc8a0,c1:0xb85a3c,c2:0x9c4630},
+  {id:'salt',name:'Whitepan Salt Flats',sub:'Blinding salt pans',lv:[4,7],gate:'cinderwell',a:5,fog:0xe4dccc,hemi:0xeeeeea,c1:0xd2ccbe,c2:0xc2baa8}];
+const BWS=new Float32Array(7);
+function biomeW(x,z,out){out=out||BWS;const r=Math.hypot(x,z);const o=smooth(222,285,r+(fbm(x*0.01+3,z*0.01+9)-0.5)*44);out[0]=1-o;
+  if(o<=0){for(let i=1;i<7;i++)out[i]=0;return out;}
+  const a=Math.atan2(z,x)+(fbm(x*0.006+7,z*0.006+3)-0.5)*0.9;let sum=0;
+  for(let k=0;k<6;k++){const c=k*Math.PI/3;const d=Math.abs(Math.atan2(Math.sin(a-c),Math.cos(a-c)));const w=smooth(Math.PI/6+0.16,Math.PI/6-0.16,d);out[k+1]=w;sum+=w;}
+  for(let k=1;k<7;k++)out[k]=o*out[k]/(sum||1);return out;}
+function biomeIdx(x,z){const w=biomeW(x,z);let bi=0;for(let i=1;i<7;i++)if(w[i]>w[bi])bi=i;return bi;}
+function coreH(x,z){
   let h=(fbm(x*0.008+10,z*0.008+5)-0.5)*28+Math.sin(x*0.045+Math.cos(z*0.021)*2.5)*1.8+Math.sin(z*0.06+x*0.01)*1.2;
   const d=Math.max(Math.abs(x),Math.abs(z));
-  h*=smooth(36,72,d);
-  h+=smooth(200,250,d)*40*(0.55+0.45*fbm(x*0.03,z*0.03));
-  return h;
-}
+  h*=smooth(36,72,d);return h;}
+const WATER_Y=-0.75;
+const BH=[coreH,
+  (x,z)=>(fbm(x*0.02+40,z*0.02)-0.5)*14+Math.abs(Math.sin(x*0.05+fbm(x*0.01,z*0.01)*6))*3,// glass: rolling with ridges
+  (x,z)=>{const r=1-Math.abs(2*fbm(x*0.015+21,z*0.015+4)-1);return r*r*28-6+(fbm(x*0.09,z*0.09)-0.5)*4;},// ash: sharp ridges
+  (x,z)=>(fbm(x*0.01+5,z*0.01+60)-0.5)*9,// scrap: flat-ish city floor
+  (x,z)=>{const h=fbm(x*0.012+80,z*0.012+12)*9+0.6;const p=smooth(0.6,0.68,fbm(x*0.022+30,z*0.022+30));return h+(-2.4-h)*p;},// oasis: low hills, spring-fed ponds
+  (x,z)=>{const n=fbm(x*0.012+50,z*0.012-20);return smooth(0.47,0.51,n)*15+smooth(0.6,0.63,n)*12+(fbm(x*0.08,z*0.08)-0.5)*2.2;},// canyons: terraced mesas
+  (x,z)=>(fbm(x*0.01+90,z*0.01+90)-0.5)*2.4];// salt: dead flat
+function rawH(x,z){const w=biomeW(x,z);let h=0;for(let i=0;i<7;i++)if(w[i]>0.001)h+=w[i]*BH[i](x,z);
+  const D=Math.max(Math.abs(x),Math.abs(z));h+=smooth(HALF-78,HALF-22,D)*46*(0.55+0.45*fbm(x*0.03,z*0.03));
+  return h;}
 const HG=new Float32Array(N1*N1);
 for(let iy=0;iy<N1;iy++)for(let ix=0;ix<N1;ix++)HG[iy*N1+ix]=rawH(ix*CELL-HALF,iy*CELL-HALF);
 let FLAT=false;// true inside an instanced dungeon: flat floor at y=0
@@ -376,24 +402,37 @@ function heightAt(x,z){
   if(fx+fz<=1)return ha+(hd-ha)*fx+(hb-ha)*fz;
   return hc+(hb-hc)*(1-fx)+(hd-hc)*(1-fz);
 }
+// terrain colours (kept for the world map) + chunked meshes (10x10 chunks, culled by frustum and distance)
+const TCOL=new Float32Array(N1*N1*3);const TCH=[];const CH_N=10,CH_C=SEG/CH_N;
 (function(){
-  const g=new THREE.PlaneGeometry(WORLD,WORLD,SEG,SEG);g.rotateX(-Math.PI/2);
-  const p=g.attributes.position;const cols=[];const c=new THREE.Color();
+  const c=new THREE.Color(),t=new THREE.Color(),u=new THREE.Color();
   const sand=new THREE.Color(0xc9a07a),sand2=new THREE.Color(0xb48660),rock=new THREE.Color(0x8a5238),town=new THREE.Color(0xb59a7e),hi=new THREE.Color(0x6e3f2c);
-  for(let i=0;i<p.count;i++){
-    const x=p.getX(i),z=p.getZ(i);const h=HG[i];p.setY(i,h);
+  const BC=BIOMES.map(b=>[new THREE.Color(b.c1),new THREE.Color(b.c2)]);const w=new Float32Array(7);
+  const lava=new THREE.Color(0x8a2a10),mesa=new THREE.Color(0xd07a4c),floorC=new THREE.Color(0xc98a5a),pond=new THREE.Color(0x3f6a64),shore=new THREE.Color(0xcdb48a),rust=new THREE.Color(0x8a4a2a),glint=new THREE.Color(0x8fe8ee),crack=new THREE.Color(0xbcb4a2),snow=new THREE.Color(0x7a6a62);
+  for(let iy=0;iy<N1;iy++)for(let ix=0;ix<N1;ix++){const i=iy*N1+ix;const x=ix*CELL-HALF,z=iy*CELL-HALF,h=HG[i];biomeW(x,z,w);
     const n=hash(Math.floor(x*0.7),Math.floor(z*0.7));
-    c.copy(sand).lerp(sand2,fbm(x*0.05,z*0.05));
-    if(h>6)c.lerp(rock,clamp((h-6)/10,0,1));
-    if(h>20)c.lerp(hi,clamp((h-20)/15,0,1));
+    // core: the original desert colouring
+    c.copy(sand).lerp(sand2,fbm(x*0.05,z*0.05));if(h>6)c.lerp(rock,clamp((h-6)/10,0,1));if(h>20)c.lerp(hi,clamp((h-20)/15,0,1));
     const d=Math.max(Math.abs(x),Math.abs(z));if(d<34)c.lerp(town,0.8);
-    c.offsetHSL(0,0,(n-0.5)*0.04);
-    cols.push(c.r,c.g,c.b);
-  }
-  g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));g.computeVertexNormals();
-  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true,flatShading:true}));
-  scene.add(m);
+    if(w[0]<0.999){c.multiplyScalar(w[0]);
+      for(let k=1;k<7;k++){if(w[k]<0.001)continue;t.copy(BC[k][0]).lerp(BC[k][1],fbm(x*0.04+k,z*0.04));const id=BIOMES[k].id;
+        if(id==='glass'){if(hash(Math.floor(x*0.3),Math.floor(z*0.3))>0.86)t.lerp(glint,0.55);}
+        else if(id==='ash'){if(h<-2)t.lerp(lava,clamp((-2-h)/4,0,0.8));else if(h>12)t.lerp(snow,clamp((h-12)/12,0,0.6));}
+        else if(id==='scrap'){t.lerp(rust,Math.max(0,fbm(x*0.08,z*0.08)-0.45)*0.9);}
+        else if(id==='oasis'){if(h<WATER_Y+0.2)t.copy(pond);else if(h<WATER_Y+1.4)t.lerp(shore,0.7);}
+        else if(id==='canyon'){if(h>10)t.lerp(mesa,0.6);else if(h<3)t.lerp(floorC,0.5);}
+        else if(id==='salt'){const fx=Math.abs(Math.sin(x*0.35+Math.sin(z*0.2)*2)),fz=Math.abs(Math.sin(z*0.35+Math.sin(x*0.2)*2));if(fx<0.12||fz<0.12)t.lerp(crack,0.7);}
+        c.r+=t.r*w[k];c.g+=t.g*w[k];c.b+=t.b*w[k];}}
+    if(D_EDGE(x,z)>0)c.lerp(hi,D_EDGE(x,z)*0.7);
+    c.offsetHSL(0,0,(n-0.5)*0.04);TCOL[i*3]=c.r;TCOL[i*3+1]=c.g;TCOL[i*3+2]=c.b;}
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true,flatShading:true});
+  for(let cz=0;cz<CH_N;cz++)for(let cx=0;cx<CH_N;cx++){const n=CH_C+1;const pos=new Float32Array(n*n*3),col=new Float32Array(n*n*3),idx=[];
+    for(let j=0;j<n;j++)for(let k=0;k<n;k++){const ix=cx*CH_C+k,iy=cz*CH_C+j,gi=iy*N1+ix,v=j*n+k;pos[v*3]=ix*CELL-HALF;pos[v*3+1]=HG[gi];pos[v*3+2]=iy*CELL-HALF;col[v*3]=TCOL[gi*3];col[v*3+1]=TCOL[gi*3+1];col[v*3+2]=TCOL[gi*3+2];}
+    for(let j=0;j<CH_C;j++)for(let k=0;k<CH_C;k++){const a=j*n+k,b=a+1,c2=a+n,d2=c2+1;idx.push(a,c2,b,b,c2,d2);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();g.computeBoundingSphere();
+    const m=new THREE.Mesh(g,mat);m.userData.cx=(cx+0.5)*CH_C*CELL-HALF;m.userData.cz=(cz+0.5)*CH_C*CELL-HALF;scene.add(m);TCH.push(m);}
 })();
+function D_EDGE(x,z){const D=Math.max(Math.abs(x),Math.abs(z));return smooth(HALF-78,HALF-30,D);}
 
 /* ---------------- collision ---------------- */
 const circles=[],boxes=[];
@@ -466,7 +505,7 @@ for(const [x,z] of [[-10,10],[10,10],[-10,-22],[10,-22],[0,24],[0,-24]]){part(sc
 const TSITES=[{id:'ridge',name:'Ridgeback Spire',a:2.1,r:108,lv:5},{id:'salt',name:'Saltglass Relay',a:5.25,r:150,lv:7},{id:'ember',name:'Emberfall Pylon',a:2.95,r:185,lv:9}];
 TSITES.forEach(t=>{const bad=(x,z)=>boxes.some(b=>Math.hypot((b.x0+b.x1)/2-x,(b.z0+b.z1)/2-z)<18)||[[-78,-52],[150,110]].some(d=>Math.hypot(d[0]-x,d[1]-z)<34)||OUTPOSTS.some(o=>Math.hypot(o.x-x,o.z-z)<40)||TSITES.some(o=>o!==t&&o.x!=null&&Math.hypot(o.x-x,o.z-z)<60);
   let k=0;do{t.x=Math.cos(t.a)*t.r;t.z=Math.sin(t.a)*t.r;t.a+=0.06;k++;}while(bad(t.x,t.z)&&k<100);t.a-=0.06;});
-function scatter(n,minR,fn){let k=0,tries=0;while(k<n&&tries<n*20){tries++;const x=srand(-HALF+20,HALF-20),z=srand(-HALF+20,HALF-20);if(Math.max(Math.abs(x),Math.abs(z))<minR)continue;if(OUTPOSTS.some(o=>Math.hypot(x-o.x,z-o.z)<17)||TSITES.some(o=>Math.hypot(x-o.x,z-o.z)<14))continue;if(fn(x,z,k)!==false)k++;}}
+function scatter(n,minR,fn){let k=0,tries=0;while(k<n&&tries<n*20){tries++;const x=srand(-CORE_HALF+20,CORE_HALF-20),z=srand(-CORE_HALF+20,CORE_HALF-20);if(Math.max(Math.abs(x),Math.abs(z))<minR)continue;if(OUTPOSTS.some(o=>Math.hypot(x-o.x,z-o.z)<17)||TSITES.some(o=>Math.hypot(x-o.x,z-o.z)<14))continue;if(fn(x,z,k)!==false)k++;}}
 (function(){
   const rocks=[];
   scatter(300,40,(x,z)=>{const s=srand(0.6,4.2);for(const r of RUINS)if(Math.hypot(r.x-x,r.z-z)<16)return false;rocks.push([x,z,s]);});
@@ -821,7 +860,7 @@ function itemLines(it){if(it.kind==='cloth'){const c=CLOTH[it.cid];return [c?c.d
   if(it.dmg){const W=WTYPES[it.wt];L.push(it.dmg+' Damage'+(W?(W.melee?' · melee '+W.rng+'m':' · range '+W.rng+'m')+(W.cd!==1?' · '+(W.cd<1?'fast':'slow'):''):''));}
   if(it.armor)L.push(it.armor+' Armour');it.bonus.forEach(b=>L.push(fmtBonus(b)));if(it.fac&&FACTIONS[it.fac])L.push('Faction: '+FACTIONS[it.fac].name+' · '+REP_TIERS[it.ftier||1].n);
   if(it.ts)L.push('✦ Tradeskilled: '+Object.keys(it.ts).map(k=>TSMOD[k]||k).join(', '));if(it.crafted)L.push('✦ Custom-built by '+it.crafted);if(it.set&&SETS[it.set])L.push('Set: '+SETS[it.set].name);if(it.src)L.push('Source: '+dunName(it.src)+(typeof dunRange==='function'?' · '+dunRange(it.src):''));return L;}
-const dunName=id=>(typeof DUNGEONS!=='undefined'&&DUNGEONS[id])?DUNGEONS[id].name:id;
+const dunName=id=>(typeof DUNGEONS!=='undefined'&&DUNGEONS[id])?DUNGEONS[id].name:(RAIDS&&RAIDS[id])?RAIDS[id].name:id;
 function migrateItem(it){if(!it)return null;
   if(it.kind){if(it.kind==='disk'&&!WEAVES[it.wid])return null;if(it.kind==='cloth')return CLOTH[it.cid]?it:null;if(it.kind==='gear'){if(it.slot==='weapon'&&!it.wt)it.wt=(it.req&&it.req[0]&&it.req[0].s==='weave')?'rod':'rifle';if(it.slot!=='weapon'&&!it.fam)it.fam='medium';if(!nameFits(it))it.name=gearName(it);}return it;}
   if(it.slot==='implant'){const n=genImplant(Math.max(1,(it.lvl||1)*4),'head',it.r);n.id=it.id||n.id;return n;}
@@ -1126,7 +1165,7 @@ function missionWaypoint(){const m=P.mission;if(!m)return null;
 /* ---------------- panels ---------------- */
 const pbody=$('#pbody');
 let panelAt=0;function openPanel(title,html,kind){if(!panelOpen)panelAt=performance.now();panelOpen=kind;$('#ptitle').textContent=title;pbody.innerHTML=html;$('#panel').classList.remove('hidden');resetInput();}
-function closePanel(){panelOpen=null;$('#panel').classList.add('hidden');canvas.focus();}
+function closePanel(){if(panelOpen==='map')mapHide();panelOpen=null;$('#panel').classList.add('hidden');canvas.focus();}
 $('#pclose').addEventListener('click',()=>{SFX.ui();closePanel();});
 $('#panel').addEventListener('click',e=>{if(e.target.id==='panel'&&performance.now()-panelAt>500)closePanel();});
 let invSel=null,invTab='gear';
@@ -1373,9 +1412,10 @@ function validateDungeons(){for(const k in DUNGEONS){const D=DUNGEONS[k];if(!Arr
 validateDungeons();
 // party/AI-team rule: a group is judged by its highest-level member
 const partyTopLevel=party=>Math.max(P.level,...(party||[]).map(m=>(m&&m.level)||0));
-function dunRange(id){const D=DUNGEONS[id];return D?'Lv '+D.minLvl+'–'+D.cap+' (cap '+D.cap+')':'';}
+function dunRange(id){const D=dunDef(id);return D?'Lv '+D.minLvl+'–'+D.cap+' (cap '+D.cap+')':'';}
 function capMsg(D){return 'Level cap '+D.cap+' – you are too experienced for '+D.name;}
-function dunEntryCheck(id,party){const D=DUNGEONS[id];if(!D)return {ok:false,why:'unknown',msg:'Unknown dungeon'};const lv=partyTopLevel(party);
+function dunDef(id){return DUNGEONS[id]||(RAIDS&&RAIDS[id])||null;}
+function dunEntryCheck(id,party){const D=dunDef(id);if(D&&D.raid)return raidEntryCheck(id,party);if(!D)return {ok:false,why:'unknown',msg:'Unknown dungeon'};const lv=partyTopLevel(party);
   if(D.gate&&typeof gateOpen==='function'&&!gateOpen(D.gate)){const s=STEP[GATES[D.gate].step];return {ok:false,why:'story',lv,step:s.id,msg:gateMsg(D.gate)};}
   if(lv>D.cap)return {ok:false,why:'cap',lv,msg:(party&&party.length&&lv>P.level?'Level cap '+D.cap+' – your party\'s highest member (Lv '+lv+') is too experienced for '+D.name:capMsg(D))};
   if(P.level<D.minLvl)return {ok:false,why:'min',lv,msg:'Requires level '+D.minLvl+' – you are level '+P.level};return {ok:true,lv};}
@@ -1438,8 +1478,8 @@ for(const k in DUNGEONS){const D=DUNGEONS[k],d=D.door;const y=heightAt(d.x,d.z);
 /* ---------------- dungeon runtime ---------------- */
 let DUN=null;
 const CORR=10,WH=2.6;// low cut-away walls so the third-person camera can see over them
-const dunTargets=()=>[P];// future: party members too
-function enterDungeon(id,opt){const D=DUNGEONS[id];if(!D||DUN)return false;opt=opt||{};{const ck=dunEntryCheck(id,opt.party);if(!ck.ok){warn(ck.msg);if(ck.why==='cap')banner('LEVEL CAP '+D.cap,ck.msg.replace(/^Level cap \d+ – /,''));if(ck.why==='story')lockedMsg(D.gate,true);return false;}}const mode=D.modes[opt.mode||'solo'];
+const dunTargets=()=>DUN&&DUN.D.raid?[P].concat(allies.filter(a=>a.raid&&!a.dead)):[P];// raids: the whole team
+function enterDungeon(id,opt){const D=dunDef(id);if(!D||DUN)return false;opt=opt||{};{const ck=dunEntryCheck(id,opt.party);if(!ck.ok){warn(ck.msg);if(ck.why==='cap')banner('LEVEL CAP '+D.cap,ck.msg.replace(/^Level cap \d+ – /,''));if(ck.why==='story')lockedMsg(D.gate,true);return false;}}const mode=D.modes[opt.mode||'solo'];
   P.target=null;P.autoAtk=false;for(const p of projs)scene.remove(p.m);projs.length=0;for(const r of rings){scene.remove(r.m);}rings.length=0;clearFx();
   const hidden=[];const keep=new Set([PM.g,pShadow]);for(const o of scene.children)if(o.visible&&!keep.has(o)){o.visible=false;hidden.push(o);}
   DUN={id,D,mode,party:opt.party||[],ret:{x:D.door.x+Math.sin(Math.atan2(-D.door.x,-D.door.z))*4,z:D.door.z+Math.cos(Math.atan2(-D.door.x,-D.door.z))*4},hidden,
@@ -1449,7 +1489,7 @@ function enterDungeon(id,opt){const D=DUNGEONS[id];if(!D||DUN)return false;opt=o
   scene.fog=new THREE.Fog(D.pal.fog,16,64);scene.background=new THREE.Color(D.pal.fog);
   P.pos.set(DUN.entry.x,0,DUN.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.pitch=0.62;camS.dist=11;camS.cur=null;
   banner(D.name.toUpperCase(),D.sub+' · Recommended level '+D.rec);log('Entered <b style="color:#ff9a2a">'+esc(D.name)+'</b>. Checkpoint set at the entrance.');SFX.quest();save();return true;}
-function exitDungeon(silent){if(!DUN)return;const d=DUN;clearTele();
+function exitDungeon(silent){if(!DUN)return;const d=DUN;clearTele();if(d.D.raid)raidExitCleanup(d);
   // auto-collect dungeon loot left on the floor
   let got=0,lost=0;for(const l of loots){scene.remove(l.m);scene.remove(l.b);l.b.material.dispose();if(P.inv.length<24){P.inv.push(l.item);got++;}else lost++;}loots.length=0;
   for(const e of enemies.slice())removeEnemy(e);enemies.length=0;enemies.push(...d.worldEnemies);loots.push(...d.worldLoots);
@@ -1511,11 +1551,11 @@ function rollBossLoot(D,key,cb){const t=D.loot[key];if(!t)return [];const out=[p
   if(Math.random()<(t.extraP||0)+cb.extra){let k=pick(t.items);if(k===out[0])k=pick(t.items);out.push(k);}
   if(t.relic&&Math.random()<t.relicP*cb.relic)out.push(t.relic);if(t.disk&&Math.random()<t.diskP)out.push(t.disk);return out;}
 function dunOnKill(e){if(!DUN)return;const D=DUN.D;
-  if(e.boss){const cb=capBonus();const keys=rollBossLoot(D,e.boss.key,cb);if(cb&&keys.length>1)log('🎯 Cap bonus: extra drop from '+esc(e.T.name));clearTele(e);for(const a of enemies)if(a.addOf===e&&!a.dead){a.dead=true;a.R.g.visible=false;a.shadow.visible=false;setTimeout(()=>removeEnemy(a),50);}
+  if(e.boss){if(D.raid)raidOnBoss(e);const cb=capBonus();const keys=rollBossLoot(D,e.boss.key,cb);if(cb&&keys.length>1)log('🎯 Cap bonus: extra drop from '+esc(e.T.name));clearTele(e);for(const a of enemies)if(a.addOf===e&&!a.dead){a.dead=true;a.R.g.visible=false;a.shadow.visible=false;setTimeout(()=>removeEnemy(a),50);}
     keys.forEach((k,i)=>{const it=makeUnique(k);it.dropBy=e.T.name;const a=i/keys.length*6.28;dropLoot(e.pos.x+Math.cos(a)*1.8,e.pos.z+Math.sin(a)*1.8,it);});
     P.credits+=40*e.lv;
     if(e.boss.final&&Math.random()<VEIL_RATE.dungeonFinal){const v=mythicDisk(DUN.id==='vault'?'veil2':'veil1');v.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z-2.5,v);}
-    if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner('DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);}
+    if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);}
     else banner(e.T.name.toUpperCase()+' DEFEATED','The way deeper is open');}
   else if(Math.random()<D.loot.trashP){const pool=[...new Set(Object.values(D.loot).filter(x=>x&&x.items).flatMap(x=>x.items))];const it=makeUnique(pick(pool));it.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z,it);}}
 const teleGeo=new THREE.CircleGeometry(1,32);teleGeo.rotateX(-Math.PI/2);const teleRing=new THREE.RingGeometry(0.93,1,40);teleRing.rotateX(-Math.PI/2);
@@ -1539,20 +1579,21 @@ function bossTick(e){const b=e.boss;if(e.dead)return;
     else if(m.t==='adds'){m.at.forEach((th,j)=>{const k=i+'_'+j;if(!b.done[k]&&hpF<=th){b.done[k]=1;const r=b.room;
       for(let n=0;n<m.n;n++){const side=n%2?1:-1;const a=spawnDunMob(m.etype,side*(r.w/2-2.5),r.cz+rand(-r.d/3,r.d/3),m.lvl,{temp:true});a.addOf=e;a.state='chase';a.nextAtk=T+1;ringFx(a.pos.x,a.pos.z,0xff3b2f,2.5,0.6);}
       toast('⚠ '+m.name+'!');}});}
+    else if(MECH_EXT[m.t])MECH_EXT[m.t](e,b,m,i,hpF);
     else if(m.t==='enrage'){if(!b.enraged&&((m.at&&hpF<=m.at)||(m.time&&T-b.t0>=m.time))){b.enraged=true;e.enraged=true;e.T=Object.assign({},b.baseT,{atkCd:b.baseT.atkCd*m.cd,speed:b.baseT.speed*m.spd,scale:b.baseT.scale*1.1});e.dmg=b.baseDmg*m.dmg;
       banner(e.T.name.toUpperCase()+' ENRAGED',m.name);ringFx(e.pos.x,e.pos.z,0xff2a1a,6,0.8);SFX.boom();}}
   });}
-function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,4.5,P.pos.z);
+function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,4.5,P.pos.z);if(d.D.raid)updRaid(dt);
   if(!d.apt&&!d.outgrown&&P.level>d.D.cap){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
   for(const q of d.portals){q.sw.rotation.z+=dt*1.5;q.pl.material.opacity=0.3+Math.sin(T*3)*0.1;}if(d.checkpoint)d.checkpoint.material.opacity=0.4+Math.sin(T*2)*0.15;
   for(const e of d.bosses)bossTick(e);
   for(let i=d.tele.length-1;i>=0;i--){const t=d.tele[i];const k=clamp((T-t.t0)/(t.at-t.t0),0,1);t.fill.scale.set(t.r*k,1,t.r*k);t.edge.material.opacity=0.6+Math.sin(T*18)*0.35;
     if(T>=t.at){ringFx(t.x,t.z,0xff5a2a,t.r,0.45);nz(0.3,0.12,700);
-      for(const tg of dunTargets())if(!tg.dead&&Math.hypot(tg.pos.x-t.x,tg.pos.z-t.z)<t.r+0.35){floatText(tmpV.set(tg.pos.x,tg.pos.y+2.6,tg.pos.z),t.name,'info');dmgPlayer(t.dmg,t.src);}
+      for(const tg of dunTargets()){const dd=Math.hypot(tg.pos.x-t.x,tg.pos.z-t.z);if(!tg.dead&&dd<t.r+0.35&&(!t.inner||dd>t.inner-0.35)){floatText(tmpV.set(tg.pos.x,tg.pos.y+2.6,tg.pos.z),t.name,'info');if(tg===P)dmgPlayer(t.dmg,t.src);else allyTakeDmg(tg,t.dmg,t.src);}}
       d.group.remove(t.g);t.g.children.forEach(m=>m.material.dispose());d.tele.splice(i,1);}}}
 function dunRespawn(){const d=DUN;clearTele();for(const e of enemies.slice()){if(e.addOf){removeEnemy(e);continue;}if(!e.dead){e.state='idle';e.hp=e.maxHp;e.pos.set(e.home.x,0,e.home.z);e.dot=null;e.stunUntil=e.rootUntil=0;e.hexUntil=0;}if(e.boss)resetBoss(e);}
-  P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,0,d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT','Revived at the '+d.D.name+' entrance');save();}
-function dunTrack(){const d=DUN;if(!d.apt&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> <span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span><br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
+  P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,0,d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT','Revived at the '+d.D.name+' entrance');if(d.D.raid)raidRez();save();}
+function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> <span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span><br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
 function dunWaypoint(){const d=DUN;if(d.apt)return null;if(d.cleared){const q=d.portals[d.portals.length-1];return {x:q.x,z:q.z,label:'Exit'};}const b=d.bosses.find(e=>!e.dead);return b?{x:b.home.x,z:b.home.z,label:b.T.name}:null;}
 function dunMini(c,tf,sc){c.fillStyle='rgba(120,100,90,0.45)';c.strokeStyle='rgba(230,215,190,0.7)';c.lineWidth=2;
   for(const r of DUN.rects){const a=tf(r[0],r[1]),b=tf(r[0]+r[2],r[1]),e=tf(r[0]+r[2],r[1]+r[3]),f=tf(r[0],r[1]+r[3]);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(e[0],e[1]);c.lineTo(f[0],f[1]);c.closePath();c.fill();c.stroke();}
@@ -1661,6 +1702,7 @@ function applySky(dt){const I=dayInfo();
   const ang=(dayT-0.25)*6.283;sun.position.set(Math.cos(ang)*120,Math.max(20,Math.sin(ang)*140),40);
   hemi.intensity=0.28+0.45*I.day;hemi.color.setHex(0xffe2c0).lerp(new THREE.Color(0x5a6a9a),1-I.day);
   colFog.copy(cNight).lerp(cDusk,Math.min(1,I.dusk+I.day*0.3)).lerp(cDay,I.day);colFog.lerp(cStorm.clone().multiplyScalar(0.35+0.65*I.day),WX.storm*0.85);
+  biomeSky(I);
   if(!DUN){scene.fog.color.copy(colFog);scene.background.copy(colFog);scene.fog.near=70-62*WX.storm;scene.fog.far=240-185*WX.storm;}
   skyCol.setRGB(0.16,0.18,0.32).lerp(new THREE.Color(1,1,1),I.day).lerp(new THREE.Color(1,0.75,0.55),I.dusk*0.4);window.__sky.material.color.copy(skyCol);
   stars.material.opacity=Math.max(0,1-I.day*1.6)*(1-WX.storm);$('#haze').style.opacity=DUN?0:(WX.storm*0.55).toFixed(3);}
@@ -1702,7 +1744,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s)};}
+function futureFields(s){return {vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -2001,7 +2043,7 @@ function stage2StatLine(){const br=breedOf(P),f=fac(),me=f.side;return `Breed: <
 function stage2Mini(c,tf,dot){for(const s of TSITES){const o=TW[s.id].owner;const q=tf(s.x,s.z);c.fillStyle=o?FACTIONS[o].col:'#9a9a9a';c.strokeStyle=ASSAULT&&ASSAULT.id===s.id&&Math.sin(T*8)>0?'#ff3b2f':'#000';c.lineWidth=2;
   c.beginPath();c.moveTo(q[0],q[1]-9);c.lineTo(q[0]+8,q[1]+6);c.lineTo(q[0]-8,q[1]+6);c.closePath();c.fill();c.stroke();}for(const n of NPCS)dot(n.x,n.z,'#'+n.mark.toString(16).padStart(6,'0'),5);}
 function stage2Reset(){dismount();cancelCast();for(const a of allies.slice())removeAlly(a);P.pet=null;for(const k in SITES)deactivateSite(SITES[k]);if(ASSAULT){for(const e of ASSAULT.list)if(enemies.includes(e))removeEnemy(e);ASSAULT=null;}}
-function stage2Start(){morphReset();if(!P.runSp){P.runSp=true;P.sp+=RUN_SP;}P.slowUntil=0;stage2Reset();fac();P.vehicles=P.vehicles||[];if(P.vsel&&!P.vehicles.includes(P.vsel))P.vsel=null;nextAssault=T+rand(240,420);
+function stage2Start(){morphReset();exploreLoad();RG.cur=null;RG.cand=null;if(MAP.open)mapHide();if(!P.runSp){P.runSp=true;P.sp+=RUN_SP;}P.slowUntil=0;stage2Reset();fac();P.vehicles=P.vehicles||[];if(P.vsel&&!P.vehicles.includes(P.vsel))P.vsel=null;nextAssault=T+rand(240,420);
   const ps=(P.pets||[])[0];if(P.prof==='wright'&&ps&&PETDEF[ps.pid])summonPet(ps.pid,{hpf:ps.hpf,cmd:ps.cmd,silent:true});else P.pets=[];setupMountBtn();updPetHud();stage3Start();calcStats();}
 let s2Acc=0;
 function updStage2(dt){updCast();updAllies(dt);updMountPose(dt);updTowers(dt);updNPCs(dt);updStory(dt);updMorph(dt);if(DUN&&P.mount)dismount('Vehicles can\'t enter dungeons');
@@ -2332,13 +2374,15 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('🔧 Tradeskills: Fabrication','Two tradeskills sit in 📈 Skills: <b>Fabrication</b> and <b>Implant Assembly</b>. Enemies drop Scrap Alloy, Vyre Shards and Circuit Parts at QL ≈ enemy level × 5; they go into your 🧰 Parts bag (no pack slots used). Open 🛠 Tradeskills (J, the menu, or the apartment workbench). Recipes: Reinforce Armour (+25% armour), Tune Weapon (+12% damage), Vyre Infusion (add a stat, +1 rarity), Basic Implant (blank) and Med-stim Kit. Requirements scale with the item\'s QL and show green or red. The 🛠️ Artisan Draught from the trader twinks your tradeskills.')+
   S_('🧬 Implant clusters','Build your own implant: take a Basic Implant of some QL, pick a slot, then insert up to three clusters. <b>Keystone</b> (major, ×1.5), <b>Lattice</b> (minor, ×1) and <b>Filament</b> (trace, ×0.6). Each adds the stat you chose, scaled by the implant QL. Cluster QL must be close to the implant QL. Implant Assembly must reach the requirement for a sure build; down to 75% of it you can gamble, but failure burns a cluster. The trader sells blanks plus Lattice and Filament clusters at low QL; Keystones only drop.')+
   S_('👕 Social clothing','Ossory Threads (Wren Ossory, north-west of the town pylon) sells shirts, jackets, hats, visors and dyes. Clothing is cosmetic only. "Show clothing over armour" (wardrobe or mirror) decides whether it covers your armour. Rare pieces (Glow-thread Shirt, Nightglass Longcoat, Halo Crown, Starlight Visor) only drop from enemies.')+
+  S_('🗺 World map, regions &amp; waypoints','The Reach is now about three times bigger. The old desert (<b>Kessra Dunes</b>, around Halden\'s Rest) is ringed by six regions, each with its own ground, props, light and wild packs: <b>Mirewell Oasis</b> (west, Lv 3–6, palms and springs), <b>Whitepan Salt Flats</b> (north-east, Lv 4–7, after Cinderwell), <b>Redspire Canyons</b> (north-west, Lv 5–8, after Hollowvein Mine), <b>Rustmaw Scrapyard</b> (south-west, Lv 6–9, after the Factions story step), <b>Shimmerfield</b> (east, Lv 7–10, after Glassreach) and <b>Cinderveil Badlands</b> (south-east, Lv 8–10, after Vault Theta-9). A banner shows each region\'s name as you cross into it, and its name sits under the clock. Until the story unlocks a region, its land is open to explore but its wild packs stay asleep.<br><br>Open the <b>map</b> with 🗺 or <b>M</b>. Drag to pan, pinch (or the − / + buttons) to zoom. New regions stay dark until you explore them. Tap anywhere to drop your own <b>📍 waypoint</b>: a blue beam marks it in the world, a blue arrow on screen shows its distance and direction, and it shows on the minimap. Tap it again or press <b>Clear waypoint</b> to remove it; it also clears when you arrive. Your waypoint is saved with your character.')+
+  S_('⚔ Raids (team instances, 3 runs a week)','A <b>raid</b> is a big instance built for a full team of <b>6</b>: you plus up to 5 of your own alts, who fight as AI team members with their own level and gear (tanks hold threat, menders heal, everyone dodges). Empty seats are filled by contract mercenaries at your level. The first raid is <b>The Cinderdeep Bastion</b>: its portal stands in the <b>Cinderveil Badlands</b> (south-east, ⚔ on the map). Level <b>9–10</b> (cap 10, judged by the highest team member) after the Vault Theta-9 story step. Three bosses with telegraphed attacks: <b>Slagwarden Torvek</b> (spread out for Scorch Brand), <b>Vessa, the Ember Queen</b> (break her Ember Pylons to drop her shield) and <b>The Ashen Colossus</b> (when Inferno Nova glows, run IN to the green safe ring).<br><br><b>Lockout:</b> each raid can be run <b>3 times per week</b>. The week resets every <b>Monday 00:00</b> (your local time). A run is used the first time a boss dies in it, so wiping before any kill costs nothing. Lockouts are per character: the 📜 Journal → ⚔ Raids tab shows runs left and the reset timer. Bosses drop raid-only gear (the Cinderborn set and Bastion weapons, plus a rare Relic) and <b>Raid Sigils ◈</b> (2 / 3 / 5), which buy raid gear from the Sigil tab at the portal.')+
   S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every Common/Uncommon gear piece from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
   S_('🏠 Apartment &amp; locker','The green-lit door on the north-west building in Halden\'s Rest is your apartment. Inside: a <b>locker</b> that opens your 🏦 Bank, a <b>mirror</b> for clothes, dyes and hair, a <b>workbench</b> for tradeskills and a <b>decor</b> console to buy and place furniture.'),'help');}
 
 /* ---------- hooks ---------- */
-function stage3Interact(p){const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
-function stage3Do(n){const k=n.k;if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
-function stage3Act(a,b){const D=b.dataset;if(bankAct(a,b))return true;
+function stage3Interact(p){const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};const rk=raidNear(p);if(rk)return {k:'raid',id:rk,label:'⚔ '+RAIDS[rk].name};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
+function stage3Do(n){const k=n.k;if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
+function stage3Act(a,b){const D=b.dataset;if(bankAct(a,b))return true;if(raidAct(a,b))return true;
   if(a==='ctab')openCraft(D.t);else if(a==='crec'){CR.rec=D.r;CR.tgt=null;openCraft();}else if(a==='ctgt'){CR.tgt=D.id;openCraft();}else if(a==='cq'){CR.q=+D.q;openCraft();}else if(a==='cstat'){CR.stat=D.s;openCraft();}
   else if(a==='cfab'){doFab();openCraft();}else if(a==='cblank'){CR.blank=D.id;openCraft();}else if(a==='cslot'){CR.slot=D.s;openCraft();}else if(a==='cclu'){CR.sel[D.t]=D.id||null;openCraft();}else if(a==='cbuild'){doAssemble();openCraft();}
   else if(a==='buyts'){buyTs(+D.i);openVendor();}
@@ -2493,7 +2537,7 @@ const npcName=id=>{const n=npcById(id);return n?n.name:id;};
 
 /* ---------- journal ---------- */
 let jTab='story';
-function openJournal(tab){if(tab)jTab=tab;const st=sto();const tabs=`<div class="tabs"><button data-act="jtab" data-t="story" class="${jTab==='story'?'on':''}">📜 Story</button><button data-act="jtab" data-t="areas" class="${jTab==='areas'?'on':''}">🗺 Areas</button><button data-act="jtab" data-t="opt" class="${jTab==='opt'?'on':''}">📟 Contracts</button></div>`;let h=tabs;
+function openJournal(tab){if(tab)jTab=tab;const st=sto();const tabs=`<div class="tabs"><button data-act="jtab" data-t="story" class="${jTab==='story'?'on':''}">📜 Story</button><button data-act="jtab" data-t="areas" class="${jTab==='areas'?'on':''}">🗺 Areas</button><button data-act="jtab" data-t="raids" class="${jTab==='raids'?'on':''}">⚔ Raids</button><button data-act="jtab" data-t="opt" class="${jTab==='opt'?'on':''}">📟 Contracts</button></div>`;let h=tabs;
   if(jTab==='story'){const nx=nextStep();h+=`<div class="stats">Story steps unlock new areas and features. Contracts from the 📟 terminal stay optional (XP and loot). ${st.done.length}/${STORY.length} complete.</div>`;
     if(st.cur){const s=STEP[st.cur.id];h+=`<div class="mis story cur"><span class="sbadge">STORY · ACTIVE</span><b>${s.i+1}. ${esc(s.n)}</b><p>🎯 ${esc(s.obj.label)} ${objProgress()?'· <b>'+objProgress()+'</b>':''}</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-act="strack">${st.track?'✔ Tracked on HUD':'Track on HUD'}</button><button class="sbtn alt" data-act="sreplay" data-id="${s.id}">Replay dialogue</button></div></div>`;}
     else if(nx){h+=`<div class="mis story cur"><span class="sbadge">STORY · NEXT</span><b>${nx.i+1}. ${esc(nx.n)}</b><p>${P.level>=nx.lvl?'Talk to <b>'+esc(npcName(nx.giver))+'</b> in Halden\'s Rest (gold marker).':'Reach level '+nx.lvl+' (you are '+P.level+'), then talk to '+esc(npcName(nx.giver))+'.'}</p><button class="sbtn${st.track?'':' alt'}" data-act="strack">${st.track?'✔ Tracked on HUD':'Track on HUD'}</button></div>`;}
@@ -2501,6 +2545,7 @@ function openJournal(tab){if(tab)jTab=tab;const st=sto();const tabs=`<div class=
     h+=STORY.map(s=>{const d=stepDone(s.id),cur=st.cur&&st.cur.id===s.id;return `<div class="jrow${d?' done':cur?' cur':''}"><span class="jn">${d?'✔':cur?'▶':P.level>=s.lvl?'•':'🔒'}</span><span style="flex:1"><b>${s.i+1}. ${esc(s.n)}</b> <span style="opacity:.7">· Lv ${s.lvl}</span>${(s.unlocks||[]).length?`<br><span class="jun">${d?'Unlocked':'Unlocks'}: ${s.unlocks.map(k=>esc(GATES[k].name)).join(', ')}</span>`:''}</span>${d?`<button class="chip" data-act="sreplay" data-id="${s.id}">Replay</button>`:''}</div>`;}).join('');}
   else if(jTab==='areas'){h+=`<div class="stats">Story-gated areas and features. Gates combine with dungeon level caps.</div>`+Object.keys(GATES).map(k=>{const g=GATES[k],o=gateOpen(k),s=STEP[g.step];const gf=!stepDone(g.step)&&st.gf.includes(k);
     return `<div class="jrow${o?' done':''}"><span class="jn">${o?'🔓':'🔒'}</span><span style="flex:1"><b>${esc(g.name)}</b> <span style="opacity:.7">· ${esc(g.desc)}</span><br><span class="jun">${o?(gf?'Open (you had already been here before story missions existed)':'Opened by step '+(s.i+1)+' "'+esc(s.n)+'"'):'Needs step '+(s.i+1)+' "'+esc(s.n)+'" (level '+s.lvl+')'}${g.dungeon?' · '+dunRange(g.dungeon):''}</span></span></div>`;}).join('');}
+  else if(jTab==='raids')h+=raidJournalHtml();
   else{const m=P.mission;h+=`<div class="stats">Optional contracts: take them at the 📟 terminal for XP, credits and loot. They never gate anything.</div>`+(m?`<div class="mis"><span class="obadge">OPTIONAL</span><b>${esc(m.title)}</b><p>${esc(m.desc)}</p>${m.kind==='kill'?`<div>Progress: ${m.have}/${m.need}</div>`:''}</div>`:'<div style="opacity:.6">No active contract.</div>');}
   openPanel('📜 JOURNAL',h,'journal');}
 
@@ -2636,15 +2681,16 @@ const CAMPS=[
   {id:'glassdunes',name:'Glass Dunes',x:206,z:-64,lv:[7,9],n:7,mix:['mauler','spitter','raider','spitter'],gate:'glassreach'},
   {id:'ember',name:'Ember Wastes',x:-196,z:58,lv:[8,10],n:8,mix:['mauler','raider','spitter','skitter']}];
 // nudge camps clear of towns, outposts, dungeon doors, tower sites and ruins
-CAMPS.forEach(c=>{const bad=(x,z)=>Math.abs(x)<60&&Math.abs(z)<60||OUTPOSTS.some(o=>Math.hypot(o.x-x,o.z-z)<o.r+20)||Object.values(DUNGEONS).some(d=>Math.hypot(d.door.x-x,d.door.z-z)<28)||
-    TSITES.some(t=>Math.hypot(t.x-x,t.z-z)<34)||RUINS.some(r=>Math.hypot(r.x-x,r.z-z)<24)||Math.hypot(x,z)>235;
-  let k=0;const a0=Math.atan2(c.z,c.x),r0=Math.hypot(c.x,c.z);while(bad(c.x,c.z)&&k<80){k++;const a=a0+(k%2?1:-1)*Math.ceil(k/2)*0.05;const r=Math.min(230,r0+(k>40?8:0));c.x=Math.cos(a)*r;c.z=Math.sin(a)*r;}
+CAMPS.forEach(c=>initCamp(c));
+function initCamp(c){const bad=(x,z)=>Math.abs(x)<60&&Math.abs(z)<60||OUTPOSTS.some(o=>Math.hypot(o.x-x,o.z-z)<o.r+20)||Object.values(DUNGEONS).some(d=>Math.hypot(d.door.x-x,d.door.z-z)<28)||
+    TSITES.some(t=>Math.hypot(t.x-x,t.z-z)<34)||RUINS.some(r=>Math.hypot(r.x-x,r.z-z)<24)||Math.max(Math.abs(x),Math.abs(z))>HALF-75||(c.biome!=null&&biomeIdx(x,z)!==c.biome);
+  let k=0;const a0=Math.atan2(c.z,c.x),r0=Math.hypot(c.x,c.z);while(bad(c.x,c.z)&&k<80){k++;const a=a0+(k%2?1:-1)*Math.ceil(k/2)*0.05;const r=Math.min(c.biome!=null?HALF*1.2:230,r0+(k>40?8:0));c.x=Math.cos(a)*r;c.z=Math.sin(a)*r;}
   c.resp=Math.round(60+(c.lv[1]-2)*7.5);// 60s for starter camps, up to 120s for level-10 camps
   c.mobs=[];c.respawnAt=0;c.awake=false;c.xpAcc=0;c.cleared=0;c.left=c.n;
   const g=new THREE.Group();const y=heightAt(c.x,c.z);g.position.set(c.x,y,c.z);
   part(g,geoCone,M(0x8a5a34),0,1.1,0,2.2,2.2,2.2);part(g,geoCone,M(0x6a4024),3.6,0.8,1.6,1.5,1.6,1.5);
   c.fire=part(g,geoIco,MB(0xff8a2a),-1.2,0.4,2.6,0.45,0.5,0.45);part(g,geoBox,M(0x3a2a1a),-1.2,0.1,2.6,1.1,0.2,1.1);
-  scene.add(g);c.g=g;});
+  scene.add(g);c.g=g;}
 const campOf=e=>e&&e.camp?CAMPS.find(c=>c.id===e.camp):null;
 const campLive=c=>c.mobs.filter(m=>!m.dead&&enemies.includes(m));
 function campOpen(c){return !c.gate||gateOpen(c.gate);}
@@ -2677,7 +2723,7 @@ function campReset(){for(const c of CAMPS){for(const m of c.mobs)if(enemies.incl
 function campMini(c2,tf){for(const c of CAMPS){if(!campOpen(c))continue;if(Math.abs(c.x-P.pos.x)>95||Math.abs(c.z-P.pos.z)>95)continue;const q=tf(c.x,c.z);const ready=c.left>0||c.awake&&campLive(c).length>0;
   c2.lineJoin='round';c2.strokeStyle='#000';c2.lineWidth=6;const tri=()=>{c2.beginPath();c2.moveTo(q[0],q[1]-13);c2.lineTo(q[0]+12,q[1]+9);c2.lineTo(q[0]-12,q[1]+9);c2.closePath();};
   tri();c2.stroke();c2.strokeStyle=ready?'#ff7a2a':'#a0a0a0';c2.lineWidth=3;tri();c2.stroke();}}
-function campSvg(tx,tz){let s='';for(const c of CAMPS){if(!campOpen(c))continue;const x=tx(c.x),y=tz(c.z);s+=`<polygon points="${x},${y-6} ${x+6},${y+5} ${x-6},${y+5}" fill="#ff7a2a" stroke="#000" stroke-width="1.5"><title>${esc(c.name)} · Lv ${c.lv[0]}-${c.lv[1]}</title></polygon>`;}return s;}
+function campSvg(tx,tz){let s='';for(const c of CAMPS){if(!campOpen(c)||Math.abs(c.x)>265||Math.abs(c.z)>265)continue;const x=tx(c.x),y=tz(c.z);s+=`<polygon points="${x},${y-6} ${x+6},${y+5} ${x-6},${y+5}" fill="#ff7a2a" stroke="#000" stroke-width="1.5"><title>${esc(c.name)} · Lv ${c.lv[0]}-${c.lv[1]}</title></polygon>`;}return s;}
 function campExports(){return {fabTargets,craftBar,CAMPS,CAMP_SPEED,CAMP_LEASH,CAMP_CAP,updCamps,campReset,campLive,spawnCampMobs,sleepCamp,packXpMul,campOpen,enemies,killEnemy,dmgEnemy,get T(){return T;},set T(v){T=v;}};}
 
 /* ---------- Bank: account-wide storage (same localStorage record as the apartment locker), terminals in Halden's Rest and the outposts ---------- */
@@ -2731,6 +2777,358 @@ function bankAct(a,b){const D=b.dataset;
   if(a==='bflt'){BK.f=D.f;openBank();}else if(a==='bsort'){BK.sort=D.s;openBank();}else if(a==='bjunk'){bankStoreJunk();openBank();}else if(a==='bpall'){bankStoreParts();openBank();}else if(a==='bptake'){bankTakeParts();openBank();}else return false;return true;}
 function bankExports(){return {BANKS,BANK_CAP,BK,openBank,bankNear,bankStoreJunk,bankStoreParts,bankTakeParts,isJunk,bankType,loadBank,writeBank,bag,bagAdd};}
 
+/* ---------- Bigger world: biome props, water, region banners, sky tint, chunk culling, exploration, world map + custom waypoint ---------- */
+function rng32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+// ---- new wild pack camps: two per region, gated like the region ----
+const NEWCAMPS=[
+  ['prism','Prism Hollows',1,-10,300,[7,9],6,['spitter','spitter','mauler','skitter']],['shardcrown','Shardcrown',1,12,362,[8,10],7,['mauler','spitter','raider']],
+  ['ashpit','Ashfall Pit',2,50,305,[8,10],6,['mauler','raider','spitter']],['cinderhowl','Cinderhowl Ridge',2,72,360,[9,10],7,['mauler','mauler','spitter','raider']],
+  ['junkward','Junkward',3,110,300,[6,8],6,['raider','raider','spitter']],['rustgate','Rustmaw Gate',3,132,360,[7,9],7,['raider','mauler','raider','spitter']],
+  ['reedbank','Reedbank',4,170,295,[3,5],5,['skitter','spitter','skitter']],['palmrest','Palmrest Wells',4,192,355,[4,6],6,['raider','skitter','spitter']],
+  ['redgulch','Redgulch',5,230,300,[5,7],6,['raider','skitter','raider']],['spirehold','Spirehold Mesa',5,252,360,[6,8],7,['mauler','raider','skitter']],
+  ['saltbones','Saltbones',6,290,300,[4,6],5,['spitter','skitter','skitter']],['mirage','Mirage Pans',6,312,360,[5,7],6,['spitter','raider','skitter']]];
+for(const [id,name,bi,deg,r,lv,n,mix] of NEWCAMPS){const a=deg*Math.PI/180;const c={id,name,x:Math.cos(a)*r,z:Math.sin(a)*r,lv,n,mix,biome:bi,gate:BIOMES[bi].gate};initCamp(c);CAMPS.push(c);}
+// ---- props (instanced, bucketed into a 4x4 grid so far buckets can be hidden) ----
+const PROPB=[];const PB_N=4,PB_S=WORLD/PB_N;
+(function buildProps(){const R=rng32(9137);const rr=(a,b)=>a+R()*(b-a);const o=new THREE.Object3D(),col=new THREE.Color();
+  const near=(x,z,d)=>CAMPS.some(c=>Math.hypot(c.x-x,c.z-z)<d)||OUTPOSTS.some(q=>Math.hypot(q.x-x,q.z-z)<q.r+12)||Object.values(DUNGEONS).some(q=>Math.hypot(q.door.x-x,q.door.z-z)<16)||TSITES.some(t=>Math.hypot(t.x-x,t.z-z)<16);
+  const W7=new Float32Array(7);
+  function spots(bi,n,minW,pred){const out=[];let tries=0;while(out.length<n&&tries<n*40){tries++;const x=rr(-HALF+50,HALF-50),z=rr(-HALF+50,HALF-50);if(Math.hypot(x,z)<235)continue;biomeW(x,z,W7);if(W7[bi]<minW)continue;if(near(x,z,13))continue;if(pred&&!pred(x,z))continue;out.push([x,z]);}return out;}
+  function emit(type,geo,mat,items,circleR){const buckets={};for(const it of items){const bx=clamp(Math.floor((it.x+HALF)/PB_S),0,PB_N-1),bz=clamp(Math.floor((it.z+HALF)/PB_S),0,PB_N-1);(buckets[bx+','+bz]=buckets[bx+','+bz]||[]).push(it);}
+    for(const k in buckets){const L=buckets[k];const im=new THREE.InstancedMesh(geo,mat,L.length);L.forEach((it,i)=>{o.position.set(it.x,it.y,it.z);o.rotation.set(it.rx||0,it.ry||0,it.rz||0);o.scale.set(it.sx,it.sy,it.sz);o.updateMatrix();im.setMatrixAt(i,o.matrix);im.setColorAt(i,col.setHex(it.c));
+        if(it.cr)circles.push({x:it.x,z:it.z,r:it.cr});});
+      im.frustumCulled=false;const [bx,bz]=k.split(',').map(Number);im.userData={x0:bx*PB_S-HALF,z0:bz*PB_S-HALF,type};scene.add(im);PROPB.push(im);}}
+  const lam=(e)=>new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true,emissive:e||0});
+  const gOct=new THREE.OctahedronGeometry(1,0),gTet=new THREE.TetrahedronGeometry(1,0),gDod=new THREE.DodecahedronGeometry(1,0),gCyl=new THREE.CylinderGeometry(0.55,1,1,7),gTrunk=new THREE.CylinderGeometry(0.16,0.26,1,6),gDisc=new THREE.CylinderGeometry(1,1,0.12,10);
+  const pick=a=>a[Math.floor(R()*a.length)];
+  // Shimmerfield: glass crystals
+  emit('crystal',gOct,lam(0x103840),spots(1,280,0.7).map(([x,z])=>{const h=rr(2,7.5),w=rr(0.5,1.5);return {x,y:heightAt(x,z)+h*0.45,z,sx:w,sy:h,sz:w,ry:rr(0,6),rx:rr(-0.2,0.2),c:pick([0x7ff6ff,0x9fd8ff,0xc8a8ff,0xe8ffff]),cr:h>4.5?w*0.8:0};}));
+  emit('shard',gTet,lam(0x0a2a30),spots(1,220,0.6).map(([x,z])=>{const s=rr(0.4,1.2);return {x,y:heightAt(x,z)+s*0.3,z,sx:s,sy:s*1.6,sz:s,rx:rr(0,3),ry:rr(0,6),c:pick([0x9ff0ff,0xd0f8ff,0xb8a0ff])};}));
+  // Cinderveil: ash rocks, lava vents, dead trees
+  emit('ashrock',gDod,lam(),spots(2,230,0.7).map(([x,z])=>{const s=rr(0.8,4);return {x,y:heightAt(x,z)+s*0.2,z,sx:s*rr(0.8,1.4),sy:s*rr(0.5,1),sz:s*rr(0.8,1.4),rx:rr(0,3),ry:rr(0,3),c:pick([0x2a2220,0x3a2c28,0x241c1a]),cr:s>1.8?s*0.9:0};}));
+  emit('vent',gDisc,new THREE.MeshBasicMaterial({color:0xffffff}),spots(2,70,0.75).map(([x,z])=>{const s=rr(1.2,3.2);return {x,y:heightAt(x,z)+0.05,z,sx:s,sy:1,sz:s*rr(0.6,1),ry:rr(0,6),c:pick([0xff5a1a,0xff7a2a,0xe8401a])};}));
+  emit('deadtree',geoCone,lam(),spots(2,120,0.6).map(([x,z])=>{const h=rr(2.5,6);return {x,y:heightAt(x,z)+h/2,z,sx:0.22,sy:h,sz:0.22,rx:rr(-0.25,0.25),rz:rr(-0.25,0.25),c:0x1a1412};}));
+  // Rustmaw: ruined towers (solid), rubble, rusted pylons
+  const ruins=spots(3,70,0.75).map(([x,z])=>{const w=rr(4,10),d=rr(4,10),h=rr(4,16),y=heightAt(x,z);boxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-2,y1:y+h});return {x,y:y+h/2-1,z,sx:w,sy:h,sz:d,c:pick([0x5a5450,0x6a5e54,0x4a4440,0x7a5a44])};});
+  emit('ruin',geoBox,lam(),ruins);
+  emit('rubble',gDod,lam(),spots(3,220,0.6).map(([x,z])=>{const s=rr(0.6,2.4);return {x,y:heightAt(x,z)+s*0.15,z,sx:s*1.3,sy:s*0.6,sz:s,rx:rr(0,3),ry:rr(0,3),c:pick([0x8a4a2a,0x6a5a4a,0x9a6a3a,0x4f4a46])};}));
+  emit('pylon',gCyl,lam(),spots(3,50,0.7).map(([x,z])=>{const h=rr(6,12);return {x,y:heightAt(x,z)+h/2,z,sx:0.35,sy:h,sz:0.35,rz:rr(-0.3,0.3),c:0x6a3a22,cr:0.6};}));
+  // Mirewell: palms near water, bushes
+  const wet=(x,z)=>{for(let k=0;k<6;k++){const a=k*1.047;if(heightAt(x+Math.cos(a)*9,z+Math.sin(a)*9)<WATER_Y)return true;}return R()<0.25;};
+  const palms=spots(4,150,0.7,(x,z)=>heightAt(x,z)>WATER_Y+0.3&&wet(x,z)).map(([x,z])=>({x,z,h:rr(4,7.5),y:heightAt(x,z),l:rr(-0.2,0.2),ry:rr(0,6)}));
+  emit('trunk',gTrunk,lam(),palms.map(p=>({x:p.x,y:p.y+p.h/2,z:p.z,sx:1,sy:p.h,sz:1,rz:p.l,c:0x7a5a3a,cr:0.45})));
+  emit('frond',geoCone,lam(),palms.map(p=>({x:p.x-Math.sin(p.l)*p.h*0.5,y:p.y+p.h,z:p.z,sx:2.6,sy:0.9,sz:2.6,ry:p.ry,rx:Math.PI,c:pick([0x3f8a3a,0x4f9a40,0x5aa848])})));
+  emit('bush',geoIco,lam(),spots(4,260,0.6,(x,z)=>heightAt(x,z)>WATER_Y+0.2).map(([x,z])=>{const s=rr(0.6,1.6);return {x,y:heightAt(x,z)+s*0.3,z,sx:s*1.3,sy:s*0.8,sz:s*1.3,ry:rr(0,6),c:pick([0x5a8a3a,0x6a9a44,0x7aa04a,0x4a7a34])};}));
+  // Redspire: hoodoo spires (solid), red boulders
+  emit('spire',gCyl,lam(),spots(5,130,0.7).map(([x,z])=>{const h=rr(5,15),w=rr(1,2.6);return {x,y:heightAt(x,z)+h/2-0.5,z,sx:w,sy:h,sz:w,ry:rr(0,6),c:pick([0xb0502e,0xc0603a,0x9a4428,0xd07040]),cr:w*0.95};}));
+  emit('boulder',gDod,lam(),spots(5,200,0.6).map(([x,z])=>{const s=rr(0.8,3.5);return {x,y:heightAt(x,z)+s*0.25,z,sx:s*rr(0.9,1.4),sy:s*rr(0.6,1),sz:s*rr(0.9,1.4),rx:rr(0,3),ry:rr(0,3),c:pick([0xa04a2c,0xb85a36,0x8a3a22]),cr:s>2?s*0.9:0};}));
+  // Whitepan: salt pillars and salt crust clusters
+  emit('saltpillar',geoBox,lam(),spots(6,90,0.7).map(([x,z])=>{const h=rr(1,3.5),w=rr(0.6,1.6);return {x,y:heightAt(x,z)+h/2,z,sx:w,sy:h,sz:w,ry:rr(0,6),c:pick([0xffffff,0xf0ece2,0xe4ddd0]),cr:h>2.5?w*0.7:0};}));
+  emit('saltcrust',gDod,lam(),spots(6,180,0.6).map(([x,z])=>{const s=rr(0.4,1.4);return {x,y:heightAt(x,z),z,sx:s*1.6,sy:s*0.35,sz:s*1.6,ry:rr(0,6),c:pick([0xfaf8f2,0xece6da])};}));
+})();
+// ---- oasis water: one merged mesh over cells below the water line ----
+const WATERM=(function(){const pos=[];const W7=new Float32Array(7);for(let iy=0;iy<SEG;iy++)for(let ix=0;ix<SEG;ix++){const x=ix*CELL-HALF,z=iy*CELL-HALF;
+    const lo=Math.min(HG[iy*N1+ix],HG[iy*N1+ix+1],HG[(iy+1)*N1+ix],HG[(iy+1)*N1+ix+1]);if(lo>=WATER_Y)continue;biomeW(x+2,z+2,W7);if(W7[4]<0.35)continue;
+    const x1=x+CELL,z1=z+CELL,y=WATER_Y;pos.push(x,y,z,x,y,z1,x1,y,z,x1,y,z,x,y,z1,x1,y,z1);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0x3aa0b8,transparent:true,opacity:0.72,depthWrite:false}));m.renderOrder=1;scene.add(m);g.computeBoundingBox();m.userData.bb=g.boundingBox;return m;})();
+// ---- culling: hide terrain chunks and prop buckets far from the camera ----
+let cullAcc=1;
+function updCull(dt){if(DUN)return;cullAcc+=dt;if(cullAcc<0.25)return;cullAcc=0;const cx=camera.position.x,cz=camera.position.z;
+  for(const m of TCH){m.visible=Math.hypot(m.userData.cx-cx,m.userData.cz-cz)<305;}
+  for(const m of PROPB){const u=m.userData;const dx=Math.max(u.x0-cx,0,cx-(u.x0+PB_S)),dz=Math.max(u.z0-cz,0,cz-(u.z0+PB_S));m.visible=Math.hypot(dx,dz)<260;}
+  const bb=WATERM.userData.bb;if(bb&&isFinite(bb.min.x)){const dx=Math.max(bb.min.x-cx,0,cx-bb.max.x),dz=Math.max(bb.min.z-cz,0,cz-bb.max.z);WATERM.visible=Math.hypot(dx,dz)<260;}}
+// ---- regions: banner on entry, HUD label, sky tint ----
+var BSKY=null;
+const RG={cur:null,cand:null,acc:0};
+function regionAt(x,z){if(Math.abs(x)<TOWN+0.5&&Math.abs(z)<TOWN+0.5)return {id:'town',name:"Halden's Rest"};for(const o of OUTPOSTS)if(Math.hypot(x-o.x,z-o.z)<o.r+3)return {id:o.id,name:o.name};const b=BIOMES[biomeIdx(x,z)];return {id:b.id,name:b.name,b};}
+function regionGateTxt(b){if(!b||!b.gate||gateOpen(b.gate))return '';const s=STEP[GATES[b.gate].step];return ' · 🔒 its wild packs wake after story step '+(s.i+1);}
+function updRegions(dt){if(DUN&&state==='play'){const el=$('#region'),n=DUN.apt?'Your Apartment':DUN.D.name;if(el&&el._t!==n){el._t=n;el.textContent=(DUN.D&&DUN.D.raid?'⚔ ':'🚪 ')+n;}RG.cur=null;RG.cand=null;return;}if(DUN||state!=='play')return;RG.acc+=dt;if(RG.acc<0.4)return;RG.acc=0;
+  const r=regionAt(P.pos.x,P.pos.z);const bi=biomeIdx(P.pos.x,P.pos.z);if(!BSKY)BSKY={fog:new THREE.Color(BIOMES[0].fog),hemi:new THREE.Color(BIOMES[0].hemi),w:new Float32Array(7)};
+  const w=biomeW(P.pos.x,P.pos.z,BSKY.w);const tf=new THREE.Color(0,0,0),th=new THREE.Color(0,0,0);for(let i=0;i<7;i++){if(w[i]<0.001)continue;tf.r+=((BIOMES[i].fog>>16)&255)/255*w[i];tf.g+=((BIOMES[i].fog>>8)&255)/255*w[i];tf.b+=(BIOMES[i].fog&255)/255*w[i];th.r+=((BIOMES[i].hemi>>16)&255)/255*w[i];th.g+=((BIOMES[i].hemi>>8)&255)/255*w[i];th.b+=(BIOMES[i].hemi&255)/255*w[i];}
+  BSKY.fog.lerp(tf,0.35);BSKY.hemi.lerp(th,0.35);
+  const el=$('#region');if(el&&el._t!==r.name){el._t=r.name;el.textContent='📍 '+r.name;}
+  const key=BIOMES[bi].id;if(RG.cur===null){RG.cur=key;return;}
+  if(key!==RG.cur){if(RG.cand===key){RG.cur=key;RG.cand=null;const b=BIOMES[bi];banner(b.name.toUpperCase(),b.sub+' · Lv '+b.lv[0]+'–'+b.lv[1]+regionGateTxt(b));SFX.quest();exploreMark(true);}else RG.cand=key;}else RG.cand=null;}
+function biomeSky(I){if(!BSKY||DUN)return;const k=0.42;const t=BSKY.fog.clone().multiplyScalar(0.18+0.82*I.day);colFog.lerp(t,k*(1-WX.storm*0.6));hemi.color.lerp(BSKY.hemi.clone().multiplyScalar(0.5+0.5*I.day),0.35);}
+// ---- exploration (fog of war for the new regions; the old desert core is already charted) ----
+const EX_C=20,EX_N=WORLD/EX_C;let EXP=new Uint8Array(EX_N*EX_N),exAcc=0;
+function exIdx(x,z){const i=Math.floor((x+HALF)/EX_C),j=Math.floor((z+HALF)/EX_C);return (i<0||j<0||i>=EX_N||j>=EX_N)?-1:j*EX_N+i;}
+function exploreLoad(){EXP=new Uint8Array(EX_N*EX_N);const s=P.explored||'';for(let i=0;i<EXP.length;i++){const h=parseInt(s[i>>2]||'0',16);EXP[i]=(h>>(i&3))&1;}
+  for(let j=0;j<EX_N;j++)for(let i=0;i<EX_N;i++){const x=(i+0.5)*EX_C-HALF,z=(j+0.5)*EX_C-HALF;if(Math.hypot(x,z)<240)EXP[j*EX_N+i]=1;}exploreSave();}
+function exploreSave(){let s='';for(let i=0;i<EXP.length;i+=4)s+=((EXP[i]|EXP[i+1]<<1|EXP[i+2]<<2|EXP[i+3]<<3)).toString(16);P.explored=s;}
+function exploreMark(force){if(DUN)return false;let ch=false;const R=70;for(let dz=-R;dz<=R;dz+=EX_C)for(let dx=-R;dx<=R;dx+=EX_C){if(dx*dx+dz*dz>R*R)continue;const k=exIdx(P.pos.x+dx,P.pos.z+dz);if(k>=0&&!EXP[k]){EXP[k]=1;ch=true;}}if(ch){exploreSave();MAP.fogDirty=true;}return ch;}
+function updExplore(dt){if(state!=='play')return;exAcc+=dt;if(exAcc<0.5)return;exAcc=0;exploreMark();}
+function exploredPct(){let n=0;for(const v of EXP)n+=v;return Math.round(n/EXP.length*100);}
+// ---- custom waypoint (saved per character) ----
+function normWp(w){if(!w||typeof w!=='object')return null;const x=+w.x,z=+w.z;if(!isFinite(x)||!isFinite(z))return null;return {x:clamp(x,-HALF+20,HALF-20),z:clamp(z,-HALF+20,HALF-20)};}
+const uwpBeam=makeBeam(0x59c8ff,90,1.1,0.32);uwpBeam.visible=false;
+const uwpRing=(()=>{const m=new THREE.Mesh(new THREE.TorusGeometry(2.4,0.18,6,32),MB(0x9fe8ff));m.rotation.x=Math.PI/2;m.visible=false;scene.add(m);return m;})();
+const uwpGem=(()=>{const m=new THREE.Mesh(new THREE.OctahedronGeometry(0.9,0),MB(0x59c8ff));m.visible=false;scene.add(m);return m;})();
+function setUwp(x,z){P.uwp=normWp({x,z});MAP.dirty=true;save();if(P.uwp)toast('📍 Waypoint set · '+Math.round(dist2D(P.uwp,P.pos))+' m');}
+function clearUwp(silent){if(!P.uwp)return;P.uwp=null;MAP.dirty=true;save();if(!silent)toast('📍 Waypoint cleared');}
+const uwpEl=(()=>{const d=document.createElement('div');d.id='uwp';d.className='hidden';d.innerHTML='<div class="arr">▼</div><span></span>';$('#wp').parentNode.appendChild(d);return d;})();
+function updUwp(){const w=P.uwp;if(!w||DUN||P.dead||state!=='play'){uwpBeam.visible=uwpRing.visible=uwpGem.visible=false;uwpEl.classList.add('hidden');return;}
+  const d=dist2D(w,P.pos);if(d<5){clearUwp(true);toast('📍 Waypoint reached');SFX.quest();return;}
+  const y=heightAt(w.x,w.z);uwpBeam.visible=uwpRing.visible=uwpGem.visible=true;uwpBeam.position.set(w.x,y,w.z);uwpRing.position.set(w.x,y+0.3,w.z);uwpGem.position.set(w.x,y+4+Math.sin(T*2)*0.4,w.z);uwpGem.rotation.y=T*1.5;
+  projV.set(w.x,y+4,w.z).project(camera);const W=innerWidth,Hh=innerHeight;let x=(projV.x*0.5+0.5)*W,yy=(-projV.y*0.5+0.5)*Hh;const behind=projV.z>1;
+  if(behind){x=W-x;yy=Hh-60;}const m=50;const off=behind||x<m||x>W-m||yy<m+60||yy>Hh-m;x=clamp(x,m,W-m);yy=clamp(yy,m+60,Hh-m);
+  uwpEl.classList.remove('hidden');uwpEl.style.transform=`translate(${x|0}px,${yy|0}px)`;uwpEl.firstChild.textContent=off?(behind?'▼':x<=m?'◀':x>=W-m?'▶':yy<=m+60?'▲':'▼'):'📍';
+  const brg=Math.atan2(w.x-P.pos.x,-(w.z-P.pos.z));const dirs=['N','NE','E','SE','S','SW','W','NW'];uwpEl.lastChild.textContent=Math.round(d)+'m '+dirs[((Math.round(brg/(Math.PI/4))%8)+8)%8];}
+function uwpMini(c,tf,R){const w=P.uwp;if(!w||DUN)return;let q=tf(w.x,w.z);const dx=q[0]-R,dy=q[1]-R,d=Math.hypot(dx,dy);if(d>R-12)q=[R+dx/d*(R-12),R+dy/d*(R-12)];
+  c.fillStyle='#59c8ff';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(q[0],q[1]-6,7,Math.PI*0.85,Math.PI*2.15);c.lineTo(q[0],q[1]+6);c.closePath();c.fill();c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(q[0],q[1]-6,2.6,0,7);c.fill();}
+// ---- full-screen world map ----
+const MAP={open:false,cx:0,cz:0,ppm:1,dirty:true,fogDirty:true,base:null,fog:null,ptr:new Map(),acc:0};
+const mapUI=(()=>{const d=document.createElement('div');d.id='mapUI';d.className='hidden';
+  d.innerHTML=`<canvas id="mapC"></canvas><div class="mapbar"><button class="sbtn" id="mapClose">✕ Close</button><button class="sbtn alt" id="mapClear">📍 Clear waypoint</button><button class="sbtn alt" id="mapMe">◎ Me</button><button class="sbtn alt mz" id="mapOut">−</button><button class="sbtn alt mz" id="mapIn">+</button><span id="mapInfo"></span></div><div class="maphint">Tap the map to set a waypoint · tap it again to remove · drag to pan · pinch to zoom</div>`;
+  document.body.appendChild(d);return d;})();
+const mapC=$('#mapC'),mctx2=mapC.getContext('2d');
+function mapBase(){if(MAP.base)return MAP.base;const c=document.createElement('canvas');c.width=c.height=N1;const x=c.getContext('2d');const im=x.createImageData(N1,N1);const W7=new Float32Array(7);
+  for(let j=0;j<N1;j++)for(let i=0;i<N1;i++){const k=j*N1+i;const h=HG[k],hl=HG[j*N1+Math.max(0,i-1)],hu=HG[Math.max(0,j-1)*N1+i];let s=clamp(1+(hl-h)*0.035+(hu-h)*0.035,0.65,1.3);
+    let r=TCOL[k*3],g=TCOL[k*3+1],b=TCOL[k*3+2];if(h<WATER_Y){biomeW(i*CELL-HALF,j*CELL-HALF,W7);if(W7[4]>0.35){r=0.23;g=0.6;b=0.72;s=1;}}
+    im.data[k*4]=clamp(r*s*255,0,255);im.data[k*4+1]=clamp(g*s*255,0,255);im.data[k*4+2]=clamp(b*s*255,0,255);im.data[k*4+3]=255;}
+  x.putImageData(im,0,0);MAP.base=c;return c;}
+function mapFog(){if(MAP.fog&&!MAP.fogDirty)return MAP.fog;const c=MAP.fog||document.createElement('canvas');c.width=c.height=EX_N;const x=c.getContext('2d');const im=x.createImageData(EX_N,EX_N);
+  for(let i=0;i<EXP.length;i++){im.data[i*4]=18;im.data[i*4+1]=14;im.data[i*4+2]=12;im.data[i*4+3]=EXP[i]?0:235;}x.putImageData(im,0,0);MAP.fog=c;MAP.fogDirty=false;return c;}
+function mapSize(){const dpr=Math.min(2,window.devicePixelRatio||1);const W=innerWidth,H=innerHeight;if(mapC.width!==Math.round(W*dpr)||mapC.height!==Math.round(H*dpr)){mapC.width=Math.round(W*dpr);mapC.height=Math.round(H*dpr);}return {W,H,dpr};}
+const mapMinPpm=()=>Math.min(innerWidth,innerHeight)/WORLD*0.92,mapMaxPpm=()=>6;
+function mapW2S(x,z){return [(x-MAP.cx)*MAP.ppm+innerWidth/2,(z-MAP.cz)*MAP.ppm+innerHeight/2];}
+function mapS2W(sx,sy){return {x:MAP.cx+(sx-innerWidth/2)/MAP.ppm,z:MAP.cz+(sy-innerHeight/2)/MAP.ppm};}
+function mapClampView(){MAP.ppm=clamp(MAP.ppm,mapMinPpm(),mapMaxPpm());const hw=innerWidth/2/MAP.ppm,hh=innerHeight/2/MAP.ppm;MAP.cx=clamp(MAP.cx,-HALF+Math.min(hw,HALF),HALF-Math.min(hw,HALF));MAP.cz=clamp(MAP.cz,-HALF+Math.min(hh,HALF),HALF-Math.min(hh,HALF));}
+function drawMap(){const {W,H,dpr}=mapSize();const c=mctx2;c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#120e0b';c.fillRect(0,0,W,H);
+  const [x0,y0]=mapW2S(-HALF,-HALF),S=WORLD*MAP.ppm;c.imageSmoothingEnabled=true;c.drawImage(mapBase(),x0,y0,S,S);c.drawImage(mapFog(),x0,y0,S,S);
+  const vis=(x,z)=>{const k=exIdx(x,z);return k>=0&&EXP[k];};
+  c.textAlign='center';c.textBaseline='middle';
+  // region names
+  c.font='bold '+Math.round(clamp(MAP.ppm*14,12,22))+'px sans-serif';
+  BIOMES.forEach((b,i)=>{let x,z;if(i===0){x=-120;z=150;}else{const a=b.a*Math.PI/3;x=Math.cos(a)*335;z=Math.sin(a)*335;}const q=mapW2S(x,z);const known=vis(x,z);c.lineWidth=4;c.strokeStyle='rgba(0,0,0,.75)';c.fillStyle=known?'#fff2dc':'rgba(255,255,255,.45)';const t=known?b.name:'??? · '+b.name.split(' ').pop();c.strokeText(t,q[0],q[1]);c.fillText(t,q[0],q[1]);
+    if(known){c.font='600 '+Math.round(clamp(MAP.ppm*10,10,14))+'px sans-serif';const l='Lv '+b.lv[0]+'–'+b.lv[1]+(b.gate&&!gateOpen(b.gate)?' · 🔒':'');c.strokeText(l,q[0],q[1]+16);c.fillText(l,q[0],q[1]+16);c.font='bold '+Math.round(clamp(MAP.ppm*14,12,22))+'px sans-serif';}});
+  const lab=(x,z,t,col)=>{const q=mapW2S(x,z);c.font='bold 12px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.8)';c.fillStyle=col||'#fff';c.strokeText(t,q[0],q[1]-14);c.fillText(t,q[0],q[1]-14);};
+  // town + outposts
+  {const a=mapW2S(-TOWN,-TOWN);c.strokeStyle='#f0e0c0';c.lineWidth=2;c.strokeRect(a[0],a[1],TOWN*2*MAP.ppm,TOWN*2*MAP.ppm);lab(0,-TOWN,"Halden's Rest",'#ffe8b0');}
+  for(const o of OUTPOSTS){const q=mapW2S(o.x,o.z);const open=!GATES[o.id]||gateOpen(o.id);c.fillStyle=open?'#5ff2ff':'#777';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(q[0],q[1],7,0,7);c.fill();c.stroke();lab(o.x,o.z,(open?'':'🔒 ')+o.name);}
+  for(const k in DUNGEONS){const d=DUNGEONS[k];const q=mapW2S(d.door.x,d.door.z);c.fillStyle='#ff9a2a';c.strokeStyle='#000';c.lineWidth=2;c.fillRect(q[0]-6,q[1]-6,12,12);c.strokeRect(q[0]-6,q[1]-6,12,12);lab(d.door.x,d.door.z,d.name,'#ffc890');}
+  for(const k in RAIDS){const d=RAIDS[k];if(!d.door||!vis(d.door.x,d.door.z))continue;const q=mapW2S(d.door.x,d.door.z);c.fillStyle='#ff6a2a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-9);c.lineTo(q[0]+9,q[1]);c.lineTo(q[0],q[1]+9);c.lineTo(q[0]-9,q[1]);c.closePath();c.fill();c.stroke();lab(d.door.x,d.door.z,'⚔ '+d.name+' (raid)','#ffb080');}
+  for(const s of TSITES){const q=mapW2S(s.x,s.z);const o=TW[s.id]&&TW[s.id].owner;c.fillStyle=o?FACTIONS[o].col:'#9a9a9a';c.strokeStyle='#000';c.beginPath();c.moveTo(q[0],q[1]-8);c.lineTo(q[0]+7,q[1]);c.lineTo(q[0],q[1]+8);c.lineTo(q[0]-7,q[1]);c.closePath();c.fill();c.stroke();}
+  for(const k of BANKS){if(!bankOpenAt(k))continue;const q=mapW2S(k.x,k.z);c.fillStyle='#ffd34a';c.strokeStyle='#000';c.lineWidth=2;c.fillRect(q[0]-6,q[1]-6,12,12);c.strokeRect(q[0]-6,q[1]-6,12,12);c.fillStyle='#2a1a00';c.font='bold 10px sans-serif';c.fillText('B',q[0],q[1]+0.5);}
+  for(const cp of CAMPS){if(!campOpen(cp)||!vis(cp.x,cp.z))continue;const q=mapW2S(cp.x,cp.z);const ready=cp.left>0||cp.awake&&campLive(cp).length>0;c.fillStyle=ready?'#ff7a2a':'#a0a0a0';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-8);c.lineTo(q[0]+8,q[1]+6);c.lineTo(q[0]-8,q[1]+6);c.closePath();c.fill();c.stroke();if(MAP.ppm>1.2)lab(cp.x,cp.z,cp.name+' · Lv '+cp.lv[0]+'–'+cp.lv[1],'#ffd0a0');}
+  // waypoint
+  if(P.uwp){const q=mapW2S(P.uwp.x,P.uwp.z);c.fillStyle='#59c8ff';c.strokeStyle='#000';c.lineWidth=2.5;c.beginPath();c.arc(q[0],q[1]-14,10,Math.PI*0.8,Math.PI*2.2);c.lineTo(q[0],q[1]);c.closePath();c.fill();c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(q[0],q[1]-14,4,0,7);c.fill();}
+  // player arrow (map north is up)
+  {const q=mapW2S(P.pos.x,P.pos.z);c.save();c.translate(q[0],q[1]);c.rotate(Math.atan2(Math.sin(P.rotY),Math.cos(P.rotY))*-1+Math.PI);c.fillStyle='#5ff2ff';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(0,-13);c.lineTo(9,10);c.lineTo(0,5);c.lineTo(-9,10);c.closePath();c.fill();c.stroke();c.restore();}
+  // compass + scale
+  c.font='bold 20px sans-serif';c.fillStyle='#fff';c.strokeStyle='#000';c.lineWidth=3;c.strokeText('N ▲',W-40,H-60);c.fillText('N ▲',W-40,H-60);
+  const sm=MAP.ppm>2?50:MAP.ppm>0.8?100:200;c.fillStyle='#fff';c.fillRect(20,H-34,sm*MAP.ppm,4);c.font='bold 12px sans-serif';c.textAlign='left';c.strokeText(sm+' m',20,H-46);c.fillText(sm+' m',20,H-46);
+  const r=regionAt(P.pos.x,P.pos.z);$('#mapInfo').textContent=r.name+' · explored '+exploredPct()+'%'+(P.uwp?' · waypoint '+Math.round(dist2D(P.uwp,P.pos))+' m':'');
+  $('#mapClear').classList.toggle('locked',!P.uwp);MAP.dirty=false;}
+function openMap(){if(state!=='play'||DUN){if(DUN)warn('No map signal inside');return;}if(panelOpen)closePanel();resetInput();panelOpen='map';MAP.open=true;mapUI.classList.remove('hidden');
+  MAP.cx=P.pos.x;MAP.cz=P.pos.z;MAP.ppm=clamp(innerHeight/520,mapMinPpm(),mapMaxPpm());mapClampView();drawMap();}
+function mapHide(){MAP.open=false;mapUI.classList.add('hidden');MAP.ptr.clear();}
+function closeMap(){if(panelOpen==='map')closePanel();else mapHide();}
+function toggleMap(){if(MAP.open)closeMap();else openMap();}
+function mapZoom(f,sx,sy){const w=mapS2W(sx,sy);MAP.ppm=clamp(MAP.ppm*f,mapMinPpm(),mapMaxPpm());MAP.cx=w.x-(sx-innerWidth/2)/MAP.ppm;MAP.cz=w.z-(sy-innerHeight/2)/MAP.ppm;mapClampView();drawMap();}
+function mapTap(sx,sy){const w=mapS2W(sx,sy);if(P.uwp){const q=mapW2S(P.uwp.x,P.uwp.z);if(Math.hypot(q[0]-sx,q[1]-sy+8)<26){clearUwp();drawMap();return;}}
+  if(Math.abs(w.x)>HALF-20||Math.abs(w.z)>HALF-20){warn('That is beyond the mountains');return;}setUwp(w.x,w.z);SFX.ui();drawMap();}
+mapC.addEventListener('pointerdown',e=>{e.preventDefault();try{mapC.setPointerCapture(e.pointerId);}catch(_){}MAP.ptr.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,t:performance.now(),mv:0});
+  if(MAP.ptr.size===2){const [a,b]=[...MAP.ptr.values()];MAP.pinch={d:Math.hypot(a.x-b.x,a.y-b.y),ppm:MAP.ppm};MAP.multi=true;}});
+mapC.addEventListener('pointermove',e=>{const p=MAP.ptr.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;p.mv+=Math.abs(dx)+Math.abs(dy);
+  if(MAP.ptr.size>=2&&MAP.pinch){const [a,b]=[...MAP.ptr.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;mapZoom((MAP.pinch.ppm*d/MAP.pinch.d)/MAP.ppm,mx,my);}
+  else if(MAP.ptr.size===1){MAP.cx-=dx/MAP.ppm;MAP.cz-=dy/MAP.ppm;mapClampView();drawMap();}});
+function mapUp(e){const p=MAP.ptr.get(e.pointerId);if(!p)return;MAP.ptr.delete(e.pointerId);if(MAP.ptr.size<2)MAP.pinch=null;
+  if(e.type==='pointerup'&&!MAP.multi&&p.mv<10&&performance.now()-p.t<600)mapTap(e.clientX,e.clientY);if(MAP.ptr.size===0)MAP.multi=false;}
+mapC.addEventListener('pointerup',mapUp);mapC.addEventListener('pointercancel',mapUp);
+mapC.addEventListener('wheel',e=>{e.preventDefault();mapZoom(e.deltaY<0?1.15:1/1.15,e.clientX,e.clientY);},{passive:false});
+for(const [id,fn] of [['#mapClose',closeMap],['#mapClear',()=>{clearUwp();drawMap();}],['#mapMe',()=>{MAP.cx=P.pos.x;MAP.cz=P.pos.z;mapClampView();drawMap();}],['#mapIn',()=>mapZoom(1.4,innerWidth/2,innerHeight/2)],['#mapOut',()=>mapZoom(1/1.4,innerWidth/2,innerHeight/2)]])
+  $(id).addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();SFX.ui();fn();});
+addEventListener('resize',()=>{if(MAP.open){mapClampView();drawMap();}});
+function updMap(dt){if(!MAP.open)return;MAP.acc+=dt;if(MAP.acc>0.25||MAP.dirty){MAP.acc=0;drawMap();}}
+function updWorld2(dt){updCull(dt);updRegions(dt);updExplore(dt);updUwp();updMap(dt);}
+function worldExports(){return {WORLD,HALF,CORE_HALF,BIOMES,biomeW,biomeIdx,regionAt,get RG(){return RG;},TCH,PROPB,WATERM,EXP:()=>EXP,EX_N,exploredPct,exploreMark,openMap,closeMap,toggleMap,get MAP(){return MAP;},mapS2W,mapW2S,mapTap,setUwp,clearUwp,uwpBeam,uwpEl,normWp,CAMPS,updCull,heightAt,drawMap};}
+
+/* ================= RAIDS (team instances with a lockout) =================
+   Data-driven: a RAIDS entry is a dungeon (same room/boss/loot engine as DUNGEONS) plus:
+   - team:{size}            full team (you + alts from your roster, empty seats filled by contract mercenaries)
+   - lockout:{runs,period}  runs per period. period 'week' = resets every Monday 00:00 local time; 'day' = every midnight.
+                            A run is used the first time a boss dies in it (wiping before any kill costs nothing).
+   - tokens:{bossKey:n}     Raid Sigils (◈) per boss: raid currency for the Sigil Quartermaster.
+   - minLvl/cap/gate        same level-cap + story rules as dungeons (party judged by its highest member).
+   A future high-level raid only needs another entry (higher minLvl/cap, its own rooms/bosses/loot); future:true lists it as coming later. */
+var RAIDS={},MECH_EXT={};
+function buildPylon(){const g=new THREE.Group();const R={g};part(g,geoBox,M(0x2a2220),0,0.3,0,1.3,0.6,1.3);R.cr=part(g,geoCone,MB(0xff7a2a),0,1.9,0,0.55,2.6,0.55);part(g,geoBox,MB(0xffc85a),0,0.62,0,0.9,0.06,0.9);
+  R.anim=(t,mv,atk)=>{R.cr.rotation.y=t*1.5;R.cr.scale.y=atk>0?1.15:1;};return R;}
+function buildSlagwarden(){const R=buildCustodian();retint(R.g,0x4a2418,0.75,0xff6a2a);part(R.g,geoBox,MB(0xff6a2a),0,2.62,0.2,0.7,0.14,0.7);return R;}
+function buildEmberQueen(){const R=buildMatriarch();retint(R.g,0x7a2410,0.7,0xffb347);return R;}
+function buildColossus(){const R=buildForeman();retint(R.g,0x3a302c,0.8,0xff4a1a);for(const s of [-1,1])part(R.g,geoCone,MB(0xff6a2a),s*0.55,2.7,0.1,0.18,0.7,0.18);return R;}
+function buildCinderguard(){const R=buildEnforcer();retint(R.g,0x4a2a20,0.5,0xff6a2a);return R;}
+function buildAshhound(){const R=buildVSkitter();retint(R.g,0x5a2a1a,0.6,0xff8a3a);return R;}
+function buildAdept(){const R=buildSentry();retint(R.g,0x5a3a30,0.55,0xffb347);return R;}
+Object.assign(ETYPES,{
+  ashhound:{name:'Ash Hound',hp:44,dmg:7,atkCd:1.1,range:2.0,speed:6.4,aggro:15,xp:1.2,ranged:false,hitR:1.0,h:1.1,build:buildAshhound,scale:1.1},
+  cinderguard:{name:'Cinderdeep Guard',hp:110,dmg:14,atkCd:2.0,range:2.6,speed:5.0,aggro:15,xp:1.6,ranged:false,hitR:0.75,h:1.9,build:buildCinderguard,scale:1.15},
+  emberadept:{name:'Ember Adept',hp:70,dmg:11,atkCd:1.7,range:18,speed:4.6,aggro:19,xp:1.4,ranged:true,hitR:0.7,h:1.9,build:buildAdept,scale:1},
+  pylon:{name:'Ember Pylon',hp:160,dmg:6,atkCd:2.2,range:24,speed:0,aggro:30,xp:0.5,ranged:true,hitR:0.9,h:3,build:buildPylon,scale:1},
+  slagwarden:{name:'Slagwarden Torvek',hp:1100,dmg:15,atkCd:2.1,range:4.8,speed:4.4,aggro:20,xp:14,ranged:false,hitR:1.6,h:2.6,build:buildSlagwarden,scale:2.3},
+  emberqueen:{name:'Vessa, the Ember Queen',hp:1200,dmg:14,atkCd:1.8,range:4.6,speed:4.8,aggro:20,xp:16,ranged:false,hitR:1.0,h:1.1,build:buildEmberQueen,scale:3.3},
+  colossus:{name:'The Ashen Colossus',hp:1600,dmg:17,atkCd:2.2,range:5.2,speed:4.2,aggro:22,xp:24,ranged:false,hitR:1.9,h:2.6,build:buildColossus,scale:2.9}});
+Object.assign(BOSSES,{
+  slagwarden:{etype:'slagwarden',lvl:10,intro:'Scorch Brand marks the whole team: spread out!',mech:[
+    {t:'slam',name:'Slag Quake',every:10,first:5,r:8,delay:1.8,mult:2.4,desc:'Telegraphed 8m quake around him. Everyone out.'},
+    {t:'pools',name:'Scorch Brand',every:13,first:9,r:3.5,delay:2.0,mult:1.1,count:1,desc:'A circle under every team member. Spread out: overlapping circles stack their damage.'},
+    {t:'adds',name:'Guard Call',at:[0.5],etype:'cinderguard',n:2,lvl:9,desc:'At 50% two Cinderdeep Guards join.'}]},
+  emberqueen:{etype:'emberqueen',lvl:10,intro:'Magma Rain, and her Pylons shield her. Break the Pylons!',mech:[
+    {t:'pools',name:'Magma Rain',every:11,first:4,r:4,delay:1.8,mult:2.0,count:2,desc:'Magma circles fall on and around every team member. Move.'},
+    {t:'shield',name:'Pylon Shield',at:[0.66,0.33],n:3,lvl:10,desc:'At 66% and 33% three Ember Pylons rise and she is immune until all are destroyed.'},
+    {t:'enrage',name:'Firestorm',at:0.2,dmg:1.4,cd:0.7,spd:1.2,desc:'Below 20% she enrages.'}]},
+  colossus:{etype:'colossus',lvl:10,intro:'Inferno Nova burns everything far from him: get close when it glows!',mech:[
+    {t:'slam',name:'Ashen Stomp',every:12,first:6,r:7,delay:1.7,mult:2.6,desc:'Telegraphed 7m stomp. Get out.'},
+    {t:'nova',name:'Inferno Nova',every:18,first:14,safe:6,r:26,delay:2.6,mult:2.8,desc:'The whole room burns except a 6m safe ring around him. Run IN.'},
+    {t:'pools',name:'Ember Fall',every:15,first:20,r:3.5,delay:1.8,mult:1.8,count:2,desc:'Embers fall on every team member.'},
+    {t:'adds',name:'Adepts of the Deep',at:[0.6,0.3],etype:'emberadept',n:3,lvl:10,desc:'At 60% and 30% three Ember Adepts join.'},
+    {t:'enrage',name:'Meltdown',time:200,dmg:1.7,cd:0.65,spd:1.3,desc:'After 200s he melts down (soft enrage). Kill him in time.'}]}});
+Object.assign(UNIQUES,{
+  colossus_cleaver:{d:'bastion',name:'Colossus Cleaver',slot:'weapon',wt:'blade',lvl:10,dmgM:1.15,bonus:{wpn:16,str:6,crit:4},sig:14},
+  pyre_repeater:{d:'bastion',name:'Pyre Repeater',slot:'weapon',wt:'rifle',lvl:10,dmgM:1.12,bonus:{wpn:15,agi:5,crit:4},sig:14},
+  queens_ember:{d:'bastion',name:"Queen's Ember",slot:'weapon',wt:'rod',lvl:10,bonus:{weave:18,psy:6,en:50},sig:14},
+  slag_suture:{d:'bastion',name:'Slagforged Suture',slot:'weapon',wt:'pistol',lvl:10,bonus:{wpn:12,treat:14,sen:5},sig:12},
+  cb_helm:{d:'bastion',name:'Cinderborn Helm',slot:'head',fam:'heavy',lvl:10,set:'cinderborn',bonus:{sta:6,hp:70,body:8},sig:8},
+  cb_plate:{d:'bastion',name:'Cinderborn Plate',slot:'armor',fam:'heavy',lvl:10,set:'cinderborn',bonus:{str:6,hp:110,power:6},sig:10},
+  cb_grips:{d:'bastion',name:'Cinderborn Grips',slot:'hands',fam:'medium',lvl:10,set:'cinderborn',bonus:{agi:5,wpn:8,crit:3},sig:6},
+  cb_greaves:{d:'bastion',name:'Cinderborn Greaves',slot:'legs',fam:'medium',lvl:10,set:'cinderborn',bonus:{agi:5,sen:5,run:25},sig:8},
+  ashen_eye:{d:'bastion',name:'Eye of the Colossus',kind:'imp',slot:'eyes',ql:60,relic:true,bonus:{sen:16,wpn:14,crit:6,power:10}}});
+SETS.cinderborn={name:'Cinderborn',pieces:['cb_helm','cb_plate','cb_grips','cb_greaves'],bonus:{2:{hp:90,str:4},4:{power:10,crit:4,armor:60}}};
+RAIDS.bastion={id:'bastion',raid:true,name:'The Cinderdeep Bastion',sub:'Ashborn forge-fortress under the Cinderveil',lvl:[9,10],minLvl:9,cap:10,rec:10,gate:'vault',
+  door:{x:137,z:238},accent:0xff6a2a,team:{size:6},lockout:{runs:3,period:'week'},tokens:{slagwarden:2,emberqueen:3,colossus:5},
+  desc:'Deep under the Cinderveil Badlands the Ashborn forge-masters woke something they could not cool. Three wardens hold the Bastion. Bring a full team.',
+  pal:{floor:0x2e2220,floor2:0x241a18,wall:0x4a3028,trim:0x2a1c18,glow:[0xff6a2a,0xffb347],fog:0x120806,hemi:[0xffb080,0x1a0806,0.66],plight:0xffa060},
+  rooms:[{w:22,d:18,entry:true},{w:30,d:24,packs:[[['ashhound',9],['ashhound',9],['ashhound',9],['cinderguard',9]],[['emberadept',9],['cinderguard',9],['ashhound',9]]]},{w:36,d:32,boss:'slagwarden'},
+    {w:30,d:24,packs:[[['cinderguard',10],['cinderguard',9],['emberadept',10]],[['ashhound',10],['ashhound',10],['emberadept',9],['emberadept',9]]]},{w:38,d:34,boss:'emberqueen'},
+    {w:30,d:24,packs:[[['cinderguard',10],['emberadept',10],['cinderguard',10],['ashhound',10]]]},{w:44,d:40,boss:'colossus',final:true}],
+  loot:{slagwarden:{items:['cb_helm','cb_grips','pyre_repeater','slag_suture'],extraP:0.25},emberqueen:{items:['queens_ember','cb_greaves','cb_helm','cb_plate'],extraP:0.3},
+    colossus:{items:['colossus_cleaver','pyre_repeater','queens_ember','slag_suture','cb_plate','cb_greaves','cb_grips','cb_helm'],extraP:0.45,relic:'ashen_eye',relicP:0.08},trashP:0.02},
+  modes:{team:{hp:2.6,dmg:1.15,lvl:0,size:[6,6]}}};
+// A future high-level raid fits the same data shape; it stays listed as "coming later" until the level cap reaches it.
+RAIDS.sunless={id:'sunless',raid:true,future:true,name:'The Sunless Throne',sub:'A sealed Vyre abyss, far beyond the Reach',lvl:[100,120],minLvl:100,cap:120,rec:120,gate:null,
+  team:{size:6},lockout:{runs:3,period:'week'},tokens:{},desc:'Something vast sleeps under the deepest seam. It will not open until contractors can reach level 100.',rooms:[],loot:{},modes:{team:{hp:6,dmg:1.6,lvl:0,size:[6,6]}}};
+function validateRaids(){for(const k in RAIDS){const R=RAIDS[k];if(!R.lockout||!(R.lockout.runs>0))console.warn('DUSTREACH: raid '+k+' has no lockout');if(!R.future&&R.cap>MAXLVL)console.warn('DUSTREACH: raid '+k+' cap above max level');
+  if(R.gate&&!GATES[R.gate])console.warn('DUSTREACH: raid '+k+' uses unknown gate '+R.gate);}}
+validateRaids();
+const RAID_CUR='◈';const SIGIL='Raid Sigils';
+/* ---------- lockout clock (weekly: Monday 00:00 local) ---------- */
+var RAIDCLK={off:0};const raidNow=()=>Date.now()+RAIDCLK.off;
+function periodStart(t,per){const d=new Date(t);d.setHours(0,0,0,0);if(per!=='day')d.setDate(d.getDate()-((d.getDay()+6)%7));return d;}
+function periodKey(t,per){const d=periodStart(t,per);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function nextReset(t,per){const d=periodStart(t,per);d.setDate(d.getDate()+(per==='day'?1:7));return d.getTime();}
+function fmtLeft(ms){ms=Math.max(0,ms);const m=Math.floor(ms/60000),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return d?d+'d '+h+'h':h?h+'h '+mi+'m':mi+'m';}
+function normRaidLock(x){const o={};if(x&&typeof x==='object')for(const k in x){const r=x[k];if(r&&typeof r.wk==='string')o[k]={wk:r.wk,used:Math.max(0,r.used|0)};}return o;}
+function raidRec(id){const R=RAIDS[id];const per=R.lockout.period;const k=periodKey(raidNow(),per);P.raidLock=P.raidLock||{};let r=P.raidLock[id];if(!r||r.wk!==k)r=P.raidLock[id]={wk:k,used:0};return r;}
+function raidLeft(id){const R=RAIDS[id];return Math.max(0,R.lockout.runs-raidRec(id).used);}
+function raidResetIn(id){return nextReset(raidNow(),RAIDS[id].lockout.period)-raidNow();}
+function raidResetTxt(id){const R=RAIDS[id];return (R.lockout.period==='day'?'daily at 00:00':'every Monday 00:00')+' (in '+fmtLeft(raidResetIn(id))+')';}
+function raidUse(id){const r=raidRec(id);r.used++;return r.used;}
+/* ---------- team ---------- */
+const MERC=[{prof:'vanguard',role:'tank',name:'Brask (contract)'},{prof:'mender',role:'healer',name:'Ilsa (contract)'},{prof:'flux',role:'dps',name:'Corr (contract)'},{prof:'runner',role:'dps',name:'Tamsin (contract)'},{prof:'wild',role:'dps',name:'Odo (contract)'},{prof:'weaver',role:'control',name:'Mirel (contract)'},{prof:'wright',role:'pet',name:'Gant (contract)'}];
+function raidAlts(id){const R=RAIDS[id];return roster.chars.filter(c=>c.id!==activeId).map(c=>({id:c.id,name:c.name,level:c.level,prof:c.prof,role:(c.party&&c.party.role)||ROLE[c.prof]||'dps',over:c.level>R.cap})).sort((a,b)=>b.level-a.level);}
+function raidPicks(id){const R=RAIDS[id];const al=raidAlts(id);const ok=new Set(al.filter(a=>!a.over).map(a=>a.id));const max=R.team.size-1;
+  let ids=Array.isArray(P.raidTeam)?P.raidTeam.filter(x=>ok.has(x)):al.filter(a=>!a.over).map(a=>a.id);return ids.slice(0,max);}
+function mercSnap(m,lv){const c=normalizeChar({prof:m.prof,level:lv,name:m.name});c.id='merc_'+m.prof;const st=statsFor({...c,buffs:[]});const pr=PROFS[m.prof];const wt=PROF_WT[m.prof];
+  st.dmg=Math.max(st.dmg,Math.round((4+lv*2.4)*1.6*WTYPES[wt].dm));st.armor=Math.max(st.armor,lv*14);
+  return {id:c.id,merc:true,name:m.name,prof:m.prof,profName:pr.name,level:lv,role:m.role,ai:'default',stats:st,eq:{weapon:{wt}},imps:{},visual:{color:pr.color,accent:pr.accent,visor:pr.visor}};}
+function raidTeam(id,ids){const R=RAIDS[id];const pick=(ids||raidPicks(id)).slice(0,R.team.size-1);const team=pick.map(partySnapshot).filter(Boolean);
+  const roles=new Set([ROLE[P.prof],...team.map(t=>t.role)]);const need=MERC.filter(m=>(m.role==='tank'||m.role==='healer')&&!roles.has(m.role)).concat(MERC.filter(m=>m.role!=='tank'&&m.role!=='healer'));
+  const lv=Math.min(R.cap,Math.max(R.minLvl,P.level));let i=0;while(team.length<R.team.size-1&&i<need.length)team.push(mercSnap(need[i++],lv));return team;}
+/* ---------- entry ---------- */
+function raidEntryCheck(id,party){const R=RAIDS[id];if(!R)return {ok:false,why:'unknown',msg:'Unknown raid'};
+  if(R.future)return {ok:false,why:'future',msg:'Requires level '+R.minLvl+' – the level cap is '+MAXLVL+' for now'};
+  if(R.gate&&!gateOpen(R.gate)){const s=STEP[GATES[R.gate].step];return {ok:false,why:'story',step:s.id,msg:gateMsg(R.gate)};}
+  const lv=partyTopLevel(party);if(lv>R.cap)return {ok:false,why:'cap',lv,msg:'Level cap '+R.cap+' – '+(lv>P.level?'a team member (Lv '+lv+') is':'you are')+' too experienced for '+R.name};
+  if(P.level<R.minLvl)return {ok:false,why:'min',lv,msg:'Requires level '+R.minLvl+' – you are level '+P.level};
+  if(raidLeft(id)<=0)return {ok:false,why:'lockout',lv,msg:'Raid lockout: '+R.lockout.runs+'/'+R.lockout.runs+' runs used – resets '+raidResetTxt(id)};
+  return {ok:true,lv};}
+function enterRaid(id,ids){const R=RAIDS[id];if(!R||DUN)return false;const team=raidTeam(id,ids);const ck=raidEntryCheck(id,team);
+  if(!ck.ok){warn(ck.msg);if(ck.why==='story')lockedMsg(R.gate,true);else if(ck.why==='lockout')banner('RAID LOCKOUT',ck.msg.replace(/^Raid lockout: /,''));else if(ck.why==='cap')banner('LEVEL CAP '+R.cap,ck.msg.replace(/^Level cap \d+ – /,''));return false;}
+  if(!enterDungeon(id,{mode:'team',party:team}))return false;
+  DUN.raidRun={counted:false,kills:0,team:team.map(t=>t.id)};DUN.raidAllies=[];raidSpawnTeam();
+  banner(R.name.toUpperCase(),'Raid · team of '+R.team.size+' · '+raidLeft(id)+'/'+R.lockout.runs+' runs left this week');
+  log('⚔ Raid: <b style="color:#ff9a2a">'+esc(R.name)+'</b>. The lockout run is used when the first boss dies.');return true;}
+function raidSpawnTeam(){const d=DUN;if(!d||!d.D.raid)return;for(const a of d.raidAllies.slice())if(!a.dead)removeAlly(a);d.raidAllies=[];
+  d.party.forEach((s,i)=>{const a=spawnPartyMember(s);if(!a)return;a.raid=true;a.snapId=s.id;a.merc=!!s.merc;a.healCd=2+i*0.4;const hm=s.role==='tank'?3.5:2.2;a.maxHp=a.baseMax=a.hp=Math.round(a.hp*hm);a.dmg*=1.6;if(s.role==='tank'){a.dr=Math.min(0.6,a.dr+0.15);a.threat=1;}
+    if(s.merc)a.name=s.name;const ang=i/5*6.28;a.pos.set(P.pos.x+Math.cos(ang)*2.4,0,P.pos.z+Math.sin(ang)*2.4);d.raidAllies.push(a);});}
+function raidExitCleanup(d){for(const a of (d.raidAllies||[]))if(!a.dead)removeAlly(a);d.raidAllies=[];}
+function raidRez(){const d=DUN;if(!d||!d.D.raid)return;raidSpawnTeam();log('⚔ Your team regroups at the entrance.');}
+/* ---------- runtime ---------- */
+let raidAcc=0;
+function updRaid(dt){const d=DUN;const al=d.raidAllies.filter(a=>!a.dead&&allies.includes(a));
+  // AI dodging: team members step out of (or into, for novas) telegraphs a moment after they appear
+  for(const a of al)for(const t of d.tele){if(T-t.t0<0.45||T>=t.at)continue;const dx=a.pos.x-t.x,dz=a.pos.z-t.z,dd=Math.hypot(dx,dz)||0.01;
+    if(t.inner){if(dd>t.inner-1.2)moveAlly(a,t.x,t.z,a.speed*1.1,dt,t.inner*0.5);}else if(dd<t.r+0.8)moveAlly(a,t.x+dx/dd*(t.r+2),t.z+dz/dd*(t.r+2),a.speed*1.1,dt,0.2);}
+  // healers keep the team up
+  for(const a of al){if(a.role!=='healer')continue;a.healCd-=dt;if(a.healCd>0)continue;a.healCd=2.4;
+    const pool=[{e:P,f:P.dead?1:P.hp/S.maxHp}].concat(al.map(o=>({e:o,f:o.hp/o.maxHp})));pool.sort((x,y)=>x.f-y.f);const w=pool[0];if(w.f>0.92)continue;
+    if(w.e===P)healPlayer(S.maxHp*0.14);else allyHeal(w.e,w.e.maxHp*0.16);ringFx(w.e.pos.x,w.e.pos.z,0x6dff8a,1.4,0.35);}
+  // shield bubbles
+  for(const e of d.bosses){const b=e.boss;const on=!e.dead&&e.immune&&e.immune();if(on&&!b.bubble){b.bubble=new THREE.Mesh(geoSphere,new THREE.MeshBasicMaterial({color:0xffb347,transparent:true,opacity:0.25,depthWrite:false}));d.group.add(b.bubble);}
+    if(b.bubble){b.bubble.visible=on;if(on){b.bubble.position.set(e.pos.x,e.pos.y+e.h*0.5,e.pos.z);b.bubble.scale.setScalar(e.hitR*2.2+1.5+Math.sin(T*4)*0.1);}}}}
+MECH_EXT.shield=(e,b,m,i,hpF)=>{m.at.forEach((th,j)=>{const k=i+'_'+j;if(b.done[k]||hpF>th)return;b.done[k]=1;const r=b.room;b.pylons=[];
+  for(let n=0;n<m.n;n++){const a=n/m.n*6.28+0.5;const p=spawnDunMob('pylon',Math.cos(a)*r.w*0.36,r.cz+Math.sin(a)*r.d*0.36,m.lvl,{temp:true});p.addOf=e;p.wr=0;p.state='chase';p.nextAtk=T+1.5;ringFx(p.pos.x,p.pos.z,0xffb347,3,0.6);b.pylons.push(p);}
+  e.immune=()=>!!b.pylons&&b.pylons.some(p=>!p.dead&&enemies.includes(p));banner(m.name.toUpperCase(),'Destroy the '+m.n+' Ember Pylons to break her shield');SFX.boom();});};
+MECH_EXT.nova=(e,b,m,i)=>{if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;e.rootUntil=T+m.delay;novaTele(e,e.pos.x,e.pos.z,m.safe,m.r,m.delay,b.baseDmg*m.mult,m.name);
+  toast('⚠ '+m.name+': get close to him!');tone(160,0.7,'sawtooth',0.06,200);};
+function novaTele(src,x,z,inner,r,delay,dmg,name){const g=new THREE.Group();g.position.set(x,0.06,z);const k=inner/r;
+  const edge=new THREE.Mesh(new THREE.RingGeometry(k-0.02,k,48).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x6dff8a,transparent:true,opacity:0.95,depthWrite:false}));edge.scale.set(r,1,r);g.add(edge);
+  const out=new THREE.Mesh(new THREE.RingGeometry(0.985,1,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:0.9,depthWrite:false}));out.scale.set(r,1,r);g.add(out);
+  const base=new THREE.Mesh(new THREE.RingGeometry(k,1,48).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:0.16,depthWrite:false}));base.scale.set(r,1,r);g.add(base);
+  const fill=new THREE.Mesh(new THREE.RingGeometry(k,1,48).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xff6a2a,transparent:true,opacity:0.4,depthWrite:false}));fill.position.y=0.01;fill.scale.set(0.05,1,0.05);g.add(fill);
+  DUN.group.add(g);DUN.tele.push({src,x,z,r,inner,t0:T,at:T+delay,dmg,g,fill,edge:out,name});}
+function raidOnBoss(e){const d=DUN,R=d.D,id=d.id;d.raidRun.kills++;
+  if(!d.raidRun.counted){d.raidRun.counted=true;const u=raidUse(id);log('⚔ Raid lockout: run <b>'+u+'/'+R.lockout.runs+'</b> used this week (resets '+raidResetTxt(id)+').');}
+  const n=R.tokens[e.boss.key]||0;if(n){P.sigils=(P.sigils|0)+n;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1,e.pos.z),'+'+n+' '+RAID_CUR,'info');log('+<b>'+n+' '+SIGIL+'</b> '+RAID_CUR+' (you have '+P.sigils+')');}
+  if(e.boss.final){P.raidClears=P.raidClears||{};P.raidClears[id]=(P.raidClears[id]||0)+1;}save();}
+function raidTrack(){const d=DUN,R=d.D;const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;const al=d.raidAllies.filter(a=>!a.dead&&allies.includes(a)).length;
+  return `<b>⚔ ${esc(R.name)}</b><br>Bosses ${k}/${tot} · Team ${al+(P.dead?0:1)}/${R.team.size} · ${d.raidRun.counted?'run counted':'run not used yet'} · ${raidLeft(d.id)}/${R.lockout.runs} left${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;}
+/* ---------- world portal ---------- */
+const raidFx=[];
+for(const k in RAIDS){const R=RAIDS[k];if(!R.door)continue;const d=R.door;const y=heightAt(d.x,d.z);const g=new THREE.Group();g.position.set(d.x,y,d.z);g.rotation.y=Math.atan2(-d.x,-d.z);
+  for(const s of [-1,1]){part(g,geoBox,M(0x2a1c18),s*3.3,3.4,0,1.4,6.8,1.6);part(g,geoCone,MB(R.accent),s*3.3,7.4,0,0.5,1.4,0.5);}part(g,geoBox,M(0x3a2420),0,7.0,0,8.2,1.0,2.0);
+  part(g,geoBox,M(0x241812),0,0.25,1.4,8,0.5,3.6);part(g,geoBox,MB(0x160806),0,3.2,-0.1,5.2,6.2,0.3);
+  const sw=part(g,new THREE.TorusGeometry(2.2,0.16,4,28),MB(R.accent),0,3.3,0.15,1,1.3,1);const sw2=part(g,new THREE.TorusGeometry(1.5,0.1,4,22),MB(0xffc85a),0,3.3,0.18,1,1.3,1);raidFx.push(sw,sw2);
+  part(g,geoBox,MB(R.accent),0,7.0,1.02,6,0.3,0.05);scene.add(g);const b=makeBeam(R.accent,34,0.7,0.25);b.position.set(d.x,y,d.z);
+  for(let i=circles.length-1;i>=0;i--)if(Math.hypot(circles[i].x-d.x,circles[i].z-d.z)<9)circles.splice(i,1);
+  const c=Math.cos(g.rotation.y),s=Math.sin(g.rotation.y);for(const lx of [-3.3,3.3])boxes.push({x0:d.x+lx*c-0.8,x1:d.x+lx*c+0.8,z0:d.z-lx*s-0.8,z1:d.z-lx*s+0.8,y0:y,y1:y+7});}
+function raidNear(p){if(DUN)return null;for(const k in RAIDS){const d=RAIDS[k].door;if(d&&Math.hypot(p.x-d.x,p.z-d.z)<6.5)return k;}return null;}
+function updRaidPortals(dt){for(let i=0;i<raidFx.length;i++)raidFx[i].rotation.z+=dt*(i%2?-2:1.2);}
+function raidMini(c,tf){for(const k in RAIDS){const d=RAIDS[k].door;if(!d)continue;const q=tf(d.x,d.z);c.fillStyle='#ff6a2a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-8);c.lineTo(q[0]+8,q[1]);c.lineTo(q[0],q[1]+8);c.lineTo(q[0]-8,q[1]);c.closePath();c.fill();c.stroke();}}
+/* ---------- panel ---------- */
+const RP={tab:'team'};
+function raidStatusLine(id){const R=RAIDS[id];return `<b class="${raidLeft(id)?'up':'down'}">${raidLeft(id)}/${R.lockout.runs} runs left this week</b> · resets ${esc(raidResetTxt(id))}`;}
+function openRaid(id,tab){id=id||'bastion';if(tab)RP.tab=tab;const R=RAIDS[id];RP.id=id;const team=raidTeam(id);const ck=raidEntryCheck(id,team);const t=RP.tab;
+  const picks=raidPicks(id),al=raidAlts(id);const nAlt=team.filter(s=>!s.merc).length,nMerc=team.length-nAlt;
+  let h=`<div class="craftbar raidbar"><span class="cbi">⚔</span><span class="cbn"><b>${esc(R.name)}</b><small>Lv ${R.minLvl}–${R.cap} · team of ${R.team.size} · ${raidLeft(id)}/${R.lockout.runs} runs left · resets in ${fmtLeft(raidResetIn(id))} · ${RAID_CUR} ${P.sigils|0}</small></span>
+    <button class="sbtn${ck.ok?'':' locked'}" id="raidGo" data-act="${ck.ok?'rgo':'rno'}" data-id="${id}">${ck.ok?'Enter raid':ck.why==='lockout'?'🔒 Locked out':ck.why==='story'?'🔒 Story':ck.why==='cap'?'⛔ Over cap':'Lv '+R.minLvl+'+'}</button></div>`;
+  h+=`<div class="tabs">${[['team','👥 Team'],['bosses','💀 Bosses'],['shop',RAID_CUR+' Sigils']].map(([k,n])=>`<button data-act="rtab" data-t="${k}" class="${t===k?'on':''}">${n}</button>`).join('')}</div>`;
+  if(!ck.ok)h+=`<div class="capmsg${ck.why==='story'?' story':''}">${ck.why==='lockout'?'🔒':'⛔'} ${esc(ck.msg)}${ck.why==='story'?'. Talk to Archivist Sela Marr in Halden\'s Rest.':''}</div>`;
+  if(t==='team'){h+=`<div class="mis" style="border-color:#ff6a2a"><p>${esc(R.desc)}</p><div>${raidStatusLine(id)}</div><div style="opacity:.8;font-size:13px;margin-top:4px">A run is used the first time a boss dies in it; wiping before any kill costs nothing. Lockouts are per character. Death revives the whole team at the entrance (bosses reset).</div></div>
+    <div class="h4">Your team: you + ${nAlt} alt${nAlt===1?'':'s'}${nMerc?' + '+nMerc+' contract mercenar'+(nMerc>1?'ies':'y'):''} = ${team.length+1}/${R.team.size}</div>
+    <div class="mis"><b>${esc(P.name)}</b> (you) · Lv ${P.level} ${esc(PROFS[P.prof].name)} · ${ROLE[P.prof]}</div>`+
+    al.map(a=>{const on=picks.includes(a.id);return `<button class="item${on?' sel':''}" data-act="${a.over?'rover':'rtog'}" data-id="${a.id}" style="${a.over?'opacity:.55':''}"><span class="ico">${on?'✔':a.over?'⛔':'＋'}</span><span><div class="nm">${esc(a.name)}</div><div class="sub">Lv ${a.level} ${esc(PROFS[a.prof].name)} · ${a.role}${a.over?' · over the cap ('+R.cap+')':''}</div></span></button>`;}).join('')+
+    (nMerc?`<div style="opacity:.8;font-size:13px;margin-top:6px">Empty seats are filled by contract mercenaries at your level: ${team.filter(s=>s.merc).map(s=>esc(s.name)+' ('+s.role+')').join(', ')}.</div>`:'')+
+    (al.length?'':`<div style="opacity:.7;font-size:13px">Make more characters (alts) to bring your own team; until then mercenaries fill in.</div>`);}
+  else if(t==='bosses'){const bosses=R.rooms.filter(r=>r.boss).map(r=>BOSSES[r.boss]);
+    h+=bosses.map((B,i)=>`<div class="mis"><b style="color:#ff9a2a">${esc(ETYPES[B.etype].name)}</b> · Lv ${B.lvl}${i===bosses.length-1?' · final boss':''} · ${RAID_CUR}${R.tokens[B.etype]||0}${B.mech.map(m=>`<div style="font-size:13px"><b>${esc(m.name)}</b>: ${esc(m.desc)}</div>`).join('')}</div>`).join('');}
+  else{R._prev=R._prev||Object.keys(UNIQUES).filter(k=>UNIQUES[k].d===id).map(k=>{const it=makeUnique(k);it._k=k;return it;});
+    h+=`<div class="stats">${SIGIL} ${RAID_CUR} drop from every raid boss (${Object.values(R.tokens).join(' / ')}) and buy raid-only gear here. You have <b>${P.sigils|0} ${RAID_CUR}</b>. Raid gear never drops anywhere else.</div>`+
+      R._prev.map(it=>{const c=UNIQUES[it._k].sig;return itemRow(it,c?`<span class="${(P.sigils|0)>=c?'up':'down'}" style="white-space:nowrap">${c} ${RAID_CUR}</span>`:'<span style="opacity:.7">drop only</span>',false,c?'rbuy':'noop').replace('data-id="'+it.id+'"','data-id="'+it._k+'"');}).join('');}
+  openPanel('⚔ RAID · '+R.name.toUpperCase(),h,'raid');}
+function raidBuy(k){const u=UNIQUES[k];if(!u||!u.sig||u.d!=='bastion')return false;if((P.sigils|0)<u.sig){warn('Needs '+u.sig+' '+RAID_CUR+' (you have '+(P.sigils|0)+')');return false;}
+  if(P.inv.length>=24){warn('Pack full');return false;}P.sigils-=u.sig;const it=makeUnique(k);it.dropBy='Sigil Quartermaster';P.inv.push(it);SFX.ui();toast('Bought '+it.name);save();return true;}
+function raidAct(a,b){const D=b.dataset;if(a==='rtab')openRaid(RP.id,D.t);else if(a==='rgo'){closePanel();enterRaid(D.id);}else if(a==='rno'){const ck=raidEntryCheck(D.id,raidTeam(D.id));warn(ck.msg);}
+  else if(a==='rtog'){let ids=raidPicks(RP.id);if(ids.includes(D.id))ids=ids.filter(x=>x!==D.id);else if(ids.length>=RAIDS[RP.id].team.size-1){warn('A raid team holds '+RAIDS[RP.id].team.size+' (you + '+(RAIDS[RP.id].team.size-1)+')');return true;}else ids.push(D.id);P.raidTeam=ids;save();openRaid(RP.id);}
+  else if(a==='rover')warn('Over the level cap: '+RAIDS[RP.id].cap);else if(a==='rbuy'){raidBuy(D.id);openRaid(RP.id);}else return false;return true;}
+function raidJournalHtml(){return `<div class="stats">Raids are team instances (you + up to 5 alts; empty seats get contract mercenaries). Each raid can be run a limited number of times per week: the lockout resets every <b>Monday 00:00</b> (your local time) and is per character. You have <b>${P.sigils|0} ${RAID_CUR}</b> ${SIGIL}.</div>`+
+  Object.values(RAIDS).map(R=>{if(R.future)return `<div class="jrow"><span class="jn">🔒</span><span style="flex:1"><b>${esc(R.name)}</b> <span style="opacity:.7">· Lv ${R.minLvl}+ · coming when the level cap rises (now ${MAXLVL})</span></span></div>`;
+    const ck=raidEntryCheck(R.id,[]);return `<div class="jrow${ck.ok?' done':''}"><span class="jn">⚔</span><span style="flex:1"><b>${esc(R.name)}</b> <span style="opacity:.7">· Lv ${R.minLvl}–${R.cap} · ${esc(BIOMES[biomeIdx(R.door.x,R.door.z)].name)}</span><br><span class="jun">${raidStatusLine(R.id)} · cleared ${(P.raidClears||{})[R.id]|0}×${ck.ok||ck.why==='lockout'?'':' · '+esc(ck.msg)}</span></span></div>`;}).join('');}
+function raidExports(){return {RAIDS,RAIDCLK,raidNow,periodKey,nextReset,raidLeft,raidRec,raidUse,raidResetIn,raidResetTxt,raidEntryCheck,enterRaid,raidTeam,raidPicks,raidAlts,mercSnap,openRaid,raidBuy,raidJournalHtml,raidNear,normRaidLock,MECH_EXT,BOSSES,raidOnBoss,
+  get sigils(){return P.sigils|0;}};}
+
 /* ---------------- input ---------------- */
 const inp={jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -2754,10 +3152,11 @@ function tapPick(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFrom
 function btn(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();el.classList.add('press');fn();});
   const up=()=>el.classList.remove('press');el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up);}
 btn('#bAtk',pressAttack);[0,1,2,3,4,5].forEach(i=>btn('#b'+i,()=>{if(!barIds()[i]){if(!P.morph)openBook();return;}useAbility(i);}));btn('#bBook',()=>{if(panelOpen==='book')closePanel();else{bookSel=null;openBook();}});btn('#bStim',useStim);btn('#bSk',()=>{if(panelOpen==='skills')closePanel();else openSkills();});
-btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bTgt',cycleTarget);btn('#bUse',interact);
+btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTgt',cycleTarget);btn('#bUse',interact);
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;audioInit();inp.keys[e.code]=true;
   if(state!=='play')return;
   if(e.code==='Escape'){if(panelOpen)closePanel();else openMenu();return;}
+  if(e.code==='KeyM'){toggleMap();return;}
   if(e.code==='KeyK'){if(panelOpen==='skills')closePanel();else openSkills();return;}
   if(e.code==='KeyJ'){if(panelOpen==='craft')closePanel();else openCraft();return;}
   if(e.code==='KeyL'){if(panelOpen==='journal')closePanel();else openJournal();return;}
@@ -2909,7 +3308,7 @@ function drawMini(dt){miniAcc+=dt;if(miniAcc<0.08)return;miniAcc=0;const W=300,R
   for(const l of loots)dot(l.x,l.z,RAR[l.item.r].c,4);
   for(const a of allies)dot(a.pos.x,a.pos.z,'#ffa040',4.5);
   for(const e of enemies)if(!e.dead&&Math.abs(e.pos.x-P.pos.x)<95&&Math.abs(e.pos.z-P.pos.z)<95)dot(e.pos.x,e.pos.z,e===P.target?'#fff':e.boss?'#ff9a2a':e.state==='chase'?'#ff3b2f':'#e0603a',e.boss?8:e.type==='mauler'?6:4.5);
-  if(!DUN){campMini(c,tf);bankMini(c,tf);}
+  if(!DUN){campMini(c,tf);bankMini(c,tf);raidMini(c,tf);uwpMini(c,tf,R);}
   c.restore();
   const wp=DUN?dunWaypoint():(assaultWaypoint()||storyWaypoint()||missionWaypoint());if(wp){let q=tf(wp.x,wp.z);const dx=q[0]-R,dy=q[1]-R,d=Math.hypot(dx,dy);if(d>R-12){q=[R+dx/d*(R-12),R+dy/d*(R-12)];}c.fillStyle='#ffc85a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-11);c.lineTo(q[0]+9,q[1]);c.lineTo(q[0],q[1]+11);c.lineTo(q[0]-9,q[1]);c.closePath();c.fill();c.stroke();}
   // north marker
@@ -3010,7 +3409,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updFloats(dt);updHUD(dt);drawMini(dt);
     if(cache){cache.g.rotation.y+=dt*0.5;}
   }else{
     // title flyover
@@ -3024,7 +3423,7 @@ function frame(now){requestAnimationFrame(frame);let dt=(now-last)/1000;last=now
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));
 })();
 </script>
 </body>
