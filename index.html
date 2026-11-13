@@ -229,10 +229,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261113T154402-74ff4281">
+<meta name="dr-build" content="20261113T163723-8047b0d6">
 <script>
 (function(){
-var BUILD='20261113T154402-74ff4281';window.DR_BUILD=BUILD;
+var BUILD='20261113T163723-8047b0d6';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -392,10 +392,14 @@ function vnoise(x,z){const xi=Math.floor(x),zi=Math.floor(z),xf=x-xi,zf=z-zi;con
   return lerp(lerp(hash(xi,zi),hash(xi+1,zi),u),lerp(hash(xi,zi+1),hash(xi+1,zi+1),u),v);}
 function fbm(x,z){let s=0,a=1,f=1,n=0;for(let i=0;i<4;i++){s+=vnoise(x*f,z*f)*a;n+=a;a*=0.5;f*=2.03;}return s/n;}
 function smooth(e0,e1,x){const t=clamp((x-e0)/(e1-e0),0,1);return t*t*(3-2*t);}
-const WORLD=880,HALF=WORLD/2,SEG=220,CELL=WORLD/SEG,N1=SEG+1,CORE_HALF=260;// world grew from 520 m to 880 m square (~2.9x area); the old 520 m core is unchanged
+const WORLD=1280,HALF=WORLD/2,SEG=320,CELL=WORLD/SEG,N1=SEG+1,CORE_HALF=260;// world grew 520 -> 880 -> 1280 m square; the old 880 m world sits unchanged in the middle, the Duskcrown Highlands ring it (Lv 11-20)
 const TOWN=31;
 // small desert outposts (safe zones with a Conduit node, Save Point and teleporter pad)
-const OUTPOSTS=[{id:'cinderwell',name:'Cinderwell Post',x:0,z:-80,r:11},{id:'glassreach',name:'Glassreach Camp',x:172,z:-10,r:11}];
+const OUTPOSTS=[{id:'cinderwell',name:'Cinderwell Post',x:0,z:-80,r:11},{id:'glassreach',name:'Glassreach Camp',x:172,z:-10,r:11},{id:'farwatch',name:'Farwatch Station',x:-407,z:235,r:13,hub:true}];
+/* ---------- Duskcrown Highlands (Lv 11-20): the outer ring. Level rises with the angular distance from Farwatch (150 deg): 11 there, 20 on the far side (330 deg). ---------- */
+const GLOAM={r0:392,r1:440,hubDeg:150,door:{x:-122,z:-461}};
+function gloamLv(x,z){const a=Math.atan2(z,x)*180/Math.PI;let d=Math.abs(((a-GLOAM.hubDeg)%360+540)%360-180);return Math.round(11+9*d/180);}
+const gloamAt=(deg,r)=>{const a=deg*Math.PI/180;return [Math.round(Math.cos(a)*r),Math.round(Math.sin(a)*r)];};
 /* ---------- biomes: the old desert core ringed by six regions (blended borders) ---------- */
 const BIOMES=[
   {id:'dunes',name:'Kessra Dunes',sub:'Open desert around Halden\'s Rest',lv:[1,10],fog:0xe9b98a,hemi:0xffe2c0,c1:0xc9a07a,c2:0xb48660},
@@ -404,14 +408,17 @@ const BIOMES=[
   {id:'scrap',name:'Rustmaw Scrapyard',sub:'Ruined Combine city and tech scrap',lv:[6,9],gate:'factions',a:2,fog:0xa89a8c,hemi:0xe0d4c8,c1:0x5c5e62,c2:0x4a4c50},
   {id:'oasis',name:'Mirewell Oasis',sub:'Scrubland, palms and springs',lv:[3,6],a:3,fog:0xc4ccaa,hemi:0xe4ecd0,c1:0x55783a,c2:0x6a8a44},
   {id:'canyon',name:'Redspire Canyons',sub:'Red rock canyons and mesas',lv:[5,8],gate:'mine',a:4,fog:0xe0906a,hemi:0xffc8a0,c1:0xb85a3c,c2:0x9c4630},
-  {id:'salt',name:'Whitepan Salt Flats',sub:'Blinding salt pans',lv:[4,7],gate:'cinderwell',a:5,fog:0xe4dccc,hemi:0xeeeeea,c1:0xd2ccbe,c2:0xc2baa8}];
-const BWS=new Float32Array(7);
-function biomeW(x,z,out){out=out||BWS;const r=Math.hypot(x,z);const o=smooth(222,285,r+(fbm(x*0.01+3,z*0.01+9)-0.5)*44);out[0]=1-o;
-  if(o<=0){for(let i=1;i<7;i++)out[i]=0;return out;}
+  {id:'salt',name:'Whitepan Salt Flats',sub:'Blinding salt pans',lv:[4,7],gate:'cinderwell',a:5,fog:0xe4dccc,hemi:0xeeeeea,c1:0xd2ccbe,c2:0xc2baa8},
+  {id:'dusk',name:'Duskcrown Highlands',sub:'Violet stone terraces veined with waking Vyre',lv:[11,20],gate:'farwatch',outer:true,fog:0x9088b0,hemi:0xd4ccff,c1:0x544c68,c2:0x635a7a}];
+const NB=BIOMES.length,GB=NB-1;// biome count (8) and the outer Duskcrown index
+const BWS=new Float32Array(NB);
+function biomeW(x,z,out){out=out||BWS;const r=Math.hypot(x,z);const o=smooth(222,285,r+(fbm(x*0.01+3,z*0.01+9)-0.5)*44);out[0]=1-o;out[GB]=0;
+  if(o<=0){for(let i=1;i<GB;i++)out[i]=0;return out;}
   const a=Math.atan2(z,x)+(fbm(x*0.006+7,z*0.006+3)-0.5)*0.9;let sum=0;
   for(let k=0;k<6;k++){const c=k*Math.PI/3;const d=Math.abs(Math.atan2(Math.sin(a-c),Math.cos(a-c)));const w=smooth(Math.PI/6+0.16,Math.PI/6-0.16,d);out[k+1]=w;sum+=w;}
-  for(let k=1;k<7;k++)out[k]=o*out[k]/(sum||1);return out;}
-function biomeIdx(x,z){const w=biomeW(x,z);let bi=0;for(let i=1;i<7;i++)if(w[i]>w[bi])bi=i;return bi;}
+  const g=r<GLOAM.r0-30?0:smooth(GLOAM.r0,GLOAM.r1,r+(fbm(x*0.008+31,z*0.008+17)-0.5)*56);
+  for(let k=1;k<GB;k++)out[k]=o*(1-g)*out[k]/(sum||1);out[GB]=g;return out;}
+function biomeIdx(x,z){const w=biomeW(x,z);let bi=0;for(let i=1;i<NB;i++)if(w[i]>w[bi])bi=i;return bi;}
 function coreH(x,z){
   let h=(fbm(x*0.008+10,z*0.008+5)-0.5)*28+Math.sin(x*0.045+Math.cos(z*0.021)*2.5)*1.8+Math.sin(z*0.06+x*0.01)*1.2;
   const d=Math.max(Math.abs(x),Math.abs(z));
@@ -423,10 +430,15 @@ const BH=[coreH,
   (x,z)=>(fbm(x*0.01+5,z*0.01+60)-0.5)*9,// scrap: flat-ish city floor
   (x,z)=>{const h=fbm(x*0.012+80,z*0.012+12)*9+0.6;const p=smooth(0.6,0.68,fbm(x*0.022+30,z*0.022+30));return h+(-2.4-h)*p;},// oasis: low hills, spring-fed ponds
   (x,z)=>{const n=fbm(x*0.012+50,z*0.012-20);return smooth(0.47,0.51,n)*15+smooth(0.6,0.63,n)*12+(fbm(x*0.08,z*0.08)-0.5)*2.2;},// canyons: terraced mesas
-  (x,z)=>(fbm(x*0.01+90,z*0.01+90)-0.5)*2.4];// salt: dead flat
-function rawH(x,z){const w=biomeW(x,z);let h=0;for(let i=0;i<7;i++)if(w[i]>0.001)h+=w[i]*BH[i](x,z);
+  (x,z)=>(fbm(x*0.01+90,z*0.01+90)-0.5)*2.4,// salt: dead flat
+  (x,z)=>{const n=fbm(x*0.007+130,z*0.007-40);return 3+smooth(0.44,0.49,n)*9+smooth(0.57,0.61,n)*9+(fbm(x*0.045+7,z*0.045)-0.5)*4.5+Math.abs(Math.sin(x*0.02+z*0.013+fbm(x*0.01,z*0.01)*4))*1.6;}];// gloam: violet terraces
+// flattened pads for the Farwatch hub and the Choir dungeon door
+const FLATS=[{x:-407,z:235,r:30,i:22},{x:GLOAM.door.x,z:GLOAM.door.z,r:18,i:9}];
+function rawH0(x,z){const w=biomeW(x,z);let h=0;for(let i=0;i<NB;i++)if(w[i]>0.001)h+=w[i]*BH[i](x,z);
   const D=Math.max(Math.abs(x),Math.abs(z));h+=smooth(HALF-78,HALF-22,D)*46*(0.55+0.45*fbm(x*0.03,z*0.03));
   return h;}
+FLATS.forEach(f=>f.h=rawH0(f.x,f.z));
+function rawH(x,z){let h=rawH0(x,z);for(const f of FLATS){const d=Math.hypot(x-f.x,z-f.z);if(d<f.r)h+=(f.h-h)*smooth(f.r,f.i,d);}return h;}
 const HG=new Float32Array(N1*N1);
 for(let iy=0;iy<N1;iy++)for(let ix=0;ix<N1;ix++)HG[iy*N1+ix]=rawH(ix*CELL-HALF,iy*CELL-HALF);
 let FLAT=false;// true inside an instanced dungeon: flat floor at y=0
@@ -443,7 +455,7 @@ const TCOL=new Float32Array(N1*N1*3);const TCH=[];const CH_N=10,CH_C=SEG/CH_N;
 (function(){
   const c=new THREE.Color(),t=new THREE.Color(),u=new THREE.Color();
   const sand=new THREE.Color(0xc9a07a),sand2=new THREE.Color(0xb48660),rock=new THREE.Color(0x8a5238),town=new THREE.Color(0xb59a7e),hi=new THREE.Color(0x6e3f2c);
-  const BC=BIOMES.map(b=>[new THREE.Color(b.c1),new THREE.Color(b.c2)]);const w=new Float32Array(7);
+  const BC=BIOMES.map(b=>[new THREE.Color(b.c1),new THREE.Color(b.c2)]);const w=new Float32Array(NB);const vein=new THREE.Color(0x46d8e8),terr=new THREE.Color(0x8a82a6);
   const lava=new THREE.Color(0x8a2a10),mesa=new THREE.Color(0xd07a4c),floorC=new THREE.Color(0xc98a5a),pond=new THREE.Color(0x3f6a64),shore=new THREE.Color(0xcdb48a),rust=new THREE.Color(0x8a4a2a),glint=new THREE.Color(0x8fe8ee),crack=new THREE.Color(0xbcb4a2),snow=new THREE.Color(0x7a6a62);
   for(let iy=0;iy<N1;iy++)for(let ix=0;ix<N1;ix++){const i=iy*N1+ix;const x=ix*CELL-HALF,z=iy*CELL-HALF,h=HG[i];biomeW(x,z,w);
     const n=hash(Math.floor(x*0.7),Math.floor(z*0.7));
@@ -451,12 +463,13 @@ const TCOL=new Float32Array(N1*N1*3);const TCH=[];const CH_N=10,CH_C=SEG/CH_N;
     c.copy(sand).lerp(sand2,fbm(x*0.05,z*0.05));if(h>6)c.lerp(rock,clamp((h-6)/10,0,1));if(h>20)c.lerp(hi,clamp((h-20)/15,0,1));
     const d=Math.max(Math.abs(x),Math.abs(z));if(d<34)c.lerp(town,0.8);
     if(w[0]<0.999){c.multiplyScalar(w[0]);
-      for(let k=1;k<7;k++){if(w[k]<0.001)continue;t.copy(BC[k][0]).lerp(BC[k][1],fbm(x*0.04+k,z*0.04));const id=BIOMES[k].id;
+      for(let k=1;k<NB;k++){if(w[k]<0.001)continue;t.copy(BC[k][0]).lerp(BC[k][1],fbm(x*0.04+k,z*0.04));const id=BIOMES[k].id;
         if(id==='glass'){if(hash(Math.floor(x*0.3),Math.floor(z*0.3))>0.86)t.lerp(glint,0.55);}
         else if(id==='ash'){if(h<-2)t.lerp(lava,clamp((-2-h)/4,0,0.8));else if(h>12)t.lerp(snow,clamp((h-12)/12,0,0.6));}
         else if(id==='scrap'){t.lerp(rust,Math.max(0,fbm(x*0.08,z*0.08)-0.45)*0.9);}
         else if(id==='oasis'){if(h<WATER_Y+0.2)t.copy(pond);else if(h<WATER_Y+1.4)t.lerp(shore,0.7);}
         else if(id==='canyon'){if(h>10)t.lerp(mesa,0.6);else if(h<3)t.lerp(floorC,0.5);}
+        else if(id==='dusk'){if(h>12)t.lerp(terr,clamp((h-12)/8,0,0.55));const vv=Math.abs(Math.sin(x*0.11+Math.sin(z*0.07)*3+fbm(x*0.02,z*0.02)*5));if(vv<0.05)t.lerp(vein,0.65);}
         else if(id==='salt'){const fx=Math.abs(Math.sin(x*0.35+Math.sin(z*0.2)*2)),fz=Math.abs(Math.sin(z*0.35+Math.sin(x*0.2)*2));if(fx<0.12||fz<0.12)t.lerp(crack,0.7);}
         c.r+=t.r*w[k];c.g+=t.g*w[k];c.b+=t.b*w[k];}}
     if(D_EDGE(x,z)>0)c.lerp(hi,D_EDGE(x,z)*0.7);
@@ -778,8 +791,25 @@ const NEW_WEAVES=[
   // Glintrunner signature (rare = ultra-rare drop only: never sold, never a mission reward). Twinkable: high Weave Craft + Agility.
   {id:'veil1',line:'veil',tier:1,prof:'runner',lvl:6,rare:true,name:'Shimmerveil',icon:'💠',cost:60,cd:30,range:0,reqx:[{s:'weave',v:45},{s:'agi',v:32}],buff:{dur:600,mods:L=>({evade:60+L*3,dr:10})},desc:'Signature self-buff (10 min): wraps you in a blue lattice. Huge Evasion and 10% damage reduction.'},
   {id:'veil2',line:'veil',tier:2,prof:'runner',lvl:10,rare:true,name:'Shimmerveil II',icon:'💠',cost:80,cd:30,range:0,reqx:[{s:'weave',v:80},{s:'agi',v:46}],buff:{dur:600,mods:L=>({evade:110+L*4,dr:18})},desc:'Signature self-buff (10 min): a brighter blue lattice. Massive Evasion and 18% damage reduction.'},
+  // ---- Level 11-20 (Duskcrown): every profession gets two new ranks/abilities, learned from Weave Disks (world drops, missions, Farwatch) ----
+  {id:'sunder3',line:'sunder',tier:3,prof:'flux',lvl:13,name:'Sunder Spike III',icon:'☄️',cost:78,cd:7,range:28,needTarget:true,kind:'nuke',mult:8.4,color:0xff3a1a,sfx:'boom',desc:'Colossal nuke for 840% damage.'},
+  {id:'starfall2',line:'starfall',tier:2,prof:'flux',lvl:17,name:'Starfall Cascade',icon:'🌠',cost:110,cd:18,range:28,needTarget:true,kind:'barrage',waves:4,gap:0.55,delay:0.3,mult:2.1,radius:9,color:0xfff07a,desc:'AoE: four waves of falling Vyre on the target area, each hitting everything within 9m for 210%.'},
+  {id:'arc3',line:'arc',tier:3,prof:'weaver',lvl:12,name:'Arc Lance III',icon:'⚡',cost:34,cd:2.5,range:26,needTarget:true,kind:'nuke',mult:3.4,color:0xc8fdff,desc:'Lance of Vyre for 340% damage.'},
+  {id:'storm2',line:'storm',tier:2,prof:'weaver',lvl:16,name:'Lattice Tempest',icon:'🌩️',cost:90,cd:16,range:26,needTarget:true,kind:'aoeT',mult:2.3,radius:8,hexDur:10,amp:1.4,weak:0.6,color:0x9a6bff,desc:'AoE: 230% damage within 8m of the target, and hexes everything hit for 10s (+40% damage taken, -40% damage dealt).'},
+  {id:'breach3',line:'breach',tier:3,prof:'vanguard',lvl:12,name:'Breach Round III',icon:'🎯',cost:52,cd:10,range:28,needTarget:true,kind:'nuke',mult:6.2,color:0xff6a2a,sfx:'boom',desc:'A siege round for 620% damage.'},
+  {id:'orbital2',line:'orbital',tier:2,prof:'vanguard',lvl:17,name:'Orbital Lance',icon:'🛰️',cost:80,cd:16,range:32,needTarget:true,kind:'barrage',waves:2,delay:1.0,gap:0.7,mult:3.6,radius:8,color:0xff4a2a,desc:'AoE: two Combine strikes on the target area, each hitting everything within 8m for 360%.'},
+  {id:'mend3',line:'mend',tier:3,prof:'mender',lvl:12,name:'Mend III',icon:'✚',cost:40,cd:5,range:0,needTarget:false,kind:'heal',pct:0.6,desc:'Heal yourself for 60% of max health (more with Treatment).'},
+  {id:'purge2',line:'purge',tier:2,prof:'mender',lvl:16,name:'Purge Nova',icon:'💠',cost:55,cd:12,range:9,needTarget:false,kind:'aoeSelf',mult:2.4,radius:9,heal:0.25,color:0x6dff8a,desc:'AoE: a pulse around you for 240% damage to enemies within 9m, healing you for 25%.'},
+  {id:'tangle2',line:'tangle',tier:2,prof:'runner',lvl:13,name:'Tanglestorm',icon:'🕸️',cost:40,cd:16,range:24,needTarget:true,kind:'aoeT',mult:1.3,radius:8,root:6,color:0x7fd8ff,desc:'AoE snare: 130% damage to everything within 8m of the target and roots them for 6s.'},
+  {id:'rattle4',line:'rattle',tier:4,prof:'runner',lvl:18,name:'Rattle Tempest',icon:'🌪️',cost:40,cd:4,range:22,needTarget:true,kind:'rattle',mult:1.3,shots:5,color:0xc8f4ff,desc:'5 rapid shots for 130% damage each.'},
+  {id:'thornvolley3',line:'thornvolley',tier:3,prof:'wild',lvl:12,name:'Thorn Volley III',icon:'🌵',cost:32,cd:3,range:26,needTarget:true,kind:'nuke',mult:3.4,color:0xd0ff80,desc:'Thorn volley for 340% damage.'},
+  {id:'stampede2',line:'stampede',tier:2,prof:'wild',lvl:17,name:'Thunder Stampede',icon:'🦬',cost:60,cd:16,range:14,needTarget:false,kind:'cone',mult:3.3,angle:1.3,root:3,color:0xd8b070,desc:'AoE: a phantom herd tramples a 14m cone ahead for 330% damage and pins enemies for 3s.'},
+  {id:'overcharge3',line:'overcharge',tier:3,prof:'wright',lvl:13,name:'Overcharge III',icon:'⚡',cost:40,cd:20,range:0,needTarget:false,needPet:true,kind:'petbuff',dmg:1.8,hp:0.5,spd:0.7,dur:240,desc:'Pet buff (4 min): +80% bot damage, much faster attacks and 50% more health.'},
+  {id:'patchdrone3',line:'patchdrone',tier:3,prof:'wright',lvl:17,name:'Patch Swarm',icon:'🛠️',cost:34,cd:6,range:0,needTarget:false,needPet:true,kind:'petheal',pct:0.7,hot:0.06,desc:'Repairs your bot for 70% of its health, plus 6% per second for 6s.'},
+  {id:'battery2',line:'battery',tier:2,prof:'any',lvl:15,name:'Vyre Battery II',icon:'🔋',cost:0,cd:60,range:0,needTarget:false,kind:'battery',pct:0.55,desc:'Restores 55% of your energy.'},
   // Dungeon-exclusive (excl = dungeon id): never in world drops, missions or the trader. Only from that dungeon's final boss.
   {id:'shardstorm',line:'shardstorm',tier:1,prof:'any',lvl:6,excl:'mine',name:'Shardstorm',icon:'💎',cost:45,cd:12,range:7,needTarget:false,kind:'aoeSelf',mult:2.0,radius:7,color:0x5ff2ff,desc:'AoE: erupts Vyre shards around you for 200% damage to everything within 7m.'},
+  {id:'silencechord',line:'silencechord',tier:1,prof:'any',lvl:16,excl:'choir',name:'Silencing Chord',icon:'🔔',cost:60,cd:14,range:9,needTarget:false,kind:'aoeSelf',mult:2.6,radius:9,root:3,color:0xb46bff,desc:'AoE: a chord of silence for 260% damage to everything within 9m, rooting them for 3s. Only from The Choir Below.'},
   {id:'aegis',line:'aegis',tier:1,prof:'any',lvl:10,excl:'vault',name:'Aegis Lattice',icon:'🔰',cost:50,cd:45,range:0,needTarget:false,kind:'heal',pct:0.3,dr:0.6,dur:10,desc:'Heals 30% of max health and cuts damage taken by 60% for 10s.'}
 ];
 const WEAVES={};
@@ -809,7 +839,9 @@ const ETYPES={
 const RAR=[{n:'Common',c:'#cfcfcf',h:0xcfcfcf,m:1},{n:'Uncommon',c:'#4fe36a',h:0x4fe36a,m:1.3},{n:'Rare',c:'#4aa3ff',h:0x4aa3ff,m:1.65},{n:'Epic',c:'#c86bff',h:0xc86bff,m:2.1},
   // dungeon-exclusive tiers: never rolled by rollRarity, only built by makeUnique() from a dungeon loot table
   {n:'Legendary',c:'#ff9a2a',h:0xff9a2a,m:2.45},{n:'Relic',c:'#ff4f5e',h:0xff4f5e,m:2.8},
-  {n:'Mythic',c:'#59c8ff',h:0x59c8ff,m:3}];// Mythic: ultra-rare Weave Disks (Shimmerveil)
+  {n:'Mythic',c:'#59c8ff',h:0x59c8ff,m:3},
+  // Lv 12+ world tier (index 7, ranked between Epic and Legendary): rare drops in the Duskcrown Highlands, its dynas and the Choir dungeon; 4 bonuses
+  {n:'Ascendant',c:'#ffe066',h:0xffe066,m:2.3}];// Mythic: ultra-rare Weave Disks (Shimmerveil)
 // Names: [condition] [type/family prefix] <type or slot noun> [suffix on Rare+]. Nouns are unique per weapon type / armour slot+family, so names always fit the item.
 const PRE=['Dusty','Scavenged','Worn','Tuned','Salvaged','Patched','Reach-made','Scoured'];
 const SUF=['of the Reach','of Kessra','of the Dunes','of Glass','of Embers','of the Long Night','Mk II','Mk III'];
@@ -859,13 +891,19 @@ const IMPDEF={head:{n:'Cortex',ic:'🧠',req:'int',pool:['int','psy','weave','po
   hands:{n:'Digital',ic:'✋',req:'agi',pool:['agi','wpn','treat','weave']},legs:{n:'Femoral',ic:'🦵',req:'sta',pool:['agi','sta','body','str','run']},
   feet:{n:'Plantar',ic:'🦶',req:'agi',pool:['agi','sen','treat','pool','run']}};
 function rollRarity(boost){const r=Math.random()*100-(boost||0);return r<2?3:r<12?2:r<40?1:0;}
+const ASC=7;// Ascendant rarity index
+const rRank=r=>r===ASC?3.5:r;// ordering helper: Ascendant sits between Epic (3) and Legendary (4)
+const rBon=r=>r===ASC?4:Math.min(r,3);// number of random bonuses
+// Lv 12+ drops can roll Ascendant: ~0.6% base, more with boost (elites, dynas, the Choir)
+function rollRarityL(lvl,boost){if(lvl>=12&&Math.random()<0.006*(1+(boost||0)/10))return ASC;return rollRarity(boost);}
+const IMPQL_MAX=()=>MAXLVL*5;// implant QL cap follows the level cap (100 at Lv 20)
 const impReq=(ql,slot)=>[{s:'treat',v:5+Math.round(ql*1.4)},{s:IMPDEF[slot].req,v:6+Math.round(ql*0.45)}];
 function genImplant(ql,slot,rIdx){
-  slot=slot||pick(IMPSLOTS);ql=clamp(Math.round(ql),1,80);if(rIdx==null)rIdx=rollRarity();rIdx=clamp(rIdx,0,3);const D=IMPDEF[slot];
+  slot=slot||pick(IMPSLOTS);ql=clamp(Math.round(ql),1,IMPQL_MAX());if(rIdx==null)rIdx=rollRarity();if(rIdx!==ASC)rIdx=clamp(rIdx,0,3);const D=IMPDEF[slot];
   const it={id:uid(),kind:'imp',slot,ql,r:rIdx,lvl:Math.max(1,Math.round(ql/5)),bonus:[],name:'QL '+ql+' '+D.n+' Implant'};
-  const pool=D.pool.slice().sort(()=>Math.random()-0.5);const n=[1,2,2,3][rIdx];
-  for(let i=0;i<n;i++){const s=pool[i];const base=ATTRS.includes(s)?1+Math.floor(ql/5):2+Math.floor(ql/3);it.bonus.push({s,v:Math.max(1,Math.round(base*(1+0.15*rIdx)))});}
-  it.req=impReq(ql,slot);it.value=Math.round((5+ql*3)*(1+0.3*rIdx));return it;
+  const pool=D.pool.slice().sort(()=>Math.random()-0.5);const n=rIdx===ASC?4:[1,2,2,3][rIdx];const rk=rRank(rIdx);
+  for(let i=0;i<n;i++){const s=pool[i];const base=ATTRS.includes(s)?1+Math.floor(ql/5):2+Math.floor(ql/3);it.bonus.push({s,v:Math.max(1,Math.round(base*(1+0.15*rk)))});}
+  it.req=impReq(ql,slot);it.value=Math.round((5+ql*3)*(1+0.3*rk));return it;
 }
 const GEARBONUS=['hp','en','crit','power','str','agi','sta','int','psy','sen','wpn','weave','treat','body','pool'];
 function bonusVal(s,lvl,v){if(s==='run')return Math.round((6+lvl*2.2)*v);if(s==='hp')return Math.round((8+lvl*6)*v);if(s==='en')return Math.round((5+lvl*3)*v);if(s==='crit')return randi(1,3)+Math.floor(lvl/4);if(s==='power')return randi(2,4)+Math.floor(lvl/2);
@@ -875,14 +913,14 @@ function genItem(lvl,slot,rIdx,opt){opt=opt||{};
   if(!slot&&Math.random()<0.3)return genImplant(lvl*4+randi(-3,3),null,rIdx);
   if(slot==='implant')return genImplant(lvl*4+randi(-3,3),null,rIdx);
   if(!slot||slot==='gear')slot=Math.random()<0.38?'weapon':pick(['head','armor','armor','hands','legs','legs','feet']);
-  if(rIdx==null)rIdx=rollRarity();rIdx=clamp(rIdx,0,3);
+  if(rIdx==null)rIdx=rollRarity();if(rIdx!==ASC)rIdx=clamp(rIdx,0,3);const rk=rRank(rIdx);
   const r=RAR[rIdx],v=rand(0.88,1.12);const pk=P.prof||'vanguard';const it={id:uid(),kind:'gear',slot,lvl,r:rIdx,bonus:[],req:[]};let lean=null;
   if(slot==='weapon'){const wt=opt.wt||(Math.random()<0.7?pick(wtAff(pk)):pick(Object.keys(WTYPES)));const W=WTYPES[wt];it.wt=wt;
-    it.dmg=Math.round((4+lvl*2.4)*r.m*v*W.dm);it.name=gearName(it);it.req.push({s:W.sk,v:Math.round((4+lvl*4.5)*(1+0.08*rIdx))});}
+    it.dmg=Math.round((4+lvl*2.4)*r.m*v*W.dm);it.name=gearName(it);it.req.push({s:W.sk,v:Math.round((4+lvl*4.5)*(1+0.08*rk))});}
   else{const fam=opt.fam||(Math.random()<0.6?PROF_FAM[pk]:pick(Object.keys(AFAM)));const F=AFAM[fam];it.fam=fam;lean=F.lean;
     it.armor=Math.max(1,Math.round((4+lvl*3.5)*SLOTW[slot]*F.m*r.m*v));it.name=gearName(it);
-    it.req.push({s:'body',v:Math.round((2+lvl*2.5)*(0.6+0.4*F.m)*(1+0.08*rIdx))});if(lvl>=3)it.req.push({s:F.attr,v:Math.round(4+lvl*1.6)});}
-  for(let i=0;i<rIdx;i++){const s=lean&&Math.random()<0.7?pick(lean):pick(GEARBONUS);it.bonus.push({s,v:bonusVal(s,lvl,v)});}
+    it.req.push({s:'body',v:Math.round((2+lvl*2.5)*(0.6+0.4*F.m)*(1+0.08*rk))});if(lvl>=3)it.req.push({s:F.attr,v:Math.round(4+lvl*1.6)});}
+  for(let i=0;i<rBon(rIdx);i++){let s=lean&&Math.random()<0.7?pick(lean):pick(GEARBONUS);if(rIdx===ASC){let g=0;while(it.bonus.some(x=>x.s===s)&&g++<12)s=pick(GEARBONUS);}it.bonus.push({s,v:bonusVal(s,lvl,v)});}
   if((slot==='feet'||slot==='legs')&&Math.random()<(slot==='feet'?0.45:0.25))it.bonus.push({s:'run',v:bonusVal('run',lvl,v)});
   const mg={};it.bonus=it.bonus.filter(b=>{if(mg[b.s]){mg[b.s].v+=b.v;return false;}mg[b.s]=b;return true;});
   it.value=Math.round((6+lvl*5)*r.m*r.m*(slot==='weapon'||slot==='armor'?1:0.6));return it;
@@ -905,12 +943,16 @@ function migrateItem(it){if(!it)return null;
    PERKS is an empty registry for now: a perk is {name, ranks, mods:(rank,c)=>({stat:val})}; characters save perks:{id:rank} and pp (perk points). */
 const SETS={};
 const PERKS={};
-const xpNeed=l=>Math.round(80*Math.pow(l,1.6));
-const MAXLVL=10;
+// XP curve: unchanged up to Lv 9 (old characters keep their progress); from Lv 10 on each level also costs +18% per level past 9,
+// so 11-20 is a steady climb (~50 kills of your level at Lv 15, ~80 at Lv 19, plus story/side quests) rather than a wall.
+const xpNeed=l=>Math.round(80*Math.pow(l,1.6)*(l>=10?1+0.18*(l-9):1));
+const MAXLVL=20;
 const SP_START=20,SP_LVL=25;
+const SP_HI=5;// extra skill points per level past 10 (the bigger skill caps need them)
+const spGain=l=>SP_LVL+(l>10?SP_HI:0);// points granted for reaching level l
 const TS_SP=10;// stage 3: extra points so tradeskills don't starve combat skills
 const RUN_SP=10;// added with the Run Speed skill: every character gets these once (old saves too)
-const spTotal=l=>SP_START+TS_SP+RUN_SP+SP_LVL*(l-1);
+const spTotal=l=>SP_START+TS_SP+RUN_SP+SP_LVL*(l-1)+SP_HI*Math.max(0,l-10);
 
 /* ---------------- player ---------------- */
 const P={name:'Contractor',prof:'vanguard',level:1,xp:0,credits:25,inv:[],eq:{weapon:null,head:null,armor:null,hands:null,legs:null,feet:null},imps:{},perks:{},pp:0,dunClears:{},ab:{},sb:{},sp:SP_START,known:[],slots:[],buffs:[],consum:{},stims:3,
@@ -1007,7 +1049,7 @@ function updFloats(dt){const W=innerWidth,H=innerHeight;for(let i=floats.length-
 let state='title';let T=0;let panelOpen=null;
 const camS={yaw:0,pitch:0.42,dist:9,tyaw:0};
 const loots=[];
-let missionOffers=[],offersAt=-999,vendorStock=[],stockAt=-999,stockLvl=0;
+let missionOffers=[],offersAt=-999,vendorStock=[],stockAt=-999,stockLvl=0,stockCtx='town';const VEND={ctx:'town'};
 let cache=null;// {m,beam,x,z}
 
 /* ---------------- toasts / log ---------------- */
@@ -1049,10 +1091,10 @@ function killEnemy(e){e.dead=true;e.R.g.visible=false;e.shadow.visible=false;e.r
   ringFx(e.pos.x,e.pos.z,0xffb347,3,0.5);
   const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));gainXp(xp);campOnKill(e,xp);
   const cr=randi(2,6)*e.lv;P.credits+=cr;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.6,e.pos.z),'+'+xp+' XP  +'+cr+'¢','xp');SFX.coin();P.kills++;
-  if(Math.random()<(e.type==='raider'?0.45:0.32))dropLoot(e.pos.x,e.pos.z,genItem(clamp(e.lv+randi(-1,0),1,10)));
+  if(Math.random()<(e.type==='raider'?0.45:0.32)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
   if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}
   questOnKill(e);
-  if(e.night&&Math.random()<0.35)dropLoot(e.pos.x-1,e.pos.z,genItem(clamp(e.lv,1,10),null,Math.max(1,rollRarity(20))));
+  if(e.night&&Math.random()<0.35)dropLoot(e.pos.x-1,e.pos.z,genItem(clamp(e.lv,1,MAXLVL),null,Math.max(1,rollRarityL(e.lv,20))));
   if(!e.dun){const v=rollVeil(e);if(v)dropLoot(e.pos.x,e.pos.z-1.2,v);}
   if(e.dun)dunOnKill(e);
   stage2OnKill(e);
@@ -1060,7 +1102,7 @@ function killEnemy(e){e.dead=true;e.R.g.visible=false;e.shadow.visible=false;e.r
   if(P.target===e){P.target=null;let nb=null,nd=1e9;for(const o of enemies)if(!o.dead&&o!==e&&o.state==='chase'){const d=dist2D(o.pos,P.pos);if(d<nd&&d<26){nd=d;nb=o;}}
     if(nb){P.target=nb;}else P.autoAtk=false;}
   save();}
-function gainXp(n){if(P.level>=MAXLVL)return;P.xp+=n;while(P.level<MAXLVL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;P.sp+=SP_LVL;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+SP_LVL+' skill points. Open 📈 Skills to spend them');ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
+function gainXp(n){if(P.level>=MAXLVL)return;P.xp+=n;while(P.level<MAXLVL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
   if(P.level>=MAXLVL)P.xp=0;}
 function faceTarget(t){if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);}
 function shoot(t,mult,color,cb){faceTarget(t);P.atkAnim=0.35;const from=new V3(P.pos.x+Math.sin(P.rotY)*0.6,P.pos.y+1.35,P.pos.z+Math.cos(P.rotY)*0.6);fireProj(from,t,color,38,cb||(()=>dmgEnemy(t,mult)));}
@@ -1162,20 +1204,20 @@ function availTypes(){const L=[{t:'skitter',lv:2,min:1}];if(P.level>=3)L.push({t
 const MDIFF=[{n:'Easy',lv:-2,cnt:0.7,rew:0.75,rar:0,c:'#6dff8a'},{n:'Normal',lv:0,cnt:1,rew:1,rar:5,c:'#cfcfcf'},{n:'Hard',lv:1,cnt:1.3,rew:1.4,rar:15,c:'#ffc85a'},{n:'Veteran',lv:2,cnt:1.6,rew:1.9,rar:25,c:'#ff9a2a'},{n:'Brutal',lv:3,cnt:2,rew:2.6,rar:40,c:'#ff5a4a'}];
 const MPREF={any:'Any',weapon:'🔫 Weapon',armour:'🦺 Armour',implant:'🧠 Implant',disk:'📀 Weave Disk'};
 const mprefs=()=>P.mprefs||(P.mprefs={diff:1,pref:'any'});
-function genMission(){const mp=mprefs();const D=MDIFF[clamp(mp.diff|0,0,4)];const eLv=clamp(P.level+D.lv,1,12);
+function genMission(){const mp=mprefs();const D=MDIFF[clamp(mp.diff|0,0,4)];const eLv=clamp(P.level+D.lv,1,MAXLVL+2);const hi=eLv>=11&&gateOpen('farwatch');
   const base={diff:mp.diff|0,pref:mp.pref,lv:eLv,rar:D.rar,id:'m'+uid()};const tag='['+D.n+'] ';
-  if(Math.random()<0.55){const t=eLv<=3?'skitter':eLv<=6?'raider':'mauler';const n=Math.max(2,Math.round(randi(4,6)*D.cnt));
-    const zr=t==='skitter'?[60,105]:t==='raider'?[110,150]:[168,200];const r=rand(zr[0],zr[1]),a=rand(0,6.28);const tmp={x:Math.cos(a)*r,z:Math.sin(a)*r};collide(tmp,2);
+  if(Math.random()<0.55){const t=hi?pick(['stalker','shardcaller','brute']):eLv<=3?'skitter':eLv<=6?'raider':'mauler';const n=Math.max(2,Math.round(randi(hi?3:4,hi?5:6)*D.cnt));
+    const zr=t==='skitter'?[60,105]:t==='raider'?[110,150]:[168,200];const r=rand(zr[0],zr[1]),a=rand(0,6.28);const tmp=hi?gloamSpot(eLv):{x:Math.cos(a)*r,z:Math.sin(a)*r};collide(tmp,2);
     return facFlavour(Object.assign(base,{kind:'kill',etype:t,need:n,have:0,stage:'active',x:tmp.x,z:tmp.z,title:tag+'Cull: '+n+' '+ETYPES[t].name+'s',
       desc:pick(['The Combine wants the trade route cleared.','Prospectors report attacks near the dig sites.','Outpost security is paying a bounty.','A Combine convoy is due through here. Clear the way.'])+' Camp marked on your map. Enemies Lv '+eLv+'.',cr:Math.round(n*(6+eLv*5)*D.rew),xp:Math.round(xpNeed(P.level)*rand(0.25,0.35)*D.rew),item:mp.diff>=2||Math.random()<0.65}));}
-  const r=clamp(55+eLv*13,55,195)+rand(-10,15),a=rand(0,Math.PI*2);let x=Math.cos(a)*r,z=Math.sin(a)*r;const tmp={x,z};collide(tmp,1.5);x=tmp.x;z=tmp.z;
-  const obj=pick(OBJS);return facFlavour(Object.assign(base,{kind:'fetch',x,z,obj,stage:'active',guards:r>70||mp.diff>=2,nGuards:Math.max(1,Math.round(2*D.cnt)),title:tag+'Recover: '+obj,desc:'Signal lost '+Math.round(r)+'m out in the Reach. Find it and bring it back. Guards Lv '+eLv+'.',cr:Math.round((20+eLv*14)*D.rew),xp:Math.round(xpNeed(P.level)*rand(0.3,0.4)*D.rew),item:mp.diff>=2||Math.random()<0.6}));
+  const r=clamp(55+eLv*13,55,195)+rand(-10,15),a=rand(0,Math.PI*2);let x=Math.cos(a)*r,z=Math.sin(a)*r;const tmp=hi?gloamSpot(eLv):{x,z};collide(tmp,1.5);x=tmp.x;z=tmp.z;
+  const obj=pick(OBJS);return facFlavour(Object.assign(base,{kind:'fetch',x,z,obj,stage:'active',guards:hi||r>70||mp.diff>=2,nGuards:Math.max(1,Math.round(2*D.cnt)),title:tag+'Recover: '+obj,desc:'Signal lost '+Math.round(Math.hypot(x,z))+'m out '+(hi?'in the Duskcrown Highlands':'in the Reach')+'. Find it and bring it back. Guards Lv '+eLv+'.',cr:Math.round((20+eLv*14)*D.rew),xp:Math.round(xpNeed(P.level)*rand(0.3,0.4)*D.rew),item:mp.diff>=2||Math.random()<0.6}));
 }
 function spawnCamp(m){if(!m||m.kind!=='kill'||m.campSpawned||m.x==null)return;const n=Math.max(0,m.need-m.have);for(let i=0;i<n;i++){const e=makeEnemy(m.etype,m.x+rand(-6,6),m.z+rand(-6,6),m.lv||P.level,true);e.mis=m.id;}m.campSpawned=true;}
 function spawnCache(m){clearCache(m);const y=heightAt(m.x,m.z);const g=new THREE.Group();part(g,geoBox,M(0x4f6b80),0,0.45,0,1.2,0.9,0.8);part(g,geoBox,MB(0x5ff2ff),0,0.6,0.41,0.8,0.15,0.02);part(g,geoBox,M(0xffc85a),0,0.92,0,1.25,0.08,0.85);
   g.position.set(m.x,y,m.z);scene.add(g);const r=QRT[m.id]||(QRT[m.id]={objs:[],mobs:[]});r.cache={g,x:m.x,z:m.z};
-  if(m.guards&&!m.guardsSpawned){const d=Math.hypot(m.x,m.z);const ty=d>160?'mauler':d>105?'raider':'skitter';const n=m.nGuards||(ty==='mauler'?1:2);
-    for(let i=0;i<n;i++){const lv=m.lv||clamp(P.level+randi(-1,0),1,10);makeEnemy(ty,m.x+rand(-5,5),m.z+rand(-5,5),lv,true);}m.guardsSpawned=true;}}
+  if(m.guards&&!m.guardsSpawned){const d=Math.hypot(m.x,m.z);const ty=d>400?pick(['stalker','brute']):d>160?'mauler':d>105?'raider':'skitter';const n=m.nGuards||(ty==='mauler'?1:2);
+    for(let i=0;i<n;i++){const lv=m.lv||clamp(P.level+randi(-1,0),1,MAXLVL);makeEnemy(ty,m.x+rand(-5,5),m.z+rand(-5,5),lv,true);}m.guardsSpawned=true;}}
 // m: one contract, or nothing = every quest object (world reset)
 function clearCache(m){if(!m){for(const k in QRT){const r=QRT[k];for(const o of r.objs||[])scene.remove(o.g);if(r.cache)scene.remove(r.cache.g);if(r.ally&&!r.ally.dead)removeAlly(r.ally);delete QRT[k];}return;}
   const r=QRT[m.id];if(r&&r.cache){scene.remove(r.cache.g);r.cache=null;}}
@@ -1289,9 +1331,9 @@ function openTerminal(){
 let vendTab='buy';
 function openVendor(){
   const L=P.level;
-  if(T-stockAt>120||stockLvl!==L||vendorStock.length===0){vendorStock=[];
+  if(T-stockAt>120||stockLvl!==L||vendorStock.length===0||stockCtx!==VEND.ctx){vendorStock=[];stockCtx=VEND.ctx;
     {const pool=Object.values(WEAVES).filter(w=>!w.starter&&!w.excl&&!w.rare&&w.lvl<=L+2&&(w.prof===P.prof||w.prof==='any')&&!P.known.includes(w.id)).sort(()=>Math.random()-0.5);pool.slice(0,3).forEach(w=>vendorStock.push(genDisk(w.id)));}vendorStock.push(genItem(L,'weapon',rollRarity(10),{wt:pick(wtAff(P.prof))}),genItem(L,'weapon',rollRarity(10)),genItem(L,pick(ASLOTS),rollRarity(10),{fam:PROF_FAM[P.prof]}),genItem(L,pick(ASLOTS),rollRarity(10)),genItem(L+1,'gear',rollRarity(10)));
-    [Math.max(1,L*2),L*4+1,L*5+3,L*7+4,L*9+6].forEach(q=>vendorStock.push(genImplant(q,null,rollRarity(10))));stockAt=T;stockLvl=L;}
+    (L<=10?[Math.max(1,L*2),L*4+1,L*5+3,L*7+4,L*9+6]:[L*3,L*4,L*4+6,L*5-2,L*5]).forEach(q=>vendorStock.push(genImplant(q,null,rollRarity(10))));if(typeof hubStock==='function')hubStock(vendorStock,L);stockAt=T;stockLvl=L;}
   const price=it=>it.kind==='gear'?it.value*4:it.value*3;
   let h=`<div class="tabs"><button data-act="tab" data-t="buy" class="${vendTab==='buy'?'on':''}">Buy</button><button data-act="tab" data-t="sell" class="${vendTab==='sell'?'on':''}">Sell</button><span style="margin-left:auto;color:#ffc85a;font-weight:800;align-self:center">${P.credits}¢</span></div>`;
   if(vendTab==='buy'){const sp=10+L*2;
@@ -1303,7 +1345,7 @@ function openVendor(){
     h+='<div class="h4" style="margin-top:10px">Gear</div>'+vendorStock.filter(i=>i.kind==='gear').map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')+cmpLine(it)).join('');}
   else{h+=P.inv.map(it=>itemRow(it,`<span class="pr">${it.value}¢</span>`,false,'sell')).join('')||'<div style="opacity:.6">Nothing to sell. Equipped gear and installed implants can\'t be sold.</div>';
     if(P.inv.length)h+='<button class="sbtn alt" data-act="sellall" style="margin-top:6px">Sell all Common items</button>';}
-  openPanel('MIRRA\'S SALVAGE & SUPPLY',h,'vend');
+  openPanel(VEND.ctx==='farwatch'?'FARWATCH QUARTERMASTER':'MIRRA\'S SALVAGE & SUPPLY',h,'vend');
   vendorStock._price=price;
 }
 pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;SFX.ui();
@@ -1400,7 +1442,16 @@ Object.assign(ETYPES,{
   sentry:{name:'Combine Sentry',hp:62,dmg:10,atkCd:1.7,range:18,speed:4.6,aggro:19,xp:1.35,ranged:true,hitR:0.7,h:1.9,build:buildSentry,scale:1},
   enforcer:{name:'Ashborn Enforcer',hp:96,dmg:14,atkCd:2.0,range:2.6,speed:5.0,aggro:15,xp:1.5,ranged:false,hitR:0.75,h:1.9,build:buildEnforcer,scale:1.12},
   ixo:{name:'Warden-Prime Ixo',hp:650,dmg:13,atkCd:1.7,range:3.4,speed:5.2,aggro:17,xp:7,ranged:false,hitR:0.8,h:1.9,build:buildIxo,scale:1.75},
-  custodian:{name:'Custodian Engine K-9',hp:1100,dmg:14,atkCd:2.1,range:4.8,speed:4.4,aggro:19,xp:12,ranged:false,hitR:1.6,h:2.6,build:buildCustodian,scale:2.2}
+  custodian:{name:'Custodian Engine K-9',hp:1100,dmg:14,atkCd:2.1,range:4.8,speed:4.4,aggro:19,xp:12,ranged:false,hitR:1.6,h:2.6,build:buildCustodian,scale:2.2},
+  // ---- Duskcrown Highlands (Lv 11-20): each new type has its own behaviour (ai: see AIX in game22.js) ----
+  stalker:{name:'Glint Stalker',hi:true,ai:'blink',hp:52,dmg:8,atkCd:1.2,range:2.2,speed:6.6,aggro:16,xp:1.35,ranged:false,hitR:0.8,h:1.2,build:buildStalker,scale:0.78,desc:'Blinks behind its prey'},
+  shardcaller:{name:'Shardcaller',hi:true,ai:'kite',hp:44,dmg:8,atkCd:2.0,range:19,speed:4.8,aggro:20,xp:1.4,ranged:true,hitR:0.7,h:1.9,build:buildShardcaller,scale:0.82,desc:'Keeps its distance and drops Shard Fall circles'},
+  brute:{name:'Crag Brute',hi:true,ai:'charge',slow:{mul:0.7,dur:2.5,name:'Staggered'},hp:120,dmg:15,atkCd:2.3,range:3.2,speed:4.6,aggro:15,xp:1.8,ranged:false,hitR:1.4,h:2.6,build:buildBrute,scale:0.86,desc:'Winds up, then charges across the field'},
+  tender:{name:'Choir Tender',hi:true,ai:'heal',hp:40,dmg:5,atkCd:2.2,range:17,speed:4.8,aggro:18,xp:1.5,ranged:true,hitR:0.7,h:1.9,build:buildTender,scale:0.8,desc:'Heals the most wounded enemy nearby. Kill it first'},
+  cantor:{name:'Cantor Vey, the Hollow Voice',hp:900,dmg:13,atkCd:1.7,range:3.6,speed:5.2,aggro:18,xp:9,ranged:false,hitR:0.8,h:1.9,build:buildCantor,scale:1.5},
+  hymnwarden:{name:'The Hymnwarden',hp:1100,dmg:14,atkCd:2.1,range:4.8,speed:4.4,aggro:19,xp:11,ranged:false,hitR:1.6,h:2.6,build:buildHymnwarden,scale:1.75},
+  choirmother:{name:'The Choirmother',hp:1400,dmg:15,atkCd:1.9,range:4.8,speed:4.6,aggro:20,xp:16,ranged:false,hitR:1.0,h:1.1,build:buildChoirmother,scale:2.6},
+  chordpylon:{name:'Resonance Pylon',hp:150,dmg:6,atkCd:2.2,range:24,speed:0,aggro:30,xp:0.5,ranged:true,hitR:0.9,h:3,build:buildChordPylon,scale:1}
 });
 const BOSSES={
   foreman:{etype:'foreman',lvl:6,intro:'Ground Slam: get out of the red circle!',mech:[
@@ -1417,7 +1468,21 @@ const BOSSES={
     {t:'pools',name:'Orbital Lattice',every:9,first:4,r:4.5,delay:1.7,mult:2.6,count:4,desc:'Four strike circles drop on and around you.'},
     {t:'slam',name:'Purge Pulse',every:15,first:12,r:10,delay:2.4,mult:3,desc:'A huge 10m pulse around the engine. Get far away.'},
     {t:'adds',name:'Deploy Sentries',at:[0.66,0.33],etype:'sentry',n:2,lvl:9,desc:'At 66% and 33% two Combine Sentries deploy.'},
-    {t:'enrage',name:'Critical Overload',at:0.2,dmg:1.5,cd:0.7,spd:1.2,desc:'Below 20% it overloads: harder, faster hits.'}]}
+    {t:'enrage',name:'Critical Overload',at:0.2,dmg:1.5,cd:0.7,spd:1.2,desc:'Below 20% it overloads: harder, faster hits.'}]},
+  // ---- The Choir Below (Lv 14-18) ----
+  cantor:{etype:'cantor',lvl:15,intro:'He steps through the walls. Watch behind you!',mech:[
+    {t:'blinkslam',name:'Hollow Step',every:11,first:5,r:5.5,delay:1.5,mult:2.5,desc:'He blinks right next to you and slams a 5.5m circle. Get out.'},
+    {t:'pools',name:'Shard Hymn',every:13,first:9,r:3.5,delay:1.8,mult:1.9,count:2,desc:'Shards fall on and near you. Move.'},
+    {t:'adds',name:'Glint Pack',at:[0.5],etype:'stalker',n:2,lvl:14,desc:'At 50% two Glint Stalkers blink in.'}]},
+  hymnwarden:{etype:'hymnwarden',lvl:16,intro:'Break its Resonance Pylons, and hug it when the Great Hymn glows!',mech:[
+    {t:'slam',name:'Resonant Stomp',every:10,first:5,r:6.5,delay:1.6,mult:2.5,desc:'Telegraphed 6.5m stomp around it. Get out.'},
+    {t:'shield',name:'Resonance Shield',at:[0.6],n:3,lvl:15,etype:'chordpylon',what:'Resonance Pylons',desc:'At 60% three Resonance Pylons rise and it is immune until all are destroyed.'},
+    {t:'nova',name:'Great Hymn',every:20,first:14,safe:6,r:26,delay:2.6,mult:2.6,desc:'The whole hall rings except a 6m safe ring around it. Run IN.'}]},
+  choirmother:{etype:'choirmother',lvl:17,intro:'Her Echoes sing her back to health. Silence them!',mech:[
+    {t:'pools',name:'Crystal Chorus',every:10,first:4,r:4,delay:1.7,mult:2.3,count:3,desc:'Three crystal circles burst on and around you.'},
+    {t:'chorus',name:'Echo Chorus',at:[0.7,0.4],n:2,lvl:16,heal:0.02,desc:'At 70% and 40% two Choir Echoes appear. Each heals her 2% per second until it dies: kill them fast.'},
+    {t:'blinkslam',name:"Mother's Reach",every:16,first:12,r:6,delay:1.6,mult:2.6,desc:'She lunges next to you and slams a 6m circle.'},
+    {t:'enrage',name:'Final Verse',at:0.2,dmg:1.45,cd:0.7,spd:1.2,desc:'Below 20% she enrages: harder, faster hits.'}]}
 };
 const DUNGEONS={
   mine:{id:'mine',name:'Hollowvein Mine',sub:'Abandoned Vyre dig',lvl:[4,7],minLvl:4,cap:7,rec:6,door:{x:-78,z:-52},accent:0x5ff2ff,
@@ -1433,6 +1498,15 @@ const DUNGEONS={
     rooms:[{w:18,d:16,entry:true},{w:22,d:20,packs:[[['sentry',8],['sentry',8],['enforcer',8]]]},{w:24,d:22,packs:[[['enforcer',8],['enforcer',9]],[['sentry',9],['sentry',8]]]},
       {w:26,d:24,boss:'ixo'},{w:24,d:22,packs:[[['enforcer',9],['sentry',9],['sentry',9],['enforcer',9]]]},{w:36,d:34,boss:'custodian',final:true}],
     loot:{ixo:{items:['warden_edge','ixo_sidearm','aegis_helm','lattice_gloves'],disk:'drake_disk',diskP:0.25},custodian:{items:['theta_lance','theta_recurve','custodian_arc','null_staff','aegis_helm','aegis_carapace','aegis_greaves','lattice_gloves','theta_cortex'],extraP:0.35,relic:'custodian_core',relicP:0.07,disk:'aegis_disk',diskP:0.2},trashP:0.03},
+    modes:{solo:{hp:1,dmg:1,lvl:0},group:{hp:2.6,dmg:1.3,lvl:1,size:[2,6]}}},
+  choir:{id:'choir',name:'The Choir Below',sub:'Singing Vyre cathedral under the Duskcrown',lvl:[14,18],minLvl:14,cap:18,rec:16,door:{x:GLOAM.door.x,z:GLOAM.door.z},accent:0xb46bff,
+    desc:'A cathedral of living crystal under the Duskcrown Highlands. The Choir sings the seams awake, and three voices lead it: Cantor Vey, the Hymnwarden and the Choirmother.',
+    pal:{floor:0x2a2438,floor2:0x201a2c,wall:0x4a4060,trim:0x1c1628,glow:[0xb46bff,0x7ff6ff],fog:0x0c0814,hemi:[0xc8b8ff,0x140c20,0.64],plight:0xc8a8ff},
+    rooms:[{w:20,d:18,entry:true},{w:24,d:22,packs:[[['stalker',14],['stalker',14],['shardcaller',14]]]},{w:26,d:24,packs:[[['brute',15],['tender',14]],[['shardcaller',15],['stalker',15]]]},
+      {w:30,d:28,boss:'cantor'},{w:26,d:24,packs:[[['brute',16],['shardcaller',16],['tender',15]]]},{w:34,d:30,boss:'hymnwarden'},
+      {w:26,d:24,packs:[[['stalker',17],['stalker',16],['tender',16],['brute',17]]]},{w:40,d:36,boss:'choirmother',final:true}],
+    loot:{cantor:{items:['vey_pistol','cantor_glaive','cw_hood','cw_grips']},hymnwarden:{items:['hymn_repeater','hymn_breaker','echo_twins','cw_grips','cw_boots','hymn_ocular'],extraP:0.2},
+      choirmother:{items:['choir_scepter','mother_bow','chorus_emitter','cantor_glaive','hymn_repeater','cw_hood','cw_robe','cw_boots','cw_grips','hymn_ocular'],extraP:0.35,relic:'choirheart',relicP:0.07,disk:'chord_disk',diskP:0.2},trashP:0.03},
     modes:{solo:{hp:1,dmg:1,lvl:0},group:{hp:2.6,dmg:1.3,lvl:1,size:[2,6]}}}
 };
 /* ---------- level caps (AO-style): every dungeon has an entry range minLvl..cap ----------
@@ -1482,16 +1556,34 @@ const UNIQUES={
   lattice_gloves:{d:'vault',name:"Researcher's Lattice Gloves",slot:'hands',fam:'light',lvl:10,bonus:{weave:12,int:6,crit:3}},
   theta_cortex:{d:'vault',name:'Theta Cortex',kind:'imp',slot:'head',ql:45,bonus:{int:12,psy:10,weave:16,pool:14}},
   aegis_disk:{d:'vault',kind:'disk',wid:'aegis'},
-  custodian_core:{d:'vault',name:'Custodian Core',kind:'imp',slot:'chest',ql:50,relic:true,bonus:{sta:14,body:20,hp:150,power:10}}
+  custodian_core:{d:'vault',name:'Custodian Core',kind:'imp',slot:'chest',ql:50,relic:true,bonus:{sta:14,body:20,hp:150,power:10}},
+  // The Choir Below (Lv 14-18): weapons for every profession, the 4-piece Choirbound set, an ocular, a relic heart and a dungeon-only Weave
+  vey_pistol:{d:'choir',name:"Vey's Hollow Voice",slot:'weapon',wt:'pistol',lvl:15,bonus:{wpn:18,treat:22,sen:8}},
+  cantor_glaive:{d:'choir',name:'Cantor Glaive',slot:'weapon',wt:'blade',lvl:16,dmgM:1.12,bonus:{wpn:24,str:9,crit:5}},
+  hymn_repeater:{d:'choir',name:'Hymn Repeater',slot:'weapon',wt:'rifle',lvl:16,dmgM:1.1,bonus:{wpn:25,sen:8,crit:6}},
+  hymn_breaker:{d:'choir',name:'Hymnbreaker',slot:'weapon',wt:'shotgun',lvl:16,bonus:{wpn:22,hp:140,power:10}},
+  echo_twins:{d:'choir',name:'Echo Twins',slot:'weapon',wt:'smg',lvl:16,bonus:{wpn:22,agi:9,evade:12}},
+  choir_scepter:{d:'choir',name:'Choir Scepter',slot:'weapon',wt:'rod',lvl:17,bonus:{weave:28,psy:10,en:90}},
+  mother_bow:{d:'choir',name:"Choirmother's Longbow",slot:'weapon',wt:'bow',lvl:17,bonus:{wpn:24,sen:9,crit:6}},
+  chorus_emitter:{d:'choir',name:'Chorus Emitter',slot:'weapon',wt:'emitter',lvl:17,bonus:{weave:28,int:10,power:12}},
+  cw_hood:{d:'choir',name:'Choirbound Hood',slot:'head',fam:'light',lvl:16,set:'choirbound',bonus:{psy:8,weave:16,en:60}},
+  cw_robe:{d:'choir',name:'Choirbound Vestment',slot:'armor',fam:'medium',lvl:17,set:'choirbound',bonus:{sta:9,hp:170,treat:14}},
+  cw_grips:{d:'choir',name:'Choirbound Grips',slot:'hands',fam:'medium',lvl:16,set:'choirbound',bonus:{agi:8,wpn:14,crit:4}},
+  cw_boots:{d:'choir',name:'Choirbound Treads',slot:'feet',fam:'medium',lvl:17,set:'choirbound',bonus:{agi:7,sen:7,run:35}},
+  hymn_ocular:{d:'choir',name:'Hymnsight Ocular',kind:'imp',slot:'eyes',ql:75,bonus:{sen:18,int:10,wpn:24,treat:20}},
+  chord_disk:{d:'choir',kind:'disk',wid:'silencechord'},
+  choirheart:{d:'choir',name:'Heart of the Choir',kind:'imp',slot:'chest',ql:85,relic:true,bonus:{sta:20,psy:14,body:28,hp:240,power:14}}
 };
 Object.assign(SETS,{
   veinrunner:{name:'Veinrunner',pieces:['vr_hood','vr_harness','vr_treads'],bonus:{2:{hp:50,agi:4},3:{power:8,crit:3}}},
-  aegis:{name:'Aegis',pieces:['aegis_helm','aegis_carapace','aegis_greaves'],bonus:{2:{hp:80,body:10},3:{armor:60,power:6}}}
+  aegis:{name:'Aegis',pieces:['aegis_helm','aegis_carapace','aegis_greaves'],bonus:{2:{hp:80,body:10},3:{armor:60,power:6}}},
+  choirbound:{name:'Choirbound',pieces:['cw_hood','cw_robe','cw_grips','cw_boots'],bonus:{2:{hp:140,weave:10,wpn:10},4:{power:14,crit:5,armor:90}}}
 });
-function makeUnique(key){const u=UNIQUES[key];if(!u)return null;const r=u.relic?5:4;let it;
+function makeUnique(key,vl){const u=UNIQUES[key];if(!u)return null;const r=u.relic?5:4;let it;const vet=!!(vl&&!u.kind&&vl>u.lvl)||!!(vl&&u.kind==='imp'&&vl>10);
+  const bk=vet?1+0.06*(vl-(u.kind==='imp'?10:u.lvl)):1;
   if(u.kind==='disk'){it=genDisk(u.wid);it.name='Weave Disk: '+WEAVES[u.wid].name;}
-  else if(u.kind==='imp'){it=genImplant(u.ql,u.slot,3);it.name=u.name+' (QL '+u.ql+')';it.bonus=Object.keys(u.bonus).map(s=>({s,v:u.bonus[s]}));it.value=Math.round((5+u.ql*3)*3);}
-  else{const lvl=u.lvl;it={id:uid(),kind:'gear',slot:u.slot,lvl,name:u.name,bonus:Object.keys(u.bonus).map(s=>({s,v:u.bonus[s]})),req:[]};
+  else if(u.kind==='imp'){const ql=vet?Math.min(IMPQL_MAX(),u.ql+(vl-10)*4):u.ql;it=genImplant(ql,u.slot,3);it.name=u.name+(vet?' (Veteran)':'')+' (QL '+ql+')';it.bonus=Object.keys(u.bonus).map(s=>({s,v:Math.round(u.bonus[s]*bk)}));it.value=Math.round((5+ql*3)*3);}
+  else{const lvl=vet?vl:u.lvl;it={id:uid(),kind:'gear',slot:u.slot,lvl,name:u.name+(vet?' (Veteran)':''),bonus:Object.keys(u.bonus).map(s=>({s,v:Math.round(u.bonus[s]*bk)})),req:[]};if(vet)it.vet=1;
     if(u.slot==='weapon'){const W=WTYPES[u.wt];it.wt=u.wt;it.dmg=Math.round((4+lvl*2.4)*RAR[r].m*W.dm*(u.dmgM||1));it.req.push({s:W.sk,v:Math.round((4+lvl*4.5)*1.28)});}
     else{const F=AFAM[u.fam];it.fam=u.fam;it.armor=Math.round((4+lvl*3.5)*SLOTW[u.slot]*F.m*RAR[r].m);it.req.push({s:'body',v:Math.round((2+lvl*2.5)*(0.6+0.4*F.m)*1.28)});it.req.push({s:F.attr,v:Math.round(4+lvl*1.8)});}
     if(u.set)it.set=u.set;it.value=Math.round((6+lvl*5)*6);}
@@ -1573,7 +1665,7 @@ function openDoor(id){const D=DUNGEONS[id];const ck=dunEntryCheck(id,teamActive(
   D._prev=D._prev||Object.keys(UNIQUES).filter(k=>UNIQUES[k].d===id).map(makeUnique);
   const h=`<div class="cols"><div><div class="mis" style="border-color:#ff9a2a"><b style="font-size:17px">${esc(D.name)}</b> <span style="opacity:.7">· ${esc(D.sub)}</span><p>${esc(D.desc)}</p>
     <div>Levels <b>${D.lvl[0]}-${D.lvl[1]}</b> · Entry <b class="${P.level>=D.minLvl?'up':'down'}">min ${D.minLvl}</b> · <b class="${over?'down':'up'}">level cap ${D.cap}</b> (you are ${P.level}) · Recommended <b>${D.rec}</b> with good gear</div>
-    ${over?`<div class="capmsg">⛔ ${esc(ck.msg)}</div>`:''}${ck.why==='story'?`<div class="capmsg story">${esc(ck.msg)}. Talk to Archivist Sela Marr in Halden's Rest.</div>`:''}
+    ${over?`<div class="capmsg">⛔ ${esc(ck.msg)}</div>`:''}${ck.why==='story'?`<div class="capmsg story">${esc(ck.msg)}. Talk to ${esc(giverWhere(ck.step))}.</div>`:''}
     <div style="opacity:.8;font-size:13px;margin-top:4px">🎯 Capped dungeon: characters above level ${D.cap} can't enter. Twink to win here: buff up, then wear gear and implants above your level. Clearing at level ${D.cap-1}-${D.cap} gives the bosses <b>+25% extra-drop chance</b> and <b>×1.5 Relic chance</b> (more with a full group, coming with team missions).</div>
     <div style="opacity:.8;font-size:13px;margin-top:4px">Solo instance. Death revives you at the entrance checkpoint (bosses reset). Group mode will come with team missions.</div>
     <button class="sbtn${ok?'':' locked'}" style="margin-top:10px" data-act="${ok?'denter':'noop'}" data-id="${id}">${ok?'Enter '+esc(D.name):over?'Level cap '+D.cap+' – too experienced':ck.why==='story'?'🔒 Story: step '+(STEP[ck.step].i+1)+' "'+esc(STEP[ck.step].n)+'"':'Requires level '+D.minLvl}</button></div>
@@ -1585,9 +1677,9 @@ function rollBossLoot(D,key,cb){const t=D.loot[key];if(!t)return [];const out=[p
   if(t.relic&&Math.random()<t.relicP*cb.relic)out.push(t.relic);if(t.disk&&Math.random()<t.diskP)out.push(t.disk);return out;}
 function dunOnKill(e){if(!DUN)return;const D=DUN.D;
   if(e.boss){if(D.raid)raidOnBoss(e);const cb=capBonus();const keys=rollBossLoot(D,e.boss.key,cb);if(cb&&keys.length>1)log('🎯 Cap bonus: extra drop from '+esc(e.T.name));clearTele(e);for(const a of enemies)if(a.addOf===e&&!a.dead){a.dead=true;a.R.g.visible=false;a.shadow.visible=false;setTimeout(()=>removeEnemy(a),50);}
-    keys.forEach((k,i)=>{const it=makeUnique(k);it.dropBy=e.T.name;const a=i/keys.length*6.28;dropLoot(e.pos.x+Math.cos(a)*1.8,e.pos.z+Math.sin(a)*1.8,it);});
+    keys.forEach((k,i)=>{const it=makeUnique(k,DUN.mode&&DUN.mode.vet);it.dropBy=e.T.name;const a=i/keys.length*6.28;dropLoot(e.pos.x+Math.cos(a)*1.8,e.pos.z+Math.sin(a)*1.8,it);});
     P.credits+=40*e.lv;
-    if(e.boss.final&&Math.random()<VEIL_RATE.dungeonFinal){const v=mythicDisk(DUN.id==='vault'?'veil2':'veil1');v.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z-2.5,v);}
+    if(e.boss.final&&Math.random()<VEIL_RATE.dungeonFinal){const v=mythicDisk(DUN.id==='vault'||DUN.id==='choir'?'veil2':'veil1');v.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z-2.5,v);}
     if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);}
     else banner(e.T.name.toUpperCase()+' DEFEATED','The way deeper is open');}
   else if(Math.random()<D.loot.trashP){const pool=[...new Set(Object.values(D.loot).filter(x=>x&&x.items).flatMap(x=>x.items))];const it=makeUnique(pick(pool));it.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z,it);}}
@@ -1617,7 +1709,7 @@ function bossTick(e){const b=e.boss;if(e.dead)return;
       banner(e.T.name.toUpperCase()+' ENRAGED',m.name);ringFx(e.pos.x,e.pos.z,0xff2a1a,6,0.8);SFX.boom();}}
   });}
 function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,4.5,P.pos.z);if(d.D.raid)updRaid(dt);
-  if(!d.apt&&!d.outgrown&&P.level>d.D.cap){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
+  if(!d.apt&&!d.outgrown&&P.level>d.D.cap&&!(d.mode&&d.mode.vet)){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
   for(const q of d.portals){q.sw.rotation.z+=dt*1.5;q.pl.material.opacity=0.3+Math.sin(T*3)*0.1;}if(d.checkpoint)d.checkpoint.material.opacity=0.4+Math.sin(T*2)*0.15;
   for(const e of d.bosses)bossTick(e);
   for(let i=d.tele.length-1;i>=0;i--){const t=d.tele[i];const k=clamp((T-t.t0)/(t.at-t.t0),0,1);t.fill.scale.set(t.r*k,1,t.r*k);t.edge.material.opacity=0.6+Math.sin(T*18)*0.35;
@@ -1894,7 +1986,7 @@ function activateSite(S){if(S.active||!gateOpen('factions'))return;S.active=true
 function deactivateSite(S){for(const e of S.guards)if(enemies.includes(e))removeEnemy(e);S.guards=[];if(S.core&&enemies.includes(S.core))removeEnemy(S.core);S.core=null;S.active=false;if(S.model)S.model.g.visible=true;}
 function coreDestroyed(S,e){const me=fac().side;TW[S.id].owner=null;TW[S.id].hp=100;S.core=null;saveTowers();setSiteModel(S);calcStats();
   banner('TOWER CORE DESTROYED',isMember(me)?'Plant a '+FACTIONS[me].short+' tower at '+S.name:S.name+' is unclaimed');SFX.boom();ringFx(S.x,S.z,0xffb347,10,1.2);
-  dropLoot(S.x+2,S.z+2,genItem(clamp(S.lv,1,10),null,Math.max(2,rollRarity(25))));P.credits+=25*S.lv;}
+  dropLoot(S.x+2,S.z+2,genItem(clamp(S.lv,1,MAXLVL),null,Math.max(2,rollRarity(25))));P.credits+=25*S.lv;}
 function startPlant(id){const S=SITES[id];if(!gateOpen('factions')){lockedMsg('factions',true);return false;}const me=fac().side;if(!isMember(me)){warn('Join the Combine or the Ashborn to plant towers');return false;}
   if(TW[id].owner){warn('Destroy the tower core first');return false;}if(S.guards.some(g=>!g.dead&&enemies.includes(g))){warn('Clear the guards first');return false;}
   startCast('Planting '+FACTIONS[me].short+' tower',2.5,()=>plantTower(id),{still:true});return true;}
@@ -2116,7 +2208,7 @@ function bagRow(o,act,extra){return `<button class="item" data-act="${act||'noop
 
 /* ---------- drops ---------- */
 const MAT_BY={skitter:['scrap','shard','scrap'],mauler:['shard','shard','circuit'],raider:['scrap','circuit','circuit']};
-function stage3OnKill(e){if(!e||e.isCore)return;const q=clamp(e.lv*5+randi(-2,2),1,80);const got=[];
+function stage3OnKill(e){if(!e||e.isCore)return;const q=clamp(e.lv*5+randi(-2,2),1,IMPQL_MAX());const got=[];
   const mt=pick(MAT_BY[e.type]||['scrap','shard','circuit']);
   if(Math.random()<(e.boss?1:0.4)){const n=e.boss?3:Math.random()<0.25?2:1;bagAdd({kind:'mat',mt,ql:q},n);got.push(n+'× '+MATS[mt].n);}
   const cp=(e.boss?0.7:e.dun?0.12:0.07)*(e.night?1.5:1);
@@ -2407,7 +2499,7 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('🔧 Tradeskills: Fabrication','Two tradeskills sit in 📈 Skills: <b>Fabrication</b> and <b>Implant Assembly</b>. Enemies drop Scrap Alloy, Vyre Shards and Circuit Parts at QL ≈ enemy level × 5; they go into your 🧰 Parts bag (no pack slots used). Open 🛠 Tradeskills (J, the menu, or the apartment workbench). Recipes: Reinforce Armour (+25% armour), Tune Weapon (+12% damage), Vyre Infusion (add a stat, +1 rarity), Basic Implant (blank) and Med-stim Kit. Requirements scale with the item\'s QL and show green or red. The 🛠️ Artisan Draught from the trader twinks your tradeskills.')+
   S_('🧬 Implant clusters','Build your own implant: take a Basic Implant of some QL, pick a slot, then insert up to three clusters. <b>Keystone</b> (major, ×1.5), <b>Lattice</b> (minor, ×1) and <b>Filament</b> (trace, ×0.6). Each adds the stat you chose, scaled by the implant QL. Cluster QL must be close to the implant QL. Implant Assembly must reach the requirement for a sure build; down to 75% of it you can gamble, but failure burns a cluster. The trader sells blanks plus Lattice and Filament clusters at low QL; Keystones only drop.')+
   S_('👕 Social clothing','Ossory Threads (Wren Ossory, north-west of the town pylon) sells shirts, jackets, hats, visors and dyes. Clothing is cosmetic only. "Show clothing over armour" (wardrobe or mirror) decides whether it covers your armour. Rare pieces (Glow-thread Shirt, Nightglass Longcoat, Halo Crown, Starlight Visor) only drop from enemies.')+
-  S_('🗺 World map, regions &amp; waypoints','The Reach is now about three times bigger. The old desert (<b>Kessra Dunes</b>, around Halden\'s Rest) is ringed by six regions, each with its own ground, props, light and wild packs: <b>Mirewell Oasis</b> (west, Lv 3–6, palms and springs), <b>Whitepan Salt Flats</b> (north-east, Lv 4–7, after Cinderwell), <b>Redspire Canyons</b> (north-west, Lv 5–8, after Hollowvein Mine), <b>Rustmaw Scrapyard</b> (south-west, Lv 6–9, after the Factions story step), <b>Shimmerfield</b> (east, Lv 7–10, after Glassreach) and <b>Cinderveil Badlands</b> (south-east, Lv 8–10, after Vault Theta-9). A banner shows each region\'s name as you cross into it, and its name sits under the clock. Until the story unlocks a region, its land is open to explore but its wild packs stay asleep.<br><br>Open the <b>map</b> with 🗺 or <b>M</b>. Drag to pan, pinch (or the − / + buttons) to zoom. New regions stay dark until you explore them. Tap anywhere to drop your own <b>📍 waypoint</b>: a blue beam marks it in the world, a blue arrow on screen shows its distance and direction, and it shows on the minimap. Tap it again or press <b>Clear waypoint</b> to remove it; it also clears when you arrive. Your waypoint is saved with your character.')+
+  S_('🗺 World map, regions &amp; waypoints','The Reach is now about three times bigger. The old desert (<b>Kessra Dunes</b>, around Halden\'s Rest) is ringed by six regions, each with its own ground, props, light and wild packs: <b>Mirewell Oasis</b> (west, Lv 3–6, palms and springs), <b>Whitepan Salt Flats</b> (north-east, Lv 4–7, after Cinderwell), <b>Redspire Canyons</b> (north-west, Lv 5–8, after Hollowvein Mine), <b>Rustmaw Scrapyard</b> (south-west, Lv 6–9, after the Factions story step), <b>Shimmerfield</b> (east, Lv 7–10, after Glassreach) and <b>Cinderveil Badlands</b> (south-east, Lv 8–10, after Vault Theta-9). Past level 10 the <b>Duskcrown Highlands</b> ring the whole world on the far edge (Lv 11–20, rising the further you go round from Farwatch Station). Story chapter 2 opens <b>Farwatch Station</b> (bank, quartermaster, contract terminal) and later <b>The Choir Below</b> dungeon (Lv 14–18). A banner shows each region\'s name as you cross into it, and its name sits under the clock. Until the story unlocks a region, its land is open to explore but its wild packs stay asleep.<br><br>Open the <b>map</b> with 🗺 or <b>M</b>. Drag to pan, pinch (or the − / + buttons) to zoom. New regions stay dark until you explore them. Tap anywhere to drop your own <b>📍 waypoint</b>: a blue beam marks it in the world, a blue arrow on screen shows its distance and direction, and it shows on the minimap. Tap it again or press <b>Clear waypoint</b> to remove it; it also clears when you arrive. Your waypoint is saved with your character.')+
   S_('👥 Team mode (play as a team anywhere)','Tap <b>👥</b> (or press <b>T</b>) to bring up to 5 of your alts along as AI companions in the open world and in normal dungeons. They use their own saved level, gear and role: menders heal, tanks hold threat, and everyone steps out of red telegraph circles. Turn on <b>Mercenary fill</b> to top the team up to 6. Stances: <b>Follow</b> (they only fight what attacks you or them), <b>Assist</b> (they join your fights), <b>Passive</b> (they never attack). Commands: <b>⚔ Attack</b> my target (G) and <b>↩ Regroup</b> (Y), also on the team panel under your health bars. Only the character you are playing gains XP, loot, credits, tokens and mission progress; your alts\' sheets never change. Dungeon level caps use the highest team member, and the dungeon scales up for the team. A downed companion gets back up 10s after the fight ends. Raids keep their own team.')+
   S_('📋 Missions (log, side quests, chains)','Hold up to <b>6</b> missions at once next to the story: terminal contracts plus side quests from 10 quest givers across every region (gold ❗ = new quest, green ✔ = ready to claim, blue 💬 = talk to them). Types: retrieve items, loot drops (not every kill drops one), deliver, talk, escort, defend waves, activate terminals (stand 2s), hunt a named elite or dyna, explore sites, kill, and timed runs. Some are multi-stage chains, and a few make you choose a branch. Open 📜 Journal → <b>📋 Missions</b> to track/untrack, set the 📍 waypoint mission, turn on auto-waypoint, retry a failed one, or abandon. Rewards scale with your level (cap 10).')+
   S_('💀 Dynas (named elite camps)','Every region has 1–2 <b>dynas</b>: named elite bosses at fixed camps, with adds, lots of health and a signature move (slams, spit pools, shields, summons, enrage). They always drop good loot and sometimes a rare named item you can only get from them. After a kill a dyna stays down for 10–20 real minutes, even across reloads, and sometimes a lesser placeholder spawns in its spot first. Discovered dynas show on the map and minimap as 💀: red when up, grey when down. Hunt quests send you after some of them.')+
@@ -2474,7 +2566,35 @@ const STORY=[
    outro:[['Sela Marr','Ixo\'s memory core: the Custodian Engine is growing a crystal heart. Feeding it Vyre to make a mind. That\'s what has been singing.']]},
   {id:'s11',n:'Heart of the Vault',lvl:9,giver:'sela',obj:{k:'boss',key:'custodian',dungeon:'vault',label:'Shut down the Custodian Engine'},rew:{xp:1500,cr:800,gear:'gear',disk:true},
    intro:[['Sela Marr','Shut it down. The Combine will call it sabotage and the Ashborn will call it murder. Kessra will call it quiet.']],
-   outro:[['Sela Marr','Silence across every seam. You did what neither side would.'],['Sela Marr','Kessra is yours to roam now. The towers, the dungeons, the trade roads. Come back when the crystal starts to sing again.']]}];
+   outro:[['Sela Marr','Silence across every seam. You did what neither side would.'],['Sela Marr','Kessra is yours to roam now. The towers, the dungeons, the trade roads. Come back when the crystal starts to sing again.']]},
+  // ---- Chapter 2: The Duskcrown Choir (Lv 10-18). ch:2 steps are never auto-completed by the old-save migration. ----
+  {id:'s12',ch:2,n:'The Second Song',lvl:10,giver:'sela',obj:{k:'kill',etype:'mauler',n:6,label:'Thin the maulers fleeing the outer ridges'},rew:{xp:Math.round(xpNeed(10)*0.3),cr:900},unlocks:['farwatch'],
+   intro:[['Sela Marr','It started again. Not under Kessra this time: beyond the old ridges, where the maps just say "Duskcrown".'],['Sela Marr','The maulers are fleeing inward from it. Animals that size don\'t run from nothing. Cull six of them and bring me what spooked them.']],
+   outro:[['Sela Marr','Violet dust in their hides, and burns shaped like music staves. Something out there sings loud enough to scar.'],['Sela Marr','The Combine kept a listening post at the edge of the Duskcrown: Farwatch Station. I\'ve had its gate codes released to you. Conduit link, Save Point and bank included.']]},
+  {id:'s13',ch:2,n:'Farwatch',lvl:11,giver:'sela',obj:{k:'reach',to:'farwatch',r:16,label:'Reach Farwatch Station in the Duskcrown Highlands'},rew:{xp:Math.round(xpNeed(11)*0.3),cr:1000,disk:true},
+   intro:[['Sela Marr','Farwatch is far: south-west, past Rustmaw and Mirewell, then up onto the violet terraces. Take the Conduit back when you\'ve been once.']],
+   outro:[['Warden Kesh Odran','Sela\'s contractor. Good. We\'ve been listening to the Choir for a month and nobody back home would believe us.'],['Warden Kesh Odran','Talk to me when you\'re ready. Scout Quill and the quartermaster can use you too.']]},
+  {id:'s14',ch:2,n:'Glint in the Dark',lvl:12,giver:'odran',obj:{k:'kill',etype:'stalker',n:6,label:'Hunt Glint Stalkers near Farwatch'},rew:{xp:Math.round(xpNeed(12)*0.3),cr:1100,gear:'weapon'},
+   intro:[['Warden Kesh Odran','Glint Stalkers. They blink: one moment ahead of you, the next behind. Keep moving and keep your back clear.'],['Warden Kesh Odran','Six of them have been circling the station. End them.']],
+   outro:[['Warden Kesh Odran','Their crystal hums when they die. All at the same pitch. Same as the shards Sela showed you, but louder.']]},
+  {id:'s15',ch:2,n:'Choir Fragments',lvl:13,giver:'odran',obj:{k:'collect',etype:'shardcaller',n:4,item:'Choir Fragment',p:0.6,label:'Collect Choir Fragments from Shardcallers'},rew:{xp:Math.round(xpNeed(13)*0.3),cr:1200,disk:true},unlocks:['choir'],
+   intro:[['Warden Kesh Odran','The Shardcallers carry fragments of whatever is singing. Bring me four. Watch for the falling shards they call down: red circles, step out.']],
+   outro:[['Warden Kesh Odran','Laid side by side they make a map. A cathedral, under the north-west terraces. The Choir Below.'],['Warden Kesh Odran','I\'ve unsealed the old survey hatch. It\'s built for Lv 14 to 18 contractors. Don\'t go down underpowered.']]},
+  {id:'s16',ch:2,n:'The Hollow Voice',lvl:14,giver:'odran',obj:{k:'boss',key:'cantor',dungeon:'choir',label:'Defeat Cantor Vey in The Choir Below'},rew:{xp:Math.round(xpNeed(14)*0.35),cr:1500,gear:'gear'},
+   intro:[['Warden Kesh Odran','Cantor Vey was a Combine acoustics engineer. Now he\'s the Choir\'s first voice. He steps through walls; when he vanishes, move.']],
+   outro:[['Warden Kesh Odran','Vey\'s recorder. He was trying to stop it, at the start. Then he started singing along.']]},
+  {id:'s17',ch:2,n:'Breaking the Herd',lvl:15,giver:'odran',obj:{k:'kill',etype:'brute',n:6,label:'Break the Crag Brute herds'},rew:{xp:Math.round(xpNeed(15)*0.3),cr:1600,disk:true},
+   intro:[['Warden Kesh Odran','The Crag Brutes are massing toward the station. When one lowers its head, it charges: sidestep, don\'t back up.']],
+   outro:[['Warden Kesh Odran','Herd\'s broken. And their crystal burns show the same staves. The Choir is herding them.']]},
+  {id:'s18',ch:2,n:'The Hymnwarden',lvl:16,giver:'odran',obj:{k:'boss',key:'hymnwarden',dungeon:'choir',label:'Defeat the Hymnwarden in The Choir Below'},rew:{xp:Math.round(xpNeed(16)*0.35),cr:1900,gear:'gear'},
+   intro:[['Warden Kesh Odran','Past Vey\'s hall stands the Hymnwarden. It shields itself with pylons, and when it sings the Great Hymn, the only quiet place is right next to it.']],
+   outro:[['Warden Kesh Odran','The Hymnwarden\'s core is Combine-built. Somebody fed the Choir a guardian. I want names.']]},
+  {id:'s19',ch:2,n:'Tenders of the Choir',lvl:17,giver:'odran',obj:{k:'kill',etype:'tender',n:5,label:'Silence Choir Tenders (they heal other enemies)'},rew:{xp:Math.round(xpNeed(17)*0.3),cr:2100,disk:true},
+   intro:[['Warden Kesh Odran','The Tenders keep everything else alive. Kill them first in every fight. Five, and the Choirmother loses her nurses.']],
+   outro:[['Warden Kesh Odran','That\'s her nurses gone. She\'ll still have her Echoes. Kill those fast or she just heals.']]},
+  {id:'s20',ch:2,n:'Silence Below',lvl:18,giver:'odran',obj:{k:'boss',key:'choirmother',dungeon:'choir',label:'Silence the Choirmother'},rew:{xp:Math.round(xpNeed(18)*0.4),cr:3000,gear:'gear',disk:true},
+   intro:[['Warden Kesh Odran','The Choirmother. Everything out here sings because she does. End the song.']],
+   outro:[['Warden Kesh Odran','Quiet. Real quiet, for the first time in a month.'],['Sela Marr (radio)','Well done. But listen: under the silence there\'s a second tone. Fainter, further out. Rest up, contractor. The Reach isn\'t done with us.']]}];
 const STEP={};STORY.forEach((s,i)=>{s.i=i;STEP[s.id]=s;});
 const GATES={
   cinderwell:{name:'Cinderwell Post',kind:'zone',out:'cinderwell',step:'s2',desc:'outpost, Conduit link, Save Point and teleporter pad'},
@@ -2482,8 +2602,10 @@ const GATES={
   factions:{name:'Factions & towers',kind:'feature',step:'s5',desc:'joining a side, faction vendors, faction contracts, tower capture and assaults'},
   skiff:{name:'Vehicle permit',kind:'feature',step:'s5',desc:'buying and summoning hover skiffs'},
   glassreach:{name:'Glassreach Camp',kind:'zone',out:'glassreach',step:'s6',desc:'outpost, Conduit link, Save Point, teleporter pad and the Clan Broker'},
-  vault:{name:'Vault Theta-9',kind:'dungeon',dungeon:'vault',step:'s9',desc:'dungeon and its Conduit gate'}};
-DUNGEONS.mine.gate='mine';DUNGEONS.vault.gate='vault';
+  vault:{name:'Vault Theta-9',kind:'dungeon',dungeon:'vault',step:'s9',desc:'dungeon and its Conduit gate'},
+  farwatch:{name:'Farwatch Station',kind:'zone',out:'farwatch',step:'s12',desc:'Duskcrown hub: Conduit link, Save Point, bank, quartermaster, contracts, and the Duskcrown wild packs and dynas'},
+  choir:{name:'The Choir Below',kind:'dungeon',dungeon:'choir',step:'s15',desc:'Lv 14-18 dungeon and its Conduit gate'}};
+DUNGEONS.mine.gate='mine';DUNGEONS.vault.gate='vault';DUNGEONS.choir.gate='choir';
 for(const k in GATES){const g=GATES[k];if(g.out){const o=OUTPOSTS.find(q=>q.id===g.out);g.x=o.x;g.z=o.z;g.r=o.r+3;}}
 CONDUIT.forEach(n=>{if(GATES[n.id])n.gate=n.id;else if(n.id.startsWith('door_')&&DUNGEONS[n.id.slice(5)])n.gate=DUNGEONS[n.id.slice(5)].gate||null;});
 function validateStory(){for(const k in GATES){const g=GATES[k];if(!STEP[g.step])console.warn('DUSTREACH: gate '+k+' needs unknown story step '+g.step);}
@@ -2494,7 +2616,7 @@ validateStory();
 /* ---------- state ---------- */
 const newStory=()=>({done:[],cur:null,track:true,gf:[],v:1});
 // old saves (no story field): steps up to the character's level are done, and areas they already used stay open
-function migrateStory(s){const lv=s.level||1;const st=newStory();st.done=STORY.filter(x=>x.lvl<=lv).map(x=>x.id);st.mig=true;
+function migrateStory(s){const lv=s.level||1;const st=newStory();st.done=STORY.filter(x=>x.lvl<=lv&&!x.ch).map(x=>x.id);st.mig=true;
   const nodes=s.nodes||[];const g=new Set();for(const k in GATES)if(GATES[k].kind==='zone'&&(nodes.includes(k)||(s.savePoint&&s.savePoint.id===k)))g.add(k);
   for(const k in DUNGEONS){const D=DUNGEONS[k];if(D.gate&&(nodes.includes('door_'+k)||(s.dunClears&&s.dunClears[k])))g.add(D.gate);}
   if(s.faction&&s.faction.side)g.add('factions');if((s.vehicles||[]).length)g.add('skiff');st.gf=[...g];return st;}
@@ -2517,6 +2639,11 @@ const SELA={x:-4.5,z:9};
   n.R=buildHumanoid(n.body,n.acc,n.vis,0x7a5a46);n.R.g.position.set(n.x,y,n.z);n.mk=part(n.R.g,new THREE.OctahedronGeometry(1,0),MB(n.mark),0,2.65,0,0.24,0.38,0.24);
   part(n.R.g,geoBox,M(0xe6dcc6),0,1.0,0.22,0.5,0.6,0.04);part(n.R.g,geoBox,M(0x3a2c24),0.32,1.1,0.12,0.12,0.3,0.25);
   n.ex=part(n.R.g,geoBox,MB(0xffd25a),0,3.3,0,0.12,0.42,0.12);n.ex2=part(n.R.g,geoBox,MB(0xffd25a),0,2.98,0,0.12,0.12,0.12);scene.add(n.R.g);circles.push({x:n.x,z:n.z,r:0.6});NPCS.push(n);})();
+// chapter 2 giver: Warden Kesh Odran at Farwatch Station
+(function(){const o=OUTPOSTS.find(q=>q.id==='farwatch');const x=o.x-6,z=o.z+2.5,y=heightAt(x,z);const n={id:'odran',name:'Warden Kesh Odran',k:'story',x,z,body:0x3a3450,acc:0xb46bff,vis:0x7ff6ff,mark:0xffd25a};
+  n.R=buildHumanoid(n.body,n.acc,n.vis,0x6a4a3a);n.R.g.position.set(x,y,z);n.R.g.rotation.y=Math.atan2(o.x-x,o.z-z);n.mk=part(n.R.g,new THREE.OctahedronGeometry(1,0),MB(n.mark),0,2.65,0,0.24,0.38,0.24);
+  part(n.R.g,geoBox,M(0x2a2438),0,1.15,-0.28,0.6,0.9,0.2);part(n.R.g,geoCone,MB(0xb46bff),0.3,2.2,-0.25,0.08,0.5,0.08);
+  n.ex=part(n.R.g,geoBox,MB(0xffd25a),0,3.3,0,0.12,0.42,0.12);n.ex2=part(n.R.g,geoBox,MB(0xffd25a),0,2.98,0,0.12,0.12,0.12);scene.add(n.R.g);circles.push({x,z,r:0.6});NPCS.push(n);})();
 const npcById=id=>NPCS.find(n=>n.id===id);
 // red barrier rings around locked zones
 const barriers={};
@@ -2547,7 +2674,7 @@ function completeStep(){const st=sto(),c=st.cur;if(!c)return;const s=STEP[c.id];
   const r=s.rew||{};gainXp(r.xp||0);P.credits+=r.cr||0;const got=[];if(r.xp)got.push('+'+r.xp+' XP');if(r.cr)got.push('+'+r.cr+'¢');
   const give=it=>{if(!it)return;if(P.inv.length<24)P.inv.push(it);else dropLoot(P.pos.x+1,P.pos.z,it);got.push(it.name);};
   if(r.gear)give(genItem(Math.max(1,s.lvl),r.gear==='weapon'?'weapon':'gear',2,r.gear==='weapon'?{wt:PROF_WT[P.prof]}:{fam:PROF_FAM[P.prof]}));
-  if(r.disk){const d=genDiskForLevel(Math.min(10,s.lvl+1));if(d)give(d);}
+  if(r.disk){const d=genDiskForLevel(Math.min(MAXLVL,s.lvl+1));if(d)give(d);}
   SFX.level();markSeen(s.id+':out');log('📜 Story complete: <b style="color:#ffd25a">'+esc(s.n)+'</b> · '+got.map(esc).join(', '));refreshBarriers();
   showStoryPop(s,got);save();}
 // completion popup: rewards, outro, and any areas that just unlocked
@@ -2596,7 +2723,7 @@ function storyWaypoint(){const st=sto();if(!st.track||DUN)return null;const c=st
 /* ---------- interaction + gate enforcement ---------- */
 function storyInteract(p){const st=sto();
   // story giver
-  for(const n of NPCS)if(n.k==='story'&&Math.hypot(p.x-n.x,p.z-n.z)<3.2){const nx=nextStep();return {k:'sgiver',label:st.cur||!(nx&&P.level>=nx.lvl)?'📜 Sela Marr':'📜 New story: '+nx.n};}
+  for(const n of NPCS)if(n.k==='story'&&Math.hypot(p.x-n.x,p.z-n.z)<3.2){const nx=nextStep();return {k:'sgiver',label:st.cur||!(nx&&P.level>=nx.lvl)?'📜 '+n.name.replace(/^(Archivist|Warden) /,''):'📜 New story: '+nx.n};}
   if(!gateOpen('factions')){for(const n of NPCS)if((n.k==='registrar'||n.k==='facvend')&&Math.hypot(p.x-n.x,p.z-n.z)<3.2)return {k:'slock',gate:'factions',label:'🔒 '+n.name};
     for(const k in SITES){const S=SITES[k];if(Math.hypot(p.x-S.x,p.z-S.z)<6.5)return {k:'slock',gate:'factions',label:'🔒 '+S.name};}}
   return null;}
@@ -2604,7 +2731,8 @@ function storyDo(n){if(n.k==='sgiver'){const st=sto();if(st.cur)openStoryDialogC
   if(n.k==='slock'){lockedMsg(n.gate,true);return true;}return false;}
 function openStoryDialogCur(){openJournal('story');}
 const lockT={};
-function lockedMsg(k,force){if(!force){if(T-(lockT[k]??-99)<4)return;lockT[k]=T;}const g=GATES[k],s=STEP[g.step];warn(gateMsg(k));banner('🔒 '+g.name.toUpperCase()+' LOCKED','Story step '+(s.i+1)+' · "'+s.n+'" (level '+s.lvl+'). Talk to Archivist Sela Marr in Halden\'s Rest');}
+function lockedMsg(k,force){if(!force){if(T-(lockT[k]??-99)<4)return;lockT[k]=T;}const g=GATES[k],s=STEP[g.step];warn(gateMsg(k));banner('🔒 '+g.name.toUpperCase()+' LOCKED','Story step '+(s.i+1)+' · "'+s.n+'" (level '+s.lvl+'). Talk to '+giverWhere(s.id));}
+function giverWhere(id){const s=STEP[id];return s&&s.giver==='odran'?'Warden Kesh Odran at Farwatch Station':'Archivist Sela Marr in Halden\'s Rest';}
 function storyAct(a,b){const D=b.dataset;if(a==='saccept'){if(startStep(D.id))closePanel();}else if(a==='sfull')openStoryDialog(D.id,true);else if(a==='sreplay')openStoryDialog(D.id,true);
   else if(a==='jtab')openJournal(D.t);else if(a==='strack'){sto().track=!sto().track;save();openJournal();}else if(a==='journal'){closePanel();openJournal();}else if(a==='slockc')lockedMsg(D.g,true);else return false;return true;}
 let stAcc=0;
@@ -2722,7 +2850,7 @@ CAMPS.forEach(c=>initCamp(c));
 function initCamp(c){const bad=(x,z)=>Math.abs(x)<60&&Math.abs(z)<60||OUTPOSTS.some(o=>Math.hypot(o.x-x,o.z-z)<o.r+20)||Object.values(DUNGEONS).some(d=>Math.hypot(d.door.x-x,d.door.z-z)<28)||
     TSITES.some(t=>Math.hypot(t.x-x,t.z-z)<34)||RUINS.some(r=>Math.hypot(r.x-x,r.z-z)<24)||Math.max(Math.abs(x),Math.abs(z))>HALF-75||(c.biome!=null&&biomeIdx(x,z)!==c.biome);
   let k=0;const a0=Math.atan2(c.z,c.x),r0=Math.hypot(c.x,c.z);while(bad(c.x,c.z)&&k<80){k++;const a=a0+(k%2?1:-1)*Math.ceil(k/2)*0.05;const r=Math.min(c.biome!=null?HALF*1.2:230,r0+(k>40?8:0));c.x=Math.cos(a)*r;c.z=Math.sin(a)*r;}
-  c.resp=Math.round(60+(c.lv[1]-2)*7.5);// 60s for starter camps, up to 120s for level-10 camps
+  c.resp=Math.round(60+(Math.min(c.lv[1],10)-2)*7.5+(c.lv[1]>10?15:0));// 60s for starter camps, up to 120s for level-10 camps
   c.mobs=[];c.respawnAt=0;c.awake=false;c.xpAcc=0;c.cleared=0;c.left=c.n;
   const g=new THREE.Group();const y=heightAt(c.x,c.z);g.position.set(c.x,y,c.z);
   part(g,geoCone,M(0x8a5a34),0,1.1,0,2.2,2.2,2.2);part(g,geoCone,M(0x6a4024),3.6,0.8,1.6,1.5,1.6,1.5);
@@ -2765,7 +2893,8 @@ function campExports(){return {fabTargets,craftBar,CAMPS,CAMP_SPEED,CAMP_LEASH,C
 
 /* ---------- Bank: account-wide storage (same localStorage record as the apartment locker), terminals in Halden's Rest and the outposts ---------- */
 const BANK_SPOTS=[{id:'town',name:"Halden's Rest Bank",cx:0,cz:-11,cand:[[0,-11.5],[3.2,-12.5],[-3.2,-12.5],[13,-3],[-13,-3]]},
-  {id:'cinderwell',name:'Cinderwell Bank',gate:'cinderwell',out:'cinderwell'},{id:'glassreach',name:'Glassreach Bank',gate:'glassreach',out:'glassreach'}];
+  {id:'cinderwell',name:'Cinderwell Bank',gate:'cinderwell',out:'cinderwell'},{id:'glassreach',name:'Glassreach Bank',gate:'glassreach',out:'glassreach'},
+  {id:'farwatch',name:'Farwatch Bank',gate:'farwatch',out:'farwatch',cand:[[-415,234],[-414,229],[-401,244]]}];
 const BANKS=[];
 (function placeBanks(){const free=(x,z)=>!boxes.some(b=>x>b.x0-2.2&&x<b.x1+2.2&&z>b.z0-2.2&&z<b.z1+2.2)&&!circles.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+2)&&!NPCS.some(n=>Math.hypot(n.x-x,n.z-z)<3.5)&&
     Math.hypot(x-TERMINAL.x,z-TERMINAL.z)>4&&Math.hypot(x-VENDOR.x,z-VENDOR.z)>4;
@@ -2824,12 +2953,20 @@ const NEWCAMPS=[
   ['reedbank','Reedbank',4,170,295,[3,5],5,['skitter','spitter','skitter']],['palmrest','Palmrest Wells',4,192,355,[4,6],6,['raider','skitter','spitter']],
   ['redgulch','Redgulch',5,230,300,[5,7],6,['raider','skitter','raider']],['spirehold','Spirehold Mesa',5,252,360,[6,8],7,['mauler','raider','skitter']],
   ['saltbones','Saltbones',6,290,300,[4,6],5,['spitter','skitter','skitter']],['mirage','Mirage Pans',6,312,360,[5,7],6,['spitter','raider','skitter']]];
+// ---- Duskcrown Highlands (Lv 11-20): twelve camps around the outer ring; level follows gloamLv (11 at Farwatch, 20 on the far side) ----
+[['violetsteps','Violet Steps',175,470,['stalker','shardcaller','stalker']],['lanternfall','Lanternfall',125,540,['stalker','stalker','tender']],
+ ['glintwood','Glintwood',205,540,['stalker','shardcaller','brute']],['shardmire','Shardmire',95,470,['shardcaller','shardcaller','stalker','tender']],
+ ['choirrise','Choirgate Rise',230,470,['brute','shardcaller','tender']],['craghollows','Crag Hollows',65,540,['brute','stalker','stalker']],
+ ['echoterr','Echo Terraces',282,540,['shardcaller','tender','stalker','brute']],['brutegrave','Brutegrave',35,470,['brute','brute','tender']],
+ ['seraphfields','Seraph Fields',300,470,['stalker','shardcaller','tender','brute']],['duskspire','Duskspire',5,540,['brute','shardcaller','stalker']],
+ ['glasscrown','Crown of Glass',322,540,['brute','shardcaller','tender','stalker']],['lastlight','Last Light',345,470,['stalker','brute','shardcaller','tender']]
+].forEach(([id,name,deg,r,mix])=>{const [x,z]=gloamAt(deg,r);const L=gloamLv(x,z);NEWCAMPS.push([id,name,GB,deg,r,[clamp(L-1,11,MAXLVL),clamp(L,11,MAXLVL)],mix.length>3?7:6,mix]);});
 for(const [id,name,bi,deg,r,lv,n,mix] of NEWCAMPS){const a=deg*Math.PI/180;const c={id,name,x:Math.cos(a)*r,z:Math.sin(a)*r,lv,n,mix,biome:bi,gate:BIOMES[bi].gate};initCamp(c);CAMPS.push(c);}
 // ---- props (instanced, bucketed into a 4x4 grid so far buckets can be hidden) ----
 const PROPB=[];const PB_N=4,PB_S=WORLD/PB_N;
 (function buildProps(){const R=rng32(9137);const rr=(a,b)=>a+R()*(b-a);const o=new THREE.Object3D(),col=new THREE.Color();
   const near=(x,z,d)=>CAMPS.some(c=>Math.hypot(c.x-x,c.z-z)<d)||OUTPOSTS.some(q=>Math.hypot(q.x-x,q.z-z)<q.r+12)||Object.values(DUNGEONS).some(q=>Math.hypot(q.door.x-x,q.door.z-z)<16)||TSITES.some(t=>Math.hypot(t.x-x,t.z-z)<16);
-  const W7=new Float32Array(7);
+  const W7=new Float32Array(NB);
   function spots(bi,n,minW,pred){const out=[];let tries=0;while(out.length<n&&tries<n*40){tries++;const x=rr(-HALF+50,HALF-50),z=rr(-HALF+50,HALF-50);if(Math.hypot(x,z)<235)continue;biomeW(x,z,W7);if(W7[bi]<minW)continue;if(near(x,z,13))continue;if(pred&&!pred(x,z))continue;out.push([x,z]);}return out;}
   function emit(type,geo,mat,items,circleR){const buckets={};for(const it of items){const bx=clamp(Math.floor((it.x+HALF)/PB_S),0,PB_N-1),bz=clamp(Math.floor((it.z+HALF)/PB_S),0,PB_N-1);(buckets[bx+','+bz]=buckets[bx+','+bz]||[]).push(it);}
     for(const k in buckets){const L=buckets[k];const im=new THREE.InstancedMesh(geo,mat,L.length);L.forEach((it,i)=>{o.position.set(it.x,it.y,it.z);o.rotation.set(it.rx||0,it.ry||0,it.rz||0);o.scale.set(it.sx,it.sy,it.sz);o.updateMatrix();im.setMatrixAt(i,o.matrix);im.setColorAt(i,col.setHex(it.c));
@@ -2861,10 +2998,18 @@ const PROPB=[];const PB_N=4,PB_S=WORLD/PB_N;
   emit('boulder',gDod,lam(),spots(5,200,0.6).map(([x,z])=>{const s=rr(0.8,3.5);return {x,y:heightAt(x,z)+s*0.25,z,sx:s*rr(0.9,1.4),sy:s*rr(0.6,1),sz:s*rr(0.9,1.4),rx:rr(0,3),ry:rr(0,3),c:pick([0xa04a2c,0xb85a36,0x8a3a22]),cr:s>2?s*0.9:0};}));
   // Whitepan: salt pillars and salt crust clusters
   emit('saltpillar',geoBox,lam(),spots(6,90,0.7).map(([x,z])=>{const h=rr(1,3.5),w=rr(0.6,1.6);return {x,y:heightAt(x,z)+h/2,z,sx:w,sy:h,sz:w,ry:rr(0,6),c:pick([0xffffff,0xf0ece2,0xe4ddd0]),cr:h>2.5?w*0.7:0};}));
+  // Duskcrown: tall Vyre monoliths (solid), glowing vein shards, glasswood trees, violet boulders
+  const dS=(n,w,pred)=>spots(GB,n,w,pred);
+  emit('monolith',gCyl,lam(0x140c28),dS(110,0.75).map(([x,z])=>{const h=rr(6,16),w=rr(0.8,1.8);return {x,y:heightAt(x,z)+h/2-0.6,z,sx:w,sy:h,sz:w*rr(0.7,1),ry:rr(0,6),rz:rr(-0.12,0.12),c:pick([0x5a4e78,0x4a4068,0x6a5e88]),cr:w*0.9};}));
+  emit('veinshard',gOct,lam(0x1a3a48),dS(260,0.6).map(([x,z])=>{const h=rr(1,4.2),w=rr(0.3,0.8);return {x,y:heightAt(x,z)+h*0.4,z,sx:w,sy:h,sz:w,ry:rr(0,6),rx:rr(-0.3,0.3),c:pick([0x7ff6ff,0xb48cff,0x9fe0ff,0xd8c0ff])};}));
+  const gw=dS(150,0.65).map(([x,z])=>({x,z,h:rr(3.5,7),y:heightAt(x,z),ry:rr(0,6)}));
+  emit('glasswood',gTrunk,lam(),gw.map(p=>({x:p.x,y:p.y+p.h/2,z:p.z,sx:0.8,sy:p.h,sz:0.8,ry:p.ry,c:0x3a3048,cr:0.35})));
+  emit('glasscrown',gOct,lam(0x2a1048),gw.map(p=>({x:p.x,y:p.y+p.h+0.6,z:p.z,sx:rr(1.4,2.2),sy:rr(1.2,1.8),sz:rr(1.4,2.2),ry:p.ry,c:pick([0xb48cff,0x9a7aff,0x7fd8ff])})));
+  emit('duskrock',gDod,lam(),dS(220,0.6).map(([x,z])=>{const s=rr(0.8,3.4);return {x,y:heightAt(x,z)+s*0.25,z,sx:s*rr(0.9,1.4),sy:s*rr(0.5,1),sz:s*rr(0.9,1.4),rx:rr(0,3),ry:rr(0,3),c:pick([0x4a4060,0x3e3652,0x5a5070]),cr:s>2?s*0.9:0};}));
   emit('saltcrust',gDod,lam(),spots(6,180,0.6).map(([x,z])=>{const s=rr(0.4,1.4);return {x,y:heightAt(x,z),z,sx:s*1.6,sy:s*0.35,sz:s*1.6,ry:rr(0,6),c:pick([0xfaf8f2,0xece6da])};}));
 })();
 // ---- oasis water: one merged mesh over cells below the water line ----
-const WATERM=(function(){const pos=[];const W7=new Float32Array(7);for(let iy=0;iy<SEG;iy++)for(let ix=0;ix<SEG;ix++){const x=ix*CELL-HALF,z=iy*CELL-HALF;
+const WATERM=(function(){const pos=[];const W7=new Float32Array(NB);for(let iy=0;iy<SEG;iy++)for(let ix=0;ix<SEG;ix++){const x=ix*CELL-HALF,z=iy*CELL-HALF;
     const lo=Math.min(HG[iy*N1+ix],HG[iy*N1+ix+1],HG[(iy+1)*N1+ix],HG[(iy+1)*N1+ix+1]);if(lo>=WATER_Y)continue;biomeW(x+2,z+2,W7);if(W7[4]<0.35)continue;
     const x1=x+CELL,z1=z+CELL,y=WATER_Y;pos.push(x,y,z,x,y,z1,x1,y,z,x1,y,z,x,y,z1,x1,y,z1);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();
@@ -2881,17 +3026,20 @@ const RG={cur:null,cand:null,acc:0};
 function regionAt(x,z){if(Math.abs(x)<TOWN+0.5&&Math.abs(z)<TOWN+0.5)return {id:'town',name:"Halden's Rest"};for(const o of OUTPOSTS)if(Math.hypot(x-o.x,z-o.z)<o.r+3)return {id:o.id,name:o.name};const b=BIOMES[biomeIdx(x,z)];return {id:b.id,name:b.name,b};}
 function regionGateTxt(b){if(!b||!b.gate||gateOpen(b.gate))return '';const s=STEP[GATES[b.gate].step];return ' · 🔒 its wild packs wake after story step '+(s.i+1);}
 function updRegions(dt){if(DUN&&state==='play'){const el=$('#region'),n=DUN.apt?'Your Apartment':DUN.D.name;if(el&&el._t!==n){el._t=n;el.textContent=(DUN.D&&DUN.D.raid?'⚔ ':'🚪 ')+n;}RG.cur=null;RG.cand=null;return;}if(DUN||state!=='play')return;RG.acc+=dt;if(RG.acc<0.4)return;RG.acc=0;
-  const r=regionAt(P.pos.x,P.pos.z);const bi=biomeIdx(P.pos.x,P.pos.z);if(!BSKY)BSKY={fog:new THREE.Color(BIOMES[0].fog),hemi:new THREE.Color(BIOMES[0].hemi),w:new Float32Array(7)};
-  const w=biomeW(P.pos.x,P.pos.z,BSKY.w);const tf=new THREE.Color(0,0,0),th=new THREE.Color(0,0,0);for(let i=0;i<7;i++){if(w[i]<0.001)continue;tf.r+=((BIOMES[i].fog>>16)&255)/255*w[i];tf.g+=((BIOMES[i].fog>>8)&255)/255*w[i];tf.b+=(BIOMES[i].fog&255)/255*w[i];th.r+=((BIOMES[i].hemi>>16)&255)/255*w[i];th.g+=((BIOMES[i].hemi>>8)&255)/255*w[i];th.b+=(BIOMES[i].hemi&255)/255*w[i];}
+  const r=regionAt(P.pos.x,P.pos.z);const bi=biomeIdx(P.pos.x,P.pos.z);if(!BSKY)BSKY={fog:new THREE.Color(BIOMES[0].fog),hemi:new THREE.Color(BIOMES[0].hemi),w:new Float32Array(NB)};
+  const w=biomeW(P.pos.x,P.pos.z,BSKY.w);const tf=new THREE.Color(0,0,0),th=new THREE.Color(0,0,0);for(let i=0;i<NB;i++){if(w[i]<0.001)continue;tf.r+=((BIOMES[i].fog>>16)&255)/255*w[i];tf.g+=((BIOMES[i].fog>>8)&255)/255*w[i];tf.b+=(BIOMES[i].fog&255)/255*w[i];th.r+=((BIOMES[i].hemi>>16)&255)/255*w[i];th.g+=((BIOMES[i].hemi>>8)&255)/255*w[i];th.b+=(BIOMES[i].hemi&255)/255*w[i];}
   BSKY.fog.lerp(tf,0.35);BSKY.hemi.lerp(th,0.35);
   const el=$('#region');if(el&&el._t!==r.name){el._t=r.name;el.textContent='📍 '+r.name;}
   const key=BIOMES[bi].id;if(RG.cur===null){RG.cur=key;return;}
-  if(key!==RG.cur){if(RG.cand===key){RG.cur=key;RG.cand=null;const b=BIOMES[bi];banner(b.name.toUpperCase(),b.sub+' · Lv '+b.lv[0]+'–'+b.lv[1]+regionGateTxt(b));SFX.quest();exploreMark(true);}else RG.cand=key;}else RG.cand=null;}
+  if(key!==RG.cur){if(RG.cand===key){RG.cur=key;RG.cand=null;const b=BIOMES[bi];banner(b.name.toUpperCase(),b.sub+' · Lv '+(b.outer?gloamLv(P.pos.x,P.pos.z)+' here ('+b.lv[0]+'–'+b.lv[1]+')':b.lv[0]+'–'+b.lv[1])+regionGateTxt(b)+(b.outer&&P.level<11?' · ⚠ dangerous below Lv 11':''));SFX.quest();exploreMark(true);}else RG.cand=key;}else RG.cand=null;}
 function biomeSky(I){if(!BSKY||DUN)return;const k=0.42;const t=BSKY.fog.clone().multiplyScalar(0.18+0.82*I.day);colFog.lerp(t,k*(1-WX.storm*0.6));hemi.color.lerp(BSKY.hemi.clone().multiplyScalar(0.5+0.5*I.day),0.35);}
 // ---- exploration (fog of war for the new regions; the old desert core is already charted) ----
 const EX_C=20,EX_N=WORLD/EX_C;let EXP=new Uint8Array(EX_N*EX_N),exAcc=0;
 function exIdx(x,z){const i=Math.floor((x+HALF)/EX_C),j=Math.floor((z+HALF)/EX_C);return (i<0||j<0||i>=EX_N||j>=EX_N)?-1:j*EX_N+i;}
-function exploreLoad(){EXP=new Uint8Array(EX_N*EX_N);const s=P.explored||'';for(let i=0;i<EXP.length;i++){const h=parseInt(s[i>>2]||'0',16);EXP[i]=(h>>(i&3))&1;}
+function exploreLoad(){EXP=new Uint8Array(EX_N*EX_N);const s=P.explored||'';
+  // old saves were charted on a smaller square grid (880 m world = 44x44 cells): place it centred in the bigger one
+  const oN=Math.round(Math.sqrt(s.length*4));if(s.length&&oN<EX_N&&oN*oN===s.length*4){const off=(EX_N-oN)>>1;for(let j=0;j<oN;j++)for(let i=0;i<oN;i++){const k=j*oN+i;const h=parseInt(s[k>>2]||'0',16);EXP[(j+off)*EX_N+i+off]=(h>>(k&3))&1;}}
+  else for(let i=0;i<EXP.length;i++){const h=parseInt(s[i>>2]||'0',16);EXP[i]=(h>>(i&3))&1;}
   for(let j=0;j<EX_N;j++)for(let i=0;i<EX_N;i++){const x=(i+0.5)*EX_C-HALF,z=(j+0.5)*EX_C-HALF;if(Math.hypot(x,z)<240)EXP[j*EX_N+i]=1;}exploreSave();}
 function exploreSave(){let s='';for(let i=0;i<EXP.length;i+=4)s+=((EXP[i]|EXP[i+1]<<1|EXP[i+2]<<2|EXP[i+3]<<3)).toString(16);P.explored=s;}
 function exploreMark(force){if(DUN)return false;let ch=false;const R=70;for(let dz=-R;dz<=R;dz+=EX_C)for(let dx=-R;dx<=R;dx+=EX_C){if(dx*dx+dz*dz>R*R)continue;const k=exIdx(P.pos.x+dx,P.pos.z+dz);if(k>=0&&!EXP[k]){EXP[k]=1;ch=true;}}if(ch){exploreSave();MAP.fogDirty=true;}return ch;}
@@ -2920,7 +3068,7 @@ const mapUI=(()=>{const d=document.createElement('div');d.id='mapUI';d.className
   d.innerHTML=`<canvas id="mapC"></canvas><div class="mapbar"><button class="sbtn" id="mapClose">✕ Close</button><button class="sbtn alt" id="mapClear">📍 Clear waypoint</button><button class="sbtn alt" id="mapMe">◎ Me</button><button class="sbtn alt mz" id="mapOut">−</button><button class="sbtn alt mz" id="mapIn">+</button><span id="mapInfo"></span></div><div class="maphint">Tap the map to set a waypoint · tap it again to remove · drag to pan · pinch to zoom</div>`;
   document.body.appendChild(d);return d;})();
 const mapC=$('#mapC'),mctx2=mapC.getContext('2d');
-function mapBase(){if(MAP.base)return MAP.base;const c=document.createElement('canvas');c.width=c.height=N1;const x=c.getContext('2d');const im=x.createImageData(N1,N1);const W7=new Float32Array(7);
+function mapBase(){if(MAP.base)return MAP.base;const c=document.createElement('canvas');c.width=c.height=N1;const x=c.getContext('2d');const im=x.createImageData(N1,N1);const W7=new Float32Array(NB);
   for(let j=0;j<N1;j++)for(let i=0;i<N1;i++){const k=j*N1+i;const h=HG[k],hl=HG[j*N1+Math.max(0,i-1)],hu=HG[Math.max(0,j-1)*N1+i];let s=clamp(1+(hl-h)*0.035+(hu-h)*0.035,0.65,1.3);
     let r=TCOL[k*3],g=TCOL[k*3+1],b=TCOL[k*3+2];if(h<WATER_Y){biomeW(i*CELL-HALF,j*CELL-HALF,W7);if(W7[4]>0.35){r=0.23;g=0.6;b=0.72;s=1;}}
     im.data[k*4]=clamp(r*s*255,0,255);im.data[k*4+1]=clamp(g*s*255,0,255);im.data[k*4+2]=clamp(b*s*255,0,255);im.data[k*4+3]=255;}
@@ -3043,7 +3191,9 @@ RAIDS.bastion={id:'bastion',raid:true,name:'The Cinderdeep Bastion',sub:'Ashborn
     {w:30,d:24,packs:[[['cinderguard',10],['emberadept',10],['cinderguard',10],['ashhound',10]]]},{w:44,d:40,boss:'colossus',final:true}],
   loot:{slagwarden:{items:['cb_helm','cb_grips','pyre_repeater','slag_suture'],extraP:0.25},emberqueen:{items:['queens_ember','cb_greaves','cb_helm','cb_plate'],extraP:0.3},
     colossus:{items:['colossus_cleaver','pyre_repeater','queens_ember','slag_suture','cb_plate','cb_greaves','cb_grips','cb_helm'],extraP:0.45,relic:'ashen_eye',relicP:0.08},trashP:0.02},
-  modes:{team:{hp:2.6,dmg:1.15,lvl:0,size:[6,6]}}};
+  modes:{team:{hp:2.6,dmg:1.15,lvl:0,size:[6,6]}},
+  // Veteran mode (Build B): over-cap teams (top level 11-20) may enter; every mob is raised to the team's top level and raid uniques drop as Veteran copies at that level
+  vet:{minTop:11,cap:20,hp:2.6,dmg:1.15,sig:1.5}};
 // A future high-level raid fits the same data shape; it stays listed as "coming later" until the level cap reaches it.
 RAIDS.sunless={id:'sunless',raid:true,future:true,name:'The Sunless Throne',sub:'A sealed Vyre abyss, far beyond the Reach',lvl:[100,120],minLvl:100,cap:120,rec:120,gate:null,
   team:{size:6},lockout:{runs:3,period:'week'},tokens:{},desc:'Something vast sleeps under the deepest seam. It will not open until contractors can reach level 100.',rooms:[],loot:{},modes:{team:{hp:6,dmg:1.6,lvl:0,size:[6,6]}}};
@@ -3065,7 +3215,10 @@ function raidResetTxt(id){const R=RAIDS[id];return (R.lockout.period==='day'?'da
 function raidUse(id){const r=raidRec(id);r.used++;return r.used;}
 /* ---------- team ---------- */
 const MERC=[{prof:'vanguard',role:'tank',name:'Brask (contract)'},{prof:'mender',role:'healer',name:'Ilsa (contract)'},{prof:'flux',role:'dps',name:'Corr (contract)'},{prof:'runner',role:'dps',name:'Tamsin (contract)'},{prof:'wild',role:'dps',name:'Odo (contract)'},{prof:'weaver',role:'control',name:'Mirel (contract)'},{prof:'wright',role:'pet',name:'Gant (contract)'}];
-function raidAlts(id){const R=RAIDS[id];return roster.chars.filter(c=>c.id!==activeId).map(c=>({id:c.id,name:c.name,level:c.level,prof:c.prof,role:(c.party&&c.party.role)||ROLE[c.prof]||'dps',over:c.level>R.cap})).sort((a,b)=>b.level-a.level);}
+const raidHiCap=R=>R.vet?R.vet.cap:R.cap;
+// Veteran level for a team: its top level when over the normal cap and within the Veteran cap, else 0
+function raidVetLv(id,party){const R=RAIDS[id];if(!R||!R.vet)return 0;const lv=partyTopLevel(party);return lv>R.cap&&lv>=(R.vet.minTop||R.cap+1)&&lv<=R.vet.cap?lv:0;}
+function raidAlts(id){const R=RAIDS[id];return roster.chars.filter(c=>c.id!==activeId).map(c=>({id:c.id,name:c.name,level:c.level,prof:c.prof,role:(c.party&&c.party.role)||ROLE[c.prof]||'dps',over:c.level>raidHiCap(R)})).sort((a,b)=>b.level-a.level);}
 function raidPicks(id){const R=RAIDS[id];const al=raidAlts(id);const ok=new Set(al.filter(a=>!a.over).map(a=>a.id));const max=R.team.size-1;
   let ids=Array.isArray(P.raidTeam)?P.raidTeam.filter(x=>ok.has(x)):al.filter(a=>!a.over).map(a=>a.id);return ids.slice(0,max);}
 function mercSnap(m,lv){const c=normalizeChar({prof:m.prof,level:lv,name:m.name});c.id='merc_'+m.prof;const st=statsFor({...c,buffs:[]});const pr=PROFS[m.prof];const wt=PROF_WT[m.prof];
@@ -3073,20 +3226,20 @@ function mercSnap(m,lv){const c=normalizeChar({prof:m.prof,level:lv,name:m.name}
   return {id:c.id,merc:true,name:m.name,prof:m.prof,profName:pr.name,level:lv,role:m.role,ai:'default',stats:st,eq:{weapon:{wt}},imps:{},visual:{color:pr.color,accent:pr.accent,visor:pr.visor}};}
 function raidTeam(id,ids){const R=RAIDS[id];const pick=(ids||raidPicks(id)).slice(0,R.team.size-1);const team=pick.map(partySnapshot).filter(Boolean);
   const roles=new Set([ROLE[P.prof],...team.map(t=>t.role)]);const need=MERC.filter(m=>(m.role==='tank'||m.role==='healer')&&!roles.has(m.role)).concat(MERC.filter(m=>m.role!=='tank'&&m.role!=='healer'));
-  const lv=Math.min(R.cap,Math.max(R.minLvl,P.level));let i=0;while(team.length<R.team.size-1&&i<need.length)team.push(mercSnap(need[i++],lv));return team;}
+  const vl=raidVetLv(id,team);const lv=vl||Math.min(R.cap,Math.max(R.minLvl,P.level));let i=0;while(team.length<R.team.size-1&&i<need.length)team.push(mercSnap(need[i++],lv));return team;}
 /* ---------- entry ---------- */
 function raidEntryCheck(id,party){const R=RAIDS[id];if(!R)return {ok:false,why:'unknown',msg:'Unknown raid'};
   if(R.future)return {ok:false,why:'future',msg:'Requires level '+R.minLvl+' – the level cap is '+MAXLVL+' for now'};
   if(R.gate&&!gateOpen(R.gate)){const s=STEP[GATES[R.gate].step];return {ok:false,why:'story',step:s.id,msg:gateMsg(R.gate)};}
-  const lv=partyTopLevel(party);if(lv>R.cap)return {ok:false,why:'cap',lv,msg:'Level cap '+R.cap+' – '+(lv>P.level?'a team member (Lv '+lv+') is':'you are')+' too experienced for '+R.name};
+  const lv=partyTopLevel(party);const vet=raidVetLv(id,party);if(lv>R.cap&&!vet)return {ok:false,why:'cap',lv,msg:'Level cap '+raidHiCap(R)+' – '+(lv>P.level?'a team member (Lv '+lv+') is':'you are')+' too experienced for '+R.name};
   if(P.level<R.minLvl)return {ok:false,why:'min',lv,msg:'Requires level '+R.minLvl+' – you are level '+P.level};
   if(raidLeft(id)<=0)return {ok:false,why:'lockout',lv,msg:'Raid lockout: '+R.lockout.runs+'/'+R.lockout.runs+' runs used – resets '+raidResetTxt(id)};
-  return {ok:true,lv};}
+  return {ok:true,lv,vet};}
 function enterRaid(id,ids){const R=RAIDS[id];if(!R||DUN)return false;const team=raidTeam(id,ids);const ck=raidEntryCheck(id,team);
   if(!ck.ok){warn(ck.msg);if(ck.why==='story')lockedMsg(R.gate,true);else if(ck.why==='lockout')banner('RAID LOCKOUT',ck.msg.replace(/^Raid lockout: /,''));else if(ck.why==='cap')banner('LEVEL CAP '+R.cap,ck.msg.replace(/^Level cap \d+ – /,''));return false;}
-  if(!enterDungeon(id,{mode:'team',party:team}))return false;
+  const vet=ck.vet;const V=R.vet;if(!enterDungeon(id,vet?{modeObj:{hp:V.hp,dmg:V.dmg,lvl:vet-R.cap,size:R.modes.team.size,vet},party:team}:{mode:'team',party:team}))return false;
   DUN.raidRun={counted:false,kills:0,team:team.map(t=>t.id)};DUN.raidAllies=[];raidSpawnTeam();
-  banner(R.name.toUpperCase(),'Raid · team of '+R.team.size+' · '+raidLeft(id)+'/'+R.lockout.runs+' runs left this week');
+  banner(R.name.toUpperCase()+(vet?' · VETERAN':''),'Raid · team of '+R.team.size+(vet?' · scaled to Lv '+vet:'')+' · '+raidLeft(id)+'/'+R.lockout.runs+' runs left this week');
   log('⚔ Raid: <b style="color:#ff9a2a">'+esc(R.name)+'</b>. The lockout run is used when the first boss dies.');return true;}
 function raidSpawnTeam(){const d=DUN;if(!d||!d.D.raid)return;for(const a of d.raidAllies.slice())if(!a.dead)removeAlly(a);d.raidAllies=[];
   d.party.forEach((s,i)=>{const a=spawnPartyMember(s);if(!a)return;a.raid=true;a.snapId=s.id;a.merc=!!s.merc;a.healCd=2+i*0.4;const hm=s.role==='tank'?3.5:2.2;a.maxHp=a.baseMax=a.hp=Math.round(a.hp*hm);a.dmg*=1.6;if(s.role==='tank'){a.dr=Math.min(0.6,a.dr+0.15);a.threat=1;}
@@ -3107,8 +3260,8 @@ function updRaid(dt){const d=DUN;const al=d.raidAllies.filter(a=>!a.dead&&allies
   for(const e of d.bosses){const b=e.boss;const on=!e.dead&&e.immune&&e.immune();if(on&&!b.bubble){b.bubble=new THREE.Mesh(geoSphere,new THREE.MeshBasicMaterial({color:0xffb347,transparent:true,opacity:0.25,depthWrite:false}));d.group.add(b.bubble);}
     if(b.bubble){b.bubble.visible=on;if(on){b.bubble.position.set(e.pos.x,e.pos.y+e.h*0.5,e.pos.z);b.bubble.scale.setScalar(e.hitR*2.2+1.5+Math.sin(T*4)*0.1);}}}}
 MECH_EXT.shield=(e,b,m,i,hpF)=>{m.at.forEach((th,j)=>{const k=i+'_'+j;if(b.done[k]||hpF>th)return;b.done[k]=1;const r=b.room;b.pylons=[];
-  for(let n=0;n<m.n;n++){const a=n/m.n*6.28+0.5;const p=spawnDunMob('pylon',Math.cos(a)*r.w*0.36,r.cz+Math.sin(a)*r.d*0.36,m.lvl,{temp:true});p.addOf=e;p.wr=0;p.state='chase';p.nextAtk=T+1.5;ringFx(p.pos.x,p.pos.z,0xffb347,3,0.6);b.pylons.push(p);}
-  e.immune=()=>!!b.pylons&&b.pylons.some(p=>!p.dead&&enemies.includes(p));banner(m.name.toUpperCase(),'Destroy the '+m.n+' Ember Pylons to break her shield');SFX.boom();});};
+  for(let n=0;n<m.n;n++){const a=n/m.n*6.28+0.5;const p=spawnDunMob(m.etype||'pylon',Math.cos(a)*r.w*0.36,r.cz+Math.sin(a)*r.d*0.36,m.lvl,{temp:true});p.addOf=e;p.wr=0;p.state='chase';p.nextAtk=T+1.5;ringFx(p.pos.x,p.pos.z,0xffb347,3,0.6);b.pylons.push(p);}
+  e.immune=()=>!!b.pylons&&b.pylons.some(p=>!p.dead&&enemies.includes(p));banner(m.name.toUpperCase(),'Destroy the '+m.n+' '+(m.what||'Ember Pylons')+' to break the shield');SFX.boom();});};
 MECH_EXT.nova=(e,b,m,i)=>{if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;e.rootUntil=T+m.delay;novaTele(e,e.pos.x,e.pos.z,m.safe,m.r,m.delay,b.baseDmg*m.mult,m.name);
   toast('⚠ '+m.name+': get close to him!');tone(160,0.7,'sawtooth',0.06,200);};
 function novaTele(src,x,z,inner,r,delay,dmg,name){const g=new THREE.Group();g.position.set(x,0.06,z);const k=inner/r;
@@ -3119,7 +3272,7 @@ function novaTele(src,x,z,inner,r,delay,dmg,name){const g=new THREE.Group();g.po
   DUN.group.add(g);DUN.tele.push({src,x,z,r,inner,t0:T,at:T+delay,dmg,g,fill,edge:out,name});}
 function raidOnBoss(e){const d=DUN,R=d.D,id=d.id;d.raidRun.kills++;
   if(!d.raidRun.counted){d.raidRun.counted=true;const u=raidUse(id);log('⚔ Raid lockout: run <b>'+u+'/'+R.lockout.runs+'</b> used this week (resets '+raidResetTxt(id)+').');}
-  const n=R.tokens[e.boss.key]||0;if(n){P.sigils=(P.sigils|0)+n;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1,e.pos.z),'+'+n+' '+RAID_CUR,'info');log('+<b>'+n+' '+SIGIL+'</b> '+RAID_CUR+' (you have '+P.sigils+')');}
+  const n=Math.round((R.tokens[e.boss.key]||0)*(d.mode&&d.mode.vet&&R.vet?R.vet.sig:1));if(n){P.sigils=(P.sigils|0)+n;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1,e.pos.z),'+'+n+' '+RAID_CUR,'info');log('+<b>'+n+' '+SIGIL+'</b> '+RAID_CUR+' (you have '+P.sigils+')');}
   if(e.boss.final){P.raidClears=P.raidClears||{};P.raidClears[id]=(P.raidClears[id]||0)+1;}save();}
 function raidTrack(){const d=DUN,R=d.D;const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;const al=d.raidAllies.filter(a=>!a.dead&&allies.includes(a)).length;
   return `<b>⚔ ${esc(R.name)}</b><br>Bosses ${k}/${tot} · Team ${al+(P.dead?0:1)}/${R.team.size} · ${d.raidRun.counted?'run counted':'run not used yet'} · ${raidLeft(d.id)}/${R.lockout.runs} left${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;}
@@ -3140,12 +3293,13 @@ const RP={tab:'team'};
 function raidStatusLine(id){const R=RAIDS[id];return `<b class="${raidLeft(id)?'up':'down'}">${raidLeft(id)}/${R.lockout.runs} runs left this week</b> · resets ${esc(raidResetTxt(id))}`;}
 function openRaid(id,tab){id=id||'bastion';if(tab)RP.tab=tab;const R=RAIDS[id];RP.id=id;const team=raidTeam(id);const ck=raidEntryCheck(id,team);const t=RP.tab;
   const picks=raidPicks(id),al=raidAlts(id);const nAlt=team.filter(s=>!s.merc).length,nMerc=team.length-nAlt;
-  let h=`<div class="craftbar raidbar"><span class="cbi">⚔</span><span class="cbn"><b>${esc(R.name)}</b><small>Lv ${R.minLvl}–${R.cap} · team of ${R.team.size} · ${raidLeft(id)}/${R.lockout.runs} runs left · resets in ${fmtLeft(raidResetIn(id))} · ${RAID_CUR} ${P.sigils|0}</small></span>
+  let h=`<div class="craftbar raidbar"><span class="cbi">⚔</span><span class="cbn"><b>${esc(R.name)}</b><small>Lv ${R.minLvl}–${R.cap}${R.vet?' (Veteran '+R.vet.minTop+'–'+R.vet.cap+')':''} · team of ${R.team.size} · ${raidLeft(id)}/${R.lockout.runs} runs left · resets in ${fmtLeft(raidResetIn(id))} · ${RAID_CUR} ${P.sigils|0}</small></span>
     <button class="sbtn${ck.ok?'':' locked'}" id="raidGo" data-act="${ck.ok?'rgo':'rno'}" data-id="${id}">${ck.ok?'Enter raid':ck.why==='lockout'?'🔒 Locked out':ck.why==='story'?'🔒 Story':ck.why==='cap'?'⛔ Over cap':'Lv '+R.minLvl+'+'}</button></div>`;
   h+=`<div class="tabs">${[['team','👥 Team'],['bosses','💀 Bosses'],['shop',RAID_CUR+' Sigils']].map(([k,n])=>`<button data-act="rtab" data-t="${k}" class="${t===k?'on':''}">${n}</button>`).join('')}</div>`;
-  if(!ck.ok)h+=`<div class="capmsg${ck.why==='story'?' story':''}">${ck.why==='lockout'?'🔒':'⛔'} ${esc(ck.msg)}${ck.why==='story'?'. Talk to Archivist Sela Marr in Halden\'s Rest.':''}</div>`;
+  if(!ck.ok)h+=`<div class="capmsg${ck.why==='story'?' story':''}">${ck.why==='lockout'?'🔒':'⛔'} ${esc(ck.msg)}${ck.why==='story'?'. Talk to '+esc(giverWhere(ck.step))+'.':''}</div>`;
   if(t==='team'){h+=`<div class="mis" style="border-color:#ff6a2a"><p>${esc(R.desc)}</p><div>${raidStatusLine(id)}</div><div style="opacity:.8;font-size:13px;margin-top:4px">A run is used the first time a boss dies in it; wiping before any kill costs nothing. Lockouts are per character. Death revives the whole team at the entrance (bosses reset).</div></div>
     <div class="h4">Your team: you + ${nAlt} alt${nAlt===1?'':'s'}${nMerc?' + '+nMerc+' contract mercenar'+(nMerc>1?'ies':'y'):''} = ${team.length+1}/${R.team.size}</div>
+    ${R.vet?`<div class="mis" style="border-color:#ffe066"><b style="color:#ffe066">Veteran mode</b> · ${raidVetLv(id,team)?'<b>ON</b>: your team\'s top level is '+partyTopLevel(team)+', so every enemy is raised to Lv '+partyTopLevel(team)+', raid gear drops as Veteran copies at that level and Sigils are worth x'+R.vet.sig+'.':'off: teams whose top level is '+R.vet.minTop+'–'+R.vet.cap+' get a scaled run (enemies at your level, Veteran gear, x'+R.vet.sig+' Sigils). At Lv '+R.minLvl+'–'+R.cap+' the raid plays as before.'}</div>`:''}
     <div class="mis"><b>${esc(P.name)}</b> (you) · Lv ${P.level} ${esc(PROFS[P.prof].name)} · ${ROLE[P.prof]}</div>`+
     al.map(a=>{const on=picks.includes(a.id);return `<button class="item${on?' sel':''}" data-act="${a.over?'rover':'rtog'}" data-id="${a.id}" style="${a.over?'opacity:.55':''}"><span class="ico">${on?'✔':a.over?'⛔':'＋'}</span><span><div class="nm">${esc(a.name)}</div><div class="sub">Lv ${a.level} ${esc(PROFS[a.prof].name)} · ${a.role}${a.over?' · over the cap ('+R.cap+')':''}</div></span></button>`;}).join('')+
     (nMerc?`<div style="opacity:.8;font-size:13px;margin-top:6px">Empty seats are filled by contract mercenaries at your level: ${team.filter(s=>s.merc).map(s=>esc(s.name)+' ('+s.role+')').join(', ')}.</div>`:'')+
@@ -3160,7 +3314,7 @@ function raidBuy(k){const u=UNIQUES[k];if(!u||!u.sig||u.d!=='bastion')return fal
   if(P.inv.length>=24){warn('Pack full');return false;}P.sigils-=u.sig;const it=makeUnique(k);it.dropBy='Sigil Quartermaster';P.inv.push(it);SFX.ui();toast('Bought '+it.name);save();return true;}
 function raidAct(a,b){const D=b.dataset;if(a==='rtab')openRaid(RP.id,D.t);else if(a==='rgo'){closePanel();enterRaid(D.id);}else if(a==='rno'){const ck=raidEntryCheck(D.id,raidTeam(D.id));warn(ck.msg);}
   else if(a==='rtog'){let ids=raidPicks(RP.id);if(ids.includes(D.id))ids=ids.filter(x=>x!==D.id);else if(ids.length>=RAIDS[RP.id].team.size-1){warn('A raid team holds '+RAIDS[RP.id].team.size+' (you + '+(RAIDS[RP.id].team.size-1)+')');return true;}else ids.push(D.id);P.raidTeam=ids;save();openRaid(RP.id);}
-  else if(a==='rover')warn('Over the level cap: '+RAIDS[RP.id].cap);else if(a==='rbuy'){raidBuy(D.id);openRaid(RP.id);}else return false;return true;}
+  else if(a==='rover')warn('Over the level cap: '+raidHiCap(RAIDS[RP.id]));else if(a==='rbuy'){raidBuy(D.id);openRaid(RP.id);}else return false;return true;}
 function raidJournalHtml(){return `<div class="stats">Raids are team instances (you + up to 5 alts; empty seats get contract mercenaries). Each raid can be run a limited number of times per week: the lockout resets every <b>Monday 00:00</b> (your local time) and is per character. You have <b>${P.sigils|0} ${RAID_CUR}</b> ${SIGIL}.</div>`+
   Object.values(RAIDS).map(R=>{if(R.future)return `<div class="jrow"><span class="jn">🔒</span><span style="flex:1"><b>${esc(R.name)}</b> <span style="opacity:.7">· Lv ${R.minLvl}+ · coming when the level cap rises (now ${MAXLVL})</span></span></div>`;
     const ck=raidEntryCheck(R.id,[]);return `<div class="jrow${ck.ok?' done':''}"><span class="jn">⚔</span><span style="flex:1"><b>${esc(R.name)}</b> <span style="opacity:.7">· Lv ${R.minLvl}–${R.cap} · ${esc(BIOMES[biomeIdx(R.door.x,R.door.z)].name)}</span><br><span class="jun">${raidStatusLine(R.id)} · cleared ${(P.raidClears||{})[R.id]|0}×${ck.ok||ck.why==='lockout'?'':' · '+esc(ck.msg)}</span></span></div>`;}).join('');}
@@ -3262,7 +3416,9 @@ const GIVERS=[
   {id:'kael',name:'Ridgewarden Kael',role:'Redspire Canyons',at:pol(262,238),body:0xb85a3c,acc:0x4a2016,vis:0xffb347,gate:'mine'},
   {id:'morrow',name:'Tinker Morrow',role:'Rustmaw Scrapyard',at:pol(262,118),body:0x5c5e62,acc:0xa05a2a,vis:0xffa040,gate:'factions'},
   {id:'ondine',name:'Seer Ondine Vash',role:'Shimmerfield',at:pol(268,18),body:0x7fd8c8,acc:0x2b1840,vis:0xb46bff,gate:'glassreach'},
-  {id:'teo',name:'Teo Brand',role:'Ashborn exile, Cinderveil',at:pol(262,42),body:0x4a2a20,acc:0xff6a2a,vis:0xffb347,gate:'vault'}];
+  {id:'teo',name:'Teo Brand',role:'Ashborn exile, Cinderveil',at:pol(262,42),body:0x4a2a20,acc:0xff6a2a,vis:0xffb347,gate:'vault'},
+  {id:'quill',name:'Scout Vessa Quill',role:'Farwatch Station, Duskcrown',at:[-404,244],body:0x4a4060,acc:0x2a2438,vis:0x7ff6ff,gate:'farwatch'},
+  {id:'orlo',name:'Glasswright Orlo Venn',role:'Duskcrown east terraces',at:gloamAt(40,465),body:0xa8a0c8,acc:0x3a2a50,vis:0xd8c0ff,gate:'farwatch'}];
 const GV={};GIVERS.forEach(g=>{const s=inTown({x:g.at[0],z:g.at[1]})?g.at:freeSpot(g.at[0],g.at[1],1.6);g.x=s[0];g.z=s[1];GV[g.id]=g;
   g.R=buildHumanoid(g.body,g.acc,g.vis);g.R.g.position.set(g.x,heightAt(g.x,g.z),g.z);g.R.g.rotation.y=Math.atan2(-g.x,-g.z);
   g.mk=part(g.R.g,geoBox,MB(0xffd25a),0,3.25,0,0.14,0.46,0.14);g.mk2=part(g.R.g,geoBox,MB(0xffd25a),0,2.9,0,0.14,0.14,0.14);
@@ -3282,7 +3438,7 @@ const Hd=(dyna,o)=>Object.assign({k:'hunt',dyna},o);
 const Ex=(pts,o)=>Object.assign({k:'explore',pts},o);
 const Ki=(t,n,at,o)=>Object.assign({k:'kill',t,n,at:at||null},o);
 const Ch=(text,opts)=>({k:'choice',text,opts});
-/* ---------- side quests (all optional; rewards scale with your level, enemies capped at Lv 10) ---------- */
+/* ---------- side quests (all optional; rewards scale with your level, enemies capped at the quest level +3) ---------- */
 const SQ=[
  // Marta Vell, Halden's Rest
  {id:'m_bounty',g:'marta',t:'Skitter Bounty',lv:1,txt:'"The skitters are nesting in the wagon ruts again. Six of them, and the caravans roll at dusk."',steps:[Ki('skitter',6,gNear('marta',60,40))],rew:{x:0.25,c:0.8}},
@@ -3346,6 +3502,23 @@ const SQ=[
  // Teo Brand, Cinderveil Badlands
  {id:'te_cores',g:'teo',t:'Ember Cores',lv:8,txt:'"Maulers out here swallow embers. Cut out four ember cores. They\'re warm. Don\'t hold them too long."',steps:[Lt('mauler','Ember core',4,0.35,gNear('teo',70,60))],rew:{x:0.45,c:1.5}},
  {id:'te_mane',g:'teo',t:'Cindermane',lv:9,txt:'"Cindermane rules the badlands. The clans fed it exiles once. Kill it, and I will owe you a debt."',steps:[Hd('cindermane')],rew:{x:0.55,c:1.8,item:true}},
+ // Scout Vessa Quill, Farwatch Station (Duskcrown, Lv 11-15)
+ {id:'q_glints',g:'quill',t:'Glint Hunt',lv:11,txt:'"Glint Stalkers have been picking off my survey drones. Six of them. They blink behind you, so keep turning."',steps:[Ki('stalker',6,gNear('quill',60,20))],rew:{x:0.3,c:1.2}},
+ {id:'q_lanterns',g:'quill',t:'Dead Lanterns',lv:12,txt:'"Three Choir lanterns on the terraces went dark. Relight them by hand. It takes a moment each, so watch your back."',steps:[Sc('Choir lantern',[gNear('quill',45,330),gNear('quill',55,40),gNear('quill',50,100)])],rew:{x:0.35,c:1.2}},
+ {id:'q_survey',g:'quill',t:'Ridge Survey',lv:12,txt:'"The old Combine maps stop at the ridge. Stand on three high points and I\'ll chart the rest."',steps:[Ex([[...gNear('quill',70,350),'Violet Ridge'],[...gNear('quill',85,30),'Lantern Crest'],[...gNear('quill',75,80),'Dusk Overlook']])],rew:{x:0.35,c:1.1}},
+ {id:'q_supply',g:'quill',t:'Supply Line',lv:13,txt:'"Quartermaster Dorn is walking a crate of rations out to the east camp. The stalkers know the route. Go with him."',steps:[Es('Quartermaster Dorn',gNear('quill',14,90,true),gNear('quill',90,60,true),{t:'stalker',n:3})],rew:{x:0.45,c:1.4,item:true}},
+ {id:'q_shards',g:'quill',t:'Choir Shards',lv:13,txt:'"Shardcallers grow singing crystal in their chests. Five good ones, please. They tune our listening array."',steps:[Lt('shardcaller','Choir shard',5,0.4,gNear('quill',70,20))],rew:{x:0.4,c:1.3}},
+ {id:'q_hold',g:'quill',t:'Hold the Mast',lv:14,txt:'"The signal mast has to transmit for three cycles. Things out there hate the noise. Hold it."',steps:[Df('Signal mast',gNear('quill',16,200),3,['stalker','brute'],3)],rew:{x:0.5,c:1.5,item:true}},
+ {id:'q_king',g:'quill',t:'The Duskhorn King',lv:15,txt:'"The Duskhorn King leads the brute herds. He comes back every time. Put him down anyway, and bring me a horn."',steps:[Hd('hollowking')],rew:{x:0.55,c:1.7,item:true}},
+ // Glasswright Orlo Venn, Duskcrown east terraces (Lv 15-19)
+ {id:'ov_tenders',g:'orlo',t:'Quiet the Tenders',lv:15,txt:'"The Tenders keep healing the herds I cull. Kill five Tenders first, then the rest will stay dead."',steps:[Ki('tender',5,gNear('orlo',60,200))],rew:{x:0.45,c:1.4}},
+ {id:'ov_glass',g:'orlo',t:'Singing Glass',lv:16,txt:'"Three resonant panes lie in the brute fields. Bring them. Then we decide what they\'re for."',chain:true,steps:[
+   F('Resonant pane',gNear('orlo',80,320),3,{t:'brute',n:2}),Tk('orlo','"They sing back to the Choir. I could tune them into a ward for Farwatch, or we could break the herd-lord who guards the fields."'),
+   Ch('Orlo: "A ward for Farwatch, or a reckoning for Brute-Lord Hask?"',[
+     {label:'Deliver the panes to Scout Quill for a ward',out:'Farwatch hums with a new ward. The stalkers stay further out now.',steps:[Dl('quill','Resonant panes')],rew:{c:1.8}},
+     {label:'Hunt Brute-Lord Hask',out:'Hask will not lead another herd.',steps:[Hu('Brute-Lord Hask','brute',gNear('orlo',95,330))],rew:{item:true,x:0.2}}])],rew:{x:0.6,c:1.5}},
+ {id:'ov_echo',g:'orlo',t:'Echo Vial',lv:17,txt:'"An echo vial fades fast. Get it to Scout Quill at Farwatch in four minutes or it\'s just glass."',steps:[Dl('quill','Echo vial',{time:240})],rew:{x:0.4,c:1.6}},
+ {id:'ov_seraph',g:'orlo',t:'The Dusk Seraph',lv:19,txt:'"The Seraph sings the Choir\'s verses out across the far terraces. Break its veil and silence it."',steps:[Hd('seraph')],rew:{x:0.6,c:2,item:true}},
  {id:'te_return',g:'teo',t:"Exile's Return",lv:9,txt:'"My sister Nara is coming over the ridge. The clans will try to stop her. Walk her to the shrine, hold it while she prays, then tell Marta in town we live."',chain:true,steps:[
    Es('Nara Brand',gNear('teo',80,20,true),gNear('teo',20,100,true),{t:'raider',n:3}),Df('Ash shrine',gNear('teo',22,110),2,['raider','mauler'],3),Dl('marta','Letter from Teo')],rew:{x:0.8,c:2,item:true}}
 ];
@@ -3548,7 +3721,10 @@ const DYNAS={
   redcrest:{name:'Redcrest Matron',sub:'canyon brood-mother',t:'skitter',lv:8,biome:'canyon',col:0xc03a20,glow:0xffb347,hp:9,scale:2.4,adds:{t:'skitter',n:3},mech:{k:'summon',name:'Brood Call',at:[0.7,0.4],t:'skitter',n:3,enrage:0.25},ph:'Redcrest Drone',uniq:'redcrest_carapace'},
   rustjaw:{name:'Rustjaw Prime',sub:'scrap-built mauler',t:'mauler',lv:9,biome:'scrap',col:0x5c5e62,glow:0xffa040,hp:8,adds:{t:'raider',n:2},mech:{k:'slam',name:'Scrap Quake',every:8,r:8,delay:1.6,mult:2.5},ph:'Rustjaw Mk I',uniq:'rustjaw_arm'},
   prismhide:{name:'Prismhide',sub:'crystal mauler',t:'mauler',lv:10,biome:'glass',col:0x9fd8e8,glow:0x7ff6ff,hp:9,adds:{t:'spitter',n:3},mech:{k:'pools',name:'Prism Burst',every:9,r:4,delay:1.7,mult:2.0,count:3},ph:'Prism Shardling',uniq:'prism_mantle'},
-  cindermane:{name:'Cindermane',sub:'badlands tyrant',t:'mauler',lv:10,biome:'ash',col:0x5a2a1a,glow:0xff5a1a,hp:10,scale:1.7,adds:{t:'mauler',n:2},mech:{k:'slam',name:'Cinder Roar',every:8,r:8,delay:1.6,mult:2.6,enrage:0.3},ph:'Cinder Cub',uniq:'cinder_fang'}};
+  cindermane:{name:'Cindermane',sub:'badlands tyrant',t:'mauler',lv:10,biome:'ash',col:0x5a2a1a,glow:0xff5a1a,hp:10,scale:1.7,adds:{t:'mauler',n:2},mech:{k:'slam',name:'Cinder Roar',every:8,r:8,delay:1.6,mult:2.6,enrage:0.3},ph:'Cinder Cub',uniq:'cinder_fang'},
+  // Duskcrown Highlands (Lv 11-20)
+  hollowking:{name:'The Duskhorn King',sub:'crag brute patriarch',t:'brute',lv:15,at:gloamAt(70,505),col:0x3a3050,glow:0x9f7bff,hp:10,scale:1.5,adds:{t:'stalker',n:3},mech:{k:'slam',name:'Crown Quake',every:8,r:8,delay:1.6,mult:2.6,enrage:0.3},ph:'Duskhorn Calf',uniq:'kings_breaker'},
+  seraph:{name:'The Dusk Seraph',sub:'herald of the Choir',t:'shardcaller',lv:19,at:gloamAt(310,515),col:0xe8e0ff,glow:0xb46bff,hp:11,scale:2.2,adds:{t:'tender',n:2},mech:{k:'shield',name:'Choir Veil',at:[0.65,0.3],t:'tender',n:3},ph:'Seraph Fledgling',uniq:'seraph_halo'}};
 // spots: core dynas are fixed, region dynas sit inside their biome away from camps
 {const BI={};BIOMES.forEach((b,i)=>BI[b.id]=i);const deg={oasis:170,salt:315,canyon:250,scrap:128,glass:-6,ash:68};
   for(const k in DYNAS){const D=DYNAS[k];D.id=k;let p=D.at;if(D.biome){const a=deg[D.biome]*Math.PI/180;p=[Math.cos(a)*330,Math.sin(a)*330];}const s=freeSpot(p[0],p[1],2);D.x=s[0];D.z=s[1];
@@ -3561,7 +3737,9 @@ Object.assign(UNIQUES,{
   redcrest_carapace:{d:'dyna_redcrest',name:'Redcrest Carapace',slot:'legs',fam:'medium',lvl:8,bonus:{agi:5,sen:4,hp:60}},
   rustjaw_arm:{d:'dyna_rustjaw',name:'Rustjaw Servo Arm',slot:'hands',fam:'heavy',lvl:9,bonus:{str:6,wpn:9,power:5}},
   prism_mantle:{d:'dyna_prismhide',name:'Prismhide Mantle',slot:'armor',fam:'light',lvl:10,bonus:{int:6,weave:14,en:50}},
-  cinder_fang:{d:'dyna_cindermane',name:'Cindermane Fang',slot:'weapon',wt:'emitter',lvl:10,dmgM:1.12,bonus:{weave:16,psy:5,crit:4}}});
+  cinder_fang:{d:'dyna_cindermane',name:'Cindermane Fang',slot:'weapon',wt:'emitter',lvl:10,dmgM:1.12,bonus:{weave:16,psy:5,crit:4}},
+  kings_breaker:{d:'dyna_hollowking',name:"Duskhorn King's Breaker",slot:'weapon',wt:'shotgun',lvl:15,dmgM:1.1,bonus:{wpn:20,str:8,hp:120}},
+  seraph_halo:{d:'dyna_seraph',name:"Seraph's Halo",slot:'head',fam:'light',lvl:19,bonus:{psy:10,weave:22,en:100,evade:14}}});
 const DY={st:{},live:{},acc:0};
 function dyLoad(){let o={};try{o=JSON.parse(localStorage.getItem(DYNA_KEY)||'{}')||{};}catch(e){}for(const k in DYNAS){const r=o[k];DY.st[k]={until:r&&isFinite(r.until)?+r.until:0,ph:!!(r&&r.ph)};}}
 function dySave(){const o={};for(const k in DY.st)o[k]={until:DY.st[k].until,ph:DY.st[k].ph};lsSet(DYNA_KEY,JSON.stringify(o));}
@@ -3599,8 +3777,8 @@ function dyMech(k,L,dt){const D=DYNAS[k],e=L.boss,m=D.mech;if(L.ph||e.dead)retur
 function dyOnKill(k,L){const D=DYNAS[k],e=L.boss;dySeen(k);
   if(L.ph){DY.st[k].until=dyNow()+rand(60,180)*1000;DY.st[k].ph=false;log('💀 '+esc(D.ph)+' falls. Something bigger may come for its spot soon.');}
   else{DY.st[k].until=dyNow()+rand(600,1200)*1000;
-    const n=Math.random()<0.4?2:1;for(let i=0;i<n;i++){const it=genItem(D.lv,null,Math.max(2,rollRarity(35)));it.dropBy=D.name;dropLoot(e.pos.x+i*1.5,e.pos.z+1.5,it);}
-    if(Math.random()<0.18){const u=makeUnique(D.uniq);u.dropBy=D.name;dropLoot(e.pos.x-1.5,e.pos.z,u);}
+    const n=Math.random()<0.4?2:1;for(let i=0;i<n;i++){const it=genItem(D.lv,null,D.lv>=12&&Math.random()<0.25?ASC:Math.max(2,rollRarity(35)));it.dropBy=D.name;dropLoot(e.pos.x+i*1.5,e.pos.z+1.5,it);}
+    if(Math.random()<(D.lv>=12?0.22:0.18)){const u=makeUnique(D.uniq);u.dropBy=D.name;dropLoot(e.pos.x-1.5,e.pos.z,u);}
     P.credits+=60*D.lv;banner('💀 '+D.name.toUpperCase()+' DEFEATED','It will be back in 10–20 minutes');log('💀 <b>'+esc(D.name)+'</b> defeated (+'+(60*D.lv)+'¢). Dyna back in 10–20 min.');questOnDyna(k);}
   clearWTele(e);dySave();save();}
 function updDyna(dt){updWTele();if(state!=='play'||DUN){return;}DY.acc+=dt;const tick=DY.acc>=0.5;if(tick)DY.acc=0;
@@ -3707,14 +3885,14 @@ const PANEL_TEX=texFrom(256,(x,y)=>{const u=x/256,v=y/256;// 4 m tile: 2x2 panel
   const st=pnoise(u*24,0.5,24,90);c*=1-Math.max(0,st-0.55)*0.6*(0.3+0.7*py);
   if(Math.abs(py-0.5)<0.07)c*=0.94;c+=(pnoise(u*64,v*64,64,93)-0.5)*0.06;return [c,c,c,1];});
 /* ---------- terrain: smooth normals from the height grid, slope/biome-blended colours and texture weights ---------- */
-const TW_B=[[1,0.05,0,0.3],[0.25,0.35,0.3,0.45],[0,0.6,0.35,0.6],[0.1,0.35,0.12,1],[0.15,0,0,0.9],[0.55,0.55,0.12,0.35],[0,0.05,0.7,0.25]];
-const ROCK_B=[0x8a5238,0x6f8a8c,0x1c1614,0x4a4642,0x6a5a40,0x8c3e28,0xa8a090];
+const TW_B=[[1,0.05,0,0.3],[0.25,0.35,0.3,0.45],[0,0.6,0.35,0.6],[0.1,0.35,0.12,1],[0.15,0,0,0.9],[0.55,0.55,0.12,0.35],[0,0.05,0.7,0.25],[0.05,0.7,0.25,0.5]];
+const ROCK_B=[0x8a5238,0x6f8a8c,0x1c1614,0x4a4642,0x6a5a40,0x8c3e28,0xa8a090,0x3e3852];
 const TER={matTex:null,matPlain:null,orig:null};
-(function(){const nrm=new Float32Array(N1*N1*3),dcol=new Float32Array(N1*N1*3),tw=new Float32Array(N1*N1*4);const w=new Float32Array(7);const rc=ROCK_B.map(c=>new THREE.Color(c));const c=new THREE.Color(),r=new THREE.Color();
+(function(){const nrm=new Float32Array(N1*N1*3),dcol=new Float32Array(N1*N1*3),tw=new Float32Array(N1*N1*4);const w=new Float32Array(NB);const rc=ROCK_B.map(c=>new THREE.Color(c));const c=new THREE.Color(),r=new THREE.Color();
   const H=(i,j)=>HG[clamp(j,0,SEG)*N1+clamp(i,0,SEG)];
   for(let j=0;j<N1;j++)for(let i=0;i<N1;i++){const g=j*N1+i;const nx=(H(i-1,j)-H(i+1,j))/(2*CELL),nz=(H(i,j-1)-H(i,j+1))/(2*CELL);const L=Math.hypot(nx,1,nz);
     nrm[g*3]=nx/L;nrm[g*3+1]=1/L;nrm[g*3+2]=nz/L;const slope=1-1/L;const x=i*CELL-HALF,z=j*CELL-HALF;biomeW(x,z,w);
-    r.setRGB(0,0,0);const t=[0,0,0,0];for(let k=0;k<7;k++){if(w[k]<0.001)continue;r.r+=rc[k].r*w[k];r.g+=rc[k].g*w[k];r.b+=rc[k].b*w[k];for(let q=0;q<4;q++)t[q]+=TW_B[k][q]*w[k];}
+    r.setRGB(0,0,0);const t=[0,0,0,0];for(let k=0;k<NB;k++){if(w[k]<0.001)continue;r.r+=rc[k].r*w[k];r.g+=rc[k].g*w[k];r.b+=rc[k].b*w[k];for(let q=0;q<4;q++)t[q]+=TW_B[k][q]*w[k];}
     const rs=smooth(0.12,0.42,slope);c.setRGB(TCOL[g*3],TCOL[g*3+1],TCOL[g*3+2]).lerp(r,rs*0.7);
     const town=Math.max(Math.abs(x),Math.abs(z))<34?1:0;if(town){t[0]=0.1;t[1]=0;t[2]=0.35;t[3]=0.7;}
     t[0]*=1-rs;t[1]=Math.min(1,t[1]+rs*1.1);
@@ -3909,6 +4087,94 @@ function updDeclutter(dt){qdAcc+=dt;if(qdAcc<0.2)return;qdAcc=0;
   if(panelOpen&&!$('#moreDrop').classList.contains('hidden'))moreOpen(false);}
 function declutterExports(){return {moreOpen,quickOpen,updDeclutter,inp,barIds,inAbZone,PROF_TAG};}
 
+/* ================= BUILD B: level cap 20 · Duskcrown Highlands (Lv 11-20) · Farwatch Station · The Choir Below =================
+   - New enemy behaviours (ETYPES[..].ai -> AIX): blink (Glint Stalker), kite + Shard Fall circles (Shardcaller),
+     wind-up charge (Crag Brute), heal the most wounded ally (Choir Tender). updEnemy() calls AIX[ai] while chasing.
+   - Boss mechanics: MECH_EXT.blinkslam (teleport next to a target + telegraphed slam), MECH_EXT.chorus (Echo adds that heal the boss).
+   - Farwatch Station hub: quartermaster (higher-tier stock, Ascendant gear), contract terminal; bank/Save Point/Conduit come from OUTPOSTS/BANK_SPOTS. */
+const FARWATCH=OUTPOSTS.find(o=>o.id==='farwatch');
+/* ---------- builders (function declarations: hoisted, used by ETYPES in game5) ---------- */
+function buildStalker(){const R=buildSkitter();retint(R.g,0x3a2a5a,0.7,0x9f7bff);for(let i=0;i<4;i++)part(R.g,geoCone,MB(i%2?0xb46bff:0x7ff6ff),(i-1.5)*0.22,1.0,-0.1-i*0.12,0.08,0.55,0.08);return R;}
+function buildShardcaller(){const R=buildHumanoid(0x3a3450,0x5a4a7a,0x7ff6ff,0x2a2438);for(let i=0;i<3;i++){const a=i*2.09;part(R.g,geoIco,MB(0xb48cff),Math.cos(a)*0.55,2.35,Math.sin(a)*0.55,0.13,0.22,0.13);}part(R.g,geoBox,M(0x2a2438),0,1.0,-0.25,0.6,1.2,0.12);return R;}
+function buildBrute(){const R=buildMauler();retint(R.g,0x4a4060,0.6,0x7ff6ff);for(let i=0;i<4;i++)part(R.g,geoCone,MB(0x9fe0ff),(i-1.5)*0.35,2.5,-0.3,0.14,0.8,0.14);return R;}
+function buildTender(){const R=buildHumanoid(0xd8d0f0,0x6a5a8a,0x9fff9a,0x8a7aa0);const h=part(R.g,new THREE.TorusGeometry(0.32,0.05,4,16),MB(0x9fff9a),0,2.3,0,1,1,1);h.rotation.x=Math.PI/2;part(R.g,geoBox,M(0xe8e0ff),0,0.9,0,0.7,1.0,0.5);return R;}
+function buildCantor(){const R=buildHumanoid(0x2a2240,0xb46bff,0xff9af0,0x5a4a6a);part(R.g,geoCone,MB(0xb46bff),0,2.5,0,0.25,0.7,0.25);part(R.g,geoBox,M(0x1a1428),0,1.0,-0.2,0.8,1.4,0.14);return R;}
+function buildHymnwarden(){const R=buildMauler();retint(R.g,0x6a6a8a,0.75,0xb46bff);part(R.g,geoBox,MB(0x7ff6ff),0,2.6,0.2,0.6,0.12,0.6);for(let i=0;i<3;i++)part(R.g,geoCone,MB(0xd8c0ff),(i-1)*0.5,2.9,-0.2,0.15,0.9,0.15);return R;}
+function buildChoirmother(){const R=buildSkitter();retint(R.g,0x2a1a4a,0.7,0x7ff6ff);for(let i=0;i<7;i++)part(R.g,geoCone,MB([0x7ff6ff,0xb46bff,0xd8c0ff][i%3]),(i-3)*0.18,1.05,-0.3-Math.abs(i-3)*0.08,0.09,0.65,0.09);return R;}
+function buildChordPylon(){const R=buildPylon();retint(R.g,0x4a4060,0.6,0xb46bff);return R;}
+/* ---------- behaviours ---------- */
+function aiShard(e,fp,dF,stunned){if(stunned)return;if(e.castAt==null)e.castAt=T+rand(2.5,4.5);
+  if(T>=e.castAt&&dF<e.T.range+2){e.castAt=T+rand(8,10);const dmg=e.dmg*1.8;if(DUN)telegraph(e,fp.x,fp.z,3.2,1.6,dmg,'Shard Fall');else wTele(e,fp.x,fp.z,3.2,1.6,dmg,'Shard Fall');tone(760,0.18,'triangle',0.03,300);}}
+function aiKeepAway(e,dt,fp,dF,rooted,want){if(rooted||dF>=want)return null;const k=1/(dF||1);const tx=e.pos.x+(e.pos.x-fp.x)*k*6,tz=e.pos.z+(e.pos.z-fp.z)*k*6;
+  const mv=moveToward(e,tx,tz,e.T.speed*0.85,dt,0.5);e.rotY=Math.atan2(fp.x-e.pos.x,fp.z-e.pos.z);return {moved:mv};}
+const AIX={
+  // Glint Stalker: every ~7s blinks to just behind its target (stays in melee afterwards)
+  blink(e,dt,F,fp,dF,rooted,stunned){if(rooted||stunned||T<(e.blinkAt||0)||dF<5||dF>24)return null;e.blinkAt=T+rand(6.5,8.5);
+    const fr=F.rotY||0;const p={x:fp.x-Math.sin(fr)*2.4,z:fp.z-Math.cos(fr)*2.4};collide(p,0.6);
+    ringFx(e.pos.x,e.pos.z,0x9f7bff,2,0.5);e.pos.x=p.x;e.pos.z=p.z;e.rotY=Math.atan2(fp.x-p.x,fp.z-p.z);ringFx(p.x,p.z,0x9f7bff,2.4,0.5);e.nextAtk=Math.max(e.nextAtk,T+0.45);e.blinks=(e.blinks||0)+1;
+    tone(900,0.12,'sine',0.03,-500);floatText(tmpV.set(p.x,heightAt(p.x,p.z)+e.h+0.6,p.z),'Blink!','info');return {moved:false};},
+  // Shardcaller: backs off when you close in, and calls Shard Fall circles under its target
+  kite(e,dt,F,fp,dF,rooted,stunned){aiShard(e,fp,dF,stunned);return aiKeepAway(e,dt,fp,dF,rooted,7);},
+  // Crag Brute: 0.9s wind-up (orange ring), then charges in a straight line through where you stood: sidestep it
+  charge(e,dt,F,fp,dF,rooted,stunned){const c=e.chg;
+    if(c){if(stunned||(rooted&&c.ph==='dash')){e.chg=null;return null;}
+      if(c.ph==='wind'){e.rotY=Math.atan2(c.tx-e.pos.x,c.tz-e.pos.z);if(T>=c.at){c.ph='dash';c.until=T+1.6;const l=Math.hypot(c.tx-e.pos.x,c.tz-e.pos.z)||1;c.dx=(c.tx-e.pos.x)/l;c.dz=(c.tz-e.pos.z)/l;c.left=l+3;}return {moved:false,noAtk:true};}
+      const st=Math.min(c.left,e.T.speed*3.4*dt);e.pos.x+=c.dx*st;e.pos.z+=c.dz*st;collide(e.pos,e.hitR*0.5);c.left-=st;
+      if(dist2D(e.pos,fp)<e.hitR+1.4){hitFoe(F,e.dmg*1.8,e);ringFx(e.pos.x,e.pos.z,0xffb347,3,0.4);SFX.boom();e.chg=null;e.nextAtk=T+1.4;e.charges=(e.charges||0)+1;return {moved:true,noAtk:true};}
+      if(c.left<=0||T>c.until){e.chg=null;e.nextAtk=T+0.8;e.charges=(e.charges||0)+1;}return {moved:true,noAtk:true};}
+    if(!rooted&&!stunned&&T>=(e.chgCd||0)&&dF>7&&dF<24){e.chgCd=T+rand(10,13);e.chg={ph:'wind',at:T+0.9,tx:fp.x,tz:fp.z};ringFx(e.pos.x,e.pos.z,0xffb347,2.5,0.9);
+      floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.8,e.pos.z),'Charging!','info');tone(140,0.5,'sawtooth',0.05,120);return {moved:false,noAtk:true};}
+    return null;},
+  // Choir Tender: every 6s heals the most wounded enemy within 20m for 16% of its health; keeps ~12m away
+  heal(e,dt,F,fp,dF,rooted,stunned){if(!stunned&&T>=(e.healAt||0)){let best=null,bk=0.85;for(const o of enemies)if(!o.dead&&o!==e&&!o.isCore&&dist2D(o.pos,e.pos)<20){const k=o.hp/o.maxHp;if(k<bk){bk=k;best=o;}}
+      if(best){e.healAt=T+6;const tgt=best;fireProj(new V3(e.pos.x,e.pos.y+1.6,e.pos.z),tgt,0x9fff9a,20,()=>{if(tgt.dead)return;const a=Math.round(tgt.maxHp*0.16);tgt.hp=Math.min(tgt.maxHp,tgt.hp+a);e.heals=(e.heals||0)+1;
+          floatText(tmpV.set(tgt.pos.x,tgt.pos.y+tgt.h+0.4,tgt.pos.z),'+'+a,'info');ringFx(tgt.pos.x,tgt.pos.z,0x6dff8a,1.6,0.4);});e.atkT=0.35;}else e.healAt=T+1.5;}
+    return aiKeepAway(e,dt,fp,dF,rooted,11);}};
+/* ---------- boss mechanics ---------- */
+MECH_EXT.blinkslam=(e,b,m,i)=>{if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;const ts=dunTargets().filter(t=>!t.dead);if(!ts.length)return;const tg=ts[Math.floor(Math.random()*ts.length)];
+  const a=rand(0,6.28);const p={x:tg.pos.x+Math.cos(a)*2,z:tg.pos.z+Math.sin(a)*2};collide(p,e.hitR*0.6);ringFx(e.pos.x,e.pos.z,0xb46bff,3,0.5);e.pos.x=p.x;e.pos.z=p.z;ringFx(p.x,p.z,0xb46bff,3.5,0.6);
+  e.blinks=(e.blinks||0)+1;e.rootUntil=T+m.delay;telegraph(e,p.x,p.z,m.r,m.delay,b.baseDmg*m.mult,m.name);toast('⚠ '+m.name+': right next to you. Get out!');tone(700,0.2,'sine',0.04,-400);};
+MECH_EXT.chorus=(e,b,m,i,hpF)=>{m.at.forEach((th,j)=>{const k=i+'_'+j;if(b.done[k]||hpF>th)return;b.done[k]=1;const r=b.room;b.echoes=(b.echoes||[]).filter(x=>!x.dead&&enemies.includes(x));
+    for(let n=0;n<m.n;n++){const side=n%2?1:-1;const a=spawnDunMob('tender',side*(r.w/2-3),r.cz+rand(-r.d/4,r.d/4),m.lvl,{temp:true});a.T.name='Choir Echo';a.addOf=e;a.state='chase';a.nextAtk=T+1;a.echo=true;ringFx(a.pos.x,a.pos.z,0xb46bff,2.5,0.6);b.echoes.push(a);}
+    banner(m.name.toUpperCase(),'Kill the Choir Echoes: each heals her '+Math.round(m.heal*100)+'% per second');SFX.boom();});
+  const live=(b.echoes||[]).filter(x=>!x.dead&&enemies.includes(x));const dt=Math.min(0.25,T-(b.chT||T));b.chT=T;
+  if(live.length&&!e.dead)e.hp=Math.min(e.maxHp,e.hp+e.maxHp*m.heal*live.length*dt);
+  b.beams=b.beams||[];while(b.beams.length<live.length&&DUN){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x9fff9a,transparent:true,opacity:0.85}));l.frustumCulled=false;DUN.group.add(l);b.beams.push(l);}
+  b.beams.forEach((l,k)=>{const x=live[k];l.visible=!!x;if(!x)return;const p=l.geometry.attributes.position.array;p[0]=x.pos.x;p[1]=x.pos.y+1.5;p[2]=x.pos.z;p[3]=e.pos.x;p[4]=e.pos.y+e.h*0.5;p[5]=e.pos.z;l.geometry.attributes.position.needsUpdate=true;});};
+/* ---------- Farwatch Station hub ---------- */
+const HUB={vend:{x:FARWATCH.x+8,z:FARWATCH.z+1},term:{x:FARWATCH.x,z:FARWATCH.z-8.5}};
+(function buildHub(){const o=FARWATCH,y=heightAt(o.x,o.z);const g=new THREE.Group();g.position.set(o.x,y,o.z);
+  // watchtower with a listening dish and a violet beacon
+  part(g,geoBox,M(0x4a4458),-8,4,-7,1.6,8,1.6);part(g,geoBox,M(0x3a3448),-8,8.3,-7,3.2,0.4,3.2);part(g,geoCone,M(0x8a84a0),-8,9.2,-7,1.4,0.6,1.4).rotation.x=Math.PI;part(g,geoIco,MB(0xb46bff),-8,9.9,-7,0.35,0.35,0.35);
+  boxes.push({x0:o.x-8.8,x1:o.x-7.2,z0:o.z-7.8,z1:o.z-6.2,y0:y,y1:y+8.5});
+  // lantern posts
+  for(const [x,z] of [[-10,6],[10,-6],[6,10],[-6,-10],[11,4],[-3,11]]){part(g,geoBox,M(0x3a3448),x,1.4,z,0.22,2.8,0.22);part(g,geoIco,MB(0xb48cff),x,3.0,z,0.28,0.28,0.28);}
+  // quartermaster stall
+  const v=HUB.vend;part(g,geoBox,M(0x4a4060),v.x-o.x+1.4,1.0,v.z-o.z,0.9,2,3.2);part(g,geoBox,M(0x6a5e88),v.x-o.x+1.4,2.2,v.z-o.z,1.6,0.25,3.8);part(g,geoBox,MB(0x7ff6ff),v.x-o.x+0.9,1.5,v.z-o.z,0.05,0.4,2);
+  boxes.push({x0:v.x+0.9,x1:v.x+1.9,z0:v.z-1.6,z1:v.z+1.6,y0:y,y1:y+2.3});
+  // contract terminal
+  const t=HUB.term;part(g,geoBox,M(0x2b3742),t.x-o.x,1.0,t.z-o.z-0.3,1.8,2,0.5);part(g,geoBox,MB(0x5ff2ff),t.x-o.x,1.5,t.z-o.z-0.04,1.4,0.9,0.05);
+  boxes.push({x0:t.x-0.9,x1:t.x+0.9,z0:t.z-0.55,z1:t.z-0.05,y0:y,y1:y+2});
+  scene.add(g);const b=makeBeam(0xb46bff,40,0.6,0.25);b.position.set(o.x-8,y,o.z-7);
+  const Q=buildHumanoid(0x5a4e78,0x2a2438,0xffd25a,0x7a5a46);Q.g.position.set(v.x,heightAt(v.x,v.z),v.z);Q.g.rotation.y=Math.atan2(o.x-v.x,o.z-v.z);part(Q.g,geoBox,M(0xc8a040),0,2.05,0,0.5,0.14,0.5);scene.add(Q.g);
+  circles.push({x:v.x,z:v.z,r:0.6});HUB.vendR=Q;})();
+function hubInteract(p){if(Math.hypot(p.x-FARWATCH.x,p.z-FARWATCH.z)>FARWATCH.r+4)return null;const open=gateOpen('farwatch');
+  if(Math.hypot(p.x-HUB.vend.x,p.z-HUB.vend.z)<3.4)return open?{k:'hubvend',label:'🛒 Quartermaster Varrow'}:{k:'hublock',label:'🔒 Quartermaster Varrow'};
+  if(Math.hypot(p.x-HUB.term.x,p.z-HUB.term.z)<3.4)return open?{k:'hubterm',label:'📟 Farwatch Contracts'}:{k:'hublock',label:'🔒 Farwatch Contracts'};return null;}
+function hubDo(n){if(n.k==='hubvend'){vendTab='buy';VEND.ctx='farwatch';openVendor();return true;}if(n.k==='hubterm'){openTerminal();return true;}if(n.k==='hublock'){lockedMsg('farwatch',true);return true;}return false;}
+// Farwatch stock: on top of the usual stock, two Epic pieces one level up, a top-QL implant, and from Lv 12 an Ascendant item
+function hubStock(list,L){if(VEND.ctx!=='farwatch')return;list.push(genItem(L+1,'weapon',3,{wt:pick(wtAff(P.prof))}),genItem(L+1,pick(ASLOTS),3,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5),null,3));
+  if(L>=12)list.push(genItem(L,Math.random()<0.5?'weapon':pick(ASLOTS),ASC,Math.random()<0.5?{wt:pick(wtAff(P.prof))}:{fam:PROF_FAM[P.prof]}));}
+/* ---------- helpers ---------- */
+// a spot in the Duskcrown whose level matches lv (either side of Farwatch)
+function gloamSpot(lv){const d=clamp((lv-11)/9,0,1)*180;const deg=GLOAM.hubDeg+(Math.random()<0.5?-1:1)*d+rand(-8,8);const [x,z]=gloamAt(deg,rand(455,540));return {x,z};}
+// level-up hints: new Weave ranks for this level, and the way into the Duskcrown at 11
+function onLevelUp(l){const nw=Object.values(WEAVES).filter(w=>w.lvl===l&&(w.prof===P.prof||w.prof==='any')&&!w.starter&&!w.excl&&!w.rare);
+  if(nw.length)log('📀 New Weaves for level '+l+': <b>'+nw.map(w=>esc(w.name)).join(', ')+'</b> (Weave Disks drop from Lv '+Math.max(1,l-2)+'+ enemies and missions; Farwatch sells them too)');
+  if(l===11)log(gateOpen('farwatch')?'🗺 Level 11: the <b>Duskcrown Highlands</b> are your hunting ground now. Farwatch Station is the hub.':'🗺 Level 11: talk to <b>Archivist Sela Marr</b> for story chapter 2 and the road to the Duskcrown Highlands.');
+  if(l===MAXLVL)log('<b style="color:#ffe066">Level '+MAXLVL+': the current level cap.</b> Keep gearing: Ascendant drops, the Choir, Veteran Cinderdeep.');}
+function buildBExports(){return {gainXp,storyOnKill,makeEnemy,findInteract,dropLoot,genImplant,raidEntryCheck,openRaid,raidTeam,exploreLoad,bossTick,AIX,HUB,FARWATCH,hubInteract,hubDo,hubStock,gloamSpot,gloamLv,gloamAt,GLOAM,onLevelUp,ASC,rollRarityL,IMPQL_MAX,spGain,xpNeed,MAXLVL,spTotal,makeUnique,raidVetLv,VEND,FLATS};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -3967,12 +4233,13 @@ addEventListener('blur',()=>{inp.keys={};});
 
 /* ---------------- interact ---------------- */
 let nearI=null;
-function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk||DUN)return dk;const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;
+function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk||DUN)return dk;const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;const hk=hubInteract(p);if(hk)return hk;
   if(Math.hypot(p.x-TERMINAL.x,p.z-TERMINAL.z)<3.4)return {k:'term',label:'📟 Missions'};
   if(Math.hypot(p.x-VENDOR.x,p.z-VENDOR.z)<3.4)return {k:'vend',label:'🛒 Trade'};
   return null;}
 function interact(){if(!nearI||panelOpen)return;SFX.ui();
-  if(nearI.k==='term')openTerminal();else if(nearI.k==='vend'){vendTab='buy';openVendor();}
+  if(nearI.k==='term')openTerminal();else if(nearI.k==='vend'){vendTab='buy';VEND.ctx='town';openVendor();}
+  else if(hubDo(nearI)){}
   else if(questDo(nearI)){}
   else if(stage2Do(nearI)){}
   else if(nearI.k==='conduit')openConduit(nearI.id);else if(nearI.k==='savept')recordSavePoint(nearI.id);
@@ -4024,8 +4291,9 @@ function updEnemy(e,dt){
     if(!P.dead&&!inTown(P.pos)&&dP<ar)aggro(e);
   }else if(e.state==='chase'){const F=foeOf(e),fp=F.pos,dF=dist2D(e.pos,fp),fr=F===P?0:F.hitR*0.6;
     if((F===P&&(P.dead||inTown(P.pos)))||dH>(e.leash||45)){e.state='return';e.foe=null;}
-    else{if(!rooted&&dF>e.T.range*0.85+fr)moving=moveToward(e,fp.x,fp.z,e.T.speed,dt,e.T.range*0.8+fr);else e.rotY=Math.atan2(fp.x-e.pos.x,fp.z-e.pos.z);
-      if(!stunned&&dF<=e.T.range+0.6+fr&&T>=e.nextAtk){e.nextAtk=T+e.T.atkCd;e.atkT=0.35;
+    else{const ax=e.T.ai&&AIX[e.T.ai]?AIX[e.T.ai](e,dt,F,fp,dF,rooted,stunned,fr):null;
+      if(ax&&ax.moved!=null)moving=ax.moved;else if(!rooted&&dF>e.T.range*0.85+fr)moving=moveToward(e,fp.x,fp.z,e.T.speed,dt,e.T.range*0.8+fr);else e.rotY=Math.atan2(fp.x-e.pos.x,fp.z-e.pos.z);
+      if(!(ax&&ax.noAtk)&&!stunned&&dF<=e.T.range+0.6+fr&&T>=e.nextAtk){e.nextAtk=T+e.T.atkCd;e.atkT=0.35;
         if(e.T.ranged){const from=new V3(e.pos.x+Math.sin(e.rotY)*0.6,e.pos.y+1.35,e.pos.z+Math.cos(e.rotY)*0.6);const hx=T<(e.hexUntil||0)?(e.hexWeak||0.65):1;fireProj(from,F,0xff5a3a,26,()=>hitFoe(F,e.dmg*hx,e));tone(500,0.08,'square',0.02,-300);}
         else hitFoe(F,e.dmg*(T<(e.hexUntil||0)?(e.hexWeak||0.65):1),e);}}
   }else if(e.state==='return'){
@@ -4227,7 +4495,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 })();
 </script>
 </body>
