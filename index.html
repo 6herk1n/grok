@@ -177,6 +177,24 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 @keyframes blink{50%{opacity:.5}}
 .rqs{margin-top:3px}.rq{display:inline-block;font-size:10px;font-weight:800;padding:1px 5px;border-radius:5px;margin:0 4px 0 0}
 .rq.ok{background:rgba(109,255,138,.18);color:#6dff8a}.rq.no{background:rgba(255,90,74,.2);color:#ff7a6a}
+.rq.tier{border:1px solid currentColor}
+/* Build J: tiers */
+.tierbar{display:flex;gap:10px;align-items:center;background:linear-gradient(90deg,rgba(255,210,90,.16),rgba(255,210,90,.03));border:1px solid rgba(255,210,90,.45);border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:14px}
+.tierbar .tb-t{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#1a1408;background:radial-gradient(circle at 40% 35%,#fff3c0,#ffd25a 55%,#b8860b)}
+.tierbar .tb-s{font-size:12px;opacity:.85}
+.st.capd{color:#ffd25a}.capw{font-size:10px;font-weight:800;letter-spacing:.05em;color:#ffb347}
+#tierFx{position:fixed;inset:0;pointer-events:none;z-index:60;display:none;align-items:center;justify-content:center}
+#tierFx.on{display:flex;animation:tfxBg 4.2s ease-out forwards}
+#tierFx .tfx-ring{position:absolute;left:50%;top:42%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:4px solid #ffd25a;box-shadow:0 0 40px #ffd25a,inset 0 0 30px #ffd25a;animation:tfxRing 1.6s ease-out forwards}
+#tierFx .tfx-box{text-align:center;transform:translateY(-8%);animation:tfxIn 4.2s ease-out forwards;padding:0 16px}
+#tierFx .tfx-k{font-size:clamp(28px,7vw,64px);font-weight:900;letter-spacing:.25em;color:#ffd25a;text-shadow:0 0 28px rgba(255,200,60,.95),0 3px 6px #000}
+#tierFx .tfx-t{font-size:clamp(20px,4vw,34px);font-weight:900;color:#fff;text-shadow:0 2px 6px #000}
+#tierFx .tfx-n{font-size:clamp(18px,3.4vw,28px);font-weight:800;color:#ffe9a8;letter-spacing:.12em;text-shadow:0 2px 6px #000}
+#tierFx .tfx-s{margin-top:8px;font-size:clamp(12px,2vw,15px);color:#f3e6d3;text-shadow:0 1px 4px #000}
+@keyframes tfxBg{0%{background:radial-gradient(circle at 50% 42%,rgba(255,210,90,.55),rgba(0,0,0,0) 60%)}25%{background:radial-gradient(circle at 50% 42%,rgba(255,210,90,.25),rgba(0,0,0,0) 70%)}100%{background:transparent}}
+@keyframes tfxRing{0%{transform:scale(.2);opacity:1}100%{transform:scale(30);opacity:0}}
+@keyframes tfxIn{0%{opacity:0;transform:translateY(-8%) scale(.6)}12%{opacity:1;transform:translateY(-8%) scale(1.08)}20%{transform:translateY(-8%) scale(1)}80%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#tierFx .tfx-ring{display:none}}
 .tw{display:inline-block;font-size:11px;font-weight:800;color:#d9a6ff;background:rgba(200,107,255,.18);border-radius:6px;padding:2px 6px;margin-left:auto;flex:none}
 .sbtn.locked{background:rgba(255,90,74,.35);color:#fff}
 .sk{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:6px}
@@ -256,10 +274,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261114T210346-0e019ae3">
+<meta name="dr-build" content="20261114T222339-8f70bca0">
 <script>
 (function(){
-var BUILD='20261114T210346-0e019ae3';window.DR_BUILD=BUILD;
+var BUILD='20261114T222339-8f70bca0';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -422,7 +440,9 @@ function smooth(e0,e1,x){const t=clamp((x-e0)/(e1-e0),0,1);return t*t*(3-2*t);}
 const WORLD=1760,HALF=WORLD/2,SEG=440,CELL=WORLD/SEG,N1=SEG+1,CORE_HALF=260;// world grew 520 -> 880 -> 1280 -> 1760 m square (4 m cells kept); the old worlds sit unchanged in the middle: Duskcrown Highlands (Lv 11-20) ring them, the Rimefall Expanse (Lv 21-30) rings that
 const TOWN=31;
 // small desert outposts (safe zones with a Conduit node, Save Point and teleporter pad)
-const OUTPOSTS=[{id:'cinderwell',name:'Cinderwell Post',x:0,z:-80,r:11},{id:'glassreach',name:'Glassreach Camp',x:172,z:-10,r:11},{id:'farwatch',name:'Farwatch Station',x:-407,z:235,r:13,hub:true},{id:'hoarlight',name:'Hoarlight Hold',x:606,z:-350,r:14,hub:true,pal:[0xc9d6e2,0x8ea2b6,0xe2ebf2,0x3f6890]}];
+const OUTPOSTS=[{id:'cinderwell',name:'Cinderwell Post',x:0,z:-80,r:11},{id:'glassreach',name:'Glassreach Camp',x:172,z:-10,r:11},{id:'farwatch',name:'Farwatch Station',x:-407,z:235,r:13,hub:true},{id:'hoarlight',name:'Hoarlight Hold',x:606,z:-350,r:14,hub:true,pal:[0xc9d6e2,0x8ea2b6,0xe2ebf2,0x3f6890]},
+  // Build J (cap 50): hubs of the two corner regions
+  {id:'lanternmoor',name:'Lanternmoor Station',x:-668,z:668,r:14,hub:true,pal:[0x6a7a5a,0x46523e,0x9aa888,0x3fd8a8]},{id:'sunderwatch',name:'Sunderwatch',x:668,z:668,r:14,hub:true,pal:[0x5a4444,0x3a2a2a,0x8a6a62,0xff6a3a]}];
 /* ---------- Duskcrown Highlands (Lv 11-20): the outer ring. Level rises with the angular distance from Farwatch (150 deg): 11 there, 20 on the far side (330 deg). ---------- */
 const GLOAM={r0:392,r1:440,hubDeg:150,door:{x:-122,z:-461}};
 function gloamLv(x,z){const a=Math.atan2(z,x)*180/Math.PI;let d=Math.abs(((a-GLOAM.hubDeg)%360+540)%360-180);return Math.round(11+9*d/180);}
@@ -431,6 +451,14 @@ const gloamAt=(deg,r)=>{const a=deg*Math.PI/180;return [Math.round(Math.cos(a)*r
 const RIME={r0:612,r1:662,hubDeg:330,door:{x:-236,z:-648}};
 function rimeLv(x,z){const a=Math.atan2(z,x)*180/Math.PI;let d=Math.abs(((a-RIME.hubDeg)%360+540)%360-180);return Math.round(21+9*d/180);}
 const rimeAt=gloamAt;
+/* ---------- Build J (level cap 50): the four corners of the world beyond the Rimefall (r > ~880) become two new regions ----------
+   Mirelight Fen (Lv 31-40): the two west corners (31-35 in the north-west corner around Lanternmoor Station, 36-40 in the south-west).
+   Sundered Heights (Lv 41-50): the two east corners (41-45 around Sunderwatch in the north-east, 46-50 in the south-east).
+   Level rises with depth into each corner. Further raises (51-100) add regions by data (XREG) once the world grows. */
+const XR={r0:862,r1:902,fenDoor:{x:-707,z:-707},sunDoor:{x:707,z:-707}};
+function xrDepth(x,z){return clamp((Math.hypot(x,z)-885)/235,0,1);}
+function fenLv(x,z){return (z>0?31:36)+Math.round(4*xrDepth(x,z));}
+function sunderLv(x,z){return (z>0?41:46)+Math.round(4*xrDepth(x,z));}
 /* ---------- faction zones (Build G): land held by one faction. Its Sentinels attack members of the other side on sight. ---------- */
 const FZONES=[
   {id:'ironward',side:'combine',name:'Ironward Reach',out:'Ironward Bastion',ring:'dusk',deg:70,r:520,R:74,lv:[14,17],gl:'Warden Sentinel',ren:'Scrap Renegade'},
@@ -449,16 +477,19 @@ const BIOMES=[
   {id:'canyon',name:'Redspire Canyons',sub:'Red rock canyons and mesas',lv:[5,8],gate:'mine',a:4,fog:0xe0906a,hemi:0xffc8a0,c1:0xb85a3c,c2:0x9c4630},
   {id:'salt',name:'Whitepan Salt Flats',sub:'Blinding salt pans',lv:[4,7],gate:'cinderwell',a:5,fog:0xe4dccc,hemi:0xeeeeea,c1:0xd2ccbe,c2:0xc2baa8},
   {id:'dusk',name:'Duskcrown Highlands',sub:'Violet stone terraces veined with waking Vyre',lv:[11,20],gate:'farwatch',outer:true,lvAt:(x,z)=>gloamLv(x,z),minLv:11,fog:0x9088b0,hemi:0xd4ccff,c1:0x544c68,c2:0x635a7a},
-  {id:'rime',name:'Rimefall Expanse',sub:'Frozen plateaus split by glowing ice crevasses',lv:[21,30],gate:'hoarlight',outer:true,lvAt:(x,z)=>rimeLv(x,z),minLv:21,fog:0xb4c6da,hemi:0xe4f0ff,c1:0xb8c8d8,c2:0x9fb2c6}];
-const NB=BIOMES.length,GB=7,RB=8;// biome count (9), the Duskcrown index and the Rimefall index
+  {id:'rime',name:'Rimefall Expanse',sub:'Frozen plateaus split by glowing ice crevasses',lv:[21,30],gate:'hoarlight',outer:true,lvAt:(x,z)=>rimeLv(x,z),minLv:21,fog:0xb4c6da,hemi:0xe4f0ff,c1:0xb8c8d8,c2:0x9fb2c6},
+  {id:'fen',name:'Mirelight Fen',sub:'A drowned bog lit by glowing spores and sunken Combine ruins',lv:[31,40],outer:true,lvAt:(x,z)=>fenLv(x,z),minLv:31,fog:0x4e6e5e,hemi:0xc8f0d8,c1:0x3c4c34,c2:0x2e3c2c,mapAt:[-700,700]},
+  {id:'sunder',name:'Sundered Heights',sub:'Shattered obsidian plateaus over a burning rift',lv:[41,50],outer:true,lvAt:(x,z)=>sunderLv(x,z),minLv:41,fog:0x6e3e3a,hemi:0xffc8b0,c1:0x3a2a2a,c2:0x2a1e20,mapAt:[700,700]}];
+const NB=BIOMES.length,GB=7,RB=8,FB=9,SB=10;// biome count (11), the Duskcrown, Rimefall, Mirelight Fen and Sundered Heights indices
 const BWS=new Float32Array(NB);
-function biomeW(x,z,out){out=out||BWS;const r=Math.hypot(x,z);const o=smooth(222,285,r+(fbm(x*0.01+3,z*0.01+9)-0.5)*44);out[0]=1-o;out[GB]=0;out[RB]=0;
+function biomeW(x,z,out){out=out||BWS;const r=Math.hypot(x,z);const o=smooth(222,285,r+(fbm(x*0.01+3,z*0.01+9)-0.5)*44);out[0]=1-o;out[GB]=0;out[RB]=0;out[FB]=0;out[SB]=0;
   if(o<=0){for(let i=1;i<GB;i++)out[i]=0;return out;}
   const a=Math.atan2(z,x)+(fbm(x*0.006+7,z*0.006+3)-0.5)*0.9;let sum=0;
   for(let k=0;k<6;k++){const c=k*Math.PI/3;const d=Math.abs(Math.atan2(Math.sin(a-c),Math.cos(a-c)));const w=smooth(Math.PI/6+0.16,Math.PI/6-0.16,d);out[k+1]=w;sum+=w;}
   const g=r<GLOAM.r0-30?0:smooth(GLOAM.r0,GLOAM.r1,r+(fbm(x*0.008+31,z*0.008+17)-0.5)*56);
   const q=r<RIME.r0-34?0:smooth(RIME.r0,RIME.r1,r+(fbm(x*0.007+57,z*0.007+91)-0.5)*64);
-  for(let k=1;k<GB;k++)out[k]=o*(1-g)*out[k]/(sum||1);out[GB]=g*(1-q);out[RB]=q;return out;}
+  for(let k=1;k<GB;k++)out[k]=o*(1-g)*out[k]/(sum||1);out[GB]=g*(1-q);out[RB]=q;
+  const xq=r<XR.r0-40?0:smooth(XR.r0,XR.r1,r+(fbm(x*0.006+301,z*0.006+17)-0.5)*60);if(xq>0){for(let k=0;k<FB;k++)out[k]*=1-xq;const sx=smooth(-30,30,x);out[FB]=xq*(1-sx);out[SB]=xq*sx;}else{out[FB]=0;out[SB]=0;}return out;}
 function biomeIdx(x,z){const w=biomeW(x,z);let bi=0;for(let i=1;i<NB;i++)if(w[i]>w[bi])bi=i;return bi;}
 function coreH(x,z){
   let h=(fbm(x*0.008+10,z*0.008+5)-0.5)*28+Math.sin(x*0.045+Math.cos(z*0.021)*2.5)*1.8+Math.sin(z*0.06+x*0.01)*1.2;
@@ -473,9 +504,11 @@ const BH=[coreH,
   (x,z)=>{const n=fbm(x*0.012+50,z*0.012-20);return smooth(0.47,0.51,n)*15+smooth(0.6,0.63,n)*12+(fbm(x*0.08,z*0.08)-0.5)*2.2;},// canyons: terraced mesas
   (x,z)=>(fbm(x*0.01+90,z*0.01+90)-0.5)*2.4,// salt: dead flat
   (x,z)=>{const n=fbm(x*0.007+130,z*0.007-40);return 3+smooth(0.44,0.49,n)*9+smooth(0.57,0.61,n)*9+(fbm(x*0.045+7,z*0.045)-0.5)*4.5+Math.abs(Math.sin(x*0.02+z*0.013+fbm(x*0.01,z*0.01)*4))*1.6;},// gloam: violet terraces
-  (x,z)=>{const n=fbm(x*0.006+210,z*0.006+75);let h=5+smooth(0.42,0.5,n)*10+smooth(0.6,0.66,n)*8;const cr=Math.abs(Math.sin(x*0.018+z*0.006+fbm(x*0.008+5,z*0.008)*6));h-=smooth(0.13,0.0,cr)*4.5;return h+(fbm(x*0.05+3,z*0.05+9)-0.5)*2.6;}];// rime: ice plateaus cut by crevasses
+  (x,z)=>{const n=fbm(x*0.006+210,z*0.006+75);let h=5+smooth(0.42,0.5,n)*10+smooth(0.6,0.66,n)*8;const cr=Math.abs(Math.sin(x*0.018+z*0.006+fbm(x*0.008+5,z*0.008)*6));h-=smooth(0.13,0.0,cr)*4.5;return h+(fbm(x*0.05+3,z*0.05+9)-0.5)*2.6;},// rime: ice plateaus cut by crevasses
+  (x,z)=>{const n=fbm(x*0.011+410,z*0.011+33);const h=1.2+n*6+(fbm(x*0.06+9,z*0.06+4)-0.5)*1.6;const dh=Math.min(Math.hypot(x+668,z-668),Math.hypot(x+707,z+707));const p=smooth(0.6,0.66,fbm(x*0.018+77,z*0.018+19))*smooth(30,55,dh);return h+(-1.8-h)*p;},// fen: low hummocks and drowned pools
+  (x,z)=>{const n=1-Math.abs(2*fbm(x*0.008+520,z*0.008+140)-1);let h=4+smooth(0.35,0.55,n)*14+smooth(0.7,0.78,n)*9;const f=Math.abs(Math.sin(x*0.013-z*0.009+fbm(x*0.006,z*0.006)*5));h-=smooth(0.1,0.0,f)*7;return h+(fbm(x*0.07+5,z*0.07)-0.5)*2.2;}];// sunder: shattered plateaus split by burning fissures
 // flattened pads for the Farwatch hub and the Choir dungeon door
-const FLATS=[{x:-407,z:235,r:30,i:22},{x:GLOAM.door.x,z:GLOAM.door.z,r:18,i:9},{x:606,z:-350,r:32,i:24},{x:RIME.door.x,z:RIME.door.z,r:18,i:9}];
+const FLATS=[{x:-407,z:235,r:30,i:22},{x:GLOAM.door.x,z:GLOAM.door.z,r:18,i:9},{x:606,z:-350,r:32,i:24},{x:RIME.door.x,z:RIME.door.z,r:18,i:9},{x:-668,z:668,r:32,i:24},{x:668,z:668,r:32,i:24},{x:XR.fenDoor.x,z:XR.fenDoor.z,r:18,i:9},{x:XR.sunDoor.x,z:XR.sunDoor.z,r:18,i:9}];
 function rawH0(x,z){const w=biomeW(x,z);let h=0;for(let i=0;i<NB;i++)if(w[i]>0.001)h+=w[i]*BH[i](x,z);
   const D=Math.max(Math.abs(x),Math.abs(z));h+=smooth(HALF-78,HALF-22,D)*46*(0.55+0.45*fbm(x*0.03,z*0.03));
   return h;}
@@ -498,7 +531,7 @@ const TCOL=new Float32Array(N1*N1*3);const TCH=[];const CH_C=40,CH_N=SEG/CH_C;//
   const c=new THREE.Color(),t=new THREE.Color(),u=new THREE.Color();
   const sand=new THREE.Color(0xc9a07a),sand2=new THREE.Color(0xb48660),rock=new THREE.Color(0x8a5238),town=new THREE.Color(0xb59a7e),hi=new THREE.Color(0x6e3f2c);
   const BC=BIOMES.map(b=>[new THREE.Color(b.c1),new THREE.Color(b.c2)]);const w=new Float32Array(NB);const vein=new THREE.Color(0x46d8e8),terr=new THREE.Color(0x8a82a6),iceC=new THREE.Color(0x7fa6c8),snowW=new THREE.Color(0xf2f6fa),iceGlow=new THREE.Color(0x6fe8ff);
-  const lava=new THREE.Color(0x8a2a10),mesa=new THREE.Color(0xd07a4c),floorC=new THREE.Color(0xc98a5a),pond=new THREE.Color(0x3f6a64),shore=new THREE.Color(0xcdb48a),rust=new THREE.Color(0x8a4a2a),glint=new THREE.Color(0x8fe8ee),crack=new THREE.Color(0xbcb4a2),snow=new THREE.Color(0x7a6a62);
+  const fenPool=new THREE.Color(0x1e4a40),fenMoss=new THREE.Color(0x5a7a3a),fenGlow=new THREE.Color(0x5fffc8),emberC=new THREE.Color(0xff5a1a),obsid=new THREE.Color(0x141014);const lava=new THREE.Color(0x8a2a10),mesa=new THREE.Color(0xd07a4c),floorC=new THREE.Color(0xc98a5a),pond=new THREE.Color(0x3f6a64),shore=new THREE.Color(0xcdb48a),rust=new THREE.Color(0x8a4a2a),glint=new THREE.Color(0x8fe8ee),crack=new THREE.Color(0xbcb4a2),snow=new THREE.Color(0x7a6a62);
   for(let iy=0;iy<N1;iy++)for(let ix=0;ix<N1;ix++){const i=iy*N1+ix;const x=ix*CELL-HALF,z=iy*CELL-HALF,h=HG[i];biomeW(x,z,w);
     const n=hash(Math.floor(x*0.7),Math.floor(z*0.7));
     // core: the original desert colouring
@@ -513,6 +546,8 @@ const TCOL=new Float32Array(N1*N1*3);const TCH=[];const CH_C=40,CH_N=SEG/CH_C;//
         else if(id==='canyon'){if(h>10)t.lerp(mesa,0.6);else if(h<3)t.lerp(floorC,0.5);}
         else if(id==='dusk'){if(h>12)t.lerp(terr,clamp((h-12)/8,0,0.55));const vv=Math.abs(Math.sin(x*0.11+Math.sin(z*0.07)*3+fbm(x*0.02,z*0.02)*5));if(vv<0.05)t.lerp(vein,0.65);}
         else if(id==='rime'){if(h<5)t.lerp(iceC,clamp((5-h)/3,0,0.75));if(fbm(x*0.03+11,z*0.09)>0.58)t.lerp(snowW,0.55);const cr=Math.abs(Math.sin(x*0.018+z*0.006+fbm(x*0.008+5,z*0.008)*6));if(cr<0.035)t.lerp(iceGlow,0.7);}
+        else if(id==='fen'){if(h<WATER_Y+0.6)t.lerp(fenPool,0.75);else if(fbm(x*0.05+3,z*0.05+8)>0.6)t.lerp(fenMoss,0.5);if(hash(Math.floor(x*0.4),Math.floor(z*0.4))>0.93)t.lerp(fenGlow,0.6);}
+        else if(id==='sunder'){const f=Math.abs(Math.sin(x*0.013-z*0.009+fbm(x*0.006,z*0.006)*5));if(f<0.04)t.lerp(emberC,0.85);else if(h>16)t.lerp(obsid,0.5);}
         else if(id==='salt'){const fx=Math.abs(Math.sin(x*0.35+Math.sin(z*0.2)*2)),fz=Math.abs(Math.sin(z*0.35+Math.sin(x*0.2)*2));if(fx<0.12||fz<0.12)t.lerp(crack,0.7);}
         c.r+=t.r*w[k];c.g+=t.g*w[k];c.b+=t.b*w[k];}}
     if(D_EDGE(x,z)>0)c.lerp(hi,D_EDGE(x,z)*0.7);
@@ -1270,6 +1305,18 @@ const NEW_WEAVES=[
 const WEAVES={};
 for(const pk in PROFS)PROFS[pk].abilities.forEach(a=>{a.prof=pk;a.line=a.id;a.tier=1;a.lvl=1;a.starter=true;a.req=[];WEAVES[a.id]=a;});
 NEW_WEAVES.forEach(w=>{w.req=w.reqx||wreq(w.prof,w.lvl);WEAVES[w.id]=w;});
+/* Build J: Lv 31-50 ranks, generated from each profession's two Rimefall lines (data: [line, [names...], [levels...]]) */
+(function(){const XW=[['sunder',['Sunder Spike V','Sunder Spike VI'],[31,41]],['starfall',['Starfall Torrent','Starfall Apocalypse'],[36,46]],['arc',['Arc Lance V','Arc Lance VI'],[31,41]],['storm',['Lattice Cataclysm','Lattice Singularity'],[35,45]],
+  ['breach',['Breach Round V','Breach Round VI'],[32,42]],['orbital',['Orbital Bombardment','Orbital Annihilation'],[37,47]],['mend',['Mend V','Mend VI'],[31,41]],['purge',['Purge Surge','Purge Deluge'],[36,46]],
+  ['tangle',['Tangle Tempest','Tangle Maelstrom'],[32,42]],['rattle',['Rattle Squall','Rattle Hurricane'],[37,47]],['thornvolley',['Thorn Volley V','Thorn Volley VI'],[31,41]],['stampede',['Ember Stampede','Obsidian Stampede'],[36,46]],
+  ['overcharge',['Overcharge V','Overcharge VI'],[32,42]],['patchdrone',['Patch Host','Patch Armada'],[37,47]],['battery',['Vyre Battery IV','Vyre Battery V'],[34,44]]];
+  const pc=v=>Math.round(v*100)+'%';
+  for(const [line,names,lvs] of XW){let prev=Object.values(WEAVES).filter(w=>w.line===line&&!w.excl).sort((a,b)=>b.tier-a.tier)[0];if(!prev)continue;
+    names.forEach((nm,i)=>{const w=Object.assign({},prev);delete w.req;w.tier=prev.tier+1;w.id=line+w.tier;w.lvl=lvs[i];w.name=nm;let d=prev.desc;const rep=(k,f)=>{if(w[k]==null)return;const o=w[k];w[k]=f(o);d=d.split(pc(o)).join(pc(w[k]));};
+      rep('mult',v=>Math.round(v*1.22*100)/100);rep('pct',v=>Math.min(0.95,Math.round((v+0.08)*100)/100));rep('heal',v=>Math.min(0.6,Math.round((v+0.05)*100)/100));rep('hot',v=>Math.round((v+0.01)*100)/100);
+      if(w.kind==='petbuff'){const od=w.dmg,oh=w.hp;w.dmg=Math.round((od+0.35)*100)/100;w.hp=Math.round((oh+0.15)*100)/100;d=d.replace('+'+Math.round((od-1)*100)+'% bot damage','+'+Math.round((w.dmg-1)*100)+'% bot damage').replace(Math.round(oh*100)+'% more health',Math.round(w.hp*100)+'% more health');}
+      if(w.radius){const o=w.radius;w.radius=Math.min(12,o+0.5);d=d.split(o+'m').join(w.radius+'m');}if(w.root){w.root=Math.round((w.root+0.5)*10)/10;}
+      if(w.cost)w.cost=Math.round(w.cost*1.18);if(line==='stampede')d=d.replace(/phantom \w+ herd/,'phantom '+nm.split(' ')[0].toLowerCase()+' herd');w.desc=d;w.req=wreq(w.prof,w.lvl);WEAVES[w.id]=w;prev=w;});}})();
 const starterIds=pk=>PROFS[pk].abilities.map(a=>a.id);
 const NSLOTS=6;
 const profName=p=>p==='any'?'Any profession':PROFS[p].name;
@@ -1387,10 +1434,10 @@ const isUniq=it=>!!(it&&it.uniq);
 // Short type label shown on every card: "Rifle", "Heavy armour · Head", "Implant · Eyes", "Weave Disk"
 function itemType(it){if(!it)return '';if(it.kind==='cloth')return '👕 Social clothing'+(CLOTH[it.cid]?' · '+CSLOTN[CLOTH[it.cid].slot]:'');if(it.kind==='disk')return 'Weave Disk';if(it.kind==='imp')return 'Implant · '+(it.slot[0].toUpperCase()+it.slot.slice(1));
   if(it.slot==='weapon'){const W=WTYPES[it.wt];return W?W.ic+' '+W.n+(W.melee?' (melee)':''):'Weapon';}const F=AFAM[it.fam||'medium'];return F.n+' armour · '+SLOTN[it.slot];}
-function itemLines(it){if(it.kind==='cloth'){const c=CLOTH[it.cid];return [c?c.desc:'Clothing','Cosmetic only · add it to your wardrobe'];}if(it.kind==='disk'){const w=WEAVES[it.wid];const L=[w?w.desc:'Unknown Weave'];if(it.src)L.push('Source: '+dunName(it.src)+(typeof dunRange==='function'?' · '+dunRange(it.src):''));return L;}const L=[];
+function itemLines(it){if(it.kind==='cloth'){const c=CLOTH[it.cid];return [c?c.desc:'Clothing','Cosmetic only · add it to your wardrobe'];}if(it.kind==='disk'){const w=WEAVES[it.wid];const L=[w?w.desc:'Unknown Weave'];if(typeof itemTier==='function'&&itemTier(it)>1)L.push('Requires Tier '+itemTier(it)+' · '+TIERS[itemTier(it)].n);if(it.src)L.push('Source: '+dunName(it.src)+(typeof dunRange==='function'?' · '+dunRange(it.src):''));return L;}const L=[];
   if(it.dmg){const W=WTYPES[it.wt];L.push(it.dmg+' Damage'+(W?(W.melee?' · melee '+W.rng+'m':' · range '+W.rng+'m')+(W.cd!==1?' · '+(W.cd<1?'fast':'slow'):''):''));}
   if(it.armor)L.push(it.armor+' Armour');it.bonus.forEach(b=>L.push(fmtBonus(b)));if(it.fac&&FACTIONS[it.fac])L.push('Faction: '+FACTIONS[it.fac].name+' · '+REP_TIERS[it.ftier||1].n);
-  if(it.ts)L.push('✦ Tradeskilled: '+Object.keys(it.ts).map(k=>TSMOD[k]||k).join(', '));if(it.crafted)L.push('✦ Custom-built by '+it.crafted);if(it.set&&SETS[it.set])L.push('Set: '+SETS[it.set].name);if(it.src)L.push('Source: '+dunName(it.src)+(typeof dunRange==='function'?' · '+dunRange(it.src):''));return L;}
+  if(it.ts)L.push('✦ Tradeskilled: '+Object.keys(it.ts).map(k=>TSMOD[k]||k).join(', '));if(it.crafted)L.push('✦ Custom-built by '+it.crafted);if(it.set&&SETS[it.set])L.push('Set: '+SETS[it.set].name);if(it.src)L.push('Source: '+dunName(it.src)+(typeof dunRange==='function'?' · '+dunRange(it.src):''));if(typeof itemTier==='function'&&itemTier(it)>1)L.push('Requires Tier '+itemTier(it)+' · '+TIERS[itemTier(it)].n);return L;}
 const dunName=id=>(typeof id==='string'&&id.startsWith('dyna_')&&typeof DYNAS!=='undefined'&&DYNAS[id.slice(5)])?'💀 '+DYNAS[id.slice(5)].name+' (dyna)':(typeof DUNGEONS!=='undefined'&&DUNGEONS[id])?DUNGEONS[id].name:(RAIDS&&RAIDS[id])?RAIDS[id].name:id;
 function migrateItem(it){if(!it)return null;
   if(it.kind){if(it.kind==='disk'&&!WEAVES[it.wid])return null;if(it.kind==='cloth')return CLOTH[it.cid]?it:null;if(it.kind==='gear'){if(it.slot==='weapon'&&!it.wt)it.wt=(it.req&&it.req[0]&&it.req[0].s==='weave')?'rod':'rifle';if(it.slot!=='weapon'&&!it.fam)it.fam='medium';if(!nameFits(it))it.name=gearName(it);}return it;}
@@ -1403,14 +1450,15 @@ const PERKS={};
 // XP curve: unchanged up to Lv 9 (old characters keep their progress); from Lv 10 on each level also costs +18% per level past 9,
 // so 11-20 is a steady climb (~50 kills of your level at Lv 15, ~80 at Lv 19, plus story/side quests) rather than a wall.
 // Build C: the multiplier stops growing at Lv 20 (x2.98), so 21-30 keeps climbing only with the base curve: ~85 same-level kills at Lv 21, ~100 at Lv 29.
-const xpNeed=l=>Math.round(80*Math.pow(l,1.6)*(l>=10?1+0.18*(Math.min(l,20)-9):1));
-const MAXLVL=30;
+// Build J: past 30 the base curve keeps climbing plus +2% per level (~110 same-level kills at 31, ~150 at 49).
+const xpNeed=l=>Math.round(80*Math.pow(l,1.6)*(l>=10?1+0.18*(Math.min(l,20)-9):1)*(l>30?1+0.02*(l-30):1));
+const MAXLVL=50;// Build J: 30 -> 50. Raising it further is data: MAXLVL, XREG regions/dungeons, TEAMD bands (TD_BANDS), TIERS already reach 100+
 const SP_START=20,SP_LVL=25;
 const SP_HI=5;// extra skill points per level past 10 (the bigger skill caps need them), and again past 20
-const spGain=l=>SP_LVL+(l>10?SP_HI:0)+(l>20?SP_HI:0);// points granted for reaching level l
+const spGain=l=>SP_LVL+SP_HI*Math.max(0,Math.floor((l-1)/10));// points granted for reaching level l (+5 more per 10-level band past 10)
 const TS_SP=10;// stage 3: extra points so tradeskills don't starve combat skills
 const RUN_SP=10;// added with the Run Speed skill: every character gets these once (old saves too)
-const spTotal=l=>SP_START+TS_SP+RUN_SP+SP_LVL*(l-1)+SP_HI*Math.max(0,l-10)+SP_HI*Math.max(0,l-20);
+const spTotal=l=>{let t=SP_START+TS_SP+RUN_SP+SP_LVL*(l-1);for(let k=10;k<l;k+=10)t+=SP_HI*(l-k);return t;};
 
 /* ---------------- player ---------------- */
 const P={name:'Contractor',prof:'vanguard',level:1,xp:0,credits:25,inv:[],eq:{weapon:null,head:null,armor:null,hands:null,legs:null,feet:null},imps:{},perks:{},pp:0,dunClears:{},ab:{},sb:{},sp:SP_START,known:[],slots:[],buffs:[],consum:{},stims:3,
@@ -1418,7 +1466,14 @@ const P={name:'Contractor',prof:'vanguard',level:1,xp:0,credits:25,inv:[],eq:{we
 let S={maxHp:100,maxEn:80,armor:2,dmg:4,crit:5,power:0,E:{},bon:{}};
 const eff=s=>s==='level'?P.level:((S.E&&S.E[s])||0);
 // breed scales the trainable attribute cap (Dunebred Strength 1.5x, Intelligence 0.6x, ...)
-const attrCap=s=>Math.round((2+2*P.level)*((s&&breedOf(P).cap[s])||1)),skillCap=s=>Math.round((5+5*P.level)*(s==='run'?(PROFS[P.prof].runCap||1):1));
+/* ---------- TIERS (Build J): seven tiers across levels 1-100+. Each tier raises the trainable attribute/skill caps and unlocks tier-locked gear, implants and Weaves.
+   Breakpoints are data: a further cap raise needs no change here. tierOfLv(level), itemTier(it) (gear: item level, implant: QL/5, disk: Weave level). */
+const TIERS=[null,{t:1,lv:1,n:'Dustborn',a:0,s:0},{t:2,lv:15,n:'Wayfinder',a:4,s:10},{t:3,lv:30,n:'Seamwalker',a:8,s:20},{t:4,lv:45,n:'Ironclad',a:14,s:35},{t:5,lv:60,n:'Stormcaller',a:20,s:50},{t:6,lv:80,n:'Vyrebound',a:28,s:70},{t:7,lv:100,n:'Reachlord',a:36,s:90}];
+const TIER_MAX=TIERS.length-1;
+function tierOfLv(l){let t=1;for(let i=1;i<=TIER_MAX;i++)if((l||1)>=TIERS[i].lv)t=i;return t;}
+const pTier=()=>tierOfLv(P.level);
+// breed scales the attribute cap; tiers add a flat bonus on top of the per-level cap
+const attrCap=s=>Math.round((2+2*P.level+TIERS[pTier()].a)*((s&&breedOf(P).cap[s])||1)),skillCap=s=>Math.round((5+5*P.level+TIERS[pTier()].s)*(s==='run'?(PROFS[P.prof].runCap||1):1));
 const costOf=s=>Math.max(1,PROFS[P.prof].cost[s]+(breedOf(P).cost[s]||0));
 function baseOf(s){const pr=PROFS[P.prof];return ATTRS.includes(s)?pr.attrs[s]+(breedOf(P).mods[s]||0):5+(pr.innate[s]||0)+(s==='run'?breedOf(P).run||0:0);}
 /* Run Speed -> % move speed: diminishing curve above a 12-point baseline, hard cap RUN_CAP. Legacy flat '% Run Speed' (spd) bonuses from old items/saves count as 2.5 Run Speed points per %. */
@@ -1467,7 +1522,7 @@ function refreshGearVisual_v1(){if(!PM)return;clearVeil();if(PM.gear){PM.gear.fo
 /* ---------------- enemies ---------------- */
 const enemies=[];
 function makeEnemy(type,x,z,lv,temp){
-  const T0=ETYPES[type];const R=T0.build();if(R.kind==='hum'&&R.melee==null)R.melee=!T0.ranged;bakeRig(R);const sc=T0.scale*(1+(lv-1)*0.03);R.g.scale.setScalar(sc);scene.add(R.g);
+  const T0=ETYPES[type];const R=T0.build();if(R.kind==='hum'&&R.melee==null)R.melee=!T0.ranged;bakeRig(R);const sc=T0.scale*(1+Math.min(lv-1,29)*0.03+Math.max(0,lv-30)*0.008);R.g.scale.setScalar(sc);scene.add(R.g);
   const e={type,T:T0,R,lv,temp:!!temp,home:new V3(x,0,z),pos:new V3(x,heightAt(x,z),z),rotY:srand(0,6.28),state:'idle',hp:0,maxHp:0,
     nextAtk:0,nextWander:0,wt:new V3(x,0,z),stunUntil:0,rootUntil:0,dot:null,dead:false,respawnAt:0,hitT:0,atkT:0,moving:0,shadow:makeShadow(T0.hitR*0.9*sc),hitR:T0.hitR*sc,h:T0.h*sc,animT:Math.random()*10};
   e.maxHp=e.hp=Math.round(T0.hp*(1+0.38*(lv-1)));e.dmg=T0.dmg*(1+0.27*(lv-1));
@@ -1568,7 +1623,8 @@ function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;
   if(P.target===e){P.target=null;let nb=null,nd=1e9;for(const o of enemies)if(!o.dead&&o!==e&&o.state==='chase'){const d=dist2D(o.pos,P.pos);if(d<nd&&d<26){nd=d;nb=o;}}
     if(nb){P.target=nb;}else P.autoAtk=false;}
   save();}
-function gainXp(n){if(P.level>=MAXLVL)return;const capL=Math.min(MAXLVL,bandCapOf(P));if(P.level>=capL){P.xp=Math.min(P.xp+n,xpNeed(P.level)-1);if(n>0)bandCapMsg(capL);return;}P.xp+=n;while(P.level<capL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
+function gainXp(n){if(P.level>=MAXLVL)return;const capL=Math.min(MAXLVL,bandCapOf(P));if(P.level>=capL){P.xp=Math.min(P.xp+n,xpNeed(P.level)-1);if(n>0)bandCapMsg(capL);return;}P.xp+=n;const t0=tierOfLv(P.level);while(P.level<capL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':P.level===31?' · the Mirelight Fen awaits':P.level===41?' · the Sundered Heights await':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
+  const t1=tierOfLv(P.level);if(t1>t0){P.tier=t1;tierUp(t1,P.level);}
   if(P.level>=MAXLVL)P.xp=0;}
 function faceTarget(t){if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);}
 function shoot(t,mult,color,cb){faceTarget(t);P.atkAnim=0.35;const from=new V3(P.pos.x+Math.sin(P.rotY)*0.6,P.pos.y+1.35,P.pos.z+Math.cos(P.rotY)*0.6);fireProj(from,t,color,38,cb||(()=>dmgEnemy(t,mult)));}
@@ -1670,19 +1726,19 @@ function availTypes(){const L=[{t:'skitter',lv:2,min:1}];if(P.level>=3)L.push({t
 const MDIFF=[{n:'Easy',lv:-2,cnt:0.7,rew:0.75,rar:0,c:'#6dff8a'},{n:'Normal',lv:0,cnt:1,rew:1,rar:5,c:'#cfcfcf'},{n:'Hard',lv:1,cnt:1.3,rew:1.4,rar:15,c:'#ffc85a'},{n:'Veteran',lv:2,cnt:1.6,rew:1.9,rar:25,c:'#ff9a2a'},{n:'Brutal',lv:3,cnt:2,rew:2.6,rar:40,c:'#ff5a4a'}];
 const MPREF={any:'Any',weapon:'🔫 Weapon',armour:'🦺 Armour',implant:'🧠 Implant',disk:'📀 Weave Disk'};
 const mprefs=()=>P.mprefs||(P.mprefs={diff:1,pref:'any'});
-function genMission(){const mp=mprefs();const D=MDIFF[clamp(mp.diff|0,0,4)];const eLv=clamp(P.level+D.lv,1,MAXLVL+2);const rim=eLv>=21&&gateOpen('hoarlight');const hi=!rim&&eLv>=11&&gateOpen('farwatch');
+function genMission(){const mp=mprefs();const D=MDIFF[clamp(mp.diff|0,0,4)];const eLv=clamp(P.level+D.lv,1,MAXLVL+2);const xr=eLv>=31;const rim=!xr&&eLv>=21&&gateOpen('hoarlight');const hi=!rim&&!xr&&eLv>=11&&gateOpen('farwatch');
   const base={diff:mp.diff|0,pref:mp.pref,lv:eLv,rar:D.rar,id:'m'+uid()};const tag='['+D.n+'] ';
-  if(Math.random()<0.55){const t=rim?pick(['burrower','frostcaller','shambler','sentinel']):hi?pick(['stalker','shardcaller','brute']):eLv<=3?'skitter':eLv<=6?'raider':'mauler';const n=Math.max(2,Math.round(randi(hi||rim?3:4,hi||rim?5:6)*D.cnt));
-    const zr=t==='skitter'?[60,105]:t==='raider'?[110,150]:[168,200];const r=rand(zr[0],zr[1]),a=rand(0,6.28);const tmp=rim?rimeSpot(eLv):hi?gloamSpot(eLv):{x:Math.cos(a)*r,z:Math.sin(a)*r};collide(tmp,2);
+  if(Math.random()<0.55){const t=xr?pick(xrTypes(eLv)):rim?pick(['burrower','frostcaller','shambler','sentinel']):hi?pick(['stalker','shardcaller','brute']):eLv<=3?'skitter':eLv<=6?'raider':'mauler';const n=Math.max(2,Math.round(randi(hi||rim||xr?3:4,hi||rim||xr?5:6)*D.cnt));
+    const zr=t==='skitter'?[60,105]:t==='raider'?[110,150]:[168,200];const r=rand(zr[0],zr[1]),a=rand(0,6.28);const tmp=xr?xrSpot(eLv):rim?rimeSpot(eLv):hi?gloamSpot(eLv):{x:Math.cos(a)*r,z:Math.sin(a)*r};collide(tmp,2);
     return facFlavour(Object.assign(base,{kind:'kill',etype:t,need:n,have:0,stage:'active',x:tmp.x,z:tmp.z,title:tag+'Cull: '+n+' '+ETYPES[t].name+'s',
       desc:pick(['The Combine wants the trade route cleared.','Prospectors report attacks near the dig sites.','Outpost security is paying a bounty.','A Combine convoy is due through here. Clear the way.'])+' Camp marked on your map. Enemies Lv '+eLv+'.',cr:Math.round(n*(6+eLv*5)*D.rew),xp:Math.round(xpNeed(P.level)*rand(0.25,0.35)*D.rew),item:mp.diff>=2||Math.random()<0.65}));}
-  const r=clamp(55+eLv*13,55,195)+rand(-10,15),a=rand(0,Math.PI*2);let x=Math.cos(a)*r,z=Math.sin(a)*r;const tmp=rim?rimeSpot(eLv):hi?gloamSpot(eLv):{x,z};collide(tmp,1.5);x=tmp.x;z=tmp.z;
-  const obj=pick(OBJS);return facFlavour(Object.assign(base,{kind:'fetch',x,z,obj,stage:'active',guards:hi||rim||r>70||mp.diff>=2,nGuards:Math.max(1,Math.round(2*D.cnt)),title:tag+'Recover: '+obj,desc:'Signal lost '+Math.round(Math.hypot(x,z))+'m out '+(rim?'in the Rimefall Expanse':hi?'in the Duskcrown Highlands':'in the Reach')+'. Find it and bring it back. Guards Lv '+eLv+'.',cr:Math.round((20+eLv*14)*D.rew),xp:Math.round(xpNeed(P.level)*rand(0.3,0.4)*D.rew),item:mp.diff>=2||Math.random()<0.6}));
+  const r=clamp(55+eLv*13,55,195)+rand(-10,15),a=rand(0,Math.PI*2);let x=Math.cos(a)*r,z=Math.sin(a)*r;const tmp=xr?xrSpot(eLv):rim?rimeSpot(eLv):hi?gloamSpot(eLv):{x,z};collide(tmp,1.5);x=tmp.x;z=tmp.z;
+  const obj=pick(OBJS);return facFlavour(Object.assign(base,{kind:'fetch',x,z,obj,stage:'active',guards:hi||rim||xr||r>70||mp.diff>=2,nGuards:Math.max(1,Math.round(2*D.cnt)),title:tag+'Recover: '+obj,desc:'Signal lost '+Math.round(Math.hypot(x,z))+'m out '+(xr?'in '+xrRegionName(eLv):rim?'in the Rimefall Expanse':hi?'in the Duskcrown Highlands':'in the Reach')+'. Find it and bring it back. Guards Lv '+eLv+'.',cr:Math.round((20+eLv*14)*D.rew),xp:Math.round(xpNeed(P.level)*rand(0.3,0.4)*D.rew),item:mp.diff>=2||Math.random()<0.6}));
 }
 function spawnCamp(m){if(!m||m.kind!=='kill'||m.campSpawned||m.x==null)return;const n=Math.max(0,m.need-m.have);for(let i=0;i<n;i++){const e=makeEnemy(m.etype,m.x+rand(-6,6),m.z+rand(-6,6),m.lv||P.level,true);e.mis=m.id;}m.campSpawned=true;}
 function spawnCache(m){clearCache(m);const y=heightAt(m.x,m.z);const g=new THREE.Group();part(g,geoBox,M(0x4f6b80),0,0.45,0,1.2,0.9,0.8);part(g,geoBox,MB(0x5ff2ff),0,0.6,0.41,0.8,0.15,0.02);part(g,geoBox,M(0xffc85a),0,0.92,0,1.25,0.08,0.85);
   g.position.set(m.x,y,m.z);scene.add(g);const r=QRT[m.id]||(QRT[m.id]={objs:[],mobs:[]});r.cache={g,x:m.x,z:m.z};
-  if(m.guards&&!m.guardsSpawned){const d=Math.hypot(m.x,m.z);const ty=d>620?pick(['burrower','shambler','frostcaller']):d>400?pick(['stalker','brute']):d>160?'mauler':d>105?'raider':'skitter';const n=m.nGuards||(ty==='mauler'?1:2);
+  if(m.guards&&!m.guardsSpawned){const d=Math.hypot(m.x,m.z);const ty=d>870&&Math.max(Math.abs(m.x),Math.abs(m.z))>560?pick(xrTypes(m.x>0?41:31)):d>620?pick(['burrower','shambler','frostcaller']):d>400?pick(['stalker','brute']):d>160?'mauler':d>105?'raider':'skitter';const n=m.nGuards||(ty==='mauler'?1:2);
     for(let i=0;i<n;i++){const lv=m.lv||clamp(P.level+randi(-1,0),1,MAXLVL);makeEnemy(ty,m.x+rand(-5,5),m.z+rand(-5,5),lv,true);}m.guardsSpawned=true;}}
 // m: one contract, or nothing = every quest object (world reset)
 function clearCache(m){if(!m){for(const k in QRT){const r=QRT[k];for(const o of r.objs||[])scene.remove(o.g);if(r.cache)scene.remove(r.cache.g);if(r.ally&&!r.ally.dead)removeAlly(r.ally);delete QRT[k];}return;}
@@ -1713,11 +1769,11 @@ const isImp=it=>!!it&&it.kind==='imp';
 const isDisk=it=>!!it&&it.kind==='disk';
 function icoOf(it){if(it&&it.kind==='cloth')return CLOTH[it.cid]?CLOTH[it.cid].ic:'👕';return isImp(it)?IMPDEF[it.slot].ic:isDisk(it)?'📀':it.slot==='weapon'&&WTYPES[it.wt]?WTYPES[it.wt].ic:SLOTICON[it.slot]||'📦';}
 const profOk=it=>!isDisk(it)||it.prof==='any'||it.prof===P.prof;
-function reqMet(it){return profOk(it)&&(it.req||[]).every(r=>eff(r.s)>=r.v);}
+function reqMet(it){return profOk(it)&&tierOk(it)&&(it.req||[]).every(r=>eff(r.s)>=r.v);}
 function firstMiss(it){return (it.req||[]).find(r=>eff(r.s)<r.v);}
-function reqChips(it){return (isDisk(it)?`<span class="rq ${profOk(it)?'ok':'no'}">${it.prof==='any'?'ALL':esc(profName(it.prof)).toUpperCase()}</span>`:'')+(it.req||[]).map(r=>{const ok=eff(r.s)>=r.v;return `<span class="rq ${ok?'ok':'no'}" title="${ok?'Requirement met':'Need '+(r.v-eff(r.s))+' more '+STATN[r.s]}">${SHORT[r.s]} ${r.v}</span>`;}).join('');}
-function reqHtml(it){if(!it.req||!it.req.length)return '<div style="opacity:.7">No requirements</div>';
-  return (isDisk(it)?`<div class="${profOk(it)?'up':'down'}">${profOk(it)?'✔':'✖'} Profession: ${profName(it.prof)}${profOk(it)?'':' · <b>'+profName(it.prof)+' only</b>'}</div>`:'')+it.req.map(r=>{const h=eff(r.s),ok=h>=r.v;const need=ok?'':'Need '+(r.v-h)+' more '+STATN[r.s];
+function reqChips(it){const tt=itemTier(it);return (tt>1?`<span class="rq tier ${tierOk(it)?'ok':'no'}" title="${tierOk(it)?'Tier requirement met':esc(tierMiss(it))}">T${tt}</span>`:'')+(isDisk(it)?`<span class="rq ${profOk(it)?'ok':'no'}">${it.prof==='any'?'ALL':esc(profName(it.prof)).toUpperCase()}</span>`:'')+(it.req||[]).map(r=>{const ok=eff(r.s)>=r.v;return `<span class="rq ${ok?'ok':'no'}" title="${ok?'Requirement met':'Need '+(r.v-eff(r.s))+' more '+STATN[r.s]}">${SHORT[r.s]} ${r.v}</span>`;}).join('');}
+function reqHtml(it){const tt=itemTier(it),tl=tt>1?`<div class="${tierOk(it)?'up':'down'}">${tierOk(it)?'✔':'✖'} Requires Tier ${tt} · ${TIERS[tt].n} <span style="opacity:.75">(level ${TIERS[tt].lv}+, you are Tier ${pTier()})</span></div>`:'';if(!it.req||!it.req.length)return tl||'<div style="opacity:.7">No requirements</div>';
+  return tl+(isDisk(it)?`<div class="${profOk(it)?'up':'down'}">${profOk(it)?'✔':'✖'} Profession: ${profName(it.prof)}${profOk(it)?'':' · <b>'+profName(it.prof)+' only</b>'}</div>`:'')+it.req.map(r=>{const h=eff(r.s),ok=h>=r.v;const need=ok?'':'Need '+(r.v-h)+' more '+STATN[r.s];
     return `<div class="${ok?'up':'down'}" title="${ok?'Requirement met':need}">${ok?'✔':'✖'} ${STATN[r.s]} ${r.v} <span style="opacity:.75">(you have ${h})</span>${ok?'':' · <b>'+need+'</b>'}</div>`;}).join('');}
 function isEquipped(it){return !!it&&((P.eq[it.slot]&&P.eq[it.slot].id===it.id)||(P.imps[it.slot]&&P.imps[it.slot].id===it.id));}
 function twTag(it){return !reqMet(it)?'<span class="tw" title="Requirements no longer met, but it stays installed and keeps working">⚡ twinked</span>':'';}
@@ -1762,6 +1818,7 @@ function openInventory(){stackInv();
   openPanel('INVENTORY',html,'inv');
 }
 function equip(id){const i=P.inv.findIndex(x=>x.id===id);if(i<0)return false;const it=P.inv[i];if(P.morph&&it.slot==='weapon'){warn('Can\'t swap weapons while morphed');return false;}
+  if(!tierOk(it)){warn('🔒 '+tierMiss(it)+': you are Tier '+pTier()+'.');return false;}
   const miss=firstMiss(it);if(miss){warn('Need '+(miss.v-eff(miss.s))+' more '+STATN[miss.s]);return false;}
   if(it.fac&&!facCanUse(it)){warn(FACTIONS[it.fac].name+' gear: '+facUseNeed(it));return false;}
   P.inv.splice(i,1);const tgt=isImp(it)?P.imps:P.eq;if(tgt[it.slot])P.inv.push(tgt[it.slot]);tgt[it.slot]=it;
@@ -1770,15 +1827,19 @@ function unequip(id){const it=findItem(id);if(!it||!isEquipped(it))return;if(P.m
   const tgt=isImp(it)?P.imps:P.eq;tgt[it.slot]=null;P.inv.push(it);calcStats();refreshGearVisual();save();}
 function openSkills(){
   const pr=PROFS[P.prof];
-  const row=(s,isA)=>{const bought=isA?(P.ab[s]||0):(P.sb[s]||0);const cap=isA?attrCap(s):skillCap(s);const c=costOf(s);const bon=S.bon[s]||0;const base=baseOf(s);const trick=isA?0:eff(s)-base-bought-bon;const dis=P.sp<c||bought>=cap?'disabled':'';
-    return `<div class="sk"><div class="skn"><b>${STATN[s]}</b> <span class="cst c${c}">${c} SP</span><div class="st">${base} base${bought?' + '+bought+' trained':''}${trick?' + '+trick+' from attributes':''}${bon?` <span class="${bon>0?'up':'down'}">+${bon} gear/implants/buffs</span>`:''}</div>${s==='run'?`<div class="st"><b class="up">Move speed +${S.runPct}%</b> on foot (cap +${RUN_CAP}%) · ${PROFS[P.prof].runCap>1?'your profession trains it furthest':PROFS[P.prof].runCap<1?'your profession can only train it to '+Math.round(PROFS[P.prof].runCap*100)+'% of the normal cap':'normal training cap'}</div>`:''}<div class="st" style="opacity:.6">${STATDESC[s]}</div></div><div class="skv">${eff(s)}<div class="st">${bought}/${cap}</div></div><button class="sbtn" data-act="raise" data-s="${s}" data-n="1" ${dis}>+1</button><button class="sbtn alt" data-act="raise" data-s="${s}" data-n="5" ${dis}>+5</button></div>`;};
-  const html=`<div class="namebar"><span>👤</span><b>${esc(P.name)}</b><span style="opacity:.7">Lv ${P.level} ${esc(PROFS[P.prof].name)}</span><button class="sbtn alt" data-act="rename">✏️ Rename</button></div><div class="sphead"><span>Unspent skill points: <b>${P.sp}</b></span><span style="opacity:.75;font-size:13px">You get ${SP_LVL} per level. The cost per point depends on your profession and breed (green = cheap). Training caps rise each level; your breed (${breedOf(P).name}) raises or lowers the attribute caps.</span></div>
+  const row=(s,isA)=>{const bought=isA?(P.ab[s]||0):(P.sb[s]||0);const cap=isA?attrCap(s):skillCap(s);const c=costOf(s);const bon=S.bon[s]||0;const base=baseOf(s);const trick=isA?0:eff(s)-base-bought-bon;const dis=P.sp<c?'disabled':'';const atCap=bought>=cap,over=bought>cap;
+    return `<div class="sk"><div class="skn"><b>${STATN[s]}</b> <span class="cst c${c}">${c} SP</span><div class="st">${base} base${bought?' + '+bought+' trained':''}${trick?' + '+trick+' from attributes':''}${bon?` <span class="${bon>0?'up':'down'}">+${bon} gear/implants/buffs</span>`:''}</div>${s==='run'?`<div class="st"><b class="up">Move speed +${S.runPct}%</b> on foot (cap +${RUN_CAP}%) · ${PROFS[P.prof].runCap>1?'your profession trains it furthest':PROFS[P.prof].runCap<1?'your profession can only train it to '+Math.round(PROFS[P.prof].runCap*100)+'% of the normal cap':'normal training cap'}</div>`:''}<div class="st" style="opacity:.6">${STATDESC[s]}</div></div><div class="skv">${eff(s)}<div class="st${atCap?' capd':''}" title="Trained / cap (Tier ${pTier()})">${bought}/${cap}${over?'<br><span class="capw">over cap (kept)</span>':atCap?'<br><span class="capw">CAP</span>':''}</div></div><button class="sbtn" data-act="raise" data-s="${s}" data-n="1" ${dis}>+1</button><button class="sbtn alt" data-act="raise" data-s="${s}" data-n="5" ${dis}>+5</button></div>`;};
+  const html=`<div class="namebar"><span>👤</span><b>${esc(P.name)}</b><span style="opacity:.7">Lv ${P.level} ${esc(PROFS[P.prof].name)}</span><button class="sbtn alt" data-act="rename">✏️ Rename</button></div>${tierBar()}<div class="sphead"><span>Unspent skill points: <b>${P.sp}</b></span><span style="opacity:.75;font-size:13px">You get ${SP_LVL} per level. The cost per point depends on your profession and breed (green = cheap). Training caps rise each level and each tier; your breed (${breedOf(P).name}) raises or lowers the attribute caps.</span></div>
   <div class="cols"><div><div class="h4">Attributes</div>${ATTRS.map(a=>row(a,true)).join('')}</div><div><div class="h4">Skills</div>${SKILLS.map(a=>row(a,false)).join('')}<div class="h4" style="margin-top:10px">Active buffs</div>${buffList()}</div></div>
   <div class="h4" style="margin-top:12px">Summary</div>${statsHtml()}<button class="sbtn alt" style="margin-top:10px" data-act="respec">Reset all points (${20*P.level}¢)</button>`;
   openPanel('SKILLS · '+PROFS[P.prof].name.toUpperCase(),html,'skills');
 }
 function raise(s,n){const isA=ATTRS.includes(s);const c=costOf(s);const cap=isA?attrCap(s):skillCap(s);const tb=isA?P.ab:P.sb;let k=0;
-  for(let i=0;i<n;i++){if(P.sp<c||(tb[s]||0)>=cap)break;P.sp-=c;tb[s]=(tb[s]||0)+1;k++;}if(k){calcStats();save();}}
+  if((tb[s]||0)>=cap){capMsgFor(s,cap,tb[s]||0);return 0;}
+  for(let i=0;i<n;i++){if(P.sp<c||(tb[s]||0)>=cap)break;P.sp-=c;tb[s]=(tb[s]||0)+1;k++;}if(k){calcStats();save();}if(k<n&&(tb[s]||0)>=cap)capMsgFor(s,cap,tb[s]);return k;}
+// clear cap message: names the cap, the tier, and when the cap next rises (next level and next tier)
+function capMsgFor(s,cap,have){const t=pTier(),nx=TIERS[t+1];const isA=ATTRS.includes(s);const m='🔒 '+STATN[s]+' is at its cap ('+(have>cap?have+' trained, over the cap of '+cap+': kept, but no more raises':cap)+') for level '+P.level+' · Tier '+t+' '+TIERS[t].n+'. '+(P.level<MAXLVL?'Each level adds +'+(isA?2:5)+'. ':'')+(nx?'Tier '+(t+1)+' ('+nx.n+', level '+nx.lv+') adds +'+((isA?nx.a-TIERS[t].a:nx.s-TIERS[t].s))+'.':'');warn(m);TIERUP.capMsg=m;return m;}
+function tierBar(){const t=pTier(),d=TIERS[t],nx=TIERS[t+1];return `<div class="tierbar"><span class="tb-t">T${t}</span><span><b>Tier ${t} · ${esc(d.n)}</b><br><span class="tb-s">Caps now: attributes ${2+2*P.level+d.a} (× breed), skills ${5+5*P.level+d.s}${nx?` · Next: <b>Tier ${t+1} ${esc(nx.n)}</b> at level ${nx.lv} (+${nx.a-d.a} attribute / +${nx.s-d.s} skill caps, Tier ${t+1} gear)`:''}</span></span></div>`;}
 function respec(){const price=20*P.level;if(P.credits<price){warn('Not enough credits');return;}P.credits-=price;P.ab={};P.sb={};P.sp=spTotal(P.level);calcStats();save();toast('Points refunded. Equipped items stay on.');}
 function openTerminal(){
   if(T-offersAt>90||missionOffers.length===0){missionOffers=[genMission(),genMission(),genMission()];offersAt=T;}
@@ -1864,6 +1925,7 @@ function assignSlot(i,wid){if(!P.known.includes(wid))return;const j=P.slots.inde
 function learnDisk(id){const it=P.inv.find(x=>x.id===id);if(!it||!isDisk(it))return false;const w=WEAVES[it.wid];
   if(!profOk(it)){warn(profName(it.prof)+' only');return false;}
   if(P.known.includes(w.id)){warn('You already know '+w.name);return false;}
+  if(!tierOk(it)){warn('🔒 '+w.name+': '+tierMiss(it)+'. You are Tier '+pTier()+'.');return false;}
   const miss=(it.req||[]).find(r=>eff(r.s)<r.v);if(miss){warn('Need '+(miss.v-eff(miss.s))+' more '+STATN[miss.s]);return false;}
   if(stackN(it)>1)it.n--;else P.inv.splice(P.inv.indexOf(it),1);P.known.push(w.id);
   // upgrade: replace lower tiers of the same line in the loadout, else first empty slot
@@ -1879,7 +1941,7 @@ function openBook(){
   const krow=w=>{const best=knownBest(w.line);const sup=best&&best.tier>w.tier;const sl=P.slots.indexOf(w.id);
     return `<button class="item${bookSel===w.id?' sel':''}${sup?' sup':''}" data-act="bsel" data-w="${w.id}"><span class="ico">${w.icon}</span><span style="min-width:0;flex:1"><div class="nm">${esc(w.name)} ${w.buff?'<span class="tag b">BUFF</span>':''}${/AoE/.test(w.desc)||w.kind==='aoeT'||w.kind==='cone'||w.kind==='field'||w.kind==='barrage'||w.kind==='aoeSelf'||w.id==='scatter'||w.id==='stasis'||w.id==='nova'?'<span class="tag a">AoE</span>':''}${w.prof==='any'?'<span class="tag g">GENERIC</span>':''}</div><div class="st">${esc(w.desc)}</div><div class="st" style="opacity:.6">${weaveStats(w)}${sup?' · superseded by '+esc(best.name):''}</div></span><span class="pr">${sl>=0?'Slot '+(sl+1):''}</span></button>`;};
   const disks=P.inv.filter(isDisk);
-  const drow=d=>{const w=WEAVES[d.wid];const known=P.known.includes(w.id);const ok=reqMet(d)&&!known;const miss=!profOk(d)?profName(d.prof)+' only':known?'Already known':(()=>{const m=(d.req||[]).find(r=>eff(r.s)<r.v);return m?'Need '+(m.v-eff(m.s))+' more '+STATN[m.s]:'';})();
+  const drow=d=>{const w=WEAVES[d.wid];const known=P.known.includes(w.id);const ok=reqMet(d)&&!known;const miss=!profOk(d)?profName(d.prof)+' only':known?'Already known':!tierOk(d)?tierMiss(d):(()=>{const m=(d.req||[]).find(r=>eff(r.s)<r.v);return m?'Need '+(m.v-eff(m.s))+' more '+STATN[m.s]:'';})();
     return `<div class="mis" style="border-color:${RAR[d.r].c}"><div style="display:flex;gap:10px;align-items:center"><span class="ico" style="font-size:24px">📀</span><div style="flex:1"><b style="color:${RAR[d.r].c}">${esc(w.name)}</b> <span style="opacity:.7;font-size:12px">${profName(w.prof)} · tier level ${w.lvl}</span><div class="st" style="font-size:13px">${esc(w.desc)} <span style="opacity:.6">(${weaveStats(w)})</span></div></div></div>
       <div class="h4" style="margin:6px 0 2px">Requirements (your current skills, including buffs)</div>${reqHtml(d)}
       <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="sbtn${ok?'':' locked'}" data-act="learn" data-id="${d.id}">Learn</button>${ok?'<span class="up">Ready to learn</span>':`<span class="down"><b>${miss}</b></span>`}</div></div>`;};
@@ -2104,6 +2166,7 @@ Object.assign(SETS,{
   choirbound:{name:'Choirbound',pieces:['cw_hood','cw_robe','cw_grips','cw_boots'],bonus:{2:{hp:140,weave:10,wpn:10},4:{power:14,crit:5,armor:90}}},
   rimebound:{name:'Rimebound',pieces:['rb_cowl','rb_mantle','rb_gauntlets','rb_greaves'],bonus:{2:{hp:220,weave:16,wpn:16},4:{power:20,crit:7,armor:140}}}
 });
+expansionData();// Build J (game30.js): Lv 31-50 enemies, bosses, The Drowned Foundry, The Heartforge, their uniques and sets
 function makeUnique(key,vl){const u=UNIQUES[key];if(!u)return null;const r=u.relic?5:4;let it;const vet=!!(vl&&!u.kind&&vl>u.lvl)||!!(vl&&u.kind==='imp'&&vl>10);
   const bk=vet?1+0.06*(vl-(u.kind==='imp'?10:u.lvl)):1;
   if(u.kind==='disk'){it=genDisk(u.wid);it.name='Weave Disk: '+WEAVES[u.wid].name;}
@@ -2243,7 +2306,7 @@ function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,P.pos.y+4.5,P.
       d.group.remove(t.g);t.g.children.forEach(m=>m.material.dispose());d.tele.splice(i,1);}}}
 function dunRespawn(){const d=DUN;clearTele();for(const e of enemies.slice()){if(e.addOf){removeEnemy(e);continue;}if(!e.dead){e.state='idle';e.hp=e.maxHp;e.pos.set(e.home.x,0,e.home.z);e.dot=null;e.stunUntil=e.rootUntil=0;e.hexUntil=0;}if(e.boss)resetBoss(e);}
   P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,0,d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT','Revived at the '+d.D.name+' entrance');if(d.D.raid)raidRez();save();}
-function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> <span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span><br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
+function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&!(d.mode&&d.mode.team)&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> <span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span><br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
 function dunWaypoint(){const d=DUN;if(d.apt)return null;if(d.cleared){const q=d.portals[d.portals.length-1];return {x:q.x,z:q.z,label:'Exit'};}const b=d.bosses.find(e=>!e.dead);return b?{x:b.home.x,z:b.home.z,label:b.T.name}:null;}
 function dunMini(c,tf,sc){if(DUN.areas)return dunMini2(c,tf,sc);c.fillStyle='rgba(120,100,90,0.45)';c.strokeStyle='rgba(230,215,190,0.7)';c.lineWidth=2;
   for(const r of DUN.rects){const a=tf(r[0],r[1]),b=tf(r[0]+r[2],r[1]),e=tf(r[0]+r[2],r[1]+r[3]),f=tf(r[0],r[1]+r[3]);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(e[0],e[1]);c.lineTo(f[0],f[1]);c.closePath();c.fill();c.stroke();}
@@ -2394,7 +2457,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -3455,7 +3518,8 @@ function campExports(){return {fabTargets,craftBar,CAMPS,CAMP_SPEED,CAMP_LEASH,C
 const BANK_SPOTS=[{id:'town',name:"Halden's Rest Bank",cx:0,cz:-11,cand:[[0,-11.5],[3.2,-12.5],[-3.2,-12.5],[13,-3],[-13,-3]]},
   {id:'cinderwell',name:'Cinderwell Bank',gate:'cinderwell',out:'cinderwell'},{id:'glassreach',name:'Glassreach Bank',gate:'glassreach',out:'glassreach'},
   {id:'farwatch',name:'Farwatch Bank',gate:'farwatch',out:'farwatch',cand:[[-415,234],[-414,229],[-401,244]]},
-  {id:'hoarlight',name:'Hoarlight Bank',gate:'hoarlight',out:'hoarlight',cand:[[615,-359],[597,-341],[617,-343]]}];
+  {id:'hoarlight',name:'Hoarlight Bank',gate:'hoarlight',out:'hoarlight',cand:[[615,-359],[597,-341],[617,-343]]},
+  {id:'lanternmoor',name:'Lanternmoor Bank',out:'lanternmoor',minLv:31,cand:[[-677,677],[-659,659],[-659,677]]},{id:'sunderwatch',name:'Sunderwatch Bank',out:'sunderwatch',minLv:41,cand:[[659,677],[677,659],[659,659]]}];
 const BANKS=[];
 (function placeBanks(){const free=(x,z)=>!boxes.some(b=>x>b.x0-2.2&&x<b.x1+2.2&&z>b.z0-2.2&&z<b.z1+2.2)&&!circles.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+2)&&!NPCS.some(n=>Math.hypot(n.x-x,n.z-z)<3.5)&&
     Math.hypot(x-TERMINAL.x,z-TERMINAL.z)>4&&Math.hypot(x-VENDOR.x,z-VENDOR.z)>4;
@@ -3464,8 +3528,8 @@ const BANKS=[];
     if(!p)p=s.cand[0];const x=p[0],z=p[1],y=heightAt(x,z);const g=new THREE.Group();g.position.set(x,y,z);const oc=s.out?OUTPOSTS.find(q=>q.id===s.out):{x:0,z:0};g.rotation.y=Math.atan2(oc.x-x,oc.z-z);
     part(g,geoBox,M(0x3a4048),0,1.1,0,1.6,2.2,0.9);part(g,geoBox,M(0xd4a020),0,2.35,0,1.9,0.3,1.1);const scr=part(g,geoBox,MB(0xffd34a),0,1.45,0.46,1.1,0.7,0.04);
     part(g,geoBox,M(0x22262c),0,0.75,0.5,1.2,0.12,0.25);const sign=part(g,geoBox,MB(0xffe08a),0,3.0,0,0.5,0.5,0.08);scene.add(g);
-    boxes.push({x0:x-0.85,x1:x+0.85,z0:z-0.5,z1:z+0.5,y0:y,y1:y+2.5});BANKS.push({id:s.id,name:s.name,gate:s.gate||null,x,z,g,scr,sign});}})();
-const bankOpenAt=k=>!k.gate||gateOpen(k.gate);
+    boxes.push({x0:x-0.85,x1:x+0.85,z0:z-0.5,z1:z+0.5,y0:y,y1:y+2.5});BANKS.push({id:s.id,name:s.name,gate:s.gate||null,minLv:s.minLv||0,x,z,g,scr,sign});}})();
+const bankOpenAt=k=>(!k.gate||gateOpen(k.gate))&&(!k.minLv||(typeof P!=='undefined'&&P&&P.level>=k.minLv));// Build J: corner-region banks open at the region's level
 function bankNear(p){if(FLAT)return null;for(const k of BANKS)if(bankOpenAt(k)&&Math.hypot(p.x-k.x,p.z-k.z)<3.3)return k;return null;}
 function updBanks(){for(const k of BANKS){const v=bankOpenAt(k);k.g.visible=v;k.sign.rotation.y=T*1.5;}}
 function bankMini(c,tf){for(const k of BANKS){if(!bankOpenAt(k))continue;if(Math.abs(k.x-P.pos.x)>95||Math.abs(k.z-P.pos.z)>95)continue;const q=tf(k.x,k.z);
@@ -3665,7 +3729,7 @@ function drawMap(){const {W,H,dpr}=mapSize();const c=mctx2;c.setTransform(dpr,0,
   c.textAlign='center';c.textBaseline='middle';
   // region names
   c.font='bold '+Math.round(clamp(MAP.ppm*14,12,22))+'px sans-serif';
-  BIOMES.forEach((b,i)=>{let x,z;if(i===0){x=-120;z=150;}else{const a=b.a*Math.PI/3;x=Math.cos(a)*335;z=Math.sin(a)*335;}const q=mapW2S(x,z);const known=vis(x,z);c.lineWidth=4;c.strokeStyle='rgba(0,0,0,.75)';c.fillStyle=known?'#fff2dc':'rgba(255,255,255,.45)';const t=known?b.name:'??? · '+b.name.split(' ').pop();c.strokeText(t,q[0],q[1]);c.fillText(t,q[0],q[1]);
+  BIOMES.forEach((b,i)=>{let x,z;if(i===0){x=-120;z=150;}else if(b.mapAt){[x,z]=b.mapAt;}else{const a=b.a*Math.PI/3;x=Math.cos(a)*335;z=Math.sin(a)*335;}const q=mapW2S(x,z);const known=vis(x,z);c.lineWidth=4;c.strokeStyle='rgba(0,0,0,.75)';c.fillStyle=known?'#fff2dc':'rgba(255,255,255,.45)';const t=known?b.name:'??? · '+b.name.split(' ').pop();c.strokeText(t,q[0],q[1]);c.fillText(t,q[0],q[1]);
     if(known){c.font='600 '+Math.round(clamp(MAP.ppm*10,10,14))+'px sans-serif';const l='Lv '+b.lv[0]+'–'+b.lv[1]+(b.gate&&!gateOpen(b.gate)?' · 🔒':'');c.strokeText(l,q[0],q[1]+16);c.fillText(l,q[0],q[1]+16);c.font='bold '+Math.round(clamp(MAP.ppm*14,12,22))+'px sans-serif';}});
   const lab=(x,z,t,col)=>{const q=mapW2S(x,z);c.font='bold 12px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.8)';c.fillStyle=col||'#fff';c.strokeText(t,q[0],q[1]-14);c.fillText(t,q[0],q[1]-14);};
   // town + outposts
@@ -4491,8 +4555,8 @@ const PANEL_TEX=texFrom(256,(x,y)=>{const u=x/256,v=y/256;// 4 m tile: 2x2 panel
   const st=pnoise(u*24,0.5,24,90);c*=1-Math.max(0,st-0.55)*0.6*(0.3+0.7*py);
   if(Math.abs(py-0.5)<0.07)c*=0.94;c+=(pnoise(u*64,v*64,64,93)-0.5)*0.06;return [c,c,c,1];});
 /* ---------- terrain: smooth normals from the height grid, slope/biome-blended colours and texture weights ---------- */
-const TW_B=[[1,0.05,0,0.3],[0.25,0.35,0.3,0.45],[0,0.6,0.35,0.6],[0.1,0.35,0.12,1],[0.15,0,0,0.9],[0.55,0.55,0.12,0.35],[0,0.05,0.7,0.25],[0.05,0.7,0.25,0.5],[0.5,0.2,0.7,0.2]];
-const ROCK_B=[0x8a5238,0x6f8a8c,0x1c1614,0x4a4642,0x6a5a40,0x8c3e28,0xa8a090,0x3e3852,0x6a7c90];
+const TW_B=[[1,0.05,0,0.3],[0.25,0.35,0.3,0.45],[0,0.6,0.35,0.6],[0.1,0.35,0.12,1],[0.15,0,0,0.9],[0.55,0.55,0.12,0.35],[0,0.05,0.7,0.25],[0.05,0.7,0.25,0.5],[0.5,0.2,0.7,0.2],[0.15,0.1,0.1,0.85],[0,0.65,0.4,0.55]];
+const ROCK_B=[0x8a5238,0x6f8a8c,0x1c1614,0x4a4642,0x6a5a40,0x8c3e28,0xa8a090,0x3e3852,0x6a7c90,0x3a4a3a,0x2a1a1c];
 const TER={matTex:null,matPlain:null,orig:null};
 (function(){const nrm=new Float32Array(N1*N1*3),dcol=new Float32Array(N1*N1*3),tw=new Float32Array(N1*N1*4);const w=new Float32Array(NB);const rc=ROCK_B.map(c=>new THREE.Color(c));const c=new THREE.Color(),r=new THREE.Color();
   const H=(i,j)=>HG[clamp(j,0,SEG)*N1+clamp(i,0,SEG)];
@@ -4783,7 +4847,9 @@ function onLevelUp(l){const nw=Object.values(WEAVES).filter(w=>w.lvl===l&&(w.pro
   if(nw.length)log('📀 New Weaves for level '+l+': <b>'+nw.map(w=>esc(w.name)).join(', ')+'</b> (Weave Disks drop from Lv '+Math.max(1,l-2)+'+ enemies and missions; Farwatch and Hoarlight sell them too)');
   if(l===11)log(gateOpen('farwatch')?'🗺 Level 11: the <b>Duskcrown Highlands</b> are your hunting ground now. Farwatch Station is the hub.':'🗺 Level 11: talk to <b>Archivist Sela Marr</b> for story chapter 2 and the road to the Duskcrown Highlands.');
   if(l===21)log(gateOpen('hoarlight')?'🗺 Level 21: the <b>Rimefall Expanse</b> is your hunting ground now. Hoarlight Hold is the hub.':'🗺 Level 21: talk to <b>Warden Kesh Odran</b> at Farwatch for story chapter 3 and the road to the Rimefall Expanse.');
-  if(l===MAXLVL)log('<b style="color:#ffe066">Level '+MAXLVL+': the current level cap.</b> Keep gearing: Ascendant drops, The Stillvault, the Rimefall dynas, Veteran Cinderdeep.');}
+  if(l===31)log('🗺 Level 31: the <b>Mirelight Fen</b> (the two west corners of the world) is your hunting ground now. <b>Lanternmoor Station</b> is the hub; The Drowned Foundry (Lv 34-38) sits in the south-west corner.');
+  if(l===41)log('🗺 Level 41: the <b>Sundered Heights</b> (the two east corners) are your hunting ground now. <b>Sunderwatch</b> is the hub; The Heartforge (Lv 44-48) sits in the south-east corner.');
+  if(l===MAXLVL)log('<b style="color:#ffe066">Level '+MAXLVL+': the current level cap.</b> Keep gearing: Ascendant drops, The Heartforge, Paragon gear from team dungeons, Veteran Cinderdeep.');}
 function buildBExports(){return {HUBS,vendTitle,gainXp,storyOnKill,makeEnemy,findInteract,dropLoot,genImplant,raidEntryCheck,openRaid,raidTeam,exploreLoad,bossTick,AIX,HUB,FARWATCH,hubInteract,hubDo,hubStock,gloamSpot,gloamLv,gloamAt,GLOAM,onLevelUp,ASC,rollRarityL,IMPQL_MAX,spGain,xpNeed,MAXLVL,spTotal,makeUnique,raidVetLv,VEND,FLATS};}
 
 /* ================= BUILD C: level cap 30 · Rimefall Expanse (Lv 21-30) · Hoarlight Hold · The Stillvault =================
@@ -5479,10 +5545,10 @@ function ppAvail(c){c=c||P;return Math.max(0,ppTotal(c.level)+(c.ppBonus|0)-ppSp
 function perkLinesFor(prof){return Object.keys(PERK_LINES).filter(k=>!PERK_LINES[k].prof||PERK_LINES[k].prof===prof);}
 function linePts(perks,line){let n=0;for(const id in perks||{}){const p=PERKS[id];if(p&&p.line===line)n+=perks[id]|0;}return n;}
 // level needed for rank r (1-based) of a perk
-function perkLvl(p,r){return p.tier===3?PERK_ACTIVE_LVL:p.tier===2?12+2*(r-1):PERK_START+2*(r-1);}
-function perkNeedLine(p){return p.tier===3?4:p.tier===2?2:0;}
+function perkLvl(p,r){return p.tier===4?TIERS[p.tierReq||3].lv+5*(r-1):p.tier===3?PERK_ACTIVE_LVL:p.tier===2?12+2*(r-1):PERK_START+2*(r-1);}
+function perkNeedLine(p){return p.tier===4?6:p.tier===3?4:p.tier===2?2:0;}
 function perkCan(id,c){c=c||P;const p=PERKS[id];if(!p)return 'Unknown perk';const ln=PERK_LINES[p.line];if(ln.prof&&ln.prof!==c.prof)return 'Another profession\'s line';
-  const r=(c.perks&&c.perks[id])|0;if(r>=p.ranks)return 'Max rank';if(c.level<perkLvl(p,r+1))return 'Needs level '+perkLvl(p,r+1);
+  const r=(c.perks&&c.perks[id])|0;if(r>=p.ranks)return 'Max rank';if(p.tierReq&&tierOfLv(c.level)<p.tierReq)return 'Requires Tier '+p.tierReq+' ('+TIERS[p.tierReq].n+', level '+TIERS[p.tierReq].lv+')';if(c.level<perkLvl(p,r+1))return 'Needs level '+perkLvl(p,r+1);
   const need=perkNeedLine(p);if(linePts(c.perks,p.line)<need)return 'Needs '+need+' points in '+ln.n;if(ppAvail(c)<1)return 'No perk points';return '';}
 function normPerks(perks,prof,level,bonus){const o={};if(!perks||typeof perks!=='object')return o;const lines=perkLinesFor(prof);
   for(const id in perks){const p=PERKS[id];const r=Math.floor(+perks[id]||0);if(!p||!lines.includes(p.line)||r<=0)continue;o[id]=Math.min(r,p.ranks);}
@@ -5727,7 +5793,7 @@ function fzExports(){return {fzSpawn,fzDespawn,fzStream,FZONES,FZ,FZ_GUARD_HP,fz
    - Companions share XP: each counted roster companion gets 50% of the kill XP on their own sheet (their own band cap applies).
        Kill XP is cut when anyone on the team (true level) is far above the enemy.
    - Team-only rewards: Paragon rarity gear (team bosses only) and +1 bonus perk point per team dungeon on its first clear. */
-const TD_RANGE=5,TD_SHARE=0.5,TD_BANDS=[10,20,30],PARA=8;
+const TD_RANGE=5,TD_SHARE=0.5,TD_BANDS=[10,20,30,40,50],PARA=8;
 const TEAM_ROLES={tank:{n:'Tank',ic:'🛡'},healer:{n:'Healer',ic:'✚'},dps:{n:'Damage',ic:'⚔'},control:{n:'Control',ic:'🌀'},pet:{n:'Pet master',ic:'🤖'}};
 const TEAMD={
   vault:{key:'vault',band:1,name:'Theta-9 Lockdown',sub:'Team dungeon · Vault Theta-9 on full alert',content:10,minLvl:8,lvl:1,minTeam:3,
@@ -5738,7 +5804,14 @@ const TEAMD={
     mech:{buster:{name:'Crushing Verse',every:11,first:6,mult:3.2},pulse:{name:'Dirge',every:15,first:9,pct:0.2},adds:{name:'Choir echoes',at:[0.7,0.35],n:3},seal:{name:'Hymn Seal',at:0.5,prof:'weaver',chan:5}}},
   stillvault:{key:'stillvault',band:3,name:'Stillvault: Deep Stacks',sub:'Team dungeon · the frozen archive wakes',content:30,minLvl:27,lvl:3,minTeam:3,
     req:[{role:'tank',why:'The Rimewarden\'s Glacier Maul must land on a tank'},{role:'healer',why:'Hoarfrost ticks the whole team down'}],
-    mech:{buster:{name:'Glacier Maul',every:11,first:6,mult:3.4},pulse:{name:'Hoarfrost',every:14,first:8,pct:0.22},adds:{name:'Frozen archivists',at:[0.7,0.4],n:3}}}};
+    mech:{buster:{name:'Glacier Maul',every:11,first:6,mult:3.4},pulse:{name:'Hoarfrost',every:14,first:8,pct:0.22},adds:{name:'Frozen archivists',at:[0.7,0.4],n:3}}},
+  // Build J: the Lv 40 gate (The Drowned Foundry in team mode) and, ready for the next cap raise, the Lv 50 gate (The Heartforge)
+  foundry:{key:'foundry',band:4,name:'Foundry: Floodtide',sub:'Team dungeon · every sluice in the Drowned Foundry open at once',content:40,minLvl:37,lvl:3,minTeam:3,
+    req:[{role:'tank',why:'The Sluice Warden\'s Floodhammer must land on a tank'},{role:'healer',why:'Spore Rot ticks the whole team down'}],
+    mech:{buster:{name:'Floodhammer',every:11,first:6,mult:3.5},pulse:{name:'Spore Rot',every:14,first:8,pct:0.23},adds:{name:'Drowned smelters',at:[0.7,0.4],n:3}}},
+  heartforge:{key:'heartforge',band:5,name:'Heartforge: Ignition',sub:'Team dungeon · the Sovereign at full fire',content:50,minLvl:47,lvl:3,minTeam:3,
+    req:[{role:'tank',why:'Sovereign\'s Brand would melt anyone but a tank'},{role:'healer',why:'Rift Heat burns the whole team'},{prof:'flux',why:'Only a Fluxwright can bleed off the Sovereign\'s Core Seal'}],
+    mech:{buster:{name:'Sovereign\'s Brand',every:11,first:6,mult:3.6},pulse:{name:'Rift Heat',every:13,first:8,pct:0.24},adds:{name:'Forge wraiths',at:[0.7,0.35],n:3},seal:{name:'Core Seal',at:0.5,prof:'flux',chan:5}}}};
 const TDS={warnT:-99,capT:-99,xpT:-99,acc:0,sync:0};
 function roleOfChar(c){return (c&&c.party&&c.party.role)||ROLE[c&&c.prof]||'dps';}
 function bandTD(b){return Object.values(TEAMD).find(t=>t.band===b)||null;}
@@ -5848,6 +5921,241 @@ function teamPanelExtra(){const tg=tgOf(P);const cap=Math.min(MAXLVL,bandCapOf(P
   h+=`<div class="h4">Team dungeons</div>`+Object.values(TEAMD).map(td=>{const ck=teamDunCheck(td.key);const D=DUNGEONS[td.key];return `<div class="mis tdbox" style="border-color:${ck.ok?'#4fe36a':'#ff5fd2'}"><b style="color:#ff5fd2">👥 ${esc(td.name)}</b> <small>· ${esc(D.name)} door · Lv ${td.content} · unlocks ${TD_BANDS[td.band-1]+1}+</small>${tdRowsHtml(ck.rows.filter(r=>!/^Team summoned/.test(r.t)||!r.ok))}</div>`;}).join('');
   return h;}
 function tdExports(){return {TEAMD,TEAM_ROLES,TD_RANGE,TD_BANDS,TEAM_COMP,PARA,SYNC,TDS,normTG,tgOf,bandCapOf,tgClear,syncCalc,effLvP,syncLocked,abLv,teamXpAdj,teamShareXp,sheetGainXp,teamDunCheck,enterTeamDungeon,teamDoorHtml,teamBossTick,genParagon,teamDunClear,tdUpdate,tdMembers,reqLabel,roleOfChar,tdActive,teamPanelExtra,bandTD};}
+
+/* ================= BUILD J: LEVEL CAP 50 · Mirelight Fen (Lv 31-40) · Sundered Heights (Lv 41-50) · two solo dungeons · two hubs =================
+   Data rules for future raises (51-100):
+   - MAXLVL (game2) is the cap; xpNeed/spGain/spTotal are formulas that keep going; TIERS (game2) already runs to 100+.
+   - A new 10-level band = a BIOMES entry + hub OUTPOSTS entry (game1), XREG camps here, an expansionData() block (etypes, bosses, dungeon, uniques),
+     a TEAMD entry with band = (top/10) and TD_BANDS += [top] (game29), and Weave ranks in the XW table (game2).
+   Everything here is code-built (no external assets) and original. */
+/* ---------- data merged into game5's registries before the dungeon doors are built (called from game5) ---------- */
+function expansionData(){
+  // ---- enemies: Mirelight Fen ----
+  Object.assign(ETYPES,{
+    mirelurk:{name:'Mirelurk',hi:true,xr:'fen',ai:'burrow',hp:66,dmg:10,atkCd:1.3,range:2.4,speed:6,aggro:17,xp:1.7,ranged:false,hitR:0.8,h:1.1,build:buildMirelurk,scale:0.9,desc:'Sinks into the bog and bursts up beneath you'},
+    sporecaller:{name:'Sporecaller',hi:true,xr:'fen',ai:'kite',hp:52,dmg:9,atkCd:2.0,range:19,speed:4.8,aggro:20,xp:1.7,ranged:true,hitR:0.7,h:1.9,build:buildSporecaller,scale:0.84,desc:'Keeps its distance and drops spore-burst circles'},
+    bloatmaw:{name:'Bloatmaw',hi:true,xr:'fen',ai:'split',split:{t:'mireling',n:2},hp:140,dmg:16,atkCd:2.4,range:3.3,speed:4.2,aggro:15,xp:2.1,ranged:false,hitR:1.4,h:2.6,build:buildBloatmaw,scale:0.9,desc:'Bursts into two Mirelings when it dies'},
+    mireling:{name:'Mireling',hi:true,xr:'fen',hp:34,dmg:7,atkCd:1.3,range:2.2,speed:5.8,aggro:18,xp:0.45,ranged:false,hitR:0.7,h:1.2,build:buildMireling,scale:0.62},
+    fenwitch:{name:'Fen Witch',hi:true,xr:'fen',ai:'heal',hp:48,dmg:6,atkCd:2.2,range:17,speed:4.8,aggro:18,xp:1.8,ranged:true,hitR:0.7,h:1.9,build:buildFenwitch,scale:0.82,desc:'Heals the most wounded enemy nearby. Kill it first'},
+    // ---- enemies: Sundered Heights ----
+    cinderwraith:{name:'Cinderwraith',hi:true,xr:'sunder',ai:'blink',hp:70,dmg:11,atkCd:1.2,range:2.2,speed:6.6,aggro:16,xp:1.9,ranged:false,hitR:0.8,h:1.2,build:buildCinderwraith,scale:0.82,desc:'Blinks behind its prey through a burst of embers'},
+    ashcaster:{name:'Ashcaster',hi:true,xr:'sunder',ai:'chill',hp:56,dmg:10,atkCd:2.0,range:18,speed:4.8,aggro:20,xp:1.9,ranged:true,hitR:0.7,h:1.9,build:buildAshcaster,scale:0.84,desc:'Every hit sears and slows you; four stacks lock you in cooling ash'},
+    shardgolem:{name:'Obsidian Hulk',hi:true,xr:'sunder',ai:'charge',slow:{mul:0.7,dur:2.5,name:'Staggered'},hp:160,dmg:18,atkCd:2.3,range:3.2,speed:4.6,aggro:15,xp:2.3,ranged:false,hitR:1.4,h:2.6,build:buildShardgolem,scale:0.9,desc:'Winds up, then charges across the field'},
+    warder:{name:'Riftwarder',hi:true,xr:'sunder',ai:'ward',hp:100,dmg:8,atkCd:2.2,range:15,speed:4.4,aggro:18,xp:2.0,ranged:true,hitR:0.8,h:2.1,build:buildWarder,scale:0.92,desc:'Shields nearby allies in Ember Wards (-60% damage taken). Kill it first'},
+    // ---- bosses ----
+    sluicewarden:{name:'The Sluice Warden',hp:1400,dmg:17,atkCd:2.2,range:4.8,speed:4.4,aggro:19,xp:13,ranged:false,hitR:1.6,h:2.6,build:buildSluicewarden,scale:1.8},
+    sporemother:{name:'Mother Verdigris',hp:1600,dmg:17,atkCd:1.9,range:4.8,speed:4.6,aggro:20,xp:17,ranged:false,hitR:1.0,h:1.9,build:buildSporemother,scale:1.9},
+    anvilking:{name:'Anvil-King Morrow',hp:1500,dmg:18,atkCd:1.8,range:3.8,speed:5.2,aggro:18,xp:14,ranged:false,hitR:0.8,h:1.9,build:buildAnvilking,scale:1.7},
+    sovereign:{name:'The Ember Sovereign',hp:1750,dmg:19,atkCd:2.0,range:4.8,speed:4.6,aggro:20,xp:19,ranged:false,hitR:1.6,h:2.6,build:buildSovereign,scale:2.0}});
+  Object.assign(BOSSES,{
+    sluicewarden:{etype:'sluicewarden',lvl:35,intro:'Floodgates open in lines from it. Stand in the dry gaps!',mech:[
+      {t:'cross',name:'Floodgate Lines',every:12,first:5,len:6,gap:3.6,r:2.1,delay:1.7,mult:2.5,desc:'Torrents burst out in four lines from it (a + then an x). Stand in the gaps.'},
+      {t:'slam',name:'Sluice Hammer',every:15,first:10,r:6,delay:1.6,mult:2.4,desc:'Telegraphed 6m hammer around it. Get out.'},
+      {t:'adds',name:'Bog Swarm',at:[0.5],etype:'mirelurk',n:2,lvl:34,desc:'At 50% two Mirelurks burst out of the sluice.'}]},
+    sporemother:{etype:'sporemother',lvl:37,intro:'Spore Bloom falls on you. Keep moving, and kill her Witches first!',mech:[
+      {t:'pools',name:'Spore Bloom',every:10,first:4,r:4,delay:1.8,mult:2.4,count:3,desc:'Three spore circles bloom on and around you. Move out.'},
+      {t:'adds',name:'Coven of the Fen',at:[0.7,0.35],etype:'fenwitch',n:2,lvl:36,desc:'At 70% and 35% two Fen Witches arrive to heal her.'},
+      {t:'blinkslam',name:'Root Step',every:13,first:9,r:5.5,delay:1.5,mult:2.5,desc:'She sinks into the roots and rises next to you with a 5.5m slam. Get out.'},
+      {t:'enrage',name:'Rot Bloom',at:0.2,dmg:1.5,cd:0.7,spd:1.2,desc:'Below 20% she enrages: harder, faster hits.'}]},
+    anvilking:{etype:'anvilking',lvl:45,intro:'He leaps through the forge-smoke to you. Watch your back!',mech:[
+      {t:'blinkslam',name:'Hammerfall Leap',every:11,first:5,r:5.5,delay:1.5,mult:2.6,desc:'He leaps right next to you and slams a 5.5m circle. Get out.'},
+      {t:'pools',name:'Slag Rain',every:13,first:9,r:3.5,delay:1.8,mult:2.0,count:3,desc:'Molten slag falls on and near you. Move.'},
+      {t:'adds',name:'Forge Wraiths',at:[0.5],etype:'cinderwraith',n:2,lvl:44,desc:'At 50% two Cinderwraiths flicker in.'}]},
+    sovereign:{etype:'sovereign',lvl:47,intro:'When the Heartfire swells, run IN to the cool ring at its feet!',mech:[
+      {t:'nova',name:'Heartfire',every:20,first:14,safe:6,r:26,delay:2.6,mult:2.7,desc:'The whole forge burns except a 6m ring around it. Run IN.'},
+      {t:'cross',name:'Rift Lines',every:13,first:6,len:7,gap:3.4,r:2,delay:1.6,mult:2.5,desc:'Fire erupts in lines from it (a + then an x). Stand between them.'},
+      {t:'adds',name:'Riftwarders',at:[0.6],etype:'warder',n:2,lvl:46,desc:'At 60% two Riftwarders arrive and ward each other.'},
+      {t:'enrage',name:'Molten Heart',at:0.2,dmg:1.55,cd:0.7,spd:1.2,desc:'Below 20% it enrages: harder, faster hits.'}]}});
+  // ---- dungeons ----
+  Object.assign(DUNGEONS,{
+    foundry:{id:'foundry',name:'The Drowned Foundry',sub:'Sunken Combine works under the Mirelight Fen',lvl:[34,38],minLvl:34,cap:38,rec:36,door:{x:XR.fenDoor.x,z:XR.fenDoor.z},accent:0x5fffc8,
+      desc:'A Combine ore foundry the fen swallowed whole. The Sluice Warden still works the floodgates, and Mother Verdigris grows her spore-gardens in the furnace halls.',
+      pal:{floor:0x3e4a40,floor2:0x323e34,wall:0x56604e,trim:0x2a3028,glow:[0x5fffc8,0xb8ff6a],fog:0x0a1410,hemi:[0xd0f0d8,0x16221a,0.66],plight:0xb8ffd8},
+      rooms:[{w:20,d:18,entry:true},{w:24,d:22,packs:[[['mirelurk',34],['mirelurk',34],['sporecaller',34]]]},{w:26,d:24,packs:[[['bloatmaw',34],['fenwitch',34]],[['sporecaller',35],['mirelurk',35]]]},
+        {w:30,d:28,boss:'sluicewarden'},{w:26,d:24,packs:[[['bloatmaw',36],['sporecaller',35],['fenwitch',35]]]},
+        {w:26,d:24,packs:[[['mirelurk',37],['bloatmaw',36],['fenwitch',36],['sporecaller',37]]]},{w:40,d:36,boss:'sporemother',final:true}],
+      loot:{sluicewarden:{items:['sluice_maul','fen_pistol','fb_hood','fb_grips']},
+        sporemother:{items:['verdigris_rod','mire_bow','spore_emitter','sluice_maul','fen_rifle','fen_scatter','fen_twins','fb_hood','fb_coat','fb_grips','fb_boots','fen_lens'],extraP:0.35,relic:'verdigris_heart',relicP:0.07,disk:'mirebloom_disk',diskP:0.2},trashP:0.03},
+      modes:{solo:{hp:1,dmg:1,lvl:0},group:{hp:2.6,dmg:1.3,lvl:1,size:[2,6]}}},
+    heartforge:{id:'heartforge',name:'The Heartforge',sub:'A burning forge-temple in the rift under the Sundered Heights',lvl:[44,48],minLvl:44,cap:48,rec:46,door:{x:XR.sunDoor.x,z:XR.sunDoor.z},accent:0xff6a3a,
+      desc:'Something old still beats in the rift under the Sundered Heights. Anvil-King Morrow tends its forges, and the Ember Sovereign is the fire itself.',
+      pal:{floor:0x3a2a28,floor2:0x2e2220,wall:0x4a3430,trim:0x1e1414,glow:[0xff6a3a,0xffb347],fog:0x140806,hemi:[0xffd0b0,0x2a1210,0.7],plight:0xffb890},
+      rooms:[{w:20,d:18,entry:true},{w:24,d:22,packs:[[['cinderwraith',44],['cinderwraith',44],['ashcaster',44]]]},{w:26,d:24,packs:[[['shardgolem',44],['warder',44]],[['ashcaster',45],['cinderwraith',45]]]},
+        {w:30,d:28,boss:'anvilking'},{w:26,d:24,packs:[[['shardgolem',46],['ashcaster',45],['warder',45]]]},
+        {w:26,d:24,packs:[[['cinderwraith',47],['shardgolem',46],['warder',46],['ashcaster',47]]]},{w:44,d:40,boss:'sovereign',final:true}],
+      loot:{anvilking:{items:['anvil_cleaver','ember_pistol','hf_helm','hf_gauntlets']},
+        sovereign:{items:['sovereign_rod','rift_bow','heart_emitter','anvil_cleaver','forge_rifle','forge_scatter','forge_twins','hf_helm','hf_plate','hf_gauntlets','hf_greaves','forge_lens'],extraP:0.35,relic:'ember_heart',relicP:0.07,disk:'heartflare_disk',diskP:0.2},trashP:0.03},
+      modes:{solo:{hp:1,dmg:1,lvl:0},group:{hp:2.6,dmg:1.3,lvl:1,size:[2,6]}}}});
+  // ---- dungeon-only uniques: a weapon for every weapon type, a 4-piece set, an ocular, a relic heart and an exclusive Weave per dungeon ----
+  Object.assign(UNIQUES,{
+    fen_pistol:{d:'foundry',name:'Bogglass Sidearm',slot:'weapon',wt:'pistol',lvl:35,bonus:{wpn:38,treat:46,sen:16}},
+    sluice_maul:{d:'foundry',name:"Sluice Warden's Cleaver",slot:'weapon',wt:'blade',lvl:36,dmgM:1.12,bonus:{wpn:48,str:18,crit:8}},
+    fen_rifle:{d:'foundry',name:'Lanternmoor Longrifle',slot:'weapon',wt:'rifle',lvl:36,dmgM:1.1,bonus:{wpn:49,sen:17,crit:9}},
+    fen_scatter:{d:'foundry',name:'Foundry Scattergun',slot:'weapon',wt:'shotgun',lvl:36,bonus:{wpn:44,hp:320,power:19}},
+    fen_twins:{d:'foundry',name:'Mirelight Twins',slot:'weapon',wt:'smg',lvl:36,bonus:{wpn:44,agi:18,evade:24}},
+    verdigris_rod:{d:'foundry',name:'Rod of Verdigris',slot:'weapon',wt:'rod',lvl:37,bonus:{weave:56,psy:19,en:190}},
+    mire_bow:{d:'foundry',name:'Mirebloom Bow',slot:'weapon',wt:'bow',lvl:37,bonus:{wpn:48,sen:18,crit:9}},
+    spore_emitter:{d:'foundry',name:'Sporeheart Emitter',slot:'weapon',wt:'emitter',lvl:37,bonus:{weave:56,int:19,power:22}},
+    fb_hood:{d:'foundry',name:'Fenbound Hood',slot:'head',fam:'light',lvl:36,set:'fenbound',bonus:{psy:16,weave:32,en:120}},
+    fb_coat:{d:'foundry',name:'Fenbound Coat',slot:'armor',fam:'medium',lvl:37,set:'fenbound',bonus:{sta:18,hp:340,treat:30}},
+    fb_grips:{d:'foundry',name:'Fenbound Grips',slot:'hands',fam:'medium',lvl:36,set:'fenbound',bonus:{agi:16,wpn:30,crit:7}},
+    fb_boots:{d:'foundry',name:'Fenbound Waders',slot:'legs',fam:'medium',lvl:37,set:'fenbound',bonus:{sta:15,sen:14,run:50}},
+    fen_lens:{d:'foundry',name:'Mirelight Lens',kind:'imp',slot:'eyes',ql:175,bonus:{sen:38,int:22,wpn:52,treat:44}},
+    mirebloom_disk:{d:'foundry',kind:'disk',wid:'mirebloom'},
+    verdigris_heart:{d:'foundry',name:'Heart of Verdigris',kind:'imp',slot:'chest',ql:190,relic:true,bonus:{sta:40,psy:27,body:56,hp:500,power:26}},
+    ember_pistol:{d:'heartforge',name:'Emberbrand Sidearm',slot:'weapon',wt:'pistol',lvl:45,bonus:{wpn:50,treat:60,sen:21}},
+    anvil_cleaver:{d:'heartforge',name:"Anvil-King's Cleaver",slot:'weapon',wt:'blade',lvl:46,dmgM:1.13,bonus:{wpn:62,str:23,crit:9}},
+    forge_rifle:{d:'heartforge',name:'Riftline Longrifle',slot:'weapon',wt:'rifle',lvl:46,dmgM:1.1,bonus:{wpn:63,sen:22,crit:10}},
+    forge_scatter:{d:'heartforge',name:'Heartforge Scattergun',slot:'weapon',wt:'shotgun',lvl:46,bonus:{wpn:57,hp:420,power:24}},
+    forge_twins:{d:'heartforge',name:'Twin Embers',slot:'weapon',wt:'smg',lvl:46,bonus:{wpn:57,agi:23,evade:30}},
+    sovereign_rod:{d:'heartforge',name:'Sceptre of the Sovereign',slot:'weapon',wt:'rod',lvl:47,bonus:{weave:72,psy:24,en:250}},
+    rift_bow:{d:'heartforge',name:'Riftfire Bow',slot:'weapon',wt:'bow',lvl:47,bonus:{wpn:62,sen:23,crit:10}},
+    heart_emitter:{d:'heartforge',name:'Molten Heart Emitter',slot:'weapon',wt:'emitter',lvl:47,bonus:{weave:72,int:24,power:28}},
+    hf_helm:{d:'heartforge',name:'Forgeborn Helm',slot:'head',fam:'light',lvl:46,set:'forgeborn',bonus:{psy:20,weave:42,en:160}},
+    hf_plate:{d:'heartforge',name:'Forgeborn Plate',slot:'armor',fam:'medium',lvl:47,set:'forgeborn',bonus:{sta:23,hp:440,treat:38}},
+    hf_gauntlets:{d:'heartforge',name:'Forgeborn Gauntlets',slot:'hands',fam:'medium',lvl:46,set:'forgeborn',bonus:{agi:20,wpn:40,crit:8}},
+    hf_greaves:{d:'heartforge',name:'Forgeborn Greaves',slot:'legs',fam:'medium',lvl:47,set:'forgeborn',bonus:{sta:19,sen:18,run:60}},
+    forge_lens:{d:'heartforge',name:'Riftsight Ocular',kind:'imp',slot:'eyes',ql:225,bonus:{sen:48,int:28,wpn:66,treat:56}},
+    heartflare_disk:{d:'heartforge',kind:'disk',wid:'heartflare'},
+    ember_heart:{d:'heartforge',name:'Heart of the Sovereign',kind:'imp',slot:'chest',ql:240,relic:true,bonus:{sta:50,psy:34,body:70,hp:640,power:32}}});
+  Object.assign(SETS,{
+    fenbound:{name:'Fenbound',pieces:['fb_hood','fb_coat','fb_grips','fb_boots'],bonus:{2:{hp:300,weave:22,wpn:22},4:{power:26,crit:8,armor:190}}},
+    forgeborn:{name:'Forgeborn',pieces:['hf_helm','hf_plate','hf_gauntlets','hf_greaves'],bonus:{2:{hp:390,weave:28,wpn:28},4:{power:32,crit:9,armor:240}}}});
+  // dungeon-only Weaves (any profession), modelled on Stillfrost Requiem
+  const sf=WEAVES.stillfrost;if(sf){
+    WEAVES.mirebloom=Object.assign({},sf,{id:'mirebloom',line:'mirebloom',lvl:36,excl:'foundry',name:'Mirebloom Requiem',icon:'🍄',cost:95,mult:4.1,radius:10,root:4,color:0x5fffc8,desc:'AoE: a burst of choking spores hits every enemy within 10m for 410% damage and roots them for 4s.'});
+    WEAVES.heartflare=Object.assign({},sf,{id:'heartflare',line:'heartflare',lvl:46,excl:'heartforge',name:'Heartflare',icon:'🔥',cost:110,mult:5.0,radius:11,root:4,color:0xff6a3a,desc:'AoE: the Heartforge\'s fire bursts from you, hitting every enemy within 11m for 500% damage and rooting them for 4s.'});
+    for(const k of ['mirebloom','heartflare'])WEAVES[k].req=wreq('any',WEAVES[k].lvl);}
+  validateDungeons();}
+/* ---------- creature builders (retinted rigs from the shared library, original designs) ---------- */
+function buildMirelurk(){const R=buildGrub(0x3a5a3a,0x26402a,0x5fffc8);for(let i=1;i<5;i++){const S=R.segs[i];if(S)R.det.push(part(S.sg,cq().spike,MB(i%2?0x5fffc8:0xb8ff6a),0,S.r*0.85,0,0.07,0.3,0.07));}return R;}
+function buildSporecaller(){const R=buildHumanoid(0x4a5a3a,0x2a3424,0xb8ff6a,0x6a7a5a,{robe:0x3a4a30,hood:0x4a5a3a});for(let i=0;i<4;i++)part(R.g,geoIco,MB(i%2?0xb8ff6a:0x5fffc8),Math.cos(i*1.57)*0.35,2.2,Math.sin(i*1.57)*0.35,0.12,0.12,0.12);return R;}
+function buildBloatmaw(){const R=buildMauler();retint(R.g,0x4a6a3a,0.75,0xb8ff6a);for(let i=0;i<5;i++)part(R.g,geoIco,MS([0x6a8a4a,0x5a7a3a,0x8aaa5a][i%3]),(i%3-1)*0.5,2.0+(i>2?0.2:0),-0.2-(i>2?0.4:0),0.35,0.3,0.35);return R;}
+function buildMireling(){const R=buildSkitter();retint(R.g,0x5a7a4a,0.8,0x5fffc8);part(R.g,geoIco,MB(0xb8ff6a),0,1.0,-0.2,0.3,0.35,0.3);return R;}
+function buildFenwitch(){const R=buildHumanoid(0x5a4a5a,0x3a5a4a,0x5fffc8,0x7a8a6a,{robe:0x3a3040,hair:'long',hairc:0x8aaa7a});const h=part(R.g,new THREE.TorusGeometry(0.32,0.05,4,16),MB(0x5fffc8),0,2.3,0,1,1,1);h.rotation.x=Math.PI/2;return R;}
+function buildCinderwraith(){const R=buildHound(0x2a1a1a,0x140c0c,0xff6a3a,{lean:0.85,ears:0.2,tail:0.8});for(let i=0;i<3;i++)part(R.g,geoCone,MB(i%2?0xffb347:0xff5a1a),(i-1)*0.2,1.0,-0.2-i*0.15,0.08,0.45,0.08);return R;}
+function buildAshcaster(){const R=buildHumanoid(0x3a2a2a,0x6a3020,0xff8a3a,0x5a4a44,{robe:0x2a1e1e,hood:0x3a2a2a});for(let i=0;i<5;i++){const a=i*1.257;part(R.g,geoCone,MB(0xff8a3a),Math.cos(a)*0.22,2.15,Math.sin(a)*0.22,0.06,0.3,0.06);}return R;}
+function buildShardgolem(){const R=buildGolem(0x2a2228,0x141014,0xff6a3a);for(let i=0;i<4;i++)part(R.g,geoCone,M(0x1a1418),(i-1.5)*0.4,2.7,-0.3,0.18,0.9,0.18);return R;}
+function buildWarder(){const R=buildHumanoid(0x4a3a3a,0x2a1a1a,0xff8a3a,0x5a4a4a,{heavy:1,bulk:1.08,helm:0x3a2a2a});part(R.g,geoBox,M(0x5a3a30),0,1.25,0.3,0.9,1.3,0.1);part(R.g,geoBox,MB(0xff8a3a),0,1.35,0.36,0.5,0.5,0.04);return R;}
+function buildSluicewarden(){const R=buildGolem(0x4a5a50,0x26302a,0x5fffc8);part(R.g,geoBox,MB(0x5fffc8),0,1.6,0.9,0.8,0.1,0.06);for(let i=0;i<3;i++)part(R.g,geoCyl0(),M(0x3a4a40),(i-1)*0.5,2.6,-0.4,0.15,0.8,0.15);return R;}
+function buildSporemother(){const R=buildHumanoid(0x3a4a30,0x5fffc8,0xb8ff6a,0x6a7a5a,{robe:0x2a3424,hair:'long',hairc:0x6a8a4a,bulk:1.05});for(let i=0;i<6;i++){const a=i*1.047;part(R.g,geoIco,MB(i%2?0xb8ff6a:0x5fffc8),Math.cos(a)*0.4,2.3+(i%2)*0.15,Math.sin(a)*0.4,0.14,0.14,0.14);}return R;}
+function buildAnvilking(){const R=buildHumanoid(0x3a2a24,0xff6a3a,0xffb347,0x6a5044,{heavy:1,bulk:1.12,helm:0x2a1e1a});part(R.armR,geoBox,M(0x2a2228),0,-0.95,0.1,0.35,0.35,0.6);part(R.g,geoBox,MB(0xff6a3a),0,1.4,0.34,0.4,0.25,0.04);return R;}
+function buildSovereign(){const R=buildMauler();retint(R.g,0x2a1a1a,0.8,0xff6a3a);for(let i=0;i<5;i++)part(R.g,geoCone,MB([0xff6a3a,0xffb347,0xff3a1a][i%3]),(i-2)*0.4,2.9,-0.2,0.16,1.0,0.16);part(R.g,geoIco,MB(0xffb347),0,2.0,1.2,0.35,0.35,0.35);return R;}
+/* ---------- hubs: Lanternmoor Station (fen) and Sunderwatch (heights): quartermaster + contract terminal; bank/Save Point/Conduit come from OUTPOSTS/BANK_SPOTS ---------- */
+const XHUBS=[];
+(function buildXHubs(){
+  const defs=[{id:'lanternmoor',vn:'Quartermaster Ide Fennick',tn:'Lanternmoor Contracts',title:'LANTERNMOOR QUARTERMASTER',min:31,col:[0x4a5a46,0x2a3428,0x5fffc8,0x9aa888],npc:[0x4a5a46,0x2a3428,0x5fffc8,0x8a7a6a]},
+    {id:'sunderwatch',vn:'Quartermaster Bren Askari',tn:'Sunderwatch Contracts',title:'SUNDERWATCH QUARTERMASTER',min:41,col:[0x4a3a3a,0x2a1e1e,0xff6a3a,0x8a6a62],npc:[0x5a3a30,0x2a1a1a,0xffb347,0x8a6a5a]}];
+  for(const d of defs){const o=OUTPOSTS.find(q=>q.id===d.id);if(!o)continue;const y=heightAt(o.x,o.z);const g=new THREE.Group();g.position.set(o.x,y,o.z);
+    const H={vend:{x:o.x+8,z:o.z+1},term:{x:o.x,z:o.z-8.5}};
+    // beacon mast: fen lantern-tower / heights ember spire
+    part(g,geoBox,M(d.col[0]),-8,4.5,-7,1.6,9,1.6);part(g,geoBox,M(d.col[1]),-8,9.2,-7,3.2,0.4,3.2);part(g,geoIco,MB(d.col[2]),-8,10.1,-7,0.6,0.6,0.6);
+    boxes.push({x0:o.x-8.8,x1:o.x-7.2,z0:o.z-7.8,z1:o.z-6.2,y0:y,y1:y+9.5});
+    for(const [x,z] of [[-10,7],[10,-7],[7,10],[-7,-10],[11,5],[-3,11]]){part(g,geoBox,M(d.col[1]),x,1.3,z,0.25,2.6,0.25);part(g,geoIco,MB(d.col[2]),x,2.8,z,0.3,0.3,0.3);}
+    const v=H.vend;part(g,geoBox,M(d.col[0]),v.x-o.x+1.4,1.0,v.z-o.z,0.9,2,3.2);part(g,geoBox,M(d.col[3]),v.x-o.x+1.4,2.2,v.z-o.z,1.6,0.25,3.8);part(g,geoBox,MB(d.col[2]),v.x-o.x+0.9,1.5,v.z-o.z,0.05,0.4,2);
+    boxes.push({x0:v.x+0.9,x1:v.x+1.9,z0:v.z-1.6,z1:v.z+1.6,y0:y,y1:y+2.3});
+    const t=H.term;part(g,geoBox,M(0x2b3742),t.x-o.x,1.0,t.z-o.z-0.3,1.8,2,0.5);part(g,geoBox,MB(d.col[2]),t.x-o.x,1.5,t.z-o.z-0.04,1.4,0.9,0.05);
+    boxes.push({x0:t.x-0.9,x1:t.x+0.9,z0:t.z-0.55,z1:t.z-0.05,y0:y,y1:y+2});
+    scene.add(g);const b=makeBeam(d.col[2],40,0.6,0.25);b.position.set(o.x-8,y,o.z-7);
+    const Q=buildHumanoid(d.npc[0],d.npc[1],d.npc[2],d.npc[3],{npc:1});Q.g.position.set(v.x,heightAt(v.x,v.z),v.z);Q.g.rotation.y=Math.atan2(o.x-v.x,o.z-v.z);scene.add(Q.g);circles.push({x:v.x,z:v.z,r:0.6});
+    XHUBS.push(d.id);
+    // stock: Epic weapon + armour one level up and a top-QL implant; from the hub's band two Ascendant pieces, an Ascendant implant and a tier-matched Weave Disk
+    HUBS.push({id:d.id,o,vend:H.vend,term:H.term,vn:d.vn,tn:d.tn,title:d.title,
+      stock(list,L){list.push(genItem(L+1,'weapon',3,{wt:pick(wtAff(P.prof))}),genItem(L+1,pick(ASLOTS),3,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5),null,3));
+        if(L>=d.min)list.push(genItem(L,'weapon',ASC,{wt:pick(wtAff(P.prof))}),genItem(L,pick(ASLOTS),ASC,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5-2),null,ASC));
+        const ws=Object.values(WEAVES).filter(w=>w.lvl>=d.min&&w.lvl<=L+1&&(w.prof===P.prof||w.prof==='any')&&!w.excl&&!w.rare&&!w.starter);if(ws.length&&typeof genDisk==='function'){const dk=genDisk(pick(ws).id);if(dk)list.push(dk);}}});}})();
+/* ---------- regions: camps, props and fen water ---------- */
+// camps (three per corner, six per region); level follows depth into the corner
+const XREG=[
+  ['fen',FB,[[-745,625,'Lanternmire',['mirelurk','mirelurk','sporecaller']],[-625,745,'Glowcap Shallows',['sporecaller','fenwitch','mirelurk']],[-772,742,'Drowned Steps',['bloatmaw','mirelurk','fenwitch','sporecaller']],
+    [-745,-628,'Verdigris Pools',['bloatmaw','sporecaller','mirelurk']],[-628,-750,'Sunken Gantry',['mirelurk','fenwitch','bloatmaw']],[-776,-772,'The Rotmere',['bloatmaw','bloatmaw','fenwitch','sporecaller']]],fenLv],
+  ['sunder',SB,[[745,625,'Ashen Shelf',['cinderwraith','cinderwraith','ashcaster']],[625,745,'Glassfire Ridge',['ashcaster','warder','cinderwraith']],[772,742,'Obsidian Steps',['shardgolem','cinderwraith','warder','ashcaster']],
+    [745,-628,'Riftmouth',['shardgolem','ashcaster','cinderwraith']],[628,-750,'Embertooth',['cinderwraith','warder','shardgolem']],[776,-772,'The Burning Spine',['shardgolem','shardgolem','warder','ashcaster']]],sunderLv]];
+(function xrCamps(){for(const [rid,bi,list,lvf] of XREG)list.forEach(([x,z,name,mix],i)=>{const L=lvf(x,z);const lo=BIOMES[bi].lv[0];
+  const c={id:'xr_'+rid+i,name,x,z,lv:[clamp(L-1,lo,MAXLVL),clamp(L,lo,MAXLVL)],n:mix.length>3?7:6,mix,biome:bi,gate:undefined};initCamp(c);CAMPS.push(c);});})();
+(function xrProps(){const R=rng32(5521);const rr=(a,b)=>a+R()*(b-a);const pk=a=>a[Math.floor(R()*a.length)];const o=new THREE.Object3D(),col=new THREE.Color();const W=new Float32Array(NB);
+  const near=(x,z,d)=>CAMPS.some(c=>Math.hypot(c.x-x,c.z-z)<d)||OUTPOSTS.some(q=>Math.hypot(q.x-x,q.z-z)<q.r+12)||Object.values(DUNGEONS).some(q=>Math.hypot(q.door.x-x,q.door.z-z)<16);
+  function spots(bi,n,minW,pred){const out=[];let tries=0;while(out.length<n&&tries<n*30){tries++;const sx=bi===FB?-1:1,sz=R()<0.5?-1:1;const x=sx*rr(560,HALF-60),z=sz*rr(560,HALF-60);biomeW(x,z,W);if(W[bi]<minW||near(x,z,13))continue;if(pred&&!pred(x,z))continue;out.push([x,z]);}return out;}
+  function emit(type,geo,mat,items){const buckets={};for(const it of items){const bx=clamp(Math.floor((it.x+HALF)/PB_S),0,PB_N-1),bz=clamp(Math.floor((it.z+HALF)/PB_S),0,PB_N-1);(buckets[bx+','+bz]=buckets[bx+','+bz]||[]).push(it);}
+    for(const k in buckets){const L=buckets[k];const im=new THREE.InstancedMesh(geo,mat,L.length);L.forEach((it,i)=>{o.position.set(it.x,it.y,it.z);o.rotation.set(it.rx||0,it.ry||0,it.rz||0);o.scale.set(it.sx,it.sy,it.sz);o.updateMatrix();im.setMatrixAt(i,o.matrix);im.setColorAt(i,col.setHex(it.c));if(it.cr)circles.push({x:it.x,z:it.z,r:it.cr});});
+      im.frustumCulled=false;const [bx,bz]=k.split(',').map(Number);im.userData={x0:bx*PB_S-HALF,z0:bz*PB_S-HALF,type};scene.add(im);PROPB.push(im);}}
+  const lam=e=>new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true,emissive:e||0});
+  const gOct=new THREE.OctahedronGeometry(1,0),gDod=new THREE.DodecahedronGeometry(1,0),gCyl=new THREE.CylinderGeometry(0.55,1,1,7),gTrunk=new THREE.CylinderGeometry(0.16,0.26,1,6),gDisc=new THREE.CylinderGeometry(1,1,0.12,10),gCap=new THREE.SphereGeometry(1,8,4,0,Math.PI*2,0,Math.PI/2);
+  // Mirelight Fen: glowing mushroom caps, drowned trees, reeds, sunken Combine wrecks
+  const shr=spots(FB,170,0.7,(x,z)=>heightAt(x,z)>WATER_Y+0.2).map(([x,z])=>({x,z,h:rr(1,4.5),y:heightAt(x,z),ry:rr(0,6)}));
+  emit('mushstem',gTrunk,lam(),shr.map(p=>({x:p.x,y:p.y+p.h/2,z:p.z,sx:p.h*0.5,sy:p.h,sz:p.h*0.5,ry:p.ry,c:0xc8c8a8,cr:p.h>3?0.5:0})));
+  emit('mushcap',gCap,new THREE.MeshBasicMaterial({color:0xffffff}),shr.map(p=>({x:p.x,y:p.y+p.h,z:p.z,sx:p.h*0.45,sy:p.h*0.25,sz:p.h*0.45,ry:p.ry,c:pk([0x5fffc8,0xb8ff6a,0x7fe8ff])})));
+  const dt=spots(FB,140,0.65).map(([x,z])=>({x,z,h:rr(4,9),y:heightAt(x,z),l:rr(-0.25,0.25)}));
+  emit('fentrunk',gTrunk,lam(),dt.map(p=>({x:p.x,y:p.y+p.h/2,z:p.z,sx:1.4,sy:p.h,sz:1.4,rz:p.l,c:0x2a2a22,cr:0.45})));
+  emit('fencrown',gDod,lam(),dt.map(p=>({x:p.x,y:p.y+p.h,z:p.z,sx:rr(1.6,2.6),sy:rr(0.8,1.3),sz:rr(1.6,2.6),c:pk([0x3a4a2a,0x4a5a30,0x2e3a24])})));
+  emit('reed',geoCone,lam(),spots(FB,260,0.6).map(([x,z])=>{const h=rr(0.8,2);return {x,y:heightAt(x,z)+h/2,z,sx:0.3,sy:h,sz:0.3,rx:rr(-0.2,0.2),c:pk([0x6a7a3a,0x8a8a4a,0x5a6a32])};}));
+  emit('fenwreck',geoBox,lam(),spots(FB,30,0.75).map(([x,z])=>{const w=rr(3,7);return {x,y:heightAt(x,z)+0.4,z,sx:w,sy:rr(1.2,2.6),sz:w*rr(0.3,0.5),ry:rr(0,6),rz:rr(-0.4,0.4),c:pk([0x4a5a50,0x3a4a40]),cr:w*0.45};}));
+  // Sundered Heights: obsidian spikes, basalt columns, ember vents, ash boulders
+  emit('obsidian',gOct,lam(0x1a0604),spots(SB,220,0.7).map(([x,z])=>{const h=rr(3,11),w=rr(0.6,1.6);return {x,y:heightAt(x,z)+h*0.4,z,sx:w,sy:h,sz:w,ry:rr(0,6),rx:rr(-0.2,0.2),c:pk([0x1a1418,0x2a2228,0x3a2a30]),cr:h>5?w*0.8:0};}));
+  emit('basalt',gCyl,lam(),spots(SB,90,0.7).map(([x,z])=>{const h=rr(4,12);return {x,y:heightAt(x,z)+h/2-0.5,z,sx:rr(0.8,1.6),sy:h,sz:rr(0.8,1.6),ry:rr(0,6),c:pk([0x3a3034,0x2e2628]),cr:1.1};}));
+  emit('embervent',gDisc,new THREE.MeshBasicMaterial({color:0xffffff}),spots(SB,80,0.75).map(([x,z])=>{const s=rr(1.2,3.2);return {x,y:heightAt(x,z)+0.05,z,sx:s,sy:1,sz:s*rr(0.6,1),ry:rr(0,6),c:pk([0xff5a1a,0xff7a2a,0xffb347])};}));
+  emit('ashboulder',gDod,lam(),spots(SB,200,0.6).map(([x,z])=>{const s=rr(0.8,3.4);return {x,y:heightAt(x,z)+s*0.25,z,sx:s*rr(0.9,1.4),sy:s*rr(0.5,1),sz:s*rr(0.9,1.4),rx:rr(0,3),ry:rr(0,3),c:pk([0x4a3a38,0x3a2c2a,0x5a4644]),cr:s>2?s*0.9:0};}));})();
+// fen water: separate merged meshes for the two west corners (keeps the oasis water mesh's culling box small)
+const XWATER=(function(){const out=[];const W=new Float32Array(NB);for(const sz of [1,-1]){const pos=[];for(let iy=0;iy<SEG;iy++){const z=iy*CELL-HALF;if(z*sz<540)continue;for(let ix=0;ix<SEG;ix++){const x=ix*CELL-HALF;if(x>-540)continue;
+      const lo=Math.min(HG[iy*N1+ix],HG[iy*N1+ix+1],HG[(iy+1)*N1+ix],HG[(iy+1)*N1+ix+1]);if(lo>=WATER_Y)continue;biomeW(x+2,z+2,W);if(W[FB]<0.35)continue;const x1=x+CELL,z1=z+CELL,y=WATER_Y;pos.push(x,y,z,x,y,z1,x1,y,z,x1,y,z,x,y,z1,x1,y,z1);}}
+    if(!pos.length)continue;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();
+    const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0x2a8a78,transparent:true,opacity:0.75,depthWrite:false,emissive:0x0a2a20}));m.renderOrder=1;scene.add(m);g.computeBoundingBox();m.userData.bb=g.boundingBox;out.push(m);}return out;})();
+let xwAcc=0;function xrCull(dt){if(DUN)return;xwAcc+=dt;if(xwAcc<0.5)return;xwAcc=0;const cx=camera.position.x,cz=camera.position.z;for(const m of XWATER){const bb=m.userData.bb;const dx=Math.max(bb.min.x-cx,0,cx-bb.max.x),dz=Math.max(bb.min.z-cz,0,cz-bb.max.z);m.visible=Math.hypot(dx,dz)<260;}}
+/* ---------- missions / guards in the new regions ---------- */
+function xrTypes(lv){return lv>=41?['cinderwraith','ashcaster','shardgolem','warder']:['mirelurk','sporecaller','bloatmaw','fenwitch'];}
+function xrSpot(lv){const sun=lv>=41;const base=sun?41:31;const sz=lv-base>=5?-1:1;const k=clamp(((lv-base)%5)/4,0,1);for(let i=0;i<20;i++){const a=(sz>0?45:-45)*Math.PI/180+rand(-0.35,0.35);const r=890+k*200+rand(-20,20);const x=(sun?1:-1)*Math.abs(Math.cos(a)*r),z=Math.sin(a)*r;if(Math.max(Math.abs(x),Math.abs(z))<790)return {x,z};}return {x:(sun?1:-1)*720,z:sz*700};}
+function xrRegionName(lv){return lv>=41?'the Sundered Heights':'the Mirelight Fen';}
+/* ---------- tier-locked items: gear by item level, implants by QL/5, Weave Disks by the Weave's level ---------- */
+function itemTier(it){if(!it||it.kind==='cloth')return 1;if(isDisk(it)){const w=WEAVES[it.wid];return w?tierOfLv(w.lvl):1;}if(isImp(it))return tierOfLv(Math.ceil((it.ql||1)/5));return tierOfLv(it.lvl||1);}
+function tierOk(it,c){return itemTier(it)<=tierOfLv((c||P).level);}
+function tierName(t){const d=TIERS[t];return d?'Tier '+t+' · '+d.n:'Tier '+t;}
+function tierMiss(it){const t=itemTier(it);return 'Requires Tier '+t+' ('+TIERS[t].n+', level '+TIERS[t].lv+'+)';}
+/* ---------- Tier up: banner, screen effect, sound and a log line ---------- */
+SFX.tierup=()=>{[392,523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>tone(f,0.34,'triangle',0.075),i*95));setTimeout(()=>tone(1568,0.6,'sine',0.06),640);};
+const TIERUP={last:null};
+function tierUp(t,lv){const d=TIERS[t];if(!d)return;TIERUP.last={t,lv,at:Date.now()};const nx=TIERS[t+1];
+  log('<b style="color:#ffd25a">✦ TIER UP: Tier '+t+' · '+esc(d.n)+'</b> at level '+lv+'. Attribute caps +'+(d.a-TIERS[t-1].a)+', skill caps +'+(d.s-TIERS[t-1].s)+'; Tier '+t+' gear, implants and Weaves unlocked.'+(nx?' Next: Tier '+(t+1)+' ('+esc(nx.n)+') at level '+nx.lv+'.':''));
+  let el=$('#tierFx');if(!el){el=document.createElement('div');el.id='tierFx';document.body.appendChild(el);}
+  el.innerHTML='<div class="tfx-ring"></div><div class="tfx-box"><div class="tfx-k">TIER UP</div><div class="tfx-t">Tier '+t+'</div><div class="tfx-n">'+esc(d.n)+'</div><div class="tfx-s">Higher attribute and skill caps · Tier '+t+' gear, implants and Weaves unlocked</div></div>';
+  el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(TIERUP.tm);TIERUP.tm=setTimeout(()=>el.classList.remove('on'),4200);
+  try{SFX.tierup();}catch(e){}if(P&&P.pos){ringFx(P.pos.x,P.pos.z,0xffd25a,10,1.6);ringFx(P.pos.x,P.pos.z,0xffffff,6,1.0);}
+  setTimeout(()=>{if(state==='play')banner('✦ TIER '+t+' · '+d.n.toUpperCase(),'Caps raised · Tier '+t+' gear, implants and Weaves unlocked');},2700);}
+/* ---------- perks: a 3-rank Mastery per line from Tier 3 (needs 6 points in the line) so points past ~Lv 45 have a home ---------- */
+(function(){const L=c=>(c&&c.level)||1,R=Math.round;const def=(id,line,name,icon,mods,txt)=>{PERKS[id]={id,line,tier:4,name,icon,ranks:3,mods,txt,ab:null,tierReq:3};};
+  def('m_grit','grit','Bulwark Mastery','🗿',(r,c)=>({hp:R(r*(4+L(c))),armor:15*r}),'+{hp} max health, +{armor} armour');
+  def('m_dust','dust','Windrunner Mastery','🌬️',r=>({agi:3*r,evade:5*r}),'+{agi} Agility, +{evade} Evasion');
+  def('m_well','well','Deepwell Mastery','🌊',(r,c)=>({en:R(r*(4+L(c)/2)),weave:3*r}),'+{en} max energy, +{weave} Weave Craft');
+  def('m_ironclad','ironclad','Bastion Mastery','🏰',r=>({dr:r,wpn:4*r}),'+{dr}% damage reduction, +{wpn} Weapon Handling');
+  def('m_hexcraft','hexcraft','Hexweave Mastery','🔮',r=>({weave:4*r,power:r}),'+{weave} Weave Craft, +{power}% power');
+  def('m_surgery','surgery','Lifeline Mastery','💗',(r,c)=>({treat:4*r,hp:R(r*(3+L(c)/2))}),'+{treat} Treatment, +{hp} max health');
+  def('m_overload','overload','Meltdown Mastery','☢️',r=>({power:2*r,crit:r}),'+{power}% power, +{crit}% crit');
+  def('m_ghost','ghost','Phantom Mastery','👻',r=>({crit:r,evade:4*r}),'+{crit}% crit, +{evade} Evasion');
+  def('m_forge','forge','Foundry Mastery','🏭',r=>({fab:4*r,dr:r}),'+{fab} Fabrication, +{dr}% damage reduction');
+  def('m_primal','primal','Wildheart Mastery','🦁',r=>({str:3*r,agi:2*r}),'+{str} Strength, +{agi} Agility');})();
+function tierExports(){return {bandCapMsg,reqChips,reqHtml,itemLines,raise,capMsgFor,tierBar,equip,learnDisk,TIERS,TIER_MAX,tierOfLv,pTier,itemTier,tierOk,tierMiss,tierName,tierUp,TIERUP,XR,fenLv,sunderLv,XREG,XHUBS,XWATER,xrSpot,xrTypes,expansionData,MAXLVL,spGain,spTotal,skillCap,BIOMES,FB,SB,biomeIdx,regionAt,TEAMD,TD_BANDS,bandCapOf,normTG};}
+/* ---------- dungeon looks (game24 DTHEME/DLAY): the Drowned Foundry is flooded Combine steel lit by spore-glow; the Heartforge is basalt over lava ---------- */
+DTHEME.foundry={tex:'panel',texS:0.22,wallH:8,floor:0x56645a,floor2:0x4a584e,wall:0x667466,trim:0x2a3a30,acc:0x5fffc8,glow:[0x5fffc8,0xb8ff6a,0x7fe8ff],crack:0x5fffc8,crackK:0.8,
+  fog:0x2a4038,fogN:30,fogF:120,hemi:[0xd8f0e0,0x2a3a30,0.78],dir:0.4,light:[0x5fffc8,0xb8ff6a,0x9fe8ff],pit:0x5fffc8,water:0x2a8a78,
+  part:{col:0xb8ff6a,size:0.16,vy:0.18,drift:0.3,add:true},shaft:0xc8ffe8,sky:[0x1e3a30,0x8ad8b0],name:'Flooded Combine foundry, spore-glow and rusting sluices'};
+DTHEME.heartforge={tex:'basalt',texS:0.18,wallH:9,floor:0x4a3634,floor2:0x3e2c2a,wall:0x56403c,trim:0x1e1414,acc:0xff6a3a,glow:[0xff6a3a,0xffb347,0xff3a1a],crack:0xff4a1a,crackK:1.2,
+  fog:0x3a1a14,fogN:28,fogF:115,hemi:[0xffc8a8,0x3a1810,0.85],dir:0.4,light:[0xff6a2a,0xffb347,0xff3a1a],pit:0xff4a1a,water:0xff5a1a,lava:true,
+  part:{col:0xffa04a,size:0.2,vy:1.0,drift:0.35,add:true},shaft:0xffc890,sky:[0x5a140a,0xff6a2a],name:'Basalt forge-temple over a burning rift'};
+DLAY.foundry=[{o:0,s:'hall',w:28,d:24,nm:'Sluice Lock'},
+  {c:'gate',len:12},{o:1,s:'machine',w:36,d:30,nm:'Ore Floor',wing:{side:-1,kind:'loot',w:16,d:14}},
+  {c:'flood',len:14},{n:'Drowned Smeltery',s:'flooded',w:36,d:34,y:-3,pk:1},
+  {c:'corr',len:12},{o:2,s:'machine',w:38,d:32,nm:'Pump Hall',bal:1,wing:{side:-1,kind:'secret',w:14,d:12}},
+  {c:'plates',len:12},{o:3,s:'arena',w:34,d:32,sc:true,nm:'The Floodgates'},
+  {c:'corr',len:14},{o:4,s:'flooded',w:36,d:30,y:-3,nm:'Spore Gardens',wing:{side:1,kind:'elite',w:16,d:14}},
+  {c:'gate',len:12},{o:5,s:'machine',w:36,d:30,nm:'Furnace Gallery'},
+  {c:'corr',len:12},{o:6,s:'arena',w:44,d:40,nm:'Verdigris Bloom'}];
+DLAY.heartforge=[{o:0,s:'hall',w:30,d:24,nm:'Rift Gate'},
+  {c:'corr',len:12},{o:1,s:'forge',w:40,d:32,y:-3,nm:'Ember Forges',wing:{side:-1,kind:'loot',w:16,d:14}},
+  {c:'bridge',len:18},{o:2,s:'forge',w:38,d:30,nm:'Slag Works',bal:-1,wing:{side:-1,kind:'secret',w:14,d:12}},
+  {c:'gate',len:12},{o:3,s:'arena',w:36,d:34,sc:true,nm:"The Anvil-King's Hall"},
+  {c:'corr',len:12},{n:'The Burning Rift',s:'chasm',w:40,d:40,pk:1},
+  {c:'vents',len:14},{o:4,s:'forge',w:40,d:32,nm:'Upper Crucibles',wing:{side:1,kind:'elite',w:16,d:14}},
+  {c:'corr',len:12},{o:5,s:'forge',w:38,d:30,nm:'Heart Antechamber'},
+  {c:'bridge',len:18},{o:6,s:'arena',w:48,d:44,nm:'The Heartforge'}];
 
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
@@ -6159,7 +6467,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -6173,7 +6481,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
