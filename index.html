@@ -80,6 +80,7 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #storyPop .sp-h{font-size:24px;font-weight:900;color:#ffd25a;letter-spacing:.06em}#storyPop .sp-t{font-size:15px;opacity:.85;margin:3px 0 10px}
 #storyPop .sp-u div{background:rgba(109,255,138,.12);border:1px solid rgba(109,255,138,.45);border-radius:10px;padding:8px;margin:6px 0}#storyPop .sp-u b{color:#6dff8a;font-size:17px;display:block}#storyPop .sp-u span{font-size:12px;opacity:.85}
 #storyPop .sp-r{margin:8px 0;font-weight:700;color:#fff3c8}#storyPop .sp-d{text-align:left;font-size:13px;opacity:.9}#storyPop .sp-d b{color:#5ff2ff}#storyPop .sp-b{display:flex;gap:10px;justify-content:center;margin-top:12px}#storyPop .sp-b button{min-height:48px;min-width:140px}
+.tdrow{font-size:13px;margin:3px 0;line-height:1.35}.tdrow small{opacity:.75}.tdrow.up{color:#9ff0b0}.tdrow.down{color:#ffb0a8}.tdbox{margin-top:8px}.tmsync{color:#ffb0ec;font-weight:700;margin:0 0 3px}
 #teamHud{position:absolute;left:calc(12px + var(--sl));top:calc(150px + var(--st));width:250px;padding:6px 10px 8px;border-radius:12px;background:rgba(20,10,5,.55);font-size:12px;pointer-events:auto}
 .tmr{display:flex;align-items:center;gap:6px;height:18px}.tmr .tmn{width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tmr .tmb{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden}.tmr .tmb i{display:block;height:100%;background:#6dff8a}
 .tmr.down{opacity:.55}.tmr .tmd{width:30px;text-align:right;color:#ff9a8a}.tmc{display:flex;gap:6px;margin-top:6px}.tmbt{flex:1;min-height:36px;border-radius:9px;border:1px solid rgba(255,190,110,.4);background:rgba(60,35,15,.8);color:#f3e6d3;font-size:13px;font-weight:700}
@@ -254,10 +255,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261114T182330-4c2d499c">
+<meta name="dr-build" content="20261114T202721-fdd8fa40">
 <script>
 (function(){
-var BUILD='20261114T182330-4c2d499c';window.DR_BUILD=BUILD;
+var BUILD='20261114T202721-fdd8fa40';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1294,7 +1295,9 @@ const RAR=[{n:'Common',c:'#cfcfcf',h:0xcfcfcf,m:1},{n:'Uncommon',c:'#4fe36a',h:0
   {n:'Legendary',c:'#ff9a2a',h:0xff9a2a,m:2.45},{n:'Relic',c:'#ff4f5e',h:0xff4f5e,m:2.8},
   {n:'Mythic',c:'#59c8ff',h:0x59c8ff,m:3},
   // Lv 12+ world tier (index 7, ranked between Epic and Legendary): rare drops in the Duskcrown Highlands, its dynas and the Choir dungeon; 4 bonuses
-  {n:'Ascendant',c:'#ffe066',h:0xffe066,m:2.3}];// Mythic: ultra-rare Weave Disks (Shimmerveil)
+  {n:'Ascendant',c:'#ffe066',h:0xffe066,m:2.3},
+  // index 8: team-content only (team dungeon bosses), the best gear tier; 6 bonuses
+  {n:'Paragon',c:'#ff5fd2',h:0xff5fd2,m:3.1}];// Mythic: ultra-rare Weave Disks (Shimmerveil)
 // Names: [condition] [type/family prefix] <type or slot noun> [suffix on Rare+]. Nouns are unique per weapon type / armour slot+family, so names always fit the item.
 const PRE=['Dusty','Scavenged','Worn','Tuned','Salvaged','Patched','Reach-made','Scoured'];
 const SUF=['of the Reach','of Kessra','of the Dunes','of Glass','of Embers','of the Long Night','Mk II','Mk III'];
@@ -1345,8 +1348,8 @@ const IMPDEF={head:{n:'Cortex',ic:'🧠',req:'int',pool:['int','psy','weave','po
   feet:{n:'Plantar',ic:'🦶',req:'agi',pool:['agi','sen','treat','pool','run']}};
 function rollRarity(boost){const r=Math.random()*100-(boost||0);return r<2?3:r<12?2:r<40?1:0;}
 const ASC=7;// Ascendant rarity index
-const rRank=r=>r===ASC?3.5:r;// ordering helper: Ascendant sits between Epic (3) and Legendary (4)
-const rBon=r=>r===ASC?4:Math.min(r,3);// number of random bonuses
+const rRank=r=>r===ASC?3.5:r===8?5.5:r;// ordering helper: Ascendant sits between Epic (3) and Legendary (4)
+const rBon=r=>r===ASC?4:r===8?5:Math.min(r,3);// number of random bonuses
 // Lv 12+ drops can roll Ascendant: ~0.6% base, more with boost (elites, dynas, the Choir)
 function rollRarityL(lvl,boost){if(lvl>=12&&Math.random()<0.006*(1+(boost||0)/10))return ASC;return rollRarity(boost);}
 const IMPQL_MAX=()=>MAXLVL*5;// implant QL cap follows the level cap (100 at Lv 20, 150 at Lv 30)
@@ -1366,7 +1369,7 @@ function genItem(lvl,slot,rIdx,opt){opt=opt||{};
   if(!slot&&Math.random()<0.3)return genImplant(lvl*4+randi(-3,3),null,rIdx);
   if(slot==='implant')return genImplant(lvl*4+randi(-3,3),null,rIdx);
   if(!slot||slot==='gear')slot=Math.random()<0.38?'weapon':pick(['head','armor','armor','hands','legs','legs','feet']);
-  if(rIdx==null)rIdx=rollRarity();if(rIdx!==ASC)rIdx=clamp(rIdx,0,3);const rk=rRank(rIdx);
+  if(rIdx==null)rIdx=rollRarity();if(rIdx!==ASC&&rIdx!==8)rIdx=clamp(rIdx,0,3);const rk=rRank(rIdx);
   const r=RAR[rIdx],v=rand(0.88,1.12);const pk=P.prof||'vanguard';const it={id:uid(),kind:'gear',slot,lvl,r:rIdx,bonus:[],req:[]};let lean=null;
   if(slot==='weapon'){const wt=opt.wt||(Math.random()<0.7?pick(wtAff(pk)):pick(Object.keys(WTYPES)));const W=WTYPES[wt];it.wt=wt;
     it.dmg=Math.round((4+lvl*2.4)*r.m*v*W.dm);it.name=gearName(it);it.req.push({s:W.sk,v:Math.round((4+lvl*4.5)*(1+0.08*rk))});}
@@ -1422,24 +1425,30 @@ const RUN_CAP=60,RUN_BASE=12,RUN_K=140;
 const runPctOf=R=>Math.round(Math.min(RUN_CAP,Math.max(0,75*(1-Math.exp(-Math.max(0,R-RUN_BASE)/RUN_K))))*10)/10;
 // Pure stat calculation for ANY character sheet (the active player or a roster member).
 // c needs: prof, level, eq, imps, ab, sb, buffs (buffs with mods). Used by calcStats and by partySnapshot() for future team missions.
+/* level sync (team): SYNC.lv is the level the active character is scaled to (0 = off); other sheets carry c.sync */
+var SYNC={lv:0};
+function syncLvOf(c){const s=c===P?SYNC.lv:c.sync;return s&&s<c.level?s:c.level;}
+function scaleObj(o,f){const r={};for(const k in o||{})r[k]=Math.floor((o[k]||0)*f);return r;}
+function perkRankAt(p,r,L){let k=0;for(let i=1;i<=r;i++)if(perkLvl(p,i)<=L)k=i;return k;}
 function statsFor(c){
-  const pr=PROFS[c.prof];const bon={};const add=(s,v)=>{bon[s]=(bon[s]||0)+v;};let armor=2*c.level,dmg=4;const eq=c.eq||{},imps=c.imps||{},ab=c.ab||{},sb=c.sb||{};
-  for(const k in eq){const it=eq[k];if(!it)continue;if(it.dmg)dmg=it.dmg;if(it.armor)armor+=it.armor;(it.bonus||[]).forEach(b=>add(b.s,b.v));}
-  for(const k in imps){const it=imps[k];if(it)(it.bonus||[]).forEach(b=>add(b.s,b.v));}
+  const pr=PROFS[c.prof];const bon={};const add=(s,v)=>{bon[s]=(bon[s]||0)+v;};const L=syncLvOf(c),syn=L<c.level,fS=syn?spTotal(L)/spTotal(c.level):1;
+  const gf=it=>{if(!syn||!it)return 1;const il=it.ql?it.ql/4.5:(it.lvl||1);return il>L+1?clamp((L+1)/il,0.35,1):1;};let armor=2*L,dmg=4;const eq=c.eq||{},imps=c.imps||{},ab=syn?scaleObj(c.ab,fS):(c.ab||{}),sb=syn?scaleObj(c.sb,fS):(c.sb||{});
+  for(const k in eq){const it=eq[k];if(!it)continue;const g=gf(it);if(it.dmg)dmg=it.dmg*g;if(it.armor)armor+=it.armor*g;(it.bonus||[]).forEach(b=>add(b.s,g<1?Math.round(b.v*g):b.v));}
+  for(const k in imps){const it=imps[k];if(it){const g=gf(it);(it.bonus||[]).forEach(b=>add(b.s,g<1?Math.round(b.v*g):b.v));}}
   for(const b of (c.buffs||[]))for(const s in b.mods)add(s,b.mods[s]);
   // set bonuses (equipped gear + implants)
   const sc={};for(const k in eq){const it=eq[k];if(it&&it.set)sc[it.set]=(sc[it.set]||0)+1;}for(const k in imps){const it=imps[k];if(it&&it.set)sc[it.set]=(sc[it.set]||0)+1;}
   for(const id in sc){const st=SETS[id];if(!st)continue;for(const n in st.bonus)if(sc[id]>=+n){const m=st.bonus[n];for(const s in m)if(s==='armor')armor+=m[s];else add(s,m[s]);}}
   // perks (future system): ranks bought with perk points
-  for(const id in (c.perks||{})){const pk=PERKS[id];if(pk){const m=pk.mods(c.perks[id],c);for(const s in m)add(s,m[s]);}}
+  for(const id in (c.perks||{})){const pk=PERKS[id];if(pk){const rk=syn?perkRankAt(pk,c.perks[id],L):c.perks[id];if(rk<=0)continue;const m=pk.mods(rk,syn?{...c,level:L}:c);for(const s in m)add(s,m[s]);}}
   const wpn=eq.weapon,wt=wpn&&wpn.wt;if(wt&&WTYPES[wt]&&!WTYPES[wt].aff.includes(c.prof))dmg=Math.round(dmg*0.8);
   const br=breedOf(c);const tn=towersHeld(c.faction&&c.faction.side);if(tn){add('power',4*tn);add('dr',2*tn);}
   const E={};ATTRS.forEach(a=>E[a]=pr.attrs[a]+(br.mods[a]||0)+(ab[a]||0)+(bon[a]||0));
   SKILLS.forEach(s=>{let tr=0;for(const a in TRICKLE[s])tr+=E[a]*TRICKLE[s][a];E[s]=5+(pr.innate[s]||0)+(sb[s]||0)+Math.floor(tr/2)+(bon[s]||0)+(s==='run'?(br.run||0)+Math.round((bon.spd||0)*2.5):0);});
-  const hp=((80+15*(c.level-1))*pr.hpMul+E.body*2.5+E.sta*1.5)*br.hp+(bon.hp||0);
-  const en=((60+8*(c.level-1))*pr.enMul+E.pool*2+E.psy)*br.en+(bon.en||0);
+  const hp=((80+15*(L-1))*pr.hpMul+E.body*2.5+E.sta*1.5)*br.hp+(bon.hp||0);
+  const en=((60+8*(L-1))*pr.enMul+E.pool*2+E.psy)*br.en+(bon.en||0);
   const dodge=Math.round(80*E.evade/(E.evade+120)*10)/10;
-  return {runPct:runPctOf(E.run),wt,setCount:sc,towers:tn,dodge,dr:Math.min(60,bon.dr||0),maxHp:Math.round(hp),maxEn:Math.round(en),armor,dmg,crit:5+Math.round(E.sen*0.15)+(bon.crit||0),power:bon.power||0,E,bon};
+  return {runPct:runPctOf(E.run),wt,setCount:sc,towers:tn,dodge,dr:Math.min(60,bon.dr||0),maxHp:Math.round(hp),maxEn:Math.round(en),armor:Math.round(armor),dmg:Math.round(dmg),syncLv:syn?L:0,crit:5+Math.round(E.sen*0.15)+(bon.crit||0),power:bon.power||0,E,bon};
 }
 function calcStats(){S=statsFor(P);P.hp=Math.min(P.hp,S.maxHp);P.en=Math.min(P.en,S.maxEn);}
 let PM=null,pShadow=makeShadow(0.6);
@@ -1522,7 +1531,7 @@ function setTarget(e){P.target=e;if(e)SFX.ui();}
 function cycleTarget(){const list=enemies.filter(e=>!e.dead&&!fzSkip(e)&&dist2D(e.pos,P.pos)<35).sort((a,b)=>dist2D(a.pos,P.pos)-dist2D(b.pos,P.pos));if(!list.length){warn('No enemies nearby');return;}
   const i=list.indexOf(P.target);setTarget(list[(i+1)%list.length]);}
 function skillF(){return 1+Math.max(-0.2,(eff(PROFS[P.prof].dmgSkill)-12)/100);}
-function rollDmg(mult){const base=S.dmg*(1+0.08*(P.level-1))*skillF()*(1+S.power/100)*mult*rand(0.9,1.1);const crit=Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
+function rollDmg(mult){const base=S.dmg*(1+0.08*(effLvP()-1))*skillF()*(1+S.power/100)*mult*rand(0.9,1.1);const crit=Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
 function dmgEnemy(e,mult,silentAggro){if(e.dead||fzSkip(e))return;
   if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');P.lastCombat=T;if(e.state!=='chase')aggro(e);return;}
@@ -1545,7 +1554,7 @@ function dmgPlayer(amt,src,noDodge){if(P.dead)return;P.hurtT=T;
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
   ringFx(e.pos.x,e.pos.z,0xffb347,3,0.5);
-  const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));gainXp(xp);campOnKill(e,xp);
+  const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));{const xt=teamXpAdj(xp,e);gainXp(xt);teamShareXp(xt,e);}campOnKill(e,xp);
   const cr=randi(2,6)*e.lv;P.credits+=cr;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.6,e.pos.z),'+'+xp+' XP  +'+cr+'¢','xp');SFX.coin();P.kills++;
   if(Math.random()<(e.type==='raider'?0.45:0.32)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
   if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}
@@ -1558,7 +1567,7 @@ function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;
   if(P.target===e){P.target=null;let nb=null,nd=1e9;for(const o of enemies)if(!o.dead&&o!==e&&o.state==='chase'){const d=dist2D(o.pos,P.pos);if(d<nd&&d<26){nd=d;nb=o;}}
     if(nb){P.target=nb;}else P.autoAtk=false;}
   save();}
-function gainXp(n){if(P.level>=MAXLVL)return;P.xp+=n;while(P.level<MAXLVL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
+function gainXp(n){if(P.level>=MAXLVL)return;const capL=Math.min(MAXLVL,bandCapOf(P));if(P.level>=capL){P.xp=Math.min(P.xp+n,xpNeed(P.level)-1);if(n>0)bandCapMsg(capL);return;}P.xp+=n;while(P.level<capL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
   if(P.level>=MAXLVL)P.xp=0;}
 function faceTarget(t){if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);}
 function shoot(t,mult,color,cb){faceTarget(t);P.atkAnim=0.35;const from=new V3(P.pos.x+Math.sin(P.rotY)*0.6,P.pos.y+1.35,P.pos.z+Math.cos(P.rotY)*0.6);fireProj(from,t,color,38,cb||(()=>dmgEnemy(t,mult)));}
@@ -1614,7 +1623,7 @@ const KIND={
 function basicAb(){const mb=morphBasic();if(mb)return mb;const pr=PROFS[P.prof],b=pr.basic;const w=P.eq&&P.eq.weapon,W=w&&WTYPES[w.wt];if(!W)return b;
   return {id:'basic',name:W.n+' attack',icon:W.ic,cost:0,cd:+(b.cd*W.cd).toFixed(2),range:W.rng,mult:b.mult,proj:W.proj||b.proj,melee:!!W.melee};}
 function useAbility(idx){
-  if(P.dead||state!=='play')return false;const pr=PROFS[P.prof];const ab=idx<0?basicAb():abDef(barIds()[idx]);if(!ab){if(idx>=0){toast('Empty slot: assign a Weave in the 📖 Weave Book');}return false;}
+  if(P.dead||state!=='play')return false;const pr=PROFS[P.prof];const ab=idx<0?basicAb():abDef(barIds()[idx]);if(!ab){if(idx>=0){toast('Empty slot: assign a Weave in the 📖 Weave Book');}return false;}if(idx>=0&&syncLocked(ab))return false;
   if(ab.needPet&&!activePet()){warn('Deploy a bot first');return false;}
   if(P.mount)dismount();if(P.cast)cancelCast();
   if((P.cds[ab.id]||0)>T){if(idx>=0)warn(ab.name+' is recharging');return false;}
@@ -1832,6 +1841,7 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='mdiff'){const mp=mprefs();mp.diff=clamp((mp.diff|0)+(+b.dataset.d),0,4);missionOffers=[];save();openTerminal();}
   else if(a==='mpref'){mprefs().pref=b.dataset.p;missionOffers=[];save();openTerminal();}
   else if(a==='travel'){closePanel();conduitTravel(b.dataset.id);}
+  else if(a==='tdenter'){closePanel();enterTeamDungeon(b.dataset.id);}
   else if(a==='denter'){closePanel();enterDungeon(b.dataset.id);}
   else if(stage2Act(a,b)){}
   else if(a==='resume')closePanel();
@@ -2011,11 +2021,11 @@ function validateDungeons(){for(const k in DUNGEONS){const D=DUNGEONS[k];if(!Arr
   if(D.cap<D.minLvl){console.warn('DUSTREACH: dungeon '+k+' cap '+D.cap+' is below its minLvl '+D.minLvl+'; raising it');D.cap=D.minLvl;}}}
 validateDungeons();
 // party/AI-team rule: a group is judged by its highest-level member
-const partyTopLevel=party=>Math.max(P.level,...(party||[]).map(m=>(m&&m.level)||0));
+const partyTopLevel=party=>Math.max(P.level,...(party||[]).map(m=>(m&&(m.trueLevel||m.level))||0));// true levels: level sync never sneaks a high alt into a capped dungeon
 function dunRange(id){if(typeof id==='string'&&id.startsWith('dyna_')&&typeof DYNAS!=='undefined'&&DYNAS[id.slice(5)]){const Y=DYNAS[id.slice(5)];return Y.region+' · Lv '+Y.lv;}const D=dunDef(id);return D?'Lv '+D.minLvl+'–'+D.cap+' (cap '+D.cap+')':'';}
 function capMsg(D){return 'Level cap '+D.cap+' – you are too experienced for '+D.name;}
 function dunDef(id){return DUNGEONS[id]||(RAIDS&&RAIDS[id])||null;}
-function dunEntryCheck(id,party){const D=dunDef(id);if(D&&D.raid)return raidEntryCheck(id,party);if(!D)return {ok:false,why:'unknown',msg:'Unknown dungeon'};const lv=partyTopLevel(party);
+function dunEntryCheck(id,party){if(TEAM_ENTERING===id)return teamDunCheck(id);const D=dunDef(id);if(D&&D.raid)return raidEntryCheck(id,party);if(!D)return {ok:false,why:'unknown',msg:'Unknown dungeon'};const lv=partyTopLevel(party);
   if(D.gate&&typeof gateOpen==='function'&&!gateOpen(D.gate)){const s=STEP[GATES[D.gate].step];return {ok:false,why:'story',lv,step:s.id,msg:gateMsg(D.gate)};}
   if(lv>D.cap)return {ok:false,why:'cap',lv,msg:(party&&party.length&&lv>P.level?'Level cap '+D.cap+' – your party\'s highest member (Lv '+lv+') is too experienced for '+D.name:capMsg(D))};
   if(P.level<D.minLvl)return {ok:false,why:'min',lv,msg:'Requires level '+D.minLvl+' – you are level '+P.level};return {ok:true,lv};}
@@ -2176,10 +2186,10 @@ function openDoor(id){const D=DUNGEONS[id];const ck=dunEntryCheck(id,teamActive(
   const h=`<div class="cols"><div><div class="mis" style="border-color:#ff9a2a"><b style="font-size:17px">${esc(D.name)}</b> <span style="opacity:.7">· ${esc(D.sub)}</span><p>${esc(D.desc)}</p>
     <div>Levels <b>${D.lvl[0]}-${D.lvl[1]}</b> · Entry <b class="${P.level>=D.minLvl?'up':'down'}">min ${D.minLvl}</b> · <b class="${over?'down':'up'}">level cap ${D.cap}</b> (you are ${P.level}) · Recommended <b>${D.rec}</b> with good gear</div>
     ${over?`<div class="capmsg">⛔ ${esc(ck.msg)}</div>`:''}${ck.why==='story'?`<div class="capmsg story">${esc(ck.msg)}. Talk to ${esc(giverWhere(ck.step))}.</div>`:''}
-    <div style="opacity:.8;font-size:13px;margin-top:4px">🎯 Capped dungeon: characters above level ${D.cap} can't enter. Twink to win here: buff up, then wear gear and implants above your level. Clearing at level ${D.cap-1}-${D.cap} gives the bosses <b>+25% extra-drop chance</b> and <b>×1.5 Relic chance</b> (more with a full group, coming with team missions).</div>
-    <div style="opacity:.8;font-size:13px;margin-top:4px">Solo instance. Death revives you at the entrance checkpoint (bosses reset). Group mode will come with team missions.</div>
+    <div style="opacity:.8;font-size:13px;margin-top:4px">🎯 Capped dungeon: characters above level ${D.cap} can't enter. Twink to win here: buff up, then wear gear and implants above your level. Clearing at level ${D.cap-1}-${D.cap} gives the bosses <b>+25% extra-drop chance</b> and <b>×1.5 Relic chance</b> (more with a full group).</div>
+    <div style="opacity:.8;font-size:13px;margin-top:4px">Solo, or with your 👥 team along. Death revives you at the entrance checkpoint (bosses reset). The harder team-only version is below.</div>
     <button class="sbtn${ok?'':' locked'}" style="margin-top:10px" data-act="${ok?'denter':'noop'}" data-id="${id}">${ok?'Enter '+esc(D.name):over?'Level cap '+D.cap+' – too experienced':ck.why==='story'?'🔒 Story: step '+(STEP[ck.step].i+1)+' "'+esc(STEP[ck.step].n)+'"':'Requires level '+D.minLvl}</button></div>
-    <div class="h4">Bosses</div>${bosses.map(B=>`<div class="mis"><b style="color:#ff9a2a">${esc(ETYPES[B.etype].name)}</b> · Lv ${B.lvl}${B===bosses[bosses.length-1]?' · final boss':' · mini-boss'}${B.mech.map(m=>`<div style="font-size:13px"><b>${esc(m.name)}</b>: ${esc(m.desc)}</div>`).join('')}</div>`).join('')}</div>
+    ${teamDoorHtml(id)}<div class="h4">Bosses</div>${bosses.map(B=>`<div class="mis"><b style="color:#ff9a2a">${esc(ETYPES[B.etype].name)}</b> · Lv ${B.lvl}${B===bosses[bosses.length-1]?' · final boss':' · mini-boss'}${B.mech.map(m=>`<div style="font-size:13px"><b>${esc(m.name)}</b>: ${esc(m.desc)}</div>`).join('')}</div>`).join('')}</div>
     <div><div class="h4">Exclusive loot (only here)</div>${D._prev.map(it=>itemRow(it,'',false,'noop')).join('')}<div style="opacity:.7;font-size:12px;margin-top:6px">Bosses always drop at least one. The Relic is rare (~7% from the final boss) and the Weave Disk is 20%.</div></div></div>`;
   openPanel('🚪 '+D.name.toUpperCase(),h,'door');}
 function rollBossLoot(D,key,cb){const t=D.loot[key];if(!t)return [];const out=[pick(t.items)];cb=cb||{extra:0,relic:1};
@@ -2188,7 +2198,7 @@ function rollBossLoot(D,key,cb){const t=D.loot[key];if(!t)return [];const out=[p
 function dunOnKill(e){if(!DUN)return;const D=DUN.D;
   if(e.boss){if(D.raid)raidOnBoss(e);const cb=capBonus();const keys=rollBossLoot(D,e.boss.key,cb);if(cb&&keys.length>1)log('🎯 Cap bonus: extra drop from '+esc(e.T.name));clearTele(e);for(const a of enemies)if(a.addOf===e&&!a.dead){a.dead=true;a.R.g.visible=false;a.shadow.visible=false;setTimeout(()=>removeEnemy(a),50);}
     keys.forEach((k,i)=>{const it=makeUnique(k,DUN.mode&&DUN.mode.vet);it.dropBy=e.T.name;const a=i/keys.length*6.28;dropLoot(e.pos.x+Math.cos(a)*1.8,e.pos.z+Math.sin(a)*1.8,it);});
-    P.credits+=40*e.lv;
+    P.credits+=40*e.lv;if(DUN.mode&&DUN.mode.team)teamBossLoot(e);
     if(e.boss.final&&Math.random()<VEIL_RATE.dungeonFinal){const v=mythicDisk(DUN.id==='vault'||DUN.id==='choir'||DUN.id==='stillvault'?'veil2':'veil1');v.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z-2.5,v);}
     if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);}
     else banner(e.T.name.toUpperCase()+' DEFEATED','The way deeper is open');}
@@ -2219,9 +2229,9 @@ function bossTick(e){const b=e.boss;if(e.dead)return;
       banner(e.T.name.toUpperCase()+' ENRAGED',m.name);ringFx(e.pos.x,e.pos.z,0xff2a1a,6,0.8);SFX.boom();}}
   });}
 function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,P.pos.y+4.5,P.pos.z);updDun2(dt);if(d.D.raid)updRaid(dt);
-  if(!d.apt&&!d.outgrown&&P.level>d.D.cap&&!(d.mode&&d.mode.vet)){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
+  if(!d.apt&&!d.outgrown&&P.level>d.D.cap&&!(d.mode&&(d.mode.vet||d.mode.team))){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
   for(const q of d.portals){q.sw.rotation.z+=dt*1.5;q.pl.material.opacity=0.3+Math.sin(T*3)*0.1;}if(d.checkpoint)d.checkpoint.material.opacity=0.4+Math.sin(T*2)*0.15;
-  for(const e of d.bosses)bossTick(e);
+  for(const e of d.bosses){bossTick(e);if(d.mode&&d.mode.team)teamBossTick(e);}
   for(let i=d.tele.length-1;i>=0;i--){const t=d.tele[i];if(t.upd)t.upd(t);const k=clamp((T-t.t0)/(t.at-t.t0),0,1);t.fill.scale.set(t.r*k,1,t.r*k);t.edge.material.opacity=0.6+Math.sin(T*18)*0.35;
     if(T>=t.at){ringFx(t.x,t.z,0xff5a2a,t.r,0.45);nz(0.3,0.12,700);
       for(const tg of dunTargets()){const dd=Math.hypot(tg.pos.x-t.x,tg.pos.z-t.z);if(!tg.dead&&dd<t.r+0.35&&(!t.inner||dd>t.inner-0.35)){floatText(tmpV.set(tg.pos.x,tg.pos.y+2.6,tg.pos.z),t.name,'info');if(tg===P)dmgPlayer(t.dmg,t.src);else allyTakeDmg(tg,t.dmg,t.src);if(t.fx)t.fx(tg);}}
@@ -2379,7 +2389,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
+function futureFields(s){return {perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -3886,18 +3896,19 @@ function raidExports(){return {RAIDS,RAIDCLK,raidNow,periodKey,nextReset,raidLef
   get sigils(){return P.sigils|0;}};}
 
 /* ================= TEAM MODE: your own alts as AI companions, anywhere =================
-   👥 button / T toggles; the 👥 panel picks up to 5 alts (+ optional contract mercenaries), stance and commands.
-   Rules: only the character you play gains XP, credits, loot, sigils and mission progress (companions are read-only snapshots of
-   their saved sheets: their level, gear and implants are used but never changed). Dungeon caps judge the team by its highest member.
+   👥 button / T toggles; the 👥 panel picks up to 3 companions (alts, + optional contract mercenaries), stance, heal priority and commands.
+   Rules: the character you play gets the loot, credits, sigils and mission progress; roster companions get a 50% XP share on their own
+   sheets and team-dungeon credit (see game29.js: bands, level sync, team dungeons). Dungeon caps judge the team by its highest (synced) member.
    Raids keep their own team rules: companions step aside inside a raid and come back after. Downed companions revive out of combat. */
-const TEAM_REVIVE=10;const TM={dead:{},acc:0,list:[]};
-function normTeam(t){t=t&&typeof t==='object'?t:{};return {on:!!t.on,ids:Array.isArray(t.ids)?t.ids.filter(x=>typeof x==='string').slice(0,TEAM_MAX-1):null,stance:['follow','assist','passive'].includes(t.stance)?t.stance:'assist',merc:!!t.merc};}
+const TEAM_REVIVE=10,TEAM_COMP=3;// open-world/dungeon team: you + up to 3 companions (raids keep TEAM_MAX)
+const TM={dead:{},acc:0,list:[]};
+function normTeam(t){t=t&&typeof t==='object'?t:{};return {on:!!t.on,ids:Array.isArray(t.ids)?t.ids.filter(x=>typeof x==='string').slice(0,TEAM_COMP):null,stance:['follow','assist','hold','passive'].includes(t.stance)?t.stance:'assist',merc:!!t.merc,healPri:['lowest','tank','you'].includes(t.healPri)?t.healPri:'lowest'};}
 function teamCfg(){if(!P.team||typeof P.team!=='object')P.team=normTeam(null);return P.team;}
 function teamAlts(){return roster.chars.filter(c=>c.id!==activeId).map(c=>({id:c.id,name:c.name,level:c.level,prof:c.prof,role:(c.party&&c.party.role)||ROLE[c.prof]||'dps'})).sort((a,b)=>b.level-a.level);}
-function teamPicks(){const al=teamAlts();const ok=new Set(al.map(a=>a.id));const c=teamCfg();return (Array.isArray(c.ids)?c.ids.filter(x=>ok.has(x)):al.map(a=>a.id)).slice(0,TEAM_MAX-1);}
+function teamPicks(){const al=teamAlts();const ok=new Set(al.map(a=>a.id));const c=teamCfg();return (Array.isArray(c.ids)?c.ids.filter(x=>ok.has(x)):al.map(a=>a.id)).slice(0,TEAM_COMP);}
 function teamSnaps(){const c=teamCfg();const s=teamPicks().map(partySnapshot).filter(Boolean);
-  if(c.merc){const lv=clamp(P.level,1,MAXLVL);const roles=new Set([ROLE[P.prof],...s.map(x=>x.role)]);const need=MERC.filter(m=>(m.role==='tank'||m.role==='healer')&&!roles.has(m.role)).concat(MERC.filter(m=>m.role!=='tank'&&m.role!=='healer'));
-    let i=0;while(s.length<TEAM_MAX-1&&i<need.length)s.push(mercSnap(need[i++],lv));}return s;}
+  if(c.merc){const lv=clamp(effLvP(),1,MAXLVL);const roles=new Set([ROLE[P.prof],...s.map(x=>x.role)]);const need=MERC.filter(m=>(m.role==='tank'||m.role==='healer')&&!roles.has(m.role)).concat(MERC.filter(m=>m.role!=='tank'&&m.role!=='healer'));
+    let i=0;while(s.length<TEAM_COMP&&i<need.length)s.push(mercSnap(need[i++],lv));}return s;}
 const comps=()=>allies.filter(a=>a.comp&&!a.dead);
 const inRaid=()=>!!(DUN&&DUN.D&&DUN.D.raid);
 function teamActive(){return state==='play'&&!!teamCfg().on;}
@@ -3915,13 +3926,13 @@ function toggleTeam(force){const c=teamCfg();const on=force!=null?!!force:!c.on;
 function teamAttack(){const t=validTarget();if(!t){warn('Pick a target first');return false;}let n=0;for(const a of comps()){a.prevCmd=a.cmd==='attack'?a.prevCmd:a.cmd;a.cmd='attack';a.target=t;a.regroupUntil=0;n++;}
   if(n)toast('👥 Team: attack '+t.T.name);return n>0;}
 function teamRegroup(){let n=0;for(const a of comps()){a.target=null;if(a.cmd==='attack')a.cmd=a.prevCmd||'follow';if(a.cmd==='stay')a.cmd='follow';a.regroupUntil=T+4;n++;}if(n)toast('👥 Team: regroup on me');return n>0;}
-function teamStance(s){const c=teamCfg();c.stance=s;for(const a of comps()){a.stance=s;if(s==='passive')a.target=null;}save();}
+function teamStance(s){const c=teamCfg();c.stance=s;for(const a of comps()){a.stance=s;if(s==='passive')a.target=null;if(s!=='hold'&&a.cmd==='stay'){a.cmd='follow';a.stayAt=null;}}save();}
 function teamInCombat(){return enemies.some(e=>!e.dead&&e.state==='chase'&&dist2D(e.pos,P.pos)<32)||T-(P.lastCombat||-99)<4;}
 // shared team tactics (heals + dodging telegraphs), also used for companions in normal dungeons and dyna fights
 function teamTactics(al,dt,teles){for(const a of al)for(const t of teles){if(T-t.t0<0.45||T>=t.at)continue;let dx=a.pos.x-t.x,dz=a.pos.z-t.z,dd=Math.hypot(dx,dz);if(dd<0.3){const px=P.pos.x-t.x,pz=P.pos.z-t.z,pd=Math.hypot(px,pz);const an=pd>0.5?Math.atan2(pz,px):(a.dodgeA??(a.dodgeA=Math.random()*6.28));dx=Math.cos(an)*0.3;dz=Math.sin(an)*0.3;dd=0.3;}
     if(t.inner){if(dd>t.inner-1.2)moveAlly(a,t.x,t.z,a.speed*1.1,dt,t.inner*0.5);}else if(dd<t.r+0.8)moveAlly(a,t.x+dx/dd*(t.r+2),t.z+dz/dd*(t.r+2),a.speed*1.1,dt,0.2);}
   for(const a of al){if(a.role!=='healer')continue;a.healCd-=dt;if(a.healCd>0)continue;a.healCd=2.6;
-    const pool=[{e:P,f:P.dead?1:P.hp/S.maxHp}].concat(al.map(o=>({e:o,f:o.hp/o.maxHp})));pool.sort((x,y)=>x.f-y.f);const w=pool[0];if(w.f>0.9)continue;
+    const pool=[{e:P,f:P.dead?1:P.hp/S.maxHp}].concat(al.map(o=>({e:o,f:o.hp/o.maxHp})));{const hp=teamCfg().healPri;const k=o=>o.f-(o.f<0.85&&((hp==='you'&&o.e===P)||(hp==='tank'&&(o.e===P?roleOfChar(P)==='tank':o.e.role==='tank')))?0.45:0);pool.sort((x,y)=>k(x)-k(y));}const w=pool[0];if(w.f>0.9)continue;
     if(w.e===P)healPlayer(S.maxHp*0.1);else allyHeal(w.e,w.e.maxHp*0.14);ringFx(w.e.pos.x,w.e.pos.z,0x6dff8a,1.4,0.35);}}
 function updTeam(dt){if(state!=='play')return;TM.acc+=dt;
   // downed companions: revive near you once the fight is over
@@ -3936,23 +3947,25 @@ let teamHudAcc=0;
 function updTeamHud(force){const el=$('#teamHud');if(!el)return;if(!force&&T-teamHudAcc<0.2&&T>=teamHudAcc)return;teamHudAcc=T;const on=teamActive()&&!inRaid()&&!(DUN&&DUN.apt);el.classList.toggle('hidden',!on);document.body.classList.toggle('teamon',on);if(!on)return;
   const rows=teamSnaps().map(s=>{const a=allies.find(o=>o.comp&&o.snapId===s.id&&!o.dead);const f=a?a.hp/a.maxHp:0;const dn=TM.dead[s.id];
     return `<div class="tmr${a?'':' down'}"><span class="tmn">${esc(s.name.replace(' (contract)',''))}</span><span class="tmb"><i style="width:${Math.round(f*100)}%"></i></span>${a?'':`<span class="tmd">${dn!=null?Math.max(0,Math.ceil(dn-T))+'s':'…'}</span>`}</div>`;}).join('');
-  const h=rows+`<div class="tmc"><button class="tmbt" data-tm="atk">⚔ Attack</button><button class="tmbt" data-tm="reg">↩ Regroup</button></div>`;if(el._h!==h){el._h=h;el.innerHTML=h;}}
+  const h=syncHudLine()+rows+`<div class="tmc"><button class="tmbt" data-tm="atk">⚔ Attack</button><button class="tmbt" data-tm="reg">↩ Regroup</button></div>`;if(el._h!==h){el._h=h;el.innerHTML=h;}}
 /* ---------- panel ---------- */
 function openTeam(){const c=teamCfg();const al=teamAlts();const picks=teamPicks();const sn=teamSnaps();const on=c.on;
-  let h=`<div class="craftbar"><span class="cbi">👥</span><span class="cbn"><b>Team mode ${on?'ON':'off'}</b><small>you + ${sn.length} · max ${TEAM_MAX} · only ${esc(P.name)} gains XP, loot and progress</small></span>
+  let h=`<div class="craftbar"><span class="cbi">👥</span><span class="cbn"><b>Team mode ${on?'ON':'off'}</b><small>you + ${sn.length} · max ${TEAM_COMP+1} · companions share XP${SYNC.lv?' · ⇩ synced to Lv '+SYNC.lv:''}</small></span>
     <button class="sbtn${on?' alt':''}" id="teamGo" data-act="tmtog">${on?'Dismiss team':'Summon team'}</button></div>`;
-  h+=`<div class="h4">Stance</div><div class="tabs" style="margin:0 0 6px">${[['follow','🚶 Follow','defend you, never start fights'],['assist','⚔ Assist','attack what you fight'],['passive','🕊 Passive','never attack']].map(([k,n])=>`<button data-act="tmst" data-s="${k}" class="${c.stance===k?'on':''}">${n}</button>`).join('')}</div>
-    <div style="opacity:.8;font-size:13px">Follow: they only fight what attacks you or them. Assist: they join your fights. Passive: they stay out of it. Commands: <b>⚔ Attack</b> my target (G) and <b>↩ Regroup</b> (Y). <b>T</b> toggles the team.</div>
+  h+=`<div class="h4">Stance</div><div class="tabs" style="margin:0 0 6px">${[['follow','🚶 Follow','defend you, never start fights'],['assist','⚔ Assist','attack what you fight'],['hold','✋ Hold','hold position'],['passive','🕊 Passive','never attack']].map(([k,n])=>`<button data-act="tmst" data-s="${k}" class="${c.stance===k?'on':''}">${n}</button>`).join('')}</div>
+    <div style="opacity:.8;font-size:13px">Follow: they only fight what attacks you or them. Assist: they join your fights. Hold: they stay where they are and fight from there. Passive: they stay out of it. Tanks taunt what's on the team, healers heal by the priority below. Commands: <b>⚔ Attack</b> my target (G) and <b>↩ Regroup</b> (Y). <b>T</b> toggles the team.</div>
     <div class="btns" style="display:flex;gap:8px;margin:8px 0"><button class="sbtn alt" data-act="tmatk">⚔ Attack my target</button><button class="sbtn alt" data-act="tmreg">↩ Regroup</button><button class="sbtn alt" data-act="tmmerc">${c.merc?'✔':'＋'} Mercenary fill</button></div>
-    <div class="h4">Companions (${picks.length}/${TEAM_MAX-1} alts${c.merc?' + mercenaries':''})</div>`;
-  h+=al.map(a=>{const sel=picks.includes(a.id);const live=allies.find(o=>o.comp&&o.snapId===a.id&&!o.dead);return `<button class="item${sel?' sel':''}" data-act="tmpick" data-id="${a.id}"><span class="ico">${sel?'✔':'＋'}</span><span><div class="nm">${esc(a.name)}</div><div class="sub">Lv ${a.level} ${esc(PROFS[a.prof].name)} · ${a.role}${live?' · '+Math.round(live.hp)+'/'+live.maxHp+' HP':TM.dead[a.id]!=null?' · down':''}</div></span></button>`;}).join('')||'<div style="opacity:.7">No alts yet. Make more characters on the title screen, or switch on mercenary fill.</div>';
-  h+=`<div style="opacity:.75;font-size:12px;margin-top:8px">Companions use their own saved level, gear and implants. Their sheets are never changed. Dungeon level caps judge the team by its highest member. Downed companions get back up ${TEAM_REVIVE}s after the fight ends. Raids use their own team.</div>`;
-  openPanel('👥 TEAM',h,'team');}
+    <div class="h4">Heal priority</div><div class="tabs" style="margin:0 0 6px">${[['lowest','🩸 Lowest HP'],['tank','🛡 Tank first'],['you','🙋 Me first']].map(([k,n])=>`<button data-act="tmheal" data-h="${k}" class="${c.healPri===k?'on':''}">${n}</button>`).join('')}</div>
+    <div class="h4">Companions (${picks.length}/${TEAM_COMP} alts${c.merc?' + mercenaries':''})</div>`;
+  h+=al.map(a=>{const sel=picks.includes(a.id);const live=allies.find(o=>o.comp&&o.snapId===a.id&&!o.dead);return `<button class="item${sel?' sel':''}" data-act="tmpick" data-id="${a.id}"><span class="ico">${sel?'✔':'＋'}</span><span><div class="nm">${esc(a.name)}</div><div class="sub">Lv ${a.level}${SYNC.lv&&SYNC.lv<a.level?' (⇩'+SYNC.lv+')':''} ${esc(PROFS[a.prof].name)} · ${(TEAM_ROLES[a.role]||{ic:''}).ic} ${a.role}${live?' · '+Math.round(live.hp)+'/'+live.maxHp+' HP':TM.dead[a.id]!=null?' · down':''}</div></span></button>`;}).join('')||'<div style="opacity:.7">No alts yet. Make more characters on the title screen, or switch on mercenary fill.</div>';
+  h+=`<div style="opacity:.75;font-size:12px;margin-top:8px">Companions use their own saved level, gear, implants and perks, and get a 50% XP share saved to their own sheets (loot goes to you; team-dungeon clears also credit them). Dungeon level caps judge the team by its highest (synced) member. Downed companions get back up ${TEAM_REVIVE}s after the fight ends. Raids use their own team.</div>`;
+  h+=teamPanelExtra();openPanel('👥 TEAM',h,'team');}
 function teamAct(a,b){const D=b.dataset;if(a==='tmtog')toggleTeam();else if(a==='tmst'){teamStance(D.s);openTeam();}else if(a==='tmatk'){teamAttack();}else if(a==='tmreg'){teamRegroup();}
+  else if(a==='tmheal'){teamCfg().healPri=D.h;save();openTeam();}
   else if(a==='tmmerc'){const c=teamCfg();c.merc=!c.merc;save();teamSync();openTeam();}
-  else if(a==='tmpick'){const c=teamCfg();let ids=teamPicks();if(ids.includes(D.id))ids=ids.filter(x=>x!==D.id);else if(ids.length>=TEAM_MAX-1){warn('A team holds '+TEAM_MAX+' (you + '+(TEAM_MAX-1)+')');return true;}else ids.push(D.id);c.ids=ids;save();teamSync();openTeam();}
+  else if(a==='tmpick'){const c=teamCfg();let ids=teamPicks();if(ids.includes(D.id))ids=ids.filter(x=>x!==D.id);else if(ids.length>=TEAM_COMP){warn('A team holds '+(TEAM_COMP+1)+' (you + '+TEAM_COMP+' companions)');return true;}else ids.push(D.id);c.ids=ids;save();teamSync();openTeam();}
   else return false;return true;}
-function teamExports(){return {updTeam,teamTactics,updTeamHud,teamCfg,teamAlts,teamPicks,teamSnaps,toggleTeam,teamAttack,teamRegroup,teamStance,openTeam,comps,TM,teamActive,teamSync,normTeam,TEAM_REVIVE};}
+function teamExports(){return {updTeam,teamTactics,updTeamHud,teamCfg,teamAlts,teamPicks,teamSnaps,toggleTeam,teamAttack,teamRegroup,teamStance,openTeam,comps,TM,teamActive,teamSync,normTeam,TEAM_REVIVE,TEAM_COMP};}
 document.addEventListener('pointerup',e=>{if(state!=='play'||!e.target.closest)return;const hb=e.target.closest('#teamHud');if(!hb)return;const b=e.target.closest('.tmbt');SFX.ui();
   if(b){if(b.dataset.tm==='atk')teamAttack();else teamRegroup();}else openTeam();});
 
@@ -5457,7 +5470,7 @@ var PERK_AB={};
 const PERK_START=10,PERK_ACTIVE_LVL=15,PERK_RESET_CD=30*60*1000;
 function ppTotal(lv){return Math.max(0,(lv|0)-PERK_START+1);}
 function ppSpent(perks){let n=0;for(const id in perks||{})if(PERKS[id])n+=perks[id]|0;return n;}
-function ppAvail(c){c=c||P;return Math.max(0,ppTotal(c.level)-ppSpent(c.perks));}
+function ppAvail(c){c=c||P;return Math.max(0,ppTotal(c.level)+(c.ppBonus|0)-ppSpent(c.perks));}
 function perkLinesFor(prof){return Object.keys(PERK_LINES).filter(k=>!PERK_LINES[k].prof||PERK_LINES[k].prof===prof);}
 function linePts(perks,line){let n=0;for(const id in perks||{}){const p=PERKS[id];if(p&&p.line===line)n+=perks[id]|0;}return n;}
 // level needed for rank r (1-based) of a perk
@@ -5466,9 +5479,9 @@ function perkNeedLine(p){return p.tier===3?4:p.tier===2?2:0;}
 function perkCan(id,c){c=c||P;const p=PERKS[id];if(!p)return 'Unknown perk';const ln=PERK_LINES[p.line];if(ln.prof&&ln.prof!==c.prof)return 'Another profession\'s line';
   const r=(c.perks&&c.perks[id])|0;if(r>=p.ranks)return 'Max rank';if(c.level<perkLvl(p,r+1))return 'Needs level '+perkLvl(p,r+1);
   const need=perkNeedLine(p);if(linePts(c.perks,p.line)<need)return 'Needs '+need+' points in '+ln.n;if(ppAvail(c)<1)return 'No perk points';return '';}
-function normPerks(perks,prof,level){const o={};if(!perks||typeof perks!=='object')return o;const lines=perkLinesFor(prof);
+function normPerks(perks,prof,level,bonus){const o={};if(!perks||typeof perks!=='object')return o;const lines=perkLinesFor(prof);
   for(const id in perks){const p=PERKS[id];const r=Math.floor(+perks[id]||0);if(!p||!lines.includes(p.line)||r<=0)continue;o[id]=Math.min(r,p.ranks);}
-  if(ppSpent(o)>ppTotal(level))return {};return o;}
+  if(ppSpent(o)>ppTotal(level)+(bonus|0))return {};return o;}
 function normPerkMeta(m){m=m&&typeof m==='object'?m:{};return {resets:Math.max(0,m.resets|0),next:Math.max(0,+m.next||0),intro:!!m.intro};}
 function perkMeta(){return P.perkMeta||(P.perkMeta=normPerkMeta(null));}
 function perkFill(p,r,c){const m=p.mods(r,c);return p.txt.replace(/\{(\w+)\}/g,(_,k)=>m[k]!=null?m[k]:'?');}
@@ -5485,7 +5498,7 @@ function perkToSlot(id,i){const p=PERKS[id];if(!p||!p.ab||!(P.perks[id]>0))retur
 /* ---------- Perks panel ---------- */
 let perkTab=null,perkSel=null,perkConfirm=0;
 function openPerks(){if(!perkTab||!perkLinesFor(P.prof).includes(perkTab))perkTab=perkLinesFor(P.prof).find(k=>PERK_LINES[k].prof)||'grit';
-  const av=ppAvail(),tot=ppTotal(P.level),nextLv=P.level<PERK_START?PERK_START:P.level+1;
+  const av=ppAvail(),tot=ppTotal(P.level)+(P.ppBonus|0),nextLv=P.level<PERK_START?PERK_START:P.level+1;
   let h=`<div class="pkhead"><div class="pkpts"><b>${av}</b><span>perk point${av===1?'':'s'}</span></div><div class="pkinfo">${tot} earned (1 per level from Lv ${PERK_START})${P.level<MAXLVL||nextLv===PERK_START?' · next at Lv '+nextLv:''}.<br><span style="opacity:.7">Active perks (Lv ${PERK_ACTIVE_LVL}+) go on your action bar.</span></div></div>`;
   h+='<div class="pktabs">'+perkLinesFor(P.prof).sort((a,b)=>(PERK_LINES[b].prof?1:0)-(PERK_LINES[a].prof?1:0)).map(k=>{const L=PERK_LINES[k],n=linePts(P.perks,k);return `<button class="pktab${k===perkTab?' on':''}${L.prof?' prof':''}" data-pk="tab" data-l="${k}"><span class="ic">${L.ic}</span><span class="tn">${esc(L.n)}</span><span class="tc">${n}/9</span></button>`;}).join('')+'</div>';
   const L=PERK_LINES[perkTab];h+=`<div class="pkld">${esc(L.d)}</div><div class="pklist">`;
@@ -5692,6 +5705,141 @@ function fzMini(c,tf,sc){for(const Z of FZONES){if(Math.hypot(Z.x-P.pos.x,Z.z-P.
   c.fillStyle=F.col;c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(q[0],q[1],6,0,7);c.fill();c.stroke();}}
 function fzDotCol(e){return e.state==='chase'?'#ff3b2f':FACTIONS[e.guard.side].col;}
 function fzExports(){return {fzSpawn,fzDespawn,fzStream,FZONES,FZ,FZ_GUARD_HP,fzById,fzAt,fzStance,fzCanHit,fzInteract,fzDo,fzAccept,fzAbandon,fzTurnIn,fzOnKill,openFzCommand,normFz,fzS,fzHitAmt,fzNodeBlocked,conduitTravel,dmgEnemy,autoTarget,cycleTarget,validTarget,OUTPOSTS,CONDUIT,SAVEPTS,regionAt,toggleMap,MAP,joinFaction,fac,repTier,makeEnemy,updEnemy,get enemies(){return enemies;},get panelOpen(){return panelOpen;}};}
+
+/* ================= TEAM PROGRESSION: team dungeons, level bands, level sync, companion XP =================
+   Data rules (all data-driven, so new professions / roles / dungeons slot in):
+   - TEAMD: one team dungeon per region band, reusing that region's dungeon map in a harder "team" mode.
+       content = level the dungeon is tuned for; members count only within ±TD_RANGE of it (roster characters only, mercenaries never count)
+       minTeam = total team size needed (you + counted companions); req = list of {role} / {prof} / {any:[...]} entries, each with a why.
+   - Level bands: levels 1-10, 11-20, 21-30 (31+ when the cap rises). Going past a band edge needs one clear of that band's team dungeon.
+       XP is held at the edge (and a banner says why). Characters already past an edge when this shipped are grandfathered (marked 'grand').
+   - Level sync: while teamed (open world too), everyone above the lowest team member is scaled down to that level (in a team dungeon:
+       never above its content level). Synced: level-based HP/energy/armour/damage, spent attribute/skill points, gear above the sync level,
+       perk ranks the sync level couldn't have, and Weaves/perk actions above the sync level are locked.
+   - Companions share XP: each counted roster companion gets 50% of the kill XP on their own sheet (their own band cap applies).
+       Kill XP is cut when anyone on the team (true level) is far above the enemy.
+   - Team-only rewards: Paragon rarity gear (team bosses only) and +1 bonus perk point per team dungeon on its first clear. */
+const TD_RANGE=5,TD_SHARE=0.5,TD_BANDS=[10,20,30],PARA=8;
+const TEAM_ROLES={tank:{n:'Tank',ic:'🛡'},healer:{n:'Healer',ic:'✚'},dps:{n:'Damage',ic:'⚔'},control:{n:'Control',ic:'🌀'},pet:{n:'Pet master',ic:'🤖'}};
+const TEAMD={
+  vault:{key:'vault',band:1,name:'Theta-9 Lockdown',sub:'Team dungeon · Vault Theta-9 on full alert',content:10,minLvl:8,lvl:1,minTeam:3,
+    req:[{role:'healer',why:'The Custodian\'s Purge Pulse hits the whole team every few seconds'}],
+    mech:{buster:{name:'Breach Strike',every:12,first:7,mult:3.0},pulse:{name:'Purge Pulse',every:16,first:10,pct:0.2},adds:{name:'Lockdown drones',at:[0.66,0.33],n:3}}},
+  choir:{key:'choir',band:2,name:'The Full Chorus',sub:'Team dungeon · every voice of the Choir at once',content:20,minLvl:17,lvl:3,minTeam:3,
+    req:[{role:'tank',why:'Crushing Verse would flatten anyone but a tank'},{prof:'weaver',why:'Only a Weaver can unweave the Hymn Seal on the Choirmother'}],
+    mech:{buster:{name:'Crushing Verse',every:11,first:6,mult:3.2},pulse:{name:'Dirge',every:15,first:9,pct:0.2},adds:{name:'Choir echoes',at:[0.7,0.35],n:3},seal:{name:'Hymn Seal',at:0.5,prof:'weaver',chan:5}}},
+  stillvault:{key:'stillvault',band:3,name:'Stillvault: Deep Stacks',sub:'Team dungeon · the frozen archive wakes',content:30,minLvl:27,lvl:3,minTeam:3,
+    req:[{role:'tank',why:'The Rimewarden\'s Glacier Maul must land on a tank'},{role:'healer',why:'Hoarfrost ticks the whole team down'}],
+    mech:{buster:{name:'Glacier Maul',every:11,first:6,mult:3.4},pulse:{name:'Hoarfrost',every:14,first:8,pct:0.22},adds:{name:'Frozen archivists',at:[0.7,0.4],n:3}}}};
+const TDS={warnT:-99,capT:-99,xpT:-99,acc:0,sync:0};
+function roleOfChar(c){return (c&&c.party&&c.party.role)||ROLE[c&&c.prof]||'dps';}
+function bandTD(b){return Object.values(TEAMD).find(t=>t.band===b)||null;}
+function normTG(t,lv){t=t&&typeof t==='object'?t:{};const o={n:t.n&&typeof t.n==='object'?t.n:{}};TD_BANDS.forEach((E,i)=>{const k='b'+(i+1);const v=t[k];o[k]=v==='clear'||v==='grand'?v:(lv>E?'grand':0);});return o;}
+function tgOf(c){if(!c.tg||typeof c.tg!=='object'||!('b1' in c.tg))c.tg=normTG(c.tg,c.level||1);return c.tg;}
+// highest level this character may reach right now (band edge until the band's team dungeon is cleared)
+function bandCapOf(c){const tg=tgOf(c);for(let i=0;i<TD_BANDS.length;i++){const E=TD_BANDS[i];if((c.level||1)<=E&&!tg['b'+(i+1)])return E;}return 999;}
+function bandCapMsg(E,quiet){const b=TD_BANDS.indexOf(E)+1,td=bandTD(b);const msg='Level '+(E+1)+'+ unlocks after one team clear of '+(td?td.name:'this region\'s team dungeon')+' (team of '+(td?td.minTeam:3)+'+'+(td&&td.req.length?', needs '+td.req.map(reqLabel).join(' + '):'')+')';
+  if(quiet)return msg;if(T-TDS.capT>25){TDS.capT=T;banner('XP CAPPED AT LEVEL '+E,msg);log('🔒 <b>XP capped at level '+E+'.</b> '+esc(msg)+'. Open 👥 Team to see what you need.');}return msg;}
+function tgClear(b,c){c=c||P;const tg=tgOf(c);tg['b'+b]='clear';}
+/* ---------- level sync ---------- */
+function syncCalc(){if(state!=='play'||!teamActive()||inRaid())return 0;const lv=[P.level];for(const id of teamPicks()){const c=roster.chars.find(x=>x.id===id);if(c)lv.push(c.level);}
+  let L=Math.min(...lv);const td=tdActive();if(td)L=Math.min(L,td.content);return Math.max(...lv)>L?L:0;}
+function effLvP(){return SYNC.lv&&SYNC.lv<P.level?SYNC.lv:P.level;}
+function abLv(ab){if(!ab)return 1;if(ab.perk&&PERKS[ab.perk])return perkLvl(PERKS[ab.perk],1);return ab.lvl||1;}
+function syncLocked(ab){const L=effLvP();if(L>=P.level||!ab||ab.starter)return false;const need=abLv(ab);if(need<=L)return false;warn('🔒 '+ab.name+' needs level '+need+': you are level-synced to '+L+' with your team');return true;}
+function tdActive(){return DUN&&DUN.mode&&DUN.mode.team?TEAMD[DUN.mode.tkey]:null;}
+/* ---------- XP: reductions + companion share ---------- */
+function teamTrueTop(){let t=P.level;for(const a of comps())if(!a.merc){const c=roster.chars.find(x=>x.id===a.snapId);if(c)t=Math.max(t,c.level);}return t;}
+function teamXpAdj(xp,e){if(!teamActive()||inRaid()||!comps().length)return xp;const ref=tdActive()?tdActive().content:e.lv;const over=teamTrueTop()-ref-TD_RANGE;if(over<=0)return xp;
+  const m=Math.max(0.1,1-0.2*over);if(T-TDS.xpT>30){TDS.xpT=T;log('📉 Team XP reduced to '+Math.round(m*100)+'%: someone on your team is far above this content (level '+teamTrueTop()+').');}return Math.max(1,Math.round(xp*m));}
+function sheetGainXp(c,n){if(!c||n<=0)return 0;const cap=Math.min(MAXLVL,bandCapOf(c));if(c.level>=cap){c.xp=Math.min((c.xp||0)+n,xpNeed(c.level)-1);return 0;}c.xp=(c.xp||0)+n;let up=0;
+  while(c.level<cap&&c.xp>=xpNeed(c.level)){c.xp-=xpNeed(c.level);c.level++;c.sp=(c.sp||0)+spGain(c.level);up++;}if(c.level>=cap)c.xp=Math.min(c.xp,xpNeed(c.level)-1);return up;}
+function teamShareXp(xp,e){if(!teamActive()||inRaid())return;const ref=tdActive()?tdActive().content:e.lv;let ch=false;
+  for(const a of comps()){if(a.merc)continue;const c=roster.chars.find(x=>x.id===a.snapId);if(!c||Math.abs(c.level-ref)>TD_RANGE||dist2D(a.pos,P.pos)>45)continue;
+    const up=sheetGainXp(c,Math.round(xp*TD_SHARE));ch=true;if(up){log('👥 <b>'+esc(c.name)+'</b> reached level '+c.level+'!');floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.6,a.pos.z),'LEVEL '+c.level,'info');removeAlly(a);TDS.sync=-1;}}
+  if(ch)TDS.dirty=true;}
+/* ---------- team dungeon entry ---------- */
+function reqLabel(r){if(r.any)return r.any.map(reqLabel).join(' or ');if(r.prof)return (PROFS[r.prof]?PROFS[r.prof].name:r.prof);const R=TEAM_ROLES[r.role];return R?R.ic+' '+R.n:r.role;}
+function reqMetBy(r,m){if(r.any)return r.any.some(x=>reqMetBy(x,m));if(r.prof)return m.prof===r.prof;return m.role===r.role;}
+function tdMembers(){const me={id:activeId,name:P.name,prof:P.prof,level:P.level,role:roleOfChar(P),you:true};const out=[me];
+  if(teamActive())for(const id of teamPicks()){const c=roster.chars.find(x=>x.id===id);if(c)out.push({id,name:c.name,prof:c.prof,level:c.level,role:roleOfChar(c)});}return out;}
+function teamDunCheck(id,mem){const td=TEAMD[id],D=DUNGEONS[id];if(!td||!D)return {ok:false,why:'unknown',msg:'No team dungeon here',rows:[]};mem=mem||tdMembers();
+  const inR=m=>Math.abs(m.level-td.content)<=TD_RANGE;const cnt=mem.filter(inR);const rows=[];const me=mem[0];
+  rows.push({ok:teamActive(),t:'Team summoned (👥 Team)',d:teamActive()?'':'summon your team first'});
+  rows.push({ok:me.level>=td.minLvl&&inR(me),t:'You: Lv '+me.level+' (needs '+Math.max(td.minLvl,td.content-TD_RANGE)+'–'+(td.content+TD_RANGE)+')',d:''});
+  rows.push({ok:cnt.length>=td.minTeam,t:'Team of '+td.minTeam+'+ roster characters within ±'+TD_RANGE+' of Lv '+td.content+': '+cnt.length+'/'+td.minTeam,d:mem.filter(m=>!inR(m)).map(m=>m.name+' (Lv '+m.level+') doesn\'t count').join(', ')});
+  for(const r of td.req){const who=cnt.find(m=>reqMetBy(r,m));rows.push({ok:!!who,t:'Needs '+reqLabel(r)+(who?': '+who.name:''),d:r.why||'',req:1});}
+  let gate=null;if(D.gate&&typeof gateOpen==='function'&&!gateOpen(D.gate))gate=gateMsg(D.gate);if(gate)rows.push({ok:false,t:gate,d:''});
+  const bad=rows.find(r=>!r.ok);return {ok:!bad,why:bad?(bad.req?'req':'team'):'',msg:bad?td.name+': '+bad.t+(bad.d&&bad.req?' ('+bad.d+')':''):'',rows,counted:cnt,td};}
+let TEAM_ENTERING=null;
+function enterTeamDungeon(id){const td=TEAMD[id];if(!td||DUN)return false;const ck=teamDunCheck(id);if(!ck.ok){warn(ck.msg);return false;}
+  const party=teamSnaps();const n=ck.counted.length;const modeObj={hp:1.5+0.45*n,dmg:1.25,lvl:td.lvl,size:[td.minTeam,TEAM_COMP+1],team:true,tkey:id};
+  TEAM_ENTERING=id;let ok=false;try{ok=enterDungeon(id,{party,modeObj});}finally{TEAM_ENTERING=null;}
+  if(ok){DUN.tdCounted=ck.counted.filter(m=>!m.you).map(m=>m.id);TDS.sync=-1;banner('👥 '+td.name.toUpperCase(),td.sub+' · tuned for level '+td.content);log('👥 Team dungeon <b>'+esc(td.name)+'</b>: bosses hit tanks hard, pulse the whole team and call adds. Paragon gear drops only here.');}
+  return ok;}
+function tdRowsHtml(rows){return rows.map(r=>`<div class="tdrow ${r.ok?'up':'down'}">${r.ok?'✔':'✖'} ${esc(r.t)}${r.d?`<small> · ${esc(r.d)}</small>`:''}</div>`).join('');}
+function teamDoorHtml(id){const td=TEAMD[id];if(!td)return '';const ck=teamDunCheck(id);const tg=tgOf(P);const st=tg['b'+td.band];const E=TD_BANDS[td.band-1];
+  return `<div class="mis tdbox" style="border-color:#ff5fd2"><b style="font-size:16px;color:#ff5fd2">👥 ${esc(td.name)}</b> <span style="opacity:.75">· ${esc(td.sub)}</span>
+    <div style="font-size:13px;margin:4px 0">Tuned for <b>level ${td.content}</b> (members count within ±${TD_RANGE}). Higher members are <b>level-synced</b> down. Bosses: <b>${esc(td.mech.buster.name)}</b> (tank-buster), <b>${esc(td.mech.pulse.name)}</b> (team-wide damage: bring healing), <b>${esc(td.mech.adds.name)}</b> (adds)${td.mech.seal?`, <b>${esc(td.mech.seal.name)}</b> (only a ${esc(PROFS[td.mech.seal.prof].name)} can break it)`:''}.</div>
+    <div class="h4" style="margin:4px 0">Requirements</div>${tdRowsHtml(ck.rows)}
+    <div style="font-size:13px;margin-top:4px">🏅 First clear: unlocks <b>levels ${E+1}+</b>${st==='clear'?' (done ✔)':st==='grand'?' (you were already past it ✔)':''} and <b>+1 bonus perk point</b> for everyone counted. Only team bosses drop <b style="color:#ff5fd2">Paragon</b> gear.</div>
+    <button class="sbtn${ck.ok?'':' locked'}" style="margin-top:8px;background:${ck.ok?'#a8338a':''}" data-act="${ck.ok?'tdenter':'noop'}" data-id="${id}">${ck.ok?'👥 Enter '+esc(td.name):'🔒 '+esc(ck.rows.find(r=>!r.ok).t)}</button></div>`;}
+/* ---------- team boss mechanics ---------- */
+function tdTeamList(){const L=[{e:P,f:S.maxHp,tank:roleOfChar(P)==='tank',prof:P.prof}];for(const a of comps())L.push({e:a,f:a.maxHp,tank:a.role==='tank',prof:a.prof||((roster.chars.find(c=>c.id===a.snapId)||{}).prof)});return L;}
+function tdHit(x,amt,src,raw){if(x.e===P){if(!P.dead)dmgPlayer(amt,src,true);}else allyTakeDmg(x.e,raw?amt/Math.max(0.4,1-x.e.dr):amt,src);}
+function teamBossTick(e){const td=tdActive();if(!td||e.dead)return;const M=td.mech;
+  if(e.state!=='chase'){if(e.tb){e.tb=null;e.immune=null;for(const a of enemies.slice())if(a.tdAdd===e)removeEnemy(a);}return;}
+  const b=e.tb||(e.tb={next:{buster:T+M.buster.first,pulse:T+M.pulse.first},done:{},pend:null,final:!!e.boss.final});const hpF=e.hp/e.maxHp;
+  // tank-buster: telegraphed on whoever the boss is fighting; a tank braces (-60%), anyone else takes the full hit
+  if(T>=b.next.buster&&!b.pend){b.next.buster=T+M.buster.every;const f=e.foe&&!e.foe.dead&&allies.includes(e.foe)?e.foe:P;const x=tdTeamList().find(o=>o.e===f)||tdTeamList()[0];
+    b.pend={at:T+1.6,x};toast('⚠ '+M.buster.name+' on '+(x.e===P?'YOU':x.e.name)+(x.tank?' (tank braces)':': get a tank on the boss!'));floatText(entChest(e,tmpV),M.buster.name+'!','info');ringFx(x.e.pos.x,x.e.pos.z,0xff2a6a,1.6,1.6);}
+  if(b.pend&&T>=b.pend.at){const x=b.pend.x;b.pend=null;if(x.e===P||(!x.e.dead&&allies.includes(x.e))){const tank=x.tank;tdHit(x,e.dmg*M.buster.mult*(tank?0.4:1),e);ringFx(x.e.pos.x,x.e.pos.z,0xff2a6a,2.4,0.4);nz(0.3,0.1,500);TDS.lastBuster={tank,t:T};}}
+  // heavy team-wide pulse: % of max HP to everyone, needs healing to sustain
+  if(T>=b.next.pulse){b.next.pulse=T+M.pulse.every;for(const x of tdTeamList())tdHit(x,x.f*M.pulse.pct,e,true);ringFx(e.pos.x,e.pos.z,0xff5fd2,16,0.7);toast('💢 '+M.pulse.name+': the whole team takes damage');TDS.pulses=(TDS.pulses||0)+1;}
+  // adds: they go for the healer first, so the tank has to pick them up (companion tanks taunt them)
+  M.adds.at.forEach((th,j)=>{if(b.done['a'+j]||hpF>th)return;b.done['a'+j]=1;const r=e.boss.room||{w:24,cz:e.pos.z,d:20};const et=tdAddType();const heal=comps().find(a=>a.role==='healer');
+    for(let n=0;n<M.adds.n;n++){const a=spawnDunMob(et,(n%2?1:-1)*(r.w/2-2.5),r.cz+rand(-r.d/3,r.d/3),td.content-1,{temp:true});a.addOf=e;a.tdAdd=e;a.state='chase';a.nextAtk=T+1.2;if(heal)a.foe=heal;ringFx(a.pos.x,a.pos.z,0xff5fd2,2.5,0.6);}
+    toast('⚠ '+M.adds.name+'! Tank: pick them up');});
+  // profession seal (data-driven): the boss is shielded until a member of the right profession channels it open
+  const sl=M.seal;if(sl&&b.final){if(!b.done.seal&&hpF<=sl.at){b.done.seal=1;b.sealT=null;e.immune=()=>true;banner('🔒 '+sl.name.toUpperCase(),'Only a '+PROFS[sl.prof].name+' can break it. Keep them alive and near the boss.');}
+    if(b.done.seal===1){const w=tdTeamList().find(x=>x.prof===sl.prof&&!(x.e===P&&P.dead)&&dist2D(x.e.pos,e.pos)<16);if(w){if(b.sealT==null){b.sealT=T+sl.chan;toast('🌀 '+(w.e===P?'You start':w.e.name+' starts')+' unweaving the '+sl.name+' ('+sl.chan+'s)');}
+        else if(T>=b.sealT){b.done.seal=2;e.immune=null;ringFx(e.pos.x,e.pos.z,0xb46bff,6,0.8);banner(sl.name.toUpperCase()+' BROKEN','The boss is vulnerable again');}}else b.sealT=null;}}}
+function tdAddType(){const D=DUN.D;for(const r of D.rooms)if(r.packs&&r.packs[0]&&r.packs[0][0])return r.packs[0][0][0];return 'sentry';}
+/* ---------- team rewards ---------- */
+function genParagon(lvl,prof){prof=prof||P.prof;const slot=Math.random()<0.4?'weapon':pick(['head','armor','hands','legs','feet']);const it=genItem(lvl,slot,3,slot==='weapon'?{wt:pick(wtAff(prof))}:{fam:PROF_FAM[prof]});
+  const k=RAR[PARA].m/RAR[3].m;it.r=PARA;if(it.dmg)it.dmg=Math.round(it.dmg*k);if(it.armor)it.armor=Math.round(it.armor*k);const have=new Set(it.bonus.map(b=>b.s));
+  for(let i=0;i<2;i++){let s=pick(GEARBONUS),g=0;while(have.has(s)&&g++<12)s=pick(GEARBONUS);have.add(s);it.bonus.push({s,v:bonusVal(s,lvl,1.1)});}
+  it.name='Paragon '+it.name.replace(/^(Dusty|Scavenged|Worn|Tuned|Salvaged|Patched|Reach-made|Scoured) /,'');it.team=1;it.value=Math.round(it.value*2.2);return it;}
+function sheetGive(c,it){c.inv=c.inv||[];if(c.inv.length<24){c.inv.push(it);return true;}c.credits=(c.credits||0)+it.value;return false;}
+function teamBossLoot(e){const td=tdActive();if(!td)return;const n=e.boss.final?(1+(Math.random()<0.3?1:0)):(Math.random()<0.35?1:0);
+  for(let i=0;i<n;i++){const it=genParagon(td.content);it.dropBy=e.T.name;dropLoot(e.pos.x+rand(-2,2),e.pos.z-2+rand(-1,1),it);}
+  if(e.boss.final)teamDunClear(td);}
+function teamDunClear(td){const tg=tgOf(P);const k='b'+td.band;const first=!tg.n[td.key];tg.n[td.key]=(tg.n[td.key]|0)+1;const was=tg[k];tg[k]='clear';const E=TD_BANDS[td.band-1];
+  if(first){P.ppBonus=(P.ppBonus|0)+1;P.pp=ppAvail();}
+  const names=[];for(const id of (DUN.tdCounted||[])){const c=roster.chars.find(x=>x.id===id);if(!c)continue;const ct=tgOf(c);const f1=!ct.n[td.key];ct.n[td.key]=(ct.n[td.key]|0)+1;ct[k]='clear';if(f1)c.ppBonus=(c.ppBonus|0)+1;
+    if(f1||Math.random()<0.4){const it=genParagon(td.content,c.prof);it.dropBy=td.name;sheetGive(c,it);names.push(c.name+(f1?' (+1 perk point, '+it.name+')':' ('+it.name+')'));}else names.push(c.name);}
+  setTimeout(()=>banner('👥 TEAM CLEAR · '+td.name.toUpperCase(),(was!=='clear'&&was!=='grand'?'Levels '+(E+1)+'+ unlocked! ':'')+(first?'+1 bonus perk point':'Paragon gear for the team')),2600);
+  log('🏅 <b>'+esc(td.name)+'</b> cleared'+(first?': <b>+1 bonus perk point</b>':'')+(was!=='clear'&&was!=='grand'?', <b>levels '+(E+1)+'+ unlocked</b>':'')+'.'+(names.length?' Team credit: '+esc(names.join(', '))+'.':''));
+  if(P.level>=E&&was!=='clear'&&was!=='grand')gainXp(0);save();}
+/* ---------- role AI: tank taunts, hold stance ---------- */
+function tdUpdate(dt){if(state!=='play')return;TDS.acc+=dt;if(TDS.acc<0.25)return;const st=TDS.acc;TDS.acc=0;
+  const L=syncCalc();if(L!==SYNC.lv||TDS.sync===-1){const was=SYNC.lv;SYNC.lv=L;TDS.sync=0;calcStats();if(was!==L){for(const a of allies.slice())if(a.comp&&!a.dead){const h=a.hp/a.maxHp;removeAlly(a);TDS.keepHp=TDS.keepHp||{};TDS.keepHp[a.snapId]=h;}teamSync();
+      for(const a of comps())if(TDS.keepHp&&TDS.keepHp[a.snapId]!=null){a.hp=Math.max(1,Math.round(a.maxHp*TDS.keepHp[a.snapId]));}TDS.keepHp=null;
+      if(L)toast('⇩ Level sync: team scaled to level '+L+(P.level>L?' (you too)':''));else if(was)toast('⇧ Level sync off');if(panelOpen==='team')openTeam();}}
+  if(TDS.dirty&&!(T-(TDS.saveT||-99)<10)){TDS.dirty=false;TDS.saveT=T;save();}
+  if(!teamActive())return;const al=comps();const cfg=teamCfg();
+  for(const a of al){if(cfg.stance==='hold'&&a.cmd!=='attack'&&a.cmd!=='stay'&&T>(a.regroupUntil||0)){a.cmd='stay';a.stayAt={x:a.pos.x,z:a.pos.z};}
+    if(a.role!=='tank'||a.stance==='passive')continue;a.tauntCd=(a.tauntCd||0)-st;if(a.tauntCd>0)continue;
+    let n=0;for(const e of enemies){if(e.dead||e.state!=='chase'||e.guard||e.foe===a)continue;if(dist2D(e.pos,a.pos)>14)continue;e.foe=a;e.tauntUntil=T+5;n++;}
+    if(n){a.tauntCd=8;ringFx(a.pos.x,a.pos.z,0x5fb0ff,4,0.5);floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.5,a.pos.z),'Taunt','info');}}}
+function syncHudLine(){if(!SYNC.lv)return '';return `<div class="tmsync">⇩ Level sync: Lv ${SYNC.lv}</div>`;}
+function teamPanelExtra(){const tg=tgOf(P);const cap=Math.min(MAXLVL,bandCapOf(P));let h='';
+  h+=`<div class="h4">Progress & level sync</div><div style="font-size:13px">`+(cap<MAXLVL?`🔒 You can level to <b>${cap}</b>. ${esc(bandCapMsg(cap,true))}.`:`✔ No band lock for you right now (max level ${MAXLVL}).`)+
+    ` Bands: `+TD_BANDS.map((E,i)=>{const v=tg['b'+(i+1)],td=bandTD(i+1);return `<b class="${v?'up':'down'}">${E}→${E+1} ${v==='clear'?'✔ cleared':v==='grand'?'✔ already past':'needs '+esc(td?td.name:'team clear')}</b>`;}).join(' · ')+`</div>`;
+  h+=`<div style="font-size:13px;margin-top:4px">${SYNC.lv?`⇩ <b>Level sync on: everyone is scaled to level ${SYNC.lv}</b> (stats, damage, healing, gear above that level, perk ranks; Weaves above it are locked).`:'Level sync: when a lower-level character is on the team, everyone above them is scaled down to their level (anti power-levelling).'} Companions get ${Math.round(TD_SHARE*100)}% of kill XP on their own sheets if they're within ${TD_RANGE} levels; kill XP drops when someone is far above the content.</div>`;
+  h+=`<div class="h4">Team dungeons</div>`+Object.values(TEAMD).map(td=>{const ck=teamDunCheck(td.key);const D=DUNGEONS[td.key];return `<div class="mis tdbox" style="border-color:${ck.ok?'#4fe36a':'#ff5fd2'}"><b style="color:#ff5fd2">👥 ${esc(td.name)}</b> <small>· ${esc(D.name)} door · Lv ${td.content} · unlocks ${TD_BANDS[td.band-1]+1}+</small>${tdRowsHtml(ck.rows.filter(r=>!/^Team summoned/.test(r.t)||!r.ok))}</div>`;}).join('');
+  return h;}
+function tdExports(){return {TEAMD,TEAM_ROLES,TD_RANGE,TD_BANDS,TEAM_COMP,PARA,SYNC,TDS,normTG,tgOf,bandCapOf,tgClear,syncCalc,effLvP,syncLocked,abLv,teamXpAdj,teamShareXp,sheetGainXp,teamDunCheck,enterTeamDungeon,teamDoorHtml,teamBossTick,genParagon,teamDunClear,tdUpdate,tdMembers,reqLabel,roleOfChar,tdActive,teamPanelExtra,bandTD};}
 
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
@@ -5918,7 +6066,7 @@ function normalizeChar(s){
   const eq0=s.eq||{};const imps={};IMPSLOTS.forEach(k=>imps[k]=migrateItem((s.imps||{})[k]||null));const inv=(s.inv||[]).slice();
   if(eq0.implant&&!imps.head)imps.head=migrateItem(eq0.implant);else if(eq0.implant)inv.push(eq0.implant);
   return {v:2,id:s.id||newCharId(),created:s.created||s.t||Date.now(),updated:s.updated||s.t||Date.now(),name:(typeof s.name==='string'&&s.name.replace(/\s+/g,' ').trim())?s.name.replace(/\s+/g,' ').trim():'Contractor',prof:PROFS[s.prof]?s.prof:'vanguard',level:s.level||1,xp:s.xp||0,
-    credits:s.credits??25,inv:inv.map(migrateItem).filter(Boolean),eq:Object.fromEntries(GSLOTS.map(k=>[k,migrateItem(eq0[k]||null)])),imps,perks:normPerks(s.perks,s.prof,s.level||1),pp:s.pp||0,dunClears:s.dunClears||{},savePoint:s.savePoint||null,nodes:s.nodes||['town'],mprefs:s.mprefs||{diff:1,pref:'any'},...futureFields(s),ab:s.ab||{},sb:s.sb||{},sp:s.sp??spTotal(s.level||1),
+    credits:s.credits??25,inv:inv.map(migrateItem).filter(Boolean),eq:Object.fromEntries(GSLOTS.map(k=>[k,migrateItem(eq0[k]||null)])),imps,perks:normPerks(s.perks,s.prof,s.level||1,s.ppBonus),pp:s.pp||0,dunClears:s.dunClears||{},savePoint:s.savePoint||null,nodes:s.nodes||['town'],mprefs:s.mprefs||{diff:1,pref:'any'},...futureFields(s),ab:s.ab||{},sb:s.sb||{},sp:s.sp??spTotal(s.level||1),
     consum:s.consum||(s.v===1||!s.v?{focus:1}:{}),buffs:s.buffs||[],stims:s.stims??3,mission:s.mission||null,kills:s.kills||0,pos:s.pos||null,hp:s.hp||0,en:s.en||0,dead:!!s.dead,
     party:s.party||{ai:'default',role:ROLE[s.prof]||'dps'},...weaveState(s)};
 }
@@ -5936,8 +6084,8 @@ function sheetFromPlayer(){return {v:2,id:activeId,created:(roster.chars.find(c=
 function save(){if(state!=='play'||!activeId)return;const sh=sheetFromPlayer();const i=roster.chars.findIndex(c=>c.id===activeId);if(i>=0)roster.chars[i]=sh;else roster.chars.push(sh);roster.active=activeId;writeRoster(roster);}
 function deleteChar(id){roster.chars=roster.chars.filter(c=>c.id!==id);if(roster.active===id)roster.active=roster.chars[0]?roster.chars[0].id:null;writeRoster(roster);}
 // Hook for future team missions: other roster characters as AI party members, with their own level, gear and implants.
-function partySnapshot(id){const c=roster.chars.find(x=>x.id===id);if(!c)return null;const st=statsFor({...c,buffs:[]});const pr=PROFS[c.prof];
-  return {id:c.id,name:c.name,prof:c.prof,profName:pr.name,level:c.level,role:c.party.role,ai:c.party.ai,stats:st,eq:c.eq,imps:c.imps,
+function partySnapshot(id){const c=roster.chars.find(x=>x.id===id);if(!c)return null;const st=statsFor({...c,buffs:[],sync:SYNC.lv});const pr=PROFS[c.prof];
+  return {id:c.id,name:c.name,prof:c.prof,profName:pr.name,level:SYNC.lv&&SYNC.lv<c.level?SYNC.lv:c.level,trueLevel:c.level,role:c.party.role,ai:c.party.ai,stats:st,eq:c.eq,imps:c.imps,
     basic:pr.basic.id,abilities:c.slots.filter(Boolean),known:c.known,visual:{color:pr.color,accent:pr.accent,visor:pr.visor}};}
 function partyCandidates(){return roster.chars.filter(c=>c.id!==activeId).map(c=>partySnapshot(c.id));}
 setInterval(save,10000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});addEventListener('pagehide',save);
@@ -6003,7 +6151,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -6017,7 +6165,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
