@@ -131,6 +131,11 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 .ltchip.on{background:rgba(110,220,255,.18);border-color:#6edcff;color:#bff1ff}.ltdesc{font-size:12.5px;opacity:.7;margin-top:6px}
 .jtag{font-style:normal;font-size:11px;font-weight:700;color:#bdbdbd;background:rgba(160,160,160,.18);border:1px solid rgba(160,160,160,.35);border-radius:6px;padding:0 5px;margin-left:4px;vertical-align:1px}
 .stk{color:#ffc85a;font-weight:800}.sjbtn{min-height:44px;white-space:nowrap}
+.fzhead{display:flex;gap:12px;align-items:center;border-left:4px solid;padding:6px 10px;background:rgba(255,255,255,.04);border-radius:10px}.fzhead .fzic{font-size:30px}.fzhead b{font-size:17px}.fzhead div div{font-size:13px;opacity:.85}
+.fzrules{margin-top:10px;display:flex;flex-direction:column;gap:5px;font-size:13.5px;line-height:1.35;background:rgba(0,0,0,.18);border-radius:10px;padding:8px 12px}
+.fzmsg{margin-top:12px;font-style:italic;opacity:.9;font-size:14.5px}.fzc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.fzrew{font-size:12.5px;opacity:.8}.fzbtn{min-height:48px;font-size:15px;align-self:flex-start;padding:0 22px}
+.fzbar{position:relative;height:22px;border-radius:11px;background:rgba(255,255,255,.08);overflow:hidden}.fzbar i{position:absolute;left:0;top:0;bottom:0;opacity:.75}.fzbar span{position:relative;display:block;text-align:center;font-size:13px;font-weight:700;line-height:22px}
 #moreDrop #spBadge{position:static;display:none;margin-left:8px;vertical-align:2px;width:auto}#moreDrop #bSk.pts #spBadge{display:inline-block}#moreDrop #bSk.pts{box-shadow:none;border:1px solid #ffc85a}
 #moreBadge{position:absolute;right:-6px;top:-6px;min-width:20px;height:20px;border-radius:10px;background:#ffc85a;color:#1b0d05;font-size:12px;font-weight:900;line-height:20px;padding:0 4px;display:none}#bMore.pts #moreBadge{display:block}
 #bMore.on{border-color:#5ff2ff}#mtrack b{color:var(--gold)}
@@ -249,10 +254,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261114T172519-798984aa">
+<meta name="dr-build" content="20261114T182330-4c2d499c">
 <script>
 (function(){
-var BUILD='20261114T172519-798984aa';window.DR_BUILD=BUILD;
+var BUILD='20261114T182330-4c2d499c';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -424,6 +429,14 @@ const gloamAt=(deg,r)=>{const a=deg*Math.PI/180;return [Math.round(Math.cos(a)*r
 const RIME={r0:612,r1:662,hubDeg:330,door:{x:-236,z:-648}};
 function rimeLv(x,z){const a=Math.atan2(z,x)*180/Math.PI;let d=Math.abs(((a-RIME.hubDeg)%360+540)%360-180);return Math.round(21+9*d/180);}
 const rimeAt=gloamAt;
+/* ---------- faction zones (Build G): land held by one faction. Its Sentinels attack members of the other side on sight. ---------- */
+const FZONES=[
+  {id:'ironward',side:'combine',name:'Ironward Reach',out:'Ironward Bastion',ring:'dusk',deg:70,r:520,R:74,lv:[14,17],gl:'Warden Sentinel',ren:'Scrap Renegade'},
+  {id:'emberhollow',side:'ashborn',name:'Emberhollow',out:'Emberhollow Warcamp',ring:'dusk',deg:230,r:520,R:74,lv:[14,17],gl:'Clanblade Sentinel',ren:'Scrap Renegade'},
+  {id:'coldspire',side:'combine',name:'Coldspire Directive',out:'Coldspire Garrison',ring:'rime',deg:50,r:760,R:80,lv:[24,27],gl:'Directive Sentinel',ren:'Frost Renegade'},
+  {id:'frostforge',side:'ashborn',name:'Frostforge Wilds',out:'Frostforge Hold',ring:'rime',deg:240,r:760,R:80,lv:[24,27],gl:'Ashwalker Sentinel',ren:'Frost Renegade'}];
+const FZ_PAL={combine:[0x8f9aab,0x5d6a7e,0xc9d2de,0x3f8fff],ashborn:[0x7d5444,0x5a3a2e,0xab735c,0xff5a2a]};
+FZONES.forEach(z=>{const p=gloamAt(z.deg,z.r);z.x=p[0];z.z=p[1];OUTPOSTS.push({id:z.id,name:z.out,x:z.x,z:z.z,r:12,fz:z.id,pal:FZ_PAL[z.side]});});
 /* ---------- biomes: the old desert core ringed by six regions (blended borders) ---------- */
 const BIOMES=[
   {id:'dunes',name:'Kessra Dunes',sub:'Open desert around Halden\'s Rest',lv:[1,10],fog:0xe9b98a,hemi:0xffe2c0,c1:0xc9a07a,c2:0xb48660},
@@ -1503,14 +1516,14 @@ let lastWarn=0;function warn(s){if(T-lastWarn>0.8){toast(s);SFX.err();lastWarn=T
 function dist2D(a,b){return Math.hypot(a.x-b.x,a.z-b.z);}
 function validTarget(){const t=P.target;return t&&!t.dead&&enemies.includes(t)?t:null;}
 function autoTarget(range){let best=null,bs=1e9;const fx=Math.sin(P.rotY),fz=Math.cos(P.rotY);
-  for(const e of enemies){if(e.dead)continue;const dx=e.pos.x-P.pos.x,dz=e.pos.z-P.pos.z;const d=Math.hypot(dx,dz);if(d>range)continue;const front=(dx*fx+dz*fz)/(d||1);const s=d*(front>0.3?1:1.6)*(e.state==='chase'?0.6:1);if(s<bs){bs=s;best=e;}}
+  for(const e of enemies){if(e.dead||fzSkip(e))continue;const dx=e.pos.x-P.pos.x,dz=e.pos.z-P.pos.z;const d=Math.hypot(dx,dz);if(d>range)continue;const front=(dx*fx+dz*fz)/(d||1);const s=d*(front>0.3?1:1.6)*(e.state==='chase'?0.6:1);if(s<bs){bs=s;best=e;}}
   return best;}
 function setTarget(e){P.target=e;if(e)SFX.ui();}
-function cycleTarget(){const list=enemies.filter(e=>!e.dead&&dist2D(e.pos,P.pos)<35).sort((a,b)=>dist2D(a.pos,P.pos)-dist2D(b.pos,P.pos));if(!list.length){warn('No enemies nearby');return;}
+function cycleTarget(){const list=enemies.filter(e=>!e.dead&&!fzSkip(e)&&dist2D(e.pos,P.pos)<35).sort((a,b)=>dist2D(a.pos,P.pos)-dist2D(b.pos,P.pos));if(!list.length){warn('No enemies nearby');return;}
   const i=list.indexOf(P.target);setTarget(list[(i+1)%list.length]);}
 function skillF(){return 1+Math.max(-0.2,(eff(PROFS[P.prof].dmgSkill)-12)/100);}
 function rollDmg(mult){const base=S.dmg*(1+0.08*(P.level-1))*skillF()*(1+S.power/100)*mult*rand(0.9,1.1);const crit=Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
-function dmgEnemy(e,mult,silentAggro){if(e.dead)return;
+function dmgEnemy(e,mult,silentAggro){if(e.dead||fzSkip(e))return;
   if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');P.lastCombat=T;if(e.state!=='chase')aggro(e);return;}
   if(e.foe&&T>(e.tauntUntil||0)&&Math.random()<0.25)e.foe=null;
@@ -1529,14 +1542,14 @@ function dmgPlayer(amt,src,noDodge){if(P.dead)return;P.hurtT=T;
   let a=amt*rand(0.9,1.1)*(100/(100+S.armor))*(1-(S.dr||0)/100);if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a=Math.max(1,Math.round(a));
   P.hp-=a;P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
   if(!validTarget()&&src)P.target=src;if(P.hp<=0){P.hp=0;playerDie();}}
-function killEnemy(e){e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
+function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
   ringFx(e.pos.x,e.pos.z,0xffb347,3,0.5);
   const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));gainXp(xp);campOnKill(e,xp);
   const cr=randi(2,6)*e.lv;P.credits+=cr;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.6,e.pos.z),'+'+xp+' XP  +'+cr+'¢','xp');SFX.coin();P.kills++;
   if(Math.random()<(e.type==='raider'?0.45:0.32)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
   if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}
-  questOnKill(e);
+  questOnKill(e);fzOnKill(e);
   if(e.night&&Math.random()<0.35)dropLoot(e.pos.x-1,e.pos.z,genItem(clamp(e.lv,1,MAXLVL),null,Math.max(1,rollRarityL(e.lv,20))));
   if(!e.dun){const v=rollVeil(e);if(v)dropLoot(e.pos.x,e.pos.z-1.2,v);}
   if(e.dun)dunOnKill(e);
@@ -2297,7 +2310,7 @@ function openConduit(fromId){const kn=knownNodes();const W=420,sc=W/540;const tx
   const list=CONDUIT.map(n=>{const lk=!nodeOpen(n);const k=kn.includes(n.id)&&!lk;const here=n===from;if(lk&&n.id!=='town'){const g=GATES[n.gate],s=STEP[g.step];return `<button class="item" data-act="slockc" data-g="${n.gate}" style="opacity:.7"><span class="ico">🔒</span><span style="flex:1"><div class="nm">${esc(n.name)}</div><div class="st"><span class="down">Story step ${s.i+1} "${esc(s.n)}" (Lv ${s.lvl})</span></div></span></button>`;}return `<button class="item${here?' sel':''}" ${k&&!here?`data-act="travel" data-id="${n.id}"`:'disabled'} style="${k?'':'opacity:.5'}"><span class="ico">${here?'📍':k?'🔷':'❔'}</span><span style="flex:1"><div class="nm">${k?esc(n.name):'Undiscovered node'}</div><div class="st">${k&&n.id.startsWith('door_')&&DUNGEONS[n.id.slice(5)]?(()=>{const ck=dunEntryCheck(n.id.slice(5));return `<span class="${ck.why==='cap'?'down':'up'}">${dunRange(n.id.slice(5))}${ck.why==='cap'?' · '+esc(ck.msg):''}</span><br>`;})():''}${here?'You are here':k?Math.round(Math.hypot(n.x-from.x,n.z-from.z))+'m · instant transit':'Walk near it to link it to the network'}</div></span></button>`;}).join('');
   openPanel('🔷 CONDUIT NETWORK',`<div class="cols"><div>${svg}<div style="font-size:12px;opacity:.75;margin-top:6px">Cyan: Conduit links between discovered nodes. Purple: teleporter pads between the outposts. Orange triangles: wild pack camps. Gold squares: Bank terminals.</div></div><div><div class="h4">Destinations</div>${list}</div></div>`,'conduit');}
 let transitT=0;
-function conduitTravel(id){const n=nodeById(id);if(!n||!knownNodes().includes(id))return false;if(!nodeOpen(n)){lockedMsg(n.gate,true);return false;}if(DUN||P.dead)return false;if(T-P.lastCombat<5){warn('Can\'t enter the Conduit while in combat');return false;}
+function conduitTravel(id){const n=nodeById(id);if(!n||!knownNodes().includes(id))return false;if(fzNodeBlocked(id))return false;if(!nodeOpen(n)){lockedMsg(n.gate,true);return false;}if(DUN||P.dead)return false;if(T-P.lastCombat<5){warn('Can\'t enter the Conduit while in combat');return false;}
   P.target=null;P.autoAtk=false;resetInput();const el=$('#transit');el.querySelector('b').textContent='CONDUIT TRANSIT → '+n.name.toUpperCase();el.classList.add('on');tone(300,0.9,'sine',0.05,900);P.transit=id;
   setTimeout(()=>{P.pos.set(n.x+2.5,0,n.z+2.5);P.pos.y=heightAt(P.pos.x,P.pos.z);P.rotY=Math.atan2(-n.x,-n.z)||0;camS.yaw=P.rotY+Math.PI;camS.cur=null;},700);
   setTimeout(()=>{el.classList.remove('on');P.transit=null;ringFx(P.pos.x,P.pos.z,0x5ff2ff,4,0.9);SFX.heal();banner('CONDUIT',n.name);save();},1500);return true;}
@@ -2366,7 +2379,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {perkMeta:normPerkMeta(s.perkMeta),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
+function futureFields(s){return {perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -2989,6 +3002,7 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('📟 Missions, 🚪 dungeons &amp; 💾 saving','Take missions at the terminal in Halden\'s Rest. The slider sets difficulty and reward. Dungeon doors in the desert lead to solo instances with bosses and exclusive loot. Save Points (💾) protect your XP; dying loses part of the XP earned since your last save. 🔷 Conduit nodes are fast travel. Nights bring Gloam Stalkers and better loot.')+
   S_('🧬 Breeds','Settler (balanced), Dunebred (strong, tough, poor minds), Vyrekin (brilliant casters, frail) and Glassborn (agile and sharp). Breed changes starting stats, training caps, costs, health and energy.')+
   S_('⚑ Factions &amp; towers','Join the Solace Combine or the Ashborn Free Clans (Registrar Hale in town; switching costs credits and half your rep). Faction contracts, kills and towers earn reputation, which unlocks faction vendor gear tiers. Three desert towers can be captured: kill the guards, destroy the core, then plant your own. Each tower your side holds gives +4% power and +2% damage reduction, and the other side will come to take it back.')+
+  S_('🏴 Faction zones','Four zones are held by a faction: <b>Ironward Reach</b> (Combine) and <b>Emberhollow</b> (Ashborn) in the Duskcrown Highlands (Lv 14–17), <b>Coldspire Directive</b> (Combine) and <b>Frostforge Wilds</b> (Ashborn) in the Rimefall Expanse (Lv 24–27). They show as coloured circles on the map and minimap. <b>Members of the holding faction</b> get a quartermaster, a commander with a repeatable patrol contract (rep, credits, XP and a Rare or Epic item), a Save Point and a Conduit. <b>Members of the other faction</b> are attacked on sight by Sentinels as soon as they cross the border: Sentinels hit for about a third of your health, chase you a short way and cannot be killed, and the outpost refuses you. <b>Unaligned</b> players are tolerated: Sentinels ignore you and you can rest at the Save Point, but there is no trade or contract work.')+
   S_('🛵 Vehicles','Buy a Dust Skiff from the trader (or earn faction skiffs from your first tower capture). Summon it with 🛵 or R: a short cast, out of combat, not in dungeons or your apartment. Attacking or getting hit knocks you off.')+
   S_('🤖 Dronewright pets','Dronewrights assemble a combat bot that follows you, attacks your target and has its own health. Patch Drone heals it, Overcharge buffs it, Taunt Protocol pulls enemies to it, and Weave Disks unlock bigger frames. Use the pet bar (or Z/X/C) for attack/follow/stay.')+
   S_('⛺ Wild packs','Camps of <b>4–8 enemies</b> sit around the open world (orange ⛺ triangles on the minimap and the Conduit map), from <b>Skitter Hollow</b> (Lv 1–2) near Halden\'s Rest out to the <b>Ember Wastes</b> (Lv 8–10). Camps by Cinderwell Post and Glassreach Camp appear once those areas are unlocked in the story.<br><br>Pull one and <b>the whole pack follows</b>. Pack enemies run a little slower than you on foot, so you can <b>kite</b> them with ranged attacks and AoE: watch for <b>Dune Maulers</b> (Crippled) and <b>Glass Spitters</b> (Glassed), whose hits slow you. Drag them more than ~55 m from camp and they give up, run home and heal.<br><br>Each kill gives <b>+6% XP for every other enemy fighting you</b> (up to +30%), and wiping a whole camp gives a <b>Pack cleared</b> bonus of 25% of that pack\'s XP. Cleared camps respawn after <b>60–120 s</b> (higher-level camps take longer) once you step away.')+
@@ -3002,7 +3016,7 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('📋 Missions (log, side quests, chains)','Hold up to <b>6</b> missions at once next to the story: terminal contracts plus side quests from 10 quest givers across every region (gold ❗ = new quest, green ✔ = ready to claim, blue 💬 = talk to them). Types: retrieve items, loot drops (not every kill drops one), deliver, talk, escort, defend waves, activate terminals (stand 2s), hunt a named elite or dyna, explore sites, kill, and timed runs. Some are multi-stage chains, and a few make you choose a branch. Open 📜 Journal → <b>📋 Missions</b> to track/untrack, set the 📍 waypoint mission, turn on auto-waypoint, retry a failed one, or abandon. Rewards scale with your level (cap 10).')+
   S_('💀 Dynas (named elite camps)','Every region has 1–2 <b>dynas</b>: named elite bosses at fixed camps, with adds, lots of health and a signature move (slams, spit pools, shields, summons, enrage). They always drop good loot and sometimes a rare named item you can only get from them. After a kill a dyna stays down for 10–20 real minutes, even across reloads, and sometimes a lesser placeholder spawns in its spot first. Discovered dynas show on the map and minimap as 💀: red when up, grey when down. Hunt quests send you after some of them.')+
   S_('⚔ Raids (team instances, 3 runs a week)','A <b>raid</b> is a big instance built for a full team of <b>6</b>: you plus up to 5 of your own alts, who fight as AI team members with their own level and gear (tanks hold threat, menders heal, everyone dodges). Empty seats are filled by contract mercenaries at your level. The first raid is <b>The Cinderdeep Bastion</b>: its portal stands in the <b>Cinderveil Badlands</b> (south-east, ⚔ on the map). Level <b>9–10</b> (cap 10, judged by the highest team member) after the Vault Theta-9 story step. Three bosses with telegraphed attacks: <b>Slagwarden Torvek</b> (spread out for Scorch Brand), <b>Vessa, the Ember Queen</b> (break her Ember Pylons to drop her shield) and <b>The Ashen Colossus</b> (when Inferno Nova glows, run IN to the green safe ring).<br><br><b>Lockout:</b> each raid can be run <b>3 times per week</b>. The week resets every <b>Monday 00:00</b> (your local time). A run is used the first time a boss dies in it, so wiping before any kill costs nothing. Lockouts are per character: the 📜 Journal → ⚔ Raids tab shows runs left and the reset timer. Bosses drop raid-only gear (the Cinderborn set and Bastion weapons, plus a rare Relic) and <b>Raid Sigils ◈</b> (2 / 3 / 5), which buy raid gear from the Sigil tab at the portal.')+
-  S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every Common/Uncommon gear piece from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
+  S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every item tagged <b>Junk</b> (Common gear and implants, plus anything you tag) from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
   S_('🏠 Apartment &amp; locker','The green-lit door on the north-west building in Halden\'s Rest is your apartment. Inside: a <b>locker</b> that opens your 🏦 Bank, a <b>mirror</b> for clothes, dyes and hair, a <b>workbench</b> for tradeskills and a <b>decor</b> console to buy and place furniture.'),'help');}
 
 /* ---------- hooks ---------- */
@@ -3449,9 +3463,9 @@ const BSORT=[['new','Newest'],['rar','Rarity'],['lvl','Level'],['name','Name']];
 function bankType(it){if(it.kind==='imp')return 'imp';if(it.kind==='disk')return 'disk';if(it.kind==='gear')return it.slot==='weapon'?'weapon':'armour';return 'other';}
 function bankFilter(L){return L.filter(it=>BK.f==='all'||bankType(it)===BK.f);}
 function bankSorted(L){const a=L.map((it,i)=>({it,i}));const s=BK.sort;a.sort((x,y)=>s==='rar'?(y.it.r-x.it.r)||(y.it.lvl||0)-(x.it.lvl||0):s==='lvl'?((y.it.lvl||0)-(x.it.lvl||0))||(y.it.r-x.it.r):s==='name'?String(x.it.name).localeCompare(String(y.it.name)):y.i-x.i);return a.map(o=>o.it);}
-const isJunk=it=>it&&it.kind==='gear'&&(it.r|0)<=1&&!it.crafted;
+const isJunk=it=>!!it&&!it.crafted&&isJunkItem(it);// Build F: the bank's Store junk uses the shared Junk tag (Common gear/implants + anything tagged junk)
 function bankStoreJunk(){const B=loadBank();let n=0,full=false;for(const it of P.inv.slice()){if(!isJunk(it))continue;if(B.items.length>=BANK_CAP){full=true;break;}B.items.push(it);P.inv.splice(P.inv.indexOf(it),1);n++;}
-  writeBank(B);save();if(full)warn('Bank full ('+BANK_CAP+')');toast(n?'🏦 Stored '+n+' junk item'+(n===1?'':'s'):'No Common/Uncommon gear in your pack');return n;}
+  writeBank(B);save();if(full)warn('Bank full ('+BANK_CAP+')');toast(n?'🏦 Stored '+n+' junk item'+(n===1?'':'s'):'No junk-tagged gear in your pack');return n;}
 function bankStoreParts(){const B=loadBank();let n=0;for(const o of bag().slice()){bagAdd(o,o.n,B.bag);bagTake(o.id,o.n);n++;}writeBank(B);save();toast(n?'🏦 Stored '+n+' part stack'+(n===1?'':'s'):'No parts to store');return n;}
 function bankTakeParts(){const B=loadBank();let n=0;for(const o of B.bag.slice()){bagAdd(o,o.n);bagTake(o.id,o.n,B.bag);n++;}writeBank(B);save();toast(n?'🏦 Took '+n+' part stack'+(n===1?'':'s'):'No parts stored');return n;}
 function openBank(tab){if(tab)BK.tab=tab;const B=loadBank();const t=BK.tab;const keep=panelOpen==='locker'&&BK.last===t?pbody.scrollTop:0;BK.last=t;
@@ -3573,7 +3587,7 @@ function updCull(dt){if(DUN)return;cullAcc+=dt;if(cullAcc<0.25)return;cullAcc=0;
 // ---- regions: banner on entry, HUD label, sky tint ----
 var BSKY=null;
 const RG={cur:null,cand:null,acc:0};
-function regionAt(x,z){if(Math.abs(x)<TOWN+0.5&&Math.abs(z)<TOWN+0.5)return {id:'town',name:"Halden's Rest"};for(const o of OUTPOSTS)if(Math.hypot(x-o.x,z-o.z)<o.r+3)return {id:o.id,name:o.name};const b=BIOMES[biomeIdx(x,z)];return {id:b.id,name:b.name,b};}
+function regionAt(x,z){if(Math.abs(x)<TOWN+0.5&&Math.abs(z)<TOWN+0.5)return {id:'town',name:"Halden's Rest"};for(const o of OUTPOSTS)if(Math.hypot(x-o.x,z-o.z)<o.r+3)return {id:o.id,name:o.name};{const fz=fzAt(x,z);if(fz)return {id:fz.id,name:FACTIONS[fz.side].icon+' '+fz.name,fz};}const b=BIOMES[biomeIdx(x,z)];return {id:b.id,name:b.name,b};}
 function regionGateTxt(b){if(!b||!b.gate||gateOpen(b.gate))return '';const s=STEP[GATES[b.gate].step];return ' · 🔒 its wild packs wake after story step '+(s.i+1);}
 function updRegions(dt){if(DUN&&state==='play'){const el=$('#region'),n=DUN.apt?'Your Apartment':DUN.D.name;if(el&&el._t!==n){el._t=n;el.textContent=(DUN.D&&DUN.D.raid?'⚔ ':'🚪 ')+n;}RG.cur=null;RG.cand=null;return;}if(DUN||state!=='play')return;RG.acc+=dt;if(RG.acc<0.4)return;RG.acc=0;
   const r=regionAt(P.pos.x,P.pos.z);const bi=biomeIdx(P.pos.x,P.pos.z);if(!BSKY)BSKY={fog:new THREE.Color(BIOMES[0].fog),hemi:new THREE.Color(BIOMES[0].hemi),w:new Float32Array(NB)};
@@ -3641,7 +3655,7 @@ function drawMap(){const {W,H,dpr}=mapSize();const c=mctx2;c.setTransform(dpr,0,
   const lab=(x,z,t,col)=>{const q=mapW2S(x,z);c.font='bold 12px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.8)';c.fillStyle=col||'#fff';c.strokeText(t,q[0],q[1]-14);c.fillText(t,q[0],q[1]-14);};
   // town + outposts
   {const a=mapW2S(-TOWN,-TOWN);c.strokeStyle='#f0e0c0';c.lineWidth=2;c.strokeRect(a[0],a[1],TOWN*2*MAP.ppm,TOWN*2*MAP.ppm);lab(0,-TOWN,"Halden's Rest",'#ffe8b0');}
-  for(const o of OUTPOSTS){const q=mapW2S(o.x,o.z);const open=!GATES[o.id]||gateOpen(o.id);c.fillStyle=open?'#5ff2ff':'#777';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(q[0],q[1],7,0,7);c.fill();c.stroke();lab(o.x,o.z,(open?'':'🔒 ')+o.name);}
+  fzMap(c,mapW2S,lab,vis);for(const o of OUTPOSTS){const q=mapW2S(o.x,o.z);const open=!GATES[o.id]||gateOpen(o.id);c.fillStyle=o.fz?FACTIONS[fzById(o.fz).side].col:open?'#5ff2ff':'#777';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(q[0],q[1],7,0,7);c.fill();c.stroke();lab(o.x,o.z,(open?'':'🔒 ')+o.name);}
   for(const k in DUNGEONS){const d=DUNGEONS[k];const q=mapW2S(d.door.x,d.door.z);c.fillStyle='#ff9a2a';c.strokeStyle='#000';c.lineWidth=2;c.fillRect(q[0]-6,q[1]-6,12,12);c.strokeRect(q[0]-6,q[1]-6,12,12);lab(d.door.x,d.door.z,d.name,'#ffc890');}
   for(const k in RAIDS){const d=RAIDS[k];if(!d.door||!vis(d.door.x,d.door.z))continue;const q=mapW2S(d.door.x,d.door.z);c.fillStyle='#ff6a2a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-9);c.lineTo(q[0]+9,q[1]);c.lineTo(q[0],q[1]+9);c.lineTo(q[0]-9,q[1]);c.closePath();c.fill();c.stroke();lab(d.door.x,d.door.z,'⚔ '+d.name+' (raid)','#ffb080');}
   for(const s of TSITES){const q=mapW2S(s.x,s.z);const o=TW[s.id]&&TW[s.id].owner;c.fillStyle=o?FACTIONS[o].col:'#9a9a9a';c.strokeStyle='#000';c.beginPath();c.moveTo(q[0],q[1]-8);c.lineTo(q[0]+7,q[1]);c.lineTo(q[0],q[1]+8);c.lineTo(q[0]-7,q[1]);c.closePath();c.fill();c.stroke();}
@@ -5563,6 +5577,122 @@ function lootInit(){pbody.addEventListener('click',e=>{const b=e.target.closest(
   else if(a==='selljunk'){sellJunk();if(panelOpen==='vend')openVendor();else if(panelOpen==='fvend')openFacVendor(curFV);else if(panelOpen==='inv')openInventory();}});}
 function lootExports(){return {LOOTF,lootF,setLootF,lootDecide,lootKeep,isJunkItem,invAdd,invCan,stackInv,stackN,junkList,junkValue,sellJunk,lootPile,lootTake,lootTakeAll,openLoot,renderLoot,lootPick,lootInteract,lootSellPileJunk,dropLoot,updLoot,learnDisk,openVendor,openFacVendor,openInventory,killEnemy,genDisk,findInteract,interact,tapPick,get loots(){return loots;},camera,VEND,bagAdd,bag,makeElite,exportText,entChest,findItem,CONSUM,setVendTab(t){vendTab=t;},get nearI(){return nearI;}};}
 
+/* ================= BUILD G: faction zones =================
+   Four zones held by a faction (one per faction in the Duskcrown Highlands, Lv 14-17, and one per faction in the Rimefall Expanse, Lv 24-27).
+   - Members of the holding faction: full services at the outpost (quartermaster, commander with a repeatable patrol contract), Save Point + Conduit.
+   - Members of the other faction: Sentinels attack on sight inside the border (warning banner on approach), chase a limited distance, hit for ~30% of
+     your max health, and can't be killed (10M health, they rally to full). The outpost, its Save Point and its Conduit node refuse you.
+   - Unaligned / unregistered: tolerated. Sentinels ignore you and you can't attack them, you may pass through and use the Save Point and Conduit,
+     but the quartermaster and commander deal with members only. */
+const FZ={guards:[],ren:[],npcs:[],acc:0,cur:null,warnT:{}};
+const FZ_GUARD_HP=9999999,FZ_HIT=0.3,FZ_NEED=8;
+function fzById(id){return FZONES.find(z=>z.id===id)||null;}
+function fzAt(x,z){for(const Z of FZONES)if(Math.hypot(x-Z.x,z-Z.z)<Z.R)return Z;return null;}
+function fzMySide(){const s=P.faction&&P.faction.side;return s==='combine'||s==='ashborn'?s:null;}
+function fzStance(Z){if(!Z)return 'neutral';const me=fzMySide();return !me?'neutral':me===Z.side?'friendly':'hostile';}
+function fzCanHit(e){return !!(e&&e.guard)&&fzStance(fzById(e.guard.zone))==='hostile';}
+function fzSkip(e){return !!(e&&e.guard)&&!fzCanHit(e);}
+function fzLv(Z){return Math.round((Z.lv[0]+Z.lv[1])/2);}
+function fzStanceTxt(Z){const st=fzStance(Z),F=FACTIONS[Z.side];return st==='friendly'?'Friendly territory · quartermaster and commander at '+Z.out:st==='hostile'?'⚠ Hostile: '+Z.gl+'s attack '+FACTIONS[fzMySide()].short+' on sight':'Unaligned: tolerated, but '+F.short+' services are for members only';}
+function normFz(f){f=f&&typeof f==='object'?f:{};const b=f.b&&fzById(f.b.zone)?{zone:f.b.zone,need:Math.max(1,f.b.need|0||FZ_NEED),got:0}:null;if(b)b.got=clamp(f.b.got|0,0,b.need);
+  const ob=o=>{const r={};if(o&&typeof o==='object')for(const k in o)if(fzById(k))r[k]=Math.max(0,o[k]|0);return r;};return {b,done:ob(f.done),seen:ob(f.seen)};}
+function fzS(){return P.fz=P.fz&&P.fz.done?P.fz:normFz(P.fz);}
+/* ---------- world: border pylons, outpost dressing, NPCs, Sentinels, renegades ---------- */
+function fzBuild(Z){const F=FACTIONS[Z.side],pal=FZ_PAL[Z.side];const g=new THREE.Group();scene.add(g);
+  for(let i=0;i<24;i++){const a=i/24*6.283;const x=Z.x+Math.cos(a)*Z.R,z=Z.z+Math.sin(a)*Z.R;if(inTown({x,z}))continue;const y=heightAt(x,z);
+    part(g,geoBox,M(pal[1]),x,y+1.8,z,0.35,3.6,0.35);part(g,geoBox,MB(F.hex),x,y+3.75,z,0.55,0.55,0.55);const fl=part(g,geoBox,M(pal[3]),x,y+2.7,z,0.06,1.1,1.2);fl.rotation.y=-a;circles.push({x,z,r:0.45});}
+  const y=heightAt(Z.x,Z.z);// flag mast + banner in the middle, two gate towers
+  part(g,geoBox,M(0x3a3a3a),Z.x-1.5,y+4,Z.z-1.5,0.22,8,0.22);part(g,geoBox,M(pal[3]),Z.x-1.5+0.9,y+7,Z.z-1.5,1.7,1.2,0.06);part(g,geoBox,MB(F.glow),Z.x-1.5,y+8.15,Z.z-1.5,0.4,0.4,0.4);circles.push({x:Z.x-1.5,z:Z.z-1.5,r:0.4});
+  for(const sx of [-1,1]){const tx=Z.x+sx*15.5,tz=Z.z+4.2,ty=heightAt(tx,tz);part(g,geoBox,M(pal[0]),tx,ty+2.6,tz,1.8,5.2,1.8);part(g,geoBox,M(pal[3]),tx,ty+5.4,tz,2.3,0.4,2.3);part(g,geoBox,MB(F.hex),tx,ty+5.9,tz,0.5,0.5,0.5);
+    boxes.push({x0:tx-0.9,x1:tx+0.9,z0:tz-0.9,z1:tz+0.9,y0:ty,y1:ty+5.6});}
+  // NPCs: commander by the flag, quartermaster by the stores
+  const npc=(role,name,x,z,body,acc)=>{const ny=heightAt(x,z);const R=buildHumanoid(body,acc,F.glow,0x6a4a3a,{npc:1,cape:pal[1]});R.g.position.set(x,ny,z);R.g.rotation.y=Math.atan2(Z.x-x,Z.z-z);
+    part(R.g,new THREE.OctahedronGeometry(1,0),MB(F.hex),0,2.65,0,0.22,0.34,0.22);scene.add(R.g);circles.push({x,z,r:0.6});const n={zone:Z.id,role,name,x,z,R};FZ.npcs.push(n);try{R.anim&&R.anim(0,0,0,0);}catch(err){}return n;};
+  const Fn=Z.side==='combine';
+  npc('cmd',(Fn?'Commander ':'Warchief ')+({ironward:'Hesk Varro',emberhollow:'Ysolde Cinder',coldspire:'Adair Thorne',frostforge:'Brann Kettleback'})[Z.id],Z.x-6,Z.z+2.5,Fn?0x3c4a62:0x5a3424,F.hex);
+  npc('qm',(Fn?'Supply Officer ':'Trader ')+({ironward:'Lune Matsik',emberhollow:'Rook Ashley',coldspire:'Pell Arkwright',frostforge:'Sefa Tallow'})[Z.id],Z.x+7.5,Z.z+0.5,Fn?0x56627a:0x6a4a34,pal[3]);
+}
+// Sentinels + renegades only exist while you are near the zone (keeps the world enemy count and frame cost down)
+function fzSpawn(Z){if(Z.live)return;Z.live=true;
+  // Sentinels: 2 at each gate (long leash), 6 border pickets (short leash)
+  const lvG=Math.min(MAXLVL,Z.lv[1]+6);
+  for(const sx of [-1,1])for(const sz of [-1,1])fzGuard(Z,Z.x+sx*13.6,Z.z+sz*2.3,lvG,62,26);
+  for(let i=0;i<6;i++){const a=(i+0.5)/6*6.283;fzGuard(Z,Z.x+Math.cos(a)*(Z.R-7),Z.z+Math.sin(a)*(Z.R-7),lvG,34,22);}
+  // contested ground: renegades (normal enemies) for the patrol contract
+  for(let i=0;i<8;i++){const a=i/8*6.283+0.39,rr=Z.R*(0.45+0.4*((i*37)%10)/10);const x=Z.x+Math.cos(a)*rr,z=Z.z+Math.sin(a)*rr;
+    const e=makeEnemy('raider',x,z,clamp(Z.lv[0]+(i%4),1,MAXLVL));e.T=Object.assign({},e.T,{name:Z.ren});e.fzR=Z.id;e.wr=6;retint(e.R.g,0x6f6a60,0.45);FZ.ren.push(e);}}
+function fzDespawn(Z){if(!Z.live)return false;const mine=e=>(e.guard&&e.guard.zone===Z.id)||e.fzR===Z.id;
+  if(FZ.guards.concat(FZ.ren).some(e=>mine(e)&&e.state==='chase'&&!e.dead))return false;
+  for(const e of FZ.guards.concat(FZ.ren))if(mine(e)){if(P.target===e)P.target=null;if(enemies.includes(e))removeEnemy(e);}
+  FZ.guards=FZ.guards.filter(e=>!mine(e));FZ.ren=FZ.ren.filter(e=>!mine(e));Z.live=false;return true;}
+function fzStream(){if(DUN)return;for(const Z of FZONES){const d=Math.hypot(P.pos.x-Z.x,P.pos.z-Z.z);if(d<Z.R+170)fzSpawn(Z);else if(d>Z.R+240)fzDespawn(Z);}}
+function fzGuard(Z,x,z,lv,leash,ar){const F=FACTIONS[Z.side];const e=makeEnemy('raider',x,z,lv);e.type='fguard';
+  e.T=Object.assign({},e.T,{name:Z.gl,xp:0,aggro:0,speed:6.6,range:15,atkCd:1.5,scale:e.T.scale*1.32});
+  e.maxHp=e.hp=FZ_GUARD_HP;e.guard={zone:Z.id,side:Z.side,ar};e.leash=leash;e.wr=0.5;e.hitR*=1.32;e.h*=1.32;e.rotY=Math.atan2(x-Z.x,z-Z.z);
+  retint(e.R.g,F.hex,0.6,F.glow);const ring=new THREE.Mesh(new THREE.RingGeometry(0.95,1.2,24).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:F.hex,transparent:true,opacity:0.75,depthWrite:false}));ring.position.y=0.06;e.R.g.add(ring);
+  FZ.guards.push(e);return e;}
+FZONES.forEach(fzBuild);
+/* ---------- rules ---------- */
+function fzGuardWants(e,dP){if(P.dead||DUN||state!=='play')return false;const Z=fzById(e.guard.zone);if(fzStance(Z)!=='hostile')return false;
+  return dP<e.guard.ar&&Math.hypot(P.pos.x-Z.x,P.pos.z-Z.z)<Z.R+2;}
+function fzGuardFar(e){const Z=fzById(e.guard.zone);return Math.hypot(P.pos.x-Z.x,P.pos.z-Z.z)>Z.R+40;}
+function fzHitAmt(){return S.maxHp*FZ_HIT/((100/(100+(S.armor||0)))*(1-(S.dr||0)/100));}
+function fzNodeBlocked(id){const Z=fzById(id);if(Z&&fzStance(Z)==='hostile'){warn('The '+Z.out+' Conduit only opens for '+FACTIONS[Z.side].short+' members');return true;}return false;}
+function fzInteract(p){for(const Z of FZONES){if(Math.hypot(p.x-Z.x,p.z-Z.z)>15)continue;
+    for(const n of FZ.npcs)if(n.zone===Z.id&&Math.hypot(p.x-n.x,p.z-n.z)<3.2)return {k:'fz',zone:Z.id,role:n.role,label:(n.role==='qm'?'🛒 ':'⚑ ')+n.name};
+    if(fzStance(Z)==='hostile')return {k:'fzdeny',zone:Z.id,label:'⛔ '+FACTIONS[Z.side].short+' outpost'};}return null;}
+function fzDo(n){const Z=fzById(n.zone);if(!Z)return;const st=fzStance(Z),F=FACTIONS[Z.side];
+  if(n.k==='fzdeny'){warn(Z.out+' is a '+F.short+' outpost: its Save Point and Conduit refuse you');return;}
+  if(st==='hostile'){warn('"'+FACTIONS[fzMySide()].short+'? Sentinels!" Nobody here will deal with you');return;}
+  if(n.role==='qm'&&st==='friendly'){openFacVendor(Z.side);return;}
+  openFzCommand(Z);}
+function fzReward(Z){const rim=Z.ring==='rime';return {rep:rim?100:60,cr:fzLv(Z)*35,xp:P.level>=MAXLVL?0:Math.round(xpNeed(P.level)*0.15)};}
+function fzAccept(id){const Z=fzById(id),f=fzS();if(!Z||fzStance(Z)!=='friendly')return false;if(f.b&&f.b.got<f.b.need&&f.b.zone!==id){warn('Finish or abandon your '+fzById(f.b.zone).name+' contract first');return false;}
+  f.b={zone:id,need:FZ_NEED,got:0};log('⚑ <b>Patrol contract</b>: clear '+FZ_NEED+' '+Z.ren+'s from '+Z.name+'.');toast('⚑ Contract accepted');save();return true;}
+function fzAbandon(){const f=fzS();if(!f.b)return false;f.b=null;save();return true;}
+function fzTurnIn(id){const Z=fzById(id),f=fzS();if(!Z||!f.b||f.b.zone!==id||f.b.got<f.b.need||fzStance(Z)!=='friendly')return false;const r=fzReward(Z);
+  f.b=null;f.done[id]=(f.done[id]||0)+1;gainRep(Z.side,r.rep);P.credits+=r.cr;if(r.xp)gainXp(r.xp);
+  const it=genItem(fzLv(Z),null,Math.random()<0.25?3:2);it.src=it.src||null;if(!invAdd(it))dropLoot(P.pos.x+1,P.pos.z,it);
+  SFX.quest();banner('⚑ CONTRACT COMPLETE',Z.name+' · +'+r.rep+' '+FACTIONS[Z.side].short+' rep · +'+r.cr+'¢'+(r.xp?' · +'+r.xp+' XP':'')+' · '+it.name);
+  log('⚑ Contract complete: <b style="color:'+RAR[it.r].c+'">'+esc(it.name)+'</b>, '+r.cr+'¢'+(r.xp?', '+r.xp+' XP':''));save();return it;}
+function fzOnKill(e){if(!e||!e.fzR)return;const f=fzS();if(!f.b||f.b.zone!==e.fzR||f.b.got>=f.b.need)return;f.b.got++;
+  floatText(tmpV.set(P.pos.x,P.pos.y+2.8,P.pos.z),'⚑ '+f.b.got+'/'+f.b.need,'info');if(f.b.got>=f.b.need){toast('⚑ Contract done: report to the commander');SFX.quest();}}
+/* ---------- commander panel ---------- */
+function openFzCommand(Z){const F=FACTIONS[Z.side],st=fzStance(Z),f=fzS(),r=fzReward(Z),n=FZ.npcs.find(q=>q.zone===Z.id&&q.role==='cmd');
+  let h=`<div class="fzhead" style="border-color:${F.col}"><span class="fzic">${F.icon}</span><div><b style="color:${F.col}">${esc(Z.name)}</b><div>Held by the ${F.name} · Lv ${Z.lv[0]}–${Z.lv[1]} · ${esc(n?n.name:'')}</div></div></div>`;
+  h+=`<div class="fzrules"><div><b style="color:${F.col}">${F.short} members</b>: full services, patrol contracts, Save Point and Conduit.</div><div><b>Unaligned</b>: tolerated. Sentinels let you pass, Save Point and Conduit work, but no trade or contracts.</div><div><b style="color:${FACTIONS[Z.side==='combine'?'ashborn':'combine'].col}">${FACTIONS[Z.side==='combine'?'ashborn':'combine'].short} members</b>: ${Z.gl}s attack on sight inside the border. They can't be killed.</div></div>`;
+  if(st!=='friendly'){h+=`<div class="fzmsg">"${st==='neutral'?'Unaligned, eh? You can rest here, but contracts and stores are for '+F.short+' only. Registrar Hale in Halden\'s Rest can fix that.':'Get out.'}"</div>`;}
+  else{const b=f.b&&f.b.zone===Z.id?f.b:null,other=f.b&&f.b.zone!==Z.id?fzById(f.b.zone):null;
+    h+=`<div class="h4" style="margin-top:10px">Patrol contract · repeatable</div><div class="fzc"><div>Clear <b>${FZ_NEED} ${Z.ren}s</b> from ${Z.name}.</div><div class="fzrew">Reward: +${r.rep} ${F.short} rep · ${r.cr}¢${r.xp?' · '+r.xp+' XP':''} · a Rare or Epic item (Lv ${fzLv(Z)})</div>`;
+    if(b){const pc=Math.round(b.got/b.need*100);h+=`<div class="fzbar"><i style="width:${pc}%;background:${F.col}"></i><span>${b.got} / ${b.need}</span></div>`+(b.got>=b.need?`<button class="sbtn fzbtn" data-fz="turnin" data-z="${Z.id}">Turn in contract</button>`:`<button class="sbtn alt fzbtn" data-fz="abandon" data-z="${Z.id}">Abandon</button>`);}
+    else h+=`<button class="sbtn fzbtn" data-fz="accept" data-z="${Z.id}" ${other&&f.b.got<f.b.need?'disabled':''}>Accept contract</button>`+(other?`<div class="fzrew">You already hold a contract for ${other.name}.</div>`:'');
+    h+=`</div><div class="fzrew" style="margin-top:6px">Contracts completed here: ${f.done[Z.id]||0} · Your ${F.short} standing: ${REP_TIERS[repTier(Z.side)].n} (${fac().rep[Z.side]} rep)</div>`;}
+  openPanel(Z.out.toUpperCase(),h,'fzcmd');FZ.open=Z.id;}
+function fzInit(){pbody.addEventListener('click',e=>{const b=e.target.closest('[data-fz]');if(!b||b.disabled)return;const a=b.dataset.fz,Z=fzById(b.dataset.z);SFX.ui();if(!Z)return;
+  if(a==='accept')fzAccept(Z.id);else if(a==='abandon')fzAbandon();else if(a==='turnin')fzTurnIn(Z.id);openFzCommand(Z);});}
+/* ---------- per-frame: Sentinel damage + rally, borders, banners ---------- */
+function fzUpdate(dt){if(DUN)return;const hit=fzHitAmt();
+  for(const e of FZ.guards){if(e.dead){e.dead=false;e.hp=e.maxHp;}if(e.state==='chase'){e.dmg=hit;if(e.hp<e.maxHp*0.6)e.hp=e.maxHp;}else if(e.hp<e.maxHp)e.hp=e.maxHp;}
+  for(const n of FZ.npcs)if(Math.abs(n.x-P.pos.x)<60&&Math.abs(n.z-P.pos.z)<60){try{n.R.anim&&n.R.anim(T,0,0,0);}catch(err){}}
+  FZ.acc+=dt;if(FZ.acc<0.3)return;FZ.acc=0;fzStream();if(P.dead)return;
+  const Z=fzAt(P.pos.x,P.pos.z);
+  if(Z!==FZ.cur){const prev=FZ.cur;FZ.cur=Z;
+    if(Z){const F=FACTIONS[Z.side],st=fzStance(Z);fzS().seen[Z.id]=1;banner((st==='hostile'?'⚠ ':F.icon+' ')+Z.name.toUpperCase(),'Held by the '+F.name+' · Lv '+Z.lv[0]+'–'+Z.lv[1]+' · '+fzStanceTxt(Z));
+      log('<b style="color:'+F.col+'">'+F.icon+' Entered '+Z.name+'</b> ('+F.short+'-held). '+fzStanceTxt(Z)+'.');if(st==='hostile'){warn(Z.gl+'s attack '+FACTIONS[fzMySide()].short+' on sight!');tone(220,0.25,'sawtooth',0.04,-80);}}
+    else if(prev)log('Left '+prev.name+'.');}
+  if(!Z){for(const W of FZONES){if(fzStance(W)!=='hostile')continue;const d=Math.hypot(P.pos.x-W.x,P.pos.z-W.z);if(d<W.R+22&&d>=W.R&&T-(FZ.warnT[W.id]??-99)>25){FZ.warnT[W.id]=T;const F=FACTIONS[W.side];
+    banner('⚠ '+F.short.toUpperCase()+' TERRITORY AHEAD',W.name+' · '+W.gl+'s attack '+FACTIONS[fzMySide()].short+' on sight and can\'t be killed. Turn back.');warn('Entering '+F.short+'-held ground: '+W.name);}}}}
+/* ---------- map + minimap ---------- */
+function fzMap(c,w2s,lab,vis){for(const Z of FZONES){const F=FACTIONS[Z.side],q=w2s(Z.x,Z.z),rp=Z.R*MAP.ppm,known=vis(Z.x,Z.z)||!!fzS().seen[Z.id];
+  c.save();c.globalAlpha=0.16;c.fillStyle=F.col;c.beginPath();c.arc(q[0],q[1],rp,0,7);c.fill();c.globalAlpha=0.9;c.strokeStyle=F.col;c.lineWidth=2.5;c.setLineDash([7,5]);c.beginPath();c.arc(q[0],q[1],rp,0,7);c.stroke();c.restore();
+  const t=F.icon+' '+(known?Z.name:F.short+' territory')+' · '+F.short+'-held';c.font='bold 12px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.85)';c.fillStyle=F.col;c.strokeText(t,q[0],q[1]-rp-4);c.fillText(t,q[0],q[1]-rp-4);
+  if(known){const l='Lv '+Z.lv[0]+'–'+Z.lv[1]+' · '+({friendly:'friendly',hostile:'⚠ hostile',neutral:'tolerated'})[fzStance(Z)];c.font='600 11px sans-serif';c.strokeText(l,q[0],q[1]-rp+10);c.fillText(l,q[0],q[1]-rp+10);}}}
+function fzMini(c,tf,sc){for(const Z of FZONES){if(Math.hypot(Z.x-P.pos.x,Z.z-P.pos.z)>Z.R+130)continue;const q=tf(Z.x,Z.z);const F=FACTIONS[Z.side];
+  c.save();c.strokeStyle=F.col;c.globalAlpha=0.85;c.lineWidth=3;c.setLineDash([8,6]);c.beginPath();c.arc(q[0],q[1],Z.R*sc,0,7);c.stroke();c.globalAlpha=0.12;c.fillStyle=F.col;c.fill();c.restore();
+  c.fillStyle=F.col;c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.arc(q[0],q[1],6,0,7);c.fill();c.stroke();}}
+function fzDotCol(e){return e.state==='chase'?'#ff3b2f':FACTIONS[e.guard.side].col;}
+function fzExports(){return {fzSpawn,fzDespawn,fzStream,FZONES,FZ,FZ_GUARD_HP,fzById,fzAt,fzStance,fzCanHit,fzInteract,fzDo,fzAccept,fzAbandon,fzTurnIn,fzOnKill,openFzCommand,normFz,fzS,fzHitAmt,fzNodeBlocked,conduitTravel,dmgEnemy,autoTarget,cycleTarget,validTarget,OUTPOSTS,CONDUIT,SAVEPTS,regionAt,toggleMap,MAP,joinFaction,fac,repTier,makeEnemy,updEnemy,get enemies(){return enemies;},get panelOpen(){return panelOpen;}};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -5595,12 +5725,12 @@ document.addEventListener('gesturestart',e=>e.preventDefault());document.addEven
 document.addEventListener('touchmove',e=>{if(!e.target.closest||!e.target.closest('#pbody,#create,.roster'))e.preventDefault();},{passive:false});
 const ray=new THREE.Raycaster();const ndc=new THREE.Vector2();
 function tapPick(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(ndc,camera);let best=null,bd=1e9;
-  for(const e of enemies){if(e.dead||!e.R.g.visible)continue;entChest(e,tmpV);const r=e.hitR+0.6;if(ray.ray.distanceSqToPoint(tmpV)<r*r){const d=tmpV.distanceTo(camera.position);if(d<bd){bd=d;best=e;}}}
+  for(const e of enemies){if(e.dead||!e.R.g.visible||fzSkip(e))continue;entChest(e,tmpV);const r=e.hitR+0.6;if(ray.ray.distanceSqToPoint(tmpV)<r*r){const d=tmpV.distanceTo(camera.position);if(d<bd){bd=d;best=e;}}}
   if(best){setTarget(best);return;}const lp=lootPick(ray);if(lp&&!P.dead){SFX.ui();openLoot(lp);}}
 function btn(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();el.classList.add('press');fn();});
   const up=()=>el.classList.remove('press');el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up);}
 btn('#bAtk',pressAttack);[0,1,2,3,4,5].forEach(i=>btn('#b'+i,()=>{if(!barIds()[i]){if(!P.morph)openBook();return;}useAbility(i);}));btn('#bBook',()=>{if(panelOpen==='book')closePanel();else{bookSel=null;openBook();}});btn('#bStim',useStim);btn('#bSk',()=>{if(panelOpen==='skills')closePanel();else openSkills();});
-hudDeclutterInit();perksInit();lootInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bTgt',cycleTarget);btn('#bUse',interact);
+hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bTgt',cycleTarget);btn('#bUse',interact);
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;audioInit();inp.keys[e.code]=true;
   if(state!=='play')return;
   if(e.code==='Escape'){if(panelOpen)closePanel();else openMenu();return;}
@@ -5622,12 +5752,13 @@ addEventListener('blur',()=>{inp.keys={};});
 
 /* ---------------- interact ---------------- */
 let nearI=null;
-function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk)return dk;if(DUN)return lootInteract(p);const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;const hk=hubInteract(p);if(hk)return hk;
+function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk)return dk;if(DUN)return lootInteract(p);const fk=fzInteract(p);if(fk)return fk;const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;const hk=hubInteract(p);if(hk)return hk;
   if(Math.hypot(p.x-TERMINAL.x,p.z-TERMINAL.z)<3.4)return {k:'term',label:'📟 Missions'};
   if(Math.hypot(p.x-VENDOR.x,p.z-VENDOR.z)<3.4)return {k:'vend',label:'🛒 Trade'};
   return lootInteract(p);}
 function interact(){if(!nearI||panelOpen)return;SFX.ui();
   if(nearI.k==='loot'){openLoot(nearI.l);return;}
+  if(nearI.k==='fz'||nearI.k==='fzdeny'){fzDo(nearI);return;}
   if(nearI.k==='term')openTerminal();else if(nearI.k==='vend'){vendTab='buy';VEND.ctx='town';openVendor();}
   else if(hubDo(nearI)){}
   else if(questDo(nearI)){}
@@ -5667,7 +5798,7 @@ function updPlayer(dt){
   pShadow.position.set(P.pos.x,P.pos.y+0.06,P.pos.z);
 }
 function moveToward(e,tx,tz,spd,dt,stopAt){const dx=tx-e.pos.x,dz=tz-e.pos.z;const d=Math.hypot(dx,dz);if(d<=(stopAt||0.1))return false;const s=Math.min(spd*dt,d-(stopAt||0));
-  const ox=e.pos.x,oz=e.pos.z;e.pos.x+=dx/d*s;e.pos.z+=dz/d*s;collide(e.pos,e.hitR*0.7);if(inTown(e.pos)){e.pos.x=ox;e.pos.z=oz;}e.rotY=Math.atan2(dx,dz);return true;}
+  const ox=e.pos.x,oz=e.pos.z;e.pos.x+=dx/d*s;e.pos.z+=dz/d*s;collide(e.pos,e.hitR*0.7);if(!e.guard&&inTown(e.pos)){e.pos.x=ox;e.pos.z=oz;}e.rotY=Math.atan2(dx,dz);return true;}
 function updEnemy(e,dt){
   if(e.dead){if(!e.temp&&!e.dun&&T>=e.respawnAt&&dist2D(e.home,P.pos)>30)respawnEnemy(e);return;}
   const far=dist2D(e.pos,P.pos)>150;
@@ -5678,9 +5809,9 @@ function updEnemy(e,dt){
     if(T>e.nextWander){const wr=e.wr==null?8:e.wr;e.wt.set(e.home.x+rand(-wr,wr),0,e.home.z+rand(-wr,wr));e.nextWander=T+rand(3,8);}
     if(!far)moving=moveToward(e,e.wt.x,e.wt.z,e.T.speed*0.3,dt,0.5);
     let ar=e.T.aggro;if(P.level>e.lv+3)ar*=0.5;
-    if(!P.dead&&!inTown(P.pos)&&dP<ar)aggro(e);
+    if(e.guard){if(fzGuardWants(e,dP))aggro(e);}else if(!P.dead&&!inTown(P.pos)&&dP<ar)aggro(e);
   }else if(e.state==='chase'){const F=foeOf(e),fp=F.pos,dF=dist2D(e.pos,fp),fr=F===P?0:F.hitR*0.6;
-    if((F===P&&(P.dead||inTown(P.pos)))||dH>(e.leash||45)){e.state='return';e.foe=null;}
+    if((F===P&&(P.dead||(inTown(P.pos)&&!e.guard)||(e.guard&&(!fzCanHit(e)||fzGuardFar(e)))))||dH>(e.leash||45)){e.state='return';e.foe=null;}
     else{const ax=e.T.ai&&AIX[e.T.ai]?AIX[e.T.ai](e,dt,F,fp,dF,rooted,stunned,fr):null;
       if(ax&&ax.moved!=null)moving=ax.moved;else if(!rooted&&dF>e.T.range*0.85+fr)moving=moveToward(e,fp.x,fp.z,e.T.speed,dt,e.T.range*0.8+fr);else e.rotY=Math.atan2(fp.x-e.pos.x,fp.z-e.pos.z);
       if(!(ax&&ax.noAtk)&&!stunned&&dF<=e.T.range+0.6+fr&&T>=e.nextAtk){e.nextAtk=T+e.T.atkCd;e.atkT=0.35;
@@ -5761,8 +5892,8 @@ function drawMini(dt){miniAcc+=dt;if(miniAcc<0.08)return;miniAcc=0;const W=300,R
   for(const k in DUNGEONS){const d=DUNGEONS[k].door;const q=tf(d.x,d.z);c.fillStyle='#ff9a2a';c.fillRect(q[0]-6,q[1]-6,12,12);c.strokeStyle='#000';c.lineWidth=2;c.strokeRect(q[0]-6,q[1]-6,12,12);}stage2Mini(c,tf,dot);}
   for(const l of loots)dot(l.x,l.z,RAR[l.item.r].c,4);
   for(const a of allies)dot(a.pos.x,a.pos.z,'#ffa040',4.5);
-  for(const e of enemies)if(!e.dead&&Math.abs(e.pos.x-P.pos.x)<95&&Math.abs(e.pos.z-P.pos.z)<95)dot(e.pos.x,e.pos.z,e===P.target?'#fff':e.boss?'#ff9a2a':e.state==='chase'?'#ff3b2f':'#e0603a',e.boss?8:e.type==='mauler'?6:4.5);
-  if(!DUN){campMini(c,tf);bankMini(c,tf);raidMini(c,tf);questMini(c,tf);dynaMini(c,tf);uwpMini(c,tf,R);}
+  for(const e of enemies)if(!e.dead&&Math.abs(e.pos.x-P.pos.x)<95&&Math.abs(e.pos.z-P.pos.z)<95)dot(e.pos.x,e.pos.z,e===P.target?'#fff':e.guard?fzDotCol(e):e.boss?'#ff9a2a':e.state==='chase'?'#ff3b2f':'#e0603a',e.boss?8:e.type==='mauler'?6:4.5);
+  if(!DUN){fzMini(c,tf,sc);campMini(c,tf);bankMini(c,tf);raidMini(c,tf);questMini(c,tf);dynaMini(c,tf);uwpMini(c,tf,R);}
   c.restore();
   const wp=DUN?dunWaypoint():(assaultWaypoint()||storyWaypoint()||missionWaypoint());if(wp){let q=tf(wp.x,wp.z);const dx=q[0]-R,dy=q[1]-R,d=Math.hypot(dx,dy);if(d>R-12){q=[R+dx/d*(R-12),R+dy/d*(R-12)];}c.fillStyle='#ffc85a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-11);c.lineTo(q[0]+9,q[1]);c.lineTo(q[0],q[1]+11);c.lineTo(q[0]-9,q[1]);c.closePath();c.fill();c.stroke();}
   // north marker
@@ -5872,7 +6003,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -5886,7 +6017,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
