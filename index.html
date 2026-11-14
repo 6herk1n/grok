@@ -112,7 +112,26 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #quick .ab{position:relative;right:auto;bottom:auto}
 #moreDrop{position:absolute;right:58px;top:58px;display:flex;flex-direction:column;gap:6px;background:rgba(20,10,5,.88);border:1px solid rgba(255,190,110,.35);border-radius:12px;padding:6px;z-index:8}
 .mdi{position:relative;min-width:150px;height:46px;border-radius:10px;background:rgba(255,255,255,.06);font-size:17px;font-weight:700;text-align:left;padding:0 12px;color:#f3e6d3}.mdi:active{background:rgba(95,242,255,.25)}
-.mdi kbd{float:right;opacity:.45;font-size:12px;font-family:inherit;margin-top:3px}#moreDrop #spBadge{position:static;display:none;margin-left:8px;vertical-align:2px;width:auto}#moreDrop #bSk.pts #spBadge{display:inline-block}#moreDrop #bSk.pts{box-shadow:none;border:1px solid #ffc85a}
+.mdi kbd{float:right;opacity:.45;font-size:12px;font-family:inherit;margin-top:3px}#moreDrop #ppBadge{display:none;margin-left:8px;min-width:20px;height:20px;border-radius:10px;background:#ffc85a;color:#1b0d05;font-size:12px;font-weight:900;line-height:20px;padding:0 5px;vertical-align:2px}#moreDrop #bPerks.pts #ppBadge{display:inline-block}#moreDrop #bPerks.pts{border:1px solid #ffc85a}
+.pkhead{display:flex;gap:14px;align-items:center;margin:0 0 10px}.pkpts{min-width:86px;height:72px;border-radius:14px;background:rgba(255,200,90,.14);border:1px solid rgba(255,200,90,.5);display:flex;flex-direction:column;align-items:center;justify-content:center}.pkpts b{font-size:30px;color:var(--gold);line-height:1}.pkpts span{font-size:11px;opacity:.8}.pkinfo{font-size:13px;line-height:1.45}
+.pktabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;-webkit-overflow-scrolling:touch}.pktab{flex:0 0 auto;min-height:48px;padding:6px 14px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f3e6d3;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}.pktab.on{border-color:#5ff2ff;background:rgba(95,242,255,.16)}.pktab.prof .tn{color:var(--gold)}.pktab .tc{font-size:12px;opacity:.7;font-weight:600}.pktab .ic{font-size:20px}
+.pkld{font-size:13px;opacity:.75;margin:2px 0 8px}.pklist{display:flex;flex-direction:column;gap:8px}.pkcard{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}.pkcard.active{border-color:rgba(255,200,90,.35)}.pkcard.max{background:rgba(95,242,255,.07)}
+.pkic{font-size:30px;width:46px;text-align:center}.pkbody{flex:1;min-width:0}.pkn{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:16px}.pktag{font-size:10px;letter-spacing:.12em;padding:2px 6px;border-radius:6px;background:rgba(255,200,90,.2);color:var(--gold)}.pkpips{display:inline-flex;gap:4px}.pkpips i{width:12px;height:12px;border-radius:50%;border:1px solid #5ff2ff;display:inline-block}.pkpips i.on{background:#5ff2ff;box-shadow:0 0 6px #5ff2ff}
+.pknow{font-size:13px;color:#8dffb0;margin-top:3px}.pknext{font-size:13px;opacity:.85;margin-top:2px}.pkreq{font-size:12px;color:#ff9a8a;margin-top:3px}.pkab{font-size:12px;opacity:.7;margin-top:4px}.pkbuy{min-width:96px;min-height:48px;font-size:15px}
+.pkslots{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12px}.pks{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#f3e6d3;font-size:18px}.pks.on{border-color:#ffc85a;background:rgba(255,200,90,.22)}
+.pkfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;opacity:.95}.pkfoot .sbtn{min-height:44px}
+.lthead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.ltall{min-height:48px;padding:0 18px;font-size:15px}.ltpack{margin-left:auto;font-size:13px;opacity:.8}
+.ltfar{background:rgba(255,154,42,.12);border:1px solid rgba(255,154,42,.4);border-radius:10px;padding:8px 12px;margin-bottom:8px;color:#ffc85a;font-size:14px}
+.ltlist{display:flex;flex-direction:column;gap:6px}.ltrow{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:6px 8px;min-height:56px}
+.ltrow.jk{opacity:.72}.ltrow .ico{flex:0 0 40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:20px;background:rgba(0,0,0,.25)}
+.ltn{flex:1;min-width:0;display:flex;flex-direction:column}.ltn b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ltn span{font-size:12.5px;opacity:.8}
+.ltake{min-height:48px;min-width:84px;font-size:15px}
+.ltf{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}.ltf>span:first-child{font-size:13px;opacity:.8;margin-right:2px}
+.ltchip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#f3e6d3;font:600 13.5px inherit;font-family:inherit;cursor:pointer}
+.ltchip.on{background:rgba(110,220,255,.18);border-color:#6edcff;color:#bff1ff}.ltdesc{font-size:12.5px;opacity:.7;margin-top:6px}
+.jtag{font-style:normal;font-size:11px;font-weight:700;color:#bdbdbd;background:rgba(160,160,160,.18);border:1px solid rgba(160,160,160,.35);border-radius:6px;padding:0 5px;margin-left:4px;vertical-align:1px}
+.stk{color:#ffc85a;font-weight:800}.sjbtn{min-height:44px;white-space:nowrap}
+#moreDrop #spBadge{position:static;display:none;margin-left:8px;vertical-align:2px;width:auto}#moreDrop #bSk.pts #spBadge{display:inline-block}#moreDrop #bSk.pts{box-shadow:none;border:1px solid #ffc85a}
 #moreBadge{position:absolute;right:-6px;top:-6px;min-width:20px;height:20px;border-radius:10px;background:#ffc85a;color:#1b0d05;font-size:12px;font-weight:900;line-height:20px;padding:0 4px;display:none}#bMore.pts #moreBadge{display:block}
 #bMore.on{border-color:#5ff2ff}#mtrack b{color:var(--gold)}
 #topbtns{position:absolute;right:calc(170px + var(--sr));top:calc(10px + var(--st));display:flex;gap:8px}
@@ -230,10 +249,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261114T145959-5a97b782">
+<meta name="dr-build" content="20261114T172519-798984aa">
 <script>
 (function(){
-var BUILD='20261114T145959-5a97b782';window.DR_BUILD=BUILD;
+var BUILD='20261114T172519-798984aa';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -260,7 +279,7 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <div id="tframe" class="hidden"><div id="tname"></div><div class="bar thp"><i></i><span></span></div><div id="tstate"></div></div>
   <div id="topright"><canvas id="mini" width="300" height="300"></canvas><div id="credits"></div><div id="clock"></div><div id="region"></div><div id="mtrack"></div></div>
   <div id="topbtns"><button class="tb" id="bBook" title="Weave Book (B)">📖</button><button class="tb" id="bInv" title="Inventory (I)">🎒</button><button class="tb" id="bMap" title="Map (M)">🗺</button><button class="tb" id="bMore" title="Skills, Journal, Team">⋯<span id="moreBadge"></span></button><button class="tb" id="bMenu" title="Menu (Esc)">☰</button>
-    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button></div></div>
+    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button></div></div>
   <div id="dmgLayer"></div>
   <div id="wp" class="hidden"><div class="arr">▼</div><span></span></div>
   <div id="joy"><div id="joyKnob"></div></div>
@@ -1526,7 +1545,7 @@ function killEnemy(e){e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt
   if(P.target===e){P.target=null;let nb=null,nd=1e9;for(const o of enemies)if(!o.dead&&o!==e&&o.state==='chase'){const d=dist2D(o.pos,P.pos);if(d<nd&&d<26){nd=d;nb=o;}}
     if(nb){P.target=nb;}else P.autoAtk=false;}
   save();}
-function gainXp(n){if(P.level>=MAXLVL)return;P.xp+=n;while(P.level<MAXLVL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
+function gainXp(n){if(P.level>=MAXLVL)return;P.xp+=n;while(P.level<MAXLVL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
   if(P.level>=MAXLVL)P.xp=0;}
 function faceTarget(t){if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);}
 function shoot(t,mult,color,cb){faceTarget(t);P.atkAnim=0.35;const from=new V3(P.pos.x+Math.sin(P.rotY)*0.6,P.pos.y+1.35,P.pos.z+Math.cos(P.rotY)*0.6);fireProj(from,t,color,38,cb||(()=>dmgEnemy(t,mult)));}
@@ -1615,10 +1634,10 @@ const lootGeo=new THREE.OctahedronGeometry(0.35,0);
 function dropLoot(x,z,item){if(item.r>=6){toast('💠 ULTRA-RARE drop: '+item.name+'!');banner('💠 ULTRA-RARE DROP',item.name);setTimeout(()=>{SFX.level();setTimeout(()=>SFX.quest(),400);},60);}else if(item.r>=4){toast((item.r>=5?'🟥 RELIC':'🟧 LEGENDARY')+' drop: '+item.name+'!');setTimeout(()=>SFX.level(),60);}else if(item.kind==='disk'){toast('📀 Weave Disk dropped: '+WEAVES[item.wid].name+'!');setTimeout(()=>SFX.quest(),50);}const m=new THREE.Mesh(lootGeo,MB(RAR[item.r].h));const y=heightAt(x,z);m.position.set(x,y+0.7,z);scene.add(m);const b=makeBeam(RAR[item.r].h,item.r>=6?45:item.r>=4?14:item.r>=2?7:3.5,item.r>=6?0.8:item.r>=4?0.45:0.25,item.r>=4?0.6:0.4);if(item.r>=6)ringFx(x,z,0x59c8ff,6,1.5);b.position.set(x,y,z);
   loots.push({item,m,b,x,z,exp:T+120});}
 function updLoot(dt){for(let i=loots.length-1;i>=0;i--){const l=loots[i];l.m.rotation.y+=dt*2;l.m.position.y=heightAt(l.x,l.z)+0.7+Math.sin(T*3)*0.12;
-  const d=Math.hypot(l.x-P.pos.x,l.z-P.pos.z);let take=false;
-  if(d<2.2&&!P.dead){if(P.inv.length>=24){warn('Inventory full');}else take=true;}
-  if(take||T>l.exp){scene.remove(l.m);scene.remove(l.b);l.b.material.dispose();loots.splice(i,1);
-    if(take){P.inv.push(l.item);SFX.loot();if(l.item.kind==='disk'){const w=WEAVES[l.item.wid];banner('📀 WEAVE DISK',w.name+' · '+profName(w.prof)+' · open the 📖 Weave Book');}log('Looted <b style="color:'+RAR[l.item.r].c+'">'+esc(l.item.name)+'</b>');save();}}}}
+  const d=Math.hypot(l.x-P.pos.x,l.z-P.pos.z);
+  if(d<2.2&&!P.dead&&lootAuto(l))continue;
+  if(T>l.exp)lootRemove(l);}
+  lootSoldFlush(dt);if(panelOpen==='loot'&&lootAnchor&&!lootPile(lootAnchor).length)renderLoot();}
 
 /* ---------------- missions ---------------- */
 const TERMINAL={x:-7,z:-9.3,label:'Missions'},VENDOR={x:8,z:-9.2,label:'Trade'};
@@ -1680,7 +1699,7 @@ function reqHtml(it){if(!it.req||!it.req.length)return '<div style="opacity:.7">
 function isEquipped(it){return !!it&&((P.eq[it.slot]&&P.eq[it.slot].id===it.id)||(P.imps[it.slot]&&P.imps[it.slot].id===it.id));}
 function twTag(it){return !reqMet(it)?'<span class="tw" title="Requirements no longer met, but it stays installed and keeps working">⚡ twinked</span>':'';}
 function findItem(id){if(!id)return null;return P.inv.find(i=>i.id===id)||Object.values(P.eq).find(i=>i&&i.id===id)||Object.values(P.imps).find(i=>i&&i.id===id)||null;}
-function itemRow(it,extra,sel,act){return `<button class="item${sel?' sel':''}" data-act="${act||'sel'}" data-id="${it.id}"><span class="ico" style="color:${RAR[it.r].c};border:1px solid ${RAR[it.r].c}">${icoOf(it)}</span><span style="min-width:0"><div class="nm" style="color:${RAR[it.r].c}">${esc(it.name)}</div><div class="st"><span class="ty">${isImp(it)?IMPDEF[it.slot].n+' implant ('+it.slot+')':isDisk(it)?profName(it.prof)+' Weave':itemType(it)}</span> · ${isImp(it)?'':isDisk(it)?'tier level '+it.lvl+' · ':'Lv '+it.lvl+' · '}${RAR[it.r].n} · ${itemLines(it).join(' · ')}</div><div class="rqs">${reqChips(it)}</div></span>${extra||''}</button>`;}
+function itemRow(it,extra,sel,act){return `<button class="item${sel?' sel':''}" data-act="${act||'sel'}" data-id="${it.id}"><span class="ico" style="color:${RAR[it.r].c};border:1px solid ${RAR[it.r].c}">${icoOf(it)}</span><span style="min-width:0"><div class="nm" style="color:${RAR[it.r].c}">${esc(it.name)}</div><div class="st">${stackN(it)>1?'<b class="stk">×'+stackN(it)+'</b> · ':''}${isJunkItem(it)?'<i class="jtag" style="margin:0 4px 0 0">Junk</i>':''}<span class="ty">${isImp(it)?IMPDEF[it.slot].n+' implant ('+it.slot+')':isDisk(it)?profName(it.prof)+' Weave':itemType(it)}</span> · ${isImp(it)?'':isDisk(it)?'tier level '+it.lvl+' · ':'Lv '+it.lvl+' · '}${RAR[it.r].n} · ${itemLines(it).join(' · ')}</div><div class="rqs">${reqChips(it)}</div></span>${extra||''}</button>`;}
 function cmpLine(it){if(isImp(it))return '';const cur=P.eq[it.slot];if(!cur||cur.id===it.id)return '';const a=it.dmg||it.armor||0,b=cur.dmg||cur.armor||0;if(!a&&!b)return '';const d=a-b;return `<div class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d)} ${it.dmg?'damage':'armour'} vs equipped</div>`;}
 function statsHtml(){return `<div class="stats"><b>${esc(P.name)}</b> · Level ${P.level} ${PROFS[P.prof].name} · <b style="color:#ffc85a">${P.sp} skill points</b><br>🏃 Run Speed <b>${eff('run')}</b> → move speed <b class="up">+${S.runPct}%</b>${T<(P.slowUntil||0)?' <span class="down">(slowed −'+Math.round((1-P.slowAmt)*100)+'%)</span>':''} · cap +${RUN_CAP}%<br>Health ${S.maxHp} · Energy ${S.maxEn} · Armour ${S.armor} (${Math.round(S.armor/(S.armor+100)*100)}% reduction)<br>Weapon damage ${S.dmg} (${S.wt&&WTYPES[S.wt]?WTYPES[S.wt].n:'standard'}${S.wt&&WTYPES[S.wt]&&!WTYPES[S.wt].aff.includes(P.prof)?', off-profession −20%':''}) · ${STATN[PROFS[P.prof].dmgSkill]} ${eff(PROFS[P.prof].dmgSkill)} (×${skillF().toFixed(2)} damage) · Crit ${S.crit}% · Power +${S.power}% · <b style="color:#59c8ff">Dodge ${S.dodge}%</b>${S.dr?' · Damage reduction '+S.dr+'%':''}<br>${ATTRS.map(a=>SHORT[a]+' '+eff(a)).join(' · ')}<br>${SKILLS.map(a=>SHORT[a]+' '+eff(a)).join(' · ')}<br>${stage2StatLine()}<br>Credits ${P.credits}¢ · Med-stims ${P.stims} · Kills ${P.kills}</div>`;}
 function buffList(){if(!P.buffs.length)return '<div style="opacity:.6">No active buffs.</div>';return P.buffs.map(b=>`<div class="slot"><span class="ico">${b.icon}</span><span><div class="nm">${esc(b.name)} <span style="opacity:.7">${fmtT(b.until-T)}</span></div><div class="st">${Object.keys(b.mods).map(k=>'+'+b.mods[k]+' '+STATN[k]).join(' · ')}</div></span></div>`).join('');}
@@ -1696,10 +1715,10 @@ function detailHtml(sel){if(!sel)return '<div class="det">Tap an item to see its
   return `<div class="det"><b style="color:${RAR[sel.r].c}">${esc(sel.name)}</b><br><span style="opacity:.8">${isImp(sel)?'Quality Level '+sel.ql+' '+RAR[sel.r].n+' implant · '+sel.slot+' slot':isDisk(sel)?RAR[sel.r].n+' Weave Disk':'Level '+sel.lvl+' '+RAR[sel.r].n+' · '+itemType(sel)}</span><br>${itemLines(sel).filter(l=>!/^(Set|Source):/.test(l)).join('<br>')}${typeNote(sel)}${setHtml(sel)}${srcHtml(sel)}${cmpLine(sel)}
   <div class="h4" style="margin:8px 0 2px">Requirements ${eqd?'(checked when equipping)':'(your current skills, including buffs)'}</div>${reqHtml(sel)}
   ${eqd&&miss?'<div class="tw" style="display:block;margin-top:6px">⚡ Twinked: you no longer meet the requirements, but it stays installed and keeps working.</div>':''}
-  <div style="color:#ffc85a;margin-top:4px">Sells for ${sel.value}¢</div>
-  <div class="btns">${eqd?`<button class="sbtn alt" data-act="uneq">${isImp(sel)?'Remove':'Unequip'}</button>`:`<button class="sbtn${miss?' locked':''}" data-act="eq">${isImp(sel)?'Install':'Equip'}</button><button class="sbtn alt" data-act="junk">Scrap</button>`}</div>
+  <div style="color:#ffc85a;margin-top:4px">Sells for ${sel.value}¢${stackN(sel)>1?' each · stack of '+stackN(sel):''}${isJunkItem(sel)?' · <i class="jtag">Junk</i>: sold by 🗑 Sell Junk at any trader':''}</div>
+  <div class="btns">${eqd?`<button class="sbtn alt" data-act="uneq">${isImp(sel)?'Remove':'Unequip'}</button>`:`<button class="sbtn${miss?' locked':''}" data-act="eq">${isImp(sel)?'Install':'Equip'}</button>${sellableKind(sel)?`<button class="sbtn alt" data-act="jtag">${isJunkItem(sel)?'Not junk':'🗑 Mark junk'}</button>`:''}<button class="sbtn alt" data-act="junk">Scrap</button>`}</div>
   ${!eqd&&miss?`<div class="down" style="margin-top:6px">Can't ${isImp(sel)?'install':'equip'} yet: need ${miss.v-eff(miss.s)} more ${STATN[miss.s]}. Try a buff (self-buff Weave, stims from the trader) or another implant that boosts it.</div>`:''}</div>`;}
-function openInventory(){
+function openInventory(){stackInv();
   const sel=findItem(invSel);
   const tabs=`<div class="tabs">${[['gear','🔫 Gear'],['imps','🧠 Implants'],['items','🧪 Consumables'],['bag','🧰 Parts']].map(([t,n])=>`<button data-act="itab" data-t="${t}" class="${invTab===t?'on':''}">${n}</button>`).join('')}<span style="margin-left:auto;align-self:center;font-size:13px;opacity:.8">Pack ${P.inv.length}/24</span></div>`;
   let html='';
@@ -1715,7 +1734,7 @@ function openInventory(){
     const left=slots.map(sl=>{const it=imp?P.imps[sl]:P.eq[sl];return it?itemRow(it,twTag(it),it.id===invSel):`<div class="slot"><span class="ico">${imp?IMPDEF[sl].ic:SLOTICON[sl]}</span><span style="opacity:.5">Empty ${imp?IMPDEF[sl].n+' ('+sl+')':SLOTN[sl]} slot</span></div>`;}).join('');
     const pack=P.inv.filter(i=>imp?isImp(i):i.kind==='gear').sort((a,b)=>(reqMet(b)-reqMet(a)));
     const right=pack.map(i=>itemRow(i,'',i.id===invSel)).join('')||`<div style="opacity:.6">${imp?'No implants in your pack. Enemies, missions and the trader have them.':'No gear in your pack. Enemies drop it.'}</div>`;
-    html=tabs+`<div class="cols"><div><div class="h4">${imp?'Installed implants':'Equipped'}</div>${left}${imp?'<div class="stats" style="opacity:.8;margin-top:6px">Installing checks your <b>current</b> Treatment and attribute, so buffs and other implants count. Install them in the right order: one implant\'s bonus can unlock the next.</div>':''}</div><div><div class="h4">Selected</div>${detailHtml(sel)}<div class="h4" style="margin-top:12px">Pack</div>${right}</div></div>`;
+    html=tabs+`<div class="cols"><div><div class="h4">${imp?'Installed implants':'Equipped'}</div>${left}${imp?'<div class="stats" style="opacity:.8;margin-top:6px">Installing checks your <b>current</b> Treatment and attribute, so buffs and other implants count. Install them in the right order: one implant\'s bonus can unlock the next.</div>':''}</div><div><div class="h4">Selected</div>${detailHtml(sel)}<div class="h4" style="margin-top:12px">Pack</div>${right}${lootFChips()}</div></div>`;
   }
   openPanel('INVENTORY',html,'inv');
 }
@@ -1759,7 +1778,7 @@ function openVendor(){
     {const pool=Object.values(WEAVES).filter(w=>!w.starter&&!w.excl&&!w.rare&&w.lvl<=L+2&&(w.prof===P.prof||w.prof==='any')&&!P.known.includes(w.id)).sort(()=>Math.random()-0.5);pool.slice(0,3).forEach(w=>vendorStock.push(genDisk(w.id)));}vendorStock.push(genItem(L,'weapon',rollRarity(10),{wt:pick(wtAff(P.prof))}),genItem(L,'weapon',rollRarity(10)),genItem(L,pick(ASLOTS),rollRarity(10),{fam:PROF_FAM[P.prof]}),genItem(L,pick(ASLOTS),rollRarity(10)),genItem(L+1,'gear',rollRarity(10)));
     (L<=10?[Math.max(1,L*2),L*4+1,L*5+3,L*7+4,L*9+6]:[L*3,L*4,L*4+6,L*5-2,L*5]).forEach(q=>vendorStock.push(genImplant(q,null,rollRarity(10))));if(typeof hubStock==='function')hubStock(vendorStock,L);stockAt=T;stockLvl=L;}
   const price=it=>it.kind==='gear'?it.value*4:it.value*3;
-  let h=`<div class="tabs"><button data-act="tab" data-t="buy" class="${vendTab==='buy'?'on':''}">Buy</button><button data-act="tab" data-t="sell" class="${vendTab==='sell'?'on':''}">Sell</button><span style="margin-left:auto;color:#ffc85a;font-weight:800;align-self:center">${P.credits}¢</span></div>`;
+  let h=`<div class="tabs"><button data-act="tab" data-t="buy" class="${vendTab==='buy'?'on':''}">Buy</button><button data-act="tab" data-t="sell" class="${vendTab==='sell'?'on':''}">Sell</button><span style="margin-left:auto;display:flex;gap:8px;align-items:center">${sellJunkBtn()}<span style="color:#ffc85a;font-weight:800">${P.credits}¢</span></span></div>`;
   if(vendTab==='buy'){const sp=10+L*2;
     h+=`<div class="h4">Supplies & buff stims</div><button class="item" data-act="buystim"><span class="ico">💉</span><span><div class="nm">Med-stim</div><div class="st">Heals 40% health. You have ${P.stims}.</div></span><span class="pr">${sp}¢</span></button>`;
     for(const k in CONSUM){const c=CONSUM[k];const m=c.mods(L);h+=`<button class="item" data-act="buyc" data-k="${k}"><span class="ico">${c.icon}</span><span><div class="nm">${c.name}</div><div class="st">${Object.keys(m).map(x=>'+'+m[x]+' '+SHORT[x]).join(' · ')} for 3 min. You have ${P.consum[k]||0}.</div></span><span class="pr">${c.price(L)}¢</span></button>`;}
@@ -1768,7 +1787,7 @@ function openVendor(){
     h+='<div class="h4" style="margin-top:10px">Implants (several QLs: the high ones need twinking)</div>'+vendorStock.filter(isImp).map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')).join('');
     h+='<div class="h4" style="margin-top:10px">Gear</div>'+vendorStock.filter(i=>i.kind==='gear').map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')+cmpLine(it)).join('');}
   else{h+=P.inv.map(it=>itemRow(it,`<span class="pr">${it.value}¢</span>`,false,'sell')).join('')||'<div style="opacity:.6">Nothing to sell. Equipped gear and installed implants can\'t be sold.</div>';
-    if(P.inv.length)h+='<button class="sbtn alt" data-act="sellall" style="margin-top:6px">Sell all Common items</button>';}
+    }
   openPanel(vendTitle(),h,'vend');
   vendorStock._price=price;
 }
@@ -1777,7 +1796,8 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='itab'){invTab=b.dataset.t;invSel=null;openInventory();}
   else if(a==='eq'){equip(invSel);openInventory();}
   else if(a==='uneq'){unequip(invSel);openInventory();}
-  else if(a==='junk'){const i=P.inv.findIndex(x=>x.id===invSel);if(i>=0){P.credits+=Math.ceil(P.inv[i].value/2);P.inv.splice(i,1);invSel=null;save();}openInventory();}
+  else if(a==='jtag'){const it=P.inv.find(x=>x.id===invSel);if(it){it.junk=!isJunkItem(it);toast(it.junk?'Tagged as junk':'No longer junk');save();}openInventory();}
+  else if(a==='junk'){const i=P.inv.findIndex(x=>x.id===invSel);if(i>=0){P.credits+=Math.ceil(P.inv[i].value/2)*stackN(P.inv[i]);P.inv.splice(i,1);invSel=null;save();}openInventory();}
   else if(a==='usec'){useConsum(b.dataset.k);openInventory();}
   else if(a==='raise'){raise(b.dataset.s,+b.dataset.n);openSkills();}
   else if(a==='respec'){respec();openSkills();}
@@ -1789,8 +1809,8 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='buyc'){const c=CONSUM[b.dataset.k];const pr=c.price(P.level);if(P.credits<pr)warn('Not enough credits');else{P.credits-=pr;P.consum[b.dataset.k]=(P.consum[b.dataset.k]||0)+1;SFX.coin();toast('Bought '+c.name);save();}openVendor();}
   else if(a==='buy'){const it=vendorStock.find(x=>x.id===b.dataset.id);if(!it)return;const pr=it.kind==='gear'?it.value*4:it.value*3;if(P.credits<pr){warn('Not enough credits');return;}if(P.inv.length>=24){warn('Inventory full');return;}
     P.credits-=pr;vendorStock.splice(vendorStock.indexOf(it),1);P.inv.push(it);SFX.coin();toast('Bought '+it.name);save();openVendor();}
-  else if(a==='sell'){const i=P.inv.findIndex(x=>x.id===b.dataset.id);if(i<0)return;P.credits+=P.inv[i].value;P.inv.splice(i,1);SFX.coin();save();openVendor();}
-  else if(a==='sellall'){let n=0;P.inv=P.inv.filter(it=>{if(it.r===0){P.credits+=it.value;n++;return false;}return true;});if(n)SFX.coin();toast('Sold '+n+' items');save();openVendor();}
+  else if(a==='sell'){const i=P.inv.findIndex(x=>x.id===b.dataset.id);if(i<0)return;P.credits+=P.inv[i].value;if(stackN(P.inv[i])>1)P.inv[i].n--;else P.inv.splice(i,1);SFX.coin();save();openVendor();}
+  else if(a==='sellall'){sellJunk();openVendor();}
   else if(a==='book'){openBook();}
   else if(a==='learn'){learnDisk(b.dataset.id);openBook();}
   else if(a==='bsel'){bookSel=b.dataset.w===bookSel?null:b.dataset.w;openBook();}
@@ -1817,7 +1837,7 @@ function learnDisk(id){const it=P.inv.find(x=>x.id===id);if(!it||!isDisk(it))ret
   if(!profOk(it)){warn(profName(it.prof)+' only');return false;}
   if(P.known.includes(w.id)){warn('You already know '+w.name);return false;}
   const miss=(it.req||[]).find(r=>eff(r.s)<r.v);if(miss){warn('Need '+(miss.v-eff(miss.s))+' more '+STATN[miss.s]);return false;}
-  P.inv.splice(P.inv.indexOf(it),1);P.known.push(w.id);
+  if(stackN(it)>1)it.n--;else P.inv.splice(P.inv.indexOf(it),1);P.known.push(w.id);
   // upgrade: replace lower tiers of the same line in the loadout, else first empty slot
   let msg='';const k=P.slots.findIndex(sid=>sid&&WEAVES[sid]&&WEAVES[sid].line===w.line&&WEAVES[sid].tier<w.tier);
   if(k>=0){msg=w.name+' replaced '+WEAVES[P.slots[k]].name+' in slot '+(k+1);P.slots[k]=w.id;}
@@ -1826,7 +1846,7 @@ function learnDisk(id){const it=P.inv.find(x=>x.id===id);if(!it||!isDisk(it))ret
 function weaveStats(w){const parts=[];if(w.cost)parts.push(w.cost+' energy');parts.push(w.cd+'s recharge');if(w.range)parts.push(w.range+'m');return parts.join(' · ');}
 function openBook(){
   const pr=PROFS[P.prof];
-  const load=P.slots.map((id,i)=>{const w=WEAVES[id];return `<button class="wslot${bookSel?' pick':''}" data-act="slot" data-i="${i}"><span class="n">${i+1}</span><span class="ic">${w?w.icon:'＋'}</span><span class="wn">${w?esc(w.name):'Empty'}</span>${w?`<span class="x" data-act="clrslot" data-i="${i}">✕</span>`:''}</button>`;}).join('');
+  const load=P.slots.map((id,i)=>{const w=abDef(id);return `<button class="wslot${bookSel?' pick':''}" data-act="slot" data-i="${i}"><span class="n">${i+1}</span><span class="ic">${w?w.icon:'＋'}</span><span class="wn">${w?esc(w.name):'Empty'}</span>${w?`<span class="x" data-act="clrslot" data-i="${i}">✕</span>`:''}</button>`;}).join('');
   const known=P.known.map(id=>WEAVES[id]).filter(Boolean).sort((a,b)=>a.line<b.line?-1:a.line>b.line?1:a.tier-b.tier);
   const krow=w=>{const best=knownBest(w.line);const sup=best&&best.tier>w.tier;const sl=P.slots.indexOf(w.id);
     return `<button class="item${bookSel===w.id?' sel':''}${sup?' sup':''}" data-act="bsel" data-w="${w.id}"><span class="ico">${w.icon}</span><span style="min-width:0;flex:1"><div class="nm">${esc(w.name)} ${w.buff?'<span class="tag b">BUFF</span>':''}${/AoE/.test(w.desc)||w.kind==='aoeT'||w.kind==='cone'||w.kind==='field'||w.kind==='barrage'||w.kind==='aoeSelf'||w.id==='scatter'||w.id==='stasis'||w.id==='nova'?'<span class="tag a">AoE</span>':''}${w.prof==='any'?'<span class="tag g">GENERIC</span>':''}</div><div class="st">${esc(w.desc)}</div><div class="st" style="opacity:.6">${weaveStats(w)}${sup?' · superseded by '+esc(best.name):''}</div></span><span class="pr">${sl>=0?'Slot '+(sl+1):''}</span></button>`;};
@@ -2093,7 +2113,7 @@ function enterDungeon(id,opt){const D=dunDef(id);if(!D||DUN)return false;opt=opt
   banner(D.name.toUpperCase(),D.sub+' · Recommended level '+D.rec);log('Entered <b style="color:#ff9a2a">'+esc(D.name)+'</b>. Checkpoint set at the entrance.');SFX.quest();save();return true;}
 function exitDungeon(silent){if(!DUN)return;const d=DUN;clearTele();if(d.D.raid)raidExitCleanup(d);
   // auto-collect dungeon loot left on the floor
-  let got=0,lost=0;for(const l of loots){scene.remove(l.m);scene.remove(l.b);l.b.material.dispose();if(P.inv.length<24){P.inv.push(l.item);got++;}else lost++;}loots.length=0;
+  let got=0,lost=0;for(const l of loots){scene.remove(l.m);scene.remove(l.b);l.b.material.dispose();if(invAdd(l.item))got++;else lost++;}loots.length=0;
   for(const e of enemies.slice())removeEnemy(e);enemies.length=0;enemies.push(...d.worldEnemies);loots.push(...d.worldLoots);
   for(const p of projs)scene.remove(p.m);projs.length=0;for(const r of rings)scene.remove(r.m);rings.length=0;clearFx();
   dunCleanup(d);scene.remove(d.group);d.group.traverse(o=>{if(o.isMesh&&o.geometry&&!(o.geometry.userData&&o.geometry.userData.keep)&&o.geometry!==geoBox&&o.geometry!==geoCone&&o.geometry!==geoIco&&o.geometry!==geoSphere&&o.geometry!==teleGeo&&o.geometry!==teleRing)o.geometry.dispose();});
@@ -2346,7 +2366,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
+function futureFields(s){return {perkMeta:normPerkMeta(s.perkMeta),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -2409,6 +2429,7 @@ function openFacVendor(side){const F=FACTIONS[side];const me=fac().side;const np
     const items=facStock(side);for(let t=1;t<=4;t++){const ok=tier>=t&&t<=maxT;
       h+=`<div class="h4" style="margin-top:8px">${ok?'🔓':'🔒'} Tier ${t}: ${REP_TIERS[t].n} (${REP_TIERS[t].v} rep)${t>maxT?' · members only':''}</div>`;
       h+=items.filter(i=>i.ftier===t).map(it=>itemRow(it,ok?`<span class="pr">${fprice(it)}¢</span>`:`<span class="pr" style="color:#ff9a8a">🔒 ${t>maxT?'Members':REP_TIERS[t].n}</span>`,false,ok?'fbuy':'flock')).join('')||'<div style="opacity:.6">Sold out until you level up.</div>';}}
+  if(me&&(me===side||me==='neutral'))h=`<div class="ltf" style="justify-content:flex-end">${sellJunkBtn()}<span style="color:#ffc85a;font-weight:800">${P.credits}¢</span></div>`+h;
   openPanel((side==='combine'?'🎖 COMBINE QUARTERMASTER':'🔥 ASHBORN CLAN BROKER'),h,'fvend');curFV=side;}
 let curFV=null;
 function facBuy(id){const side=curFV;const items=FSTOCK[side]&&FSTOCK[side].items;const it=items&&items.find(x=>x.id===id);if(!it)return false;const me=fac().side;
@@ -3288,7 +3309,7 @@ const MORPH_AB={
   m_ward:{name:'Scale Ward',icon:'🛡️',cost:20,cd:20,range:0,needTarget:false,kind:'dr',amt:0.5,dur:8,desc:'Take 50% less damage for 8s.'},
   m_revert:{name:'Revert',icon:'↩️',cost:0,cd:0,range:0,needTarget:false,kind:'unmorph',desc:'Return to your normal form (normal Weaves and weapon swaps come back).'}};
 for(const k in MORPH_AB){const a=MORPH_AB[k];a.id=k;a.mab=true;a.prof='wild';}
-const abDef=id=>id?(WEAVES[id]||MORPH_AB[id]||null):null;
+const abDef=id=>id?(WEAVES[id]||MORPH_AB[id]||PERK_AB[id]||null):null;
 function barIds(){if(P.morph&&MORPHS[P.morph.id]){const a=MORPHS[P.morph.id].abs.concat(['m_revert']);while(a.length<NSLOTS)a.push(null);return a;}return P.slots||[];}
 KIND.morph=(t,a)=>startMorph(a.morph,a);
 KIND.unmorph=()=>endMorph();
@@ -4636,7 +4657,7 @@ function hudDeclutterInit(){
 let qdAcc=0;
 function updDeclutter(dt){qdAcc+=dt;if(qdAcc<0.2)return;qdAcc=0;
   const q=$('#qStims');q.textContent=P.stims>0?P.stims:'';$('#bQuick').classList.toggle('mnt',!!P.mount);
-  const pts=P.sp>0;const mb=$('#bMore');mb.classList.toggle('pts',pts);$('#moreBadge').textContent=pts?P.sp:'';
+  const npp=ppAvail(),pts=P.sp>0||npp>0;const mb=$('#bMore');mb.classList.toggle('pts',pts);$('#moreBadge').textContent=pts?(P.sp+npp):'';perkBadges();
   if(panelOpen&&!$('#moreDrop').classList.contains('hidden'))moreOpen(false);}
 function declutterExports(){return {moreOpen,quickOpen,updDeclutter,inp,barIds,inAbZone,PROF_TAG};}
 
@@ -5363,6 +5384,185 @@ function openDunMap(){const d=DUN;if(!d||!d.areas)return;if(panelOpen)closePanel
 function dunCleanup(d){if(!d||!d.areas)return;ENV.list=ENV.list.filter(e=>{let o=e.m;while(o){if(o===d.group)return false;o=o.parent;}return true;});for(const id in d.doors){const i=boxes.indexOf(d.doors[id].box);if(i>=0)boxes.splice(i,1);}}
 function dunDExports(){return {get camera(){return camera;},get scene(){return scene;},get boxes(){return boxes;},get camOcc(){return camOcc;},DTHEME,DLAY,dunLayout,dunH,dunTheme,dunFeatInteract,dunFeatDo,dunOpenDoor,dunChestLoot,dunMapStats,openDunMap,updDun2,dtex,DU};}
 
+/* ================= BUILD F: PERKS =================
+   Perk points: 1 per level from level 10 (Lv 10 = 1 ... Lv 30 = 21; keeps going if the cap rises). Points are DERIVED from
+   level (ppTotal) minus ranks spent, so existing characters get theirs retroactively and P.pp is only a mirror for old readers.
+   Lines: 3 general lines (everyone) + 1 line per profession. Each line = a 5-rank perk, a 3-rank perk (needs 2 points in the
+   line) and a 1-rank ACTIVE perk (needs 4 points in the line + Lv 15) that goes on the action bar like a Weave.
+   Ranks feed statsFor through the existing PERKS registry: {name, ranks, mods:(rank,c)=>({stat:val})}.
+   Reset: first one free, then 25¢ x level and a 30 minute (real time) cooldown. Saved per character: perks{id:rank},
+   perkMeta{resets,next,intro} (in the sheet, so export/import carries it). */
+var PERK_LINES={
+  grit:{n:'Frontier Grit',ic:'🪨',d:'Toughness and staying power.'},
+  dust:{n:'Dustrunner',ic:'👟',d:'Speed, evasion and a sharp eye.'},
+  well:{n:'Deep Well',ic:'💧',d:'Vyre energy and focus.'},
+  ironclad:{n:'Ironclad Doctrine',ic:'🧱',prof:'vanguard',d:'Vanguard: armour discipline and heavy firepower.'},
+  hexcraft:{n:'Hexcraft',ic:'🧵',prof:'weaver',d:'Vyreweaver: sharper hexes and stronger weaves.'},
+  surgery:{n:'Field Surgery',ic:'🩹',prof:'mender',d:'Mender: faster, bigger heals.'},
+  overload:{n:'Overload',ic:'🔥',prof:'flux',d:'Fluxwright: raw damage and arc crits.'},
+  ghost:{n:'Ghoststep',ic:'🌫️',prof:'runner',d:'Glintrunner: evasion and precision.'},
+  forge:{n:'Fabricator\'s Edge',ic:'⚙️',prof:'wright',d:'Dronewright: tuned servos and plating.'},
+  primal:{n:'Primal Bond',ic:'🐾',prof:'wild',d:'Wildshifter: hide, instinct and the pack.'}};
+var PERK_AB={};
+(function(){const L=c=>(c&&c.level)||1,R=Math.round;
+  const def=(id,line,tier,name,icon,ranks,mods,txt,ab)=>{PERKS[id]={id,line,tier,name,icon,ranks,mods,txt,ab:ab?'pk_'+id:null};
+    if(ab){ab.id='pk_'+id;ab.name=name;ab.icon=icon;ab.perk=id;ab.prof='perk';ab.line='pk_'+id;ab.tier=1;ab.req=[];PERK_AB[ab.id]=ab;}};
+  // general
+  def('thickhide','grit',1,'Thick Hide','🪨',5,(r,c)=>({hp:R(r*(8+L(c)*1.5)),dr:r}),'+{hp} max health, +{dr}% damage reduction');
+  def('secondwind','grit',2,'Second Wind','💨',3,r=>({sta:2*r,body:4*r}),'+{sta} Stamina, +{body} Body Development');
+  def('laststand','grit',3,'Last Stand','🛡️',1,()=>({}),'Active: heal 30% of max health and take 50% less damage for 6s.',{kind:'heal',pct:0.3,dr:0.5,dur:6,cost:15,cd:120,range:0,needTarget:false,desc:'Perk: heal 30% and take 50% less damage for 6s.'});
+  def('fleet','dust',1,'Fleet Footing','👟',4,r=>({spd:3*r,evade:3*r}),'+{spd}% run speed, +{evade} Evasion');
+  def('keen','dust',2,'Keen Eye','🎯',3,r=>({sen:2*r,crit:r}),'+{sen} Sense, +{crit}% crit');
+  def('slipstream','dust',3,'Slipstream','🌪️',1,()=>({}),'Active: +35% run speed and +25 Evasion for 8s.',{buff:{dur:8,mods:()=>({spd:35,evade:25})},cost:10,cd:60,range:0,needTarget:false,desc:'Perk: +35% run speed, +25 Evasion for 8s.'});
+  def('wellspring','well',1,'Wellspring','💧',5,(r,c)=>({en:R(r*(5+L(c))),pool:2*r}),'+{en} max energy, +{pool} Vyre Pool');
+  def('focus','well',2,'Focused Mind','🧠',3,r=>({int:2*r,psy:2*r,power:r}),'+{int} Intelligence, +{psy} Psychic, +{power}% power');
+  def('overcharge','well',3,'Overcharge','⚡',1,()=>({}),'Active: restore 35% of max energy.',{kind:'battery',pct:0.35,cost:0,cd:90,range:0,needTarget:false,desc:'Perk: restore 35% energy.'});
+  // professions
+  def('plated','ironclad',1,'Plated Discipline','🧱',5,(r,c)=>({dr:r,hp:R(r*(6+L(c)))}),'+{dr}% damage reduction, +{hp} max health');
+  def('heavyhands','ironclad',2,'Heavy Hands','💪',3,r=>({wpn:3*r,str:2*r,power:r}),'+{wpn} Weapon Handling, +{str} Strength, +{power}% power');
+  def('shrapnel','ironclad',3,'Shrapnel Storm','💣',1,()=>({}),'Active: blast every enemy within 7m for 220% damage.',{kind:'aoeSelf',radius:7,mult:2.2,color:0xffb347,cost:30,cd:40,range:0,needTarget:false,desc:'Perk: 220% damage to all enemies within 7m.'});
+  def('threadwork','hexcraft',1,'Threadwork','🧵',5,r=>({weave:3*r,int:r}),'+{weave} Weave Craft, +{int} Intelligence');
+  def('lingering','hexcraft',2,'Lingering Malice','🕸️',3,r=>({power:2*r,psy:2*r}),'+{power}% power, +{psy} Psychic');
+  def('unravel','hexcraft',3,'Unravel','🌀',1,()=>({}),'Active: a 340% damage bolt that roots the target for 3s.',{kind:'nuke',mult:3.4,root:3,color:0xb46bff,cost:30,cd:35,range:24,needTarget:true,desc:'Perk: 340% damage + 3s root.'});
+  def('steady','surgery',1,'Steady Hands','🩹',5,r=>({treat:3*r,sen:r}),'+{treat} Treatment, +{sen} Sense');
+  def('triage','surgery',2,'Triage Instinct','❤️',3,(r,c)=>({hp:R(r*(5+L(c))),en:R(r*(3+L(c)/2))}),'+{hp} max health, +{en} max energy');
+  def('pulse','surgery',3,'Mending Pulse','💚',1,()=>({}),'Active: heal 35% of max health (scales with Treatment).',{kind:'heal',pct:0.35,cost:25,cd:50,range:0,needTarget:false,desc:'Perk: big self-heal.'});
+  def('volatile','overload',1,'Volatile Core','🔥',5,r=>({power:2*r}),'+{power}% power');
+  def('arc','overload',2,'Arc Conduction','⚡',3,r=>({crit:r,weave:3*r}),'+{crit}% crit, +{weave} Weave Craft');
+  def('flashover','overload',3,'Flashover','☄️',1,()=>({}),'Active: 260% damage in a 5m blast at your target.',{kind:'aoeT',radius:5,mult:2.6,color:0xff7a2a,cost:35,cd:35,range:24,needTarget:true,desc:'Perk: 260% area blast at the target.'});
+  def('slip','ghost',1,'Slipstep','🌫️',5,r=>({evade:4*r,agi:r}),'+{evade} Evasion, +{agi} Agility');
+  def('razor','ghost',2,'Razor Instinct','🗡️',3,r=>({crit:r,wpn:2*r}),'+{crit}% crit, +{wpn} Weapon Handling');
+  def('flurry','ghost',3,'Phantom Flurry','✴️',1,()=>({}),'Active: six rapid shots for 70% damage each.',{kind:'rattle',shots:6,mult:0.7,color:0x9fe8ff,cost:20,cd:25,range:22,needTarget:true,desc:'Perk: 6 quick shots at 70%.'});
+  def('servos','forge',1,'Overclocked Servos','⚙️',5,r=>({fab:3*r,int:r,power:r}),'+{fab} Fabrication, +{int} Intelligence, +{power}% power');
+  def('plating','forge',2,'Field Plating','🔩',3,(r,c)=>({dr:r,hp:R(r*(5+L(c)))}),'+{dr}% damage reduction, +{hp} max health');
+  def('scrap','forge',3,'Scrap Barrage','🧨',1,()=>({}),'Active: three waves of scrap rain on your target (90% each).',{kind:'barrage',radius:4,mult:0.9,delay:0.6,waves:3,gap:0.45,color:0xffb347,cost:30,cd:40,range:24,needTarget:true,desc:'Perk: 3 waves of 90% area damage.'});
+  def('pelt','primal',1,'Thick Pelt','🐾',5,(r,c)=>({hp:R(r*(6+L(c))),sta:r}),'+{hp} max health, +{sta} Stamina');
+  def('feral','primal',2,'Feral Instinct','🐺',3,r=>({agi:2*r,crit:r}),'+{agi} Agility, +{crit}% crit');
+  def('howl','primal',3,'Howl of the Pack','🌕',1,()=>({}),'Active: +15% power, +6 Strength and Agility for 12s.',{buff:{dur:12,mods:()=>({power:15,str:6,agi:6})},cost:20,cd:90,range:0,needTarget:false,desc:'Perk: +15% power, +6 STR/AGI for 12s.'});
+})();
+const PERK_START=10,PERK_ACTIVE_LVL=15,PERK_RESET_CD=30*60*1000;
+function ppTotal(lv){return Math.max(0,(lv|0)-PERK_START+1);}
+function ppSpent(perks){let n=0;for(const id in perks||{})if(PERKS[id])n+=perks[id]|0;return n;}
+function ppAvail(c){c=c||P;return Math.max(0,ppTotal(c.level)-ppSpent(c.perks));}
+function perkLinesFor(prof){return Object.keys(PERK_LINES).filter(k=>!PERK_LINES[k].prof||PERK_LINES[k].prof===prof);}
+function linePts(perks,line){let n=0;for(const id in perks||{}){const p=PERKS[id];if(p&&p.line===line)n+=perks[id]|0;}return n;}
+// level needed for rank r (1-based) of a perk
+function perkLvl(p,r){return p.tier===3?PERK_ACTIVE_LVL:p.tier===2?12+2*(r-1):PERK_START+2*(r-1);}
+function perkNeedLine(p){return p.tier===3?4:p.tier===2?2:0;}
+function perkCan(id,c){c=c||P;const p=PERKS[id];if(!p)return 'Unknown perk';const ln=PERK_LINES[p.line];if(ln.prof&&ln.prof!==c.prof)return 'Another profession\'s line';
+  const r=(c.perks&&c.perks[id])|0;if(r>=p.ranks)return 'Max rank';if(c.level<perkLvl(p,r+1))return 'Needs level '+perkLvl(p,r+1);
+  const need=perkNeedLine(p);if(linePts(c.perks,p.line)<need)return 'Needs '+need+' points in '+ln.n;if(ppAvail(c)<1)return 'No perk points';return '';}
+function normPerks(perks,prof,level){const o={};if(!perks||typeof perks!=='object')return o;const lines=perkLinesFor(prof);
+  for(const id in perks){const p=PERKS[id];const r=Math.floor(+perks[id]||0);if(!p||!lines.includes(p.line)||r<=0)continue;o[id]=Math.min(r,p.ranks);}
+  if(ppSpent(o)>ppTotal(level))return {};return o;}
+function normPerkMeta(m){m=m&&typeof m==='object'?m:{};return {resets:Math.max(0,m.resets|0),next:Math.max(0,+m.next||0),intro:!!m.intro};}
+function perkMeta(){return P.perkMeta||(P.perkMeta=normPerkMeta(null));}
+function perkFill(p,r,c){const m=p.mods(r,c);return p.txt.replace(/\{(\w+)\}/g,(_,k)=>m[k]!=null?m[k]:'?');}
+function learnPerk(id){const why=perkCan(id);if(why){warn(why);return false;}P.perks=P.perks||{};P.perks[id]=(P.perks[id]|0)+1;P.pp=ppAvail();const p=PERKS[id];
+  calcStats();SFX.quest();toast(p.icon+' '+p.name+(p.ranks>1?' rank '+P.perks[id]:' learned'));if(p.ab&&!P.slots.includes(p.ab)){const e=P.slots.findIndex(x=>!x);if(e>=0){P.slots[e]=p.ab;log(p.icon+' <b>'+esc(p.name)+'</b> added to action slot '+(e+1));}}setupHud();save();return true;}
+function perkResetPrice(){const m=perkMeta();return m.resets===0?0:25*P.level;}
+function perkResetWait(){return Math.max(0,perkMeta().next-Date.now());}
+function resetPerks(){if(!ppSpent(P.perks)){warn('No perks to reset');return false;}const w=perkResetWait();if(w>0){warn('Perk reset recharging: '+Math.ceil(w/60000)+' min');return false;}
+  const pr=perkResetPrice();if(P.credits<pr){warn('Not enough credits ('+pr+'¢)');return false;}P.credits-=pr;const m=perkMeta();m.resets++;m.next=Date.now()+PERK_RESET_CD;
+  P.slots=P.slots.map(id=>id&&PERK_AB[id]?null:id);P.perks={};P.pp=ppAvail();calcStats();setupHud();save();SFX.coin();toast('Perks reset: '+ppAvail()+' points refunded'+(pr?' ('+pr+'¢)':''));return true;}
+// action-bar slots: perk abilities are valid while the perk is learned
+function perkAbOk(s,id){const a=PERK_AB[id];return !!(a&&s&&s.perks&&(s.perks[a.perk]|0)>0);}
+function perkToSlot(id,i){const p=PERKS[id];if(!p||!p.ab||!(P.perks[id]>0))return false;const j=P.slots.indexOf(p.ab);if(j>=0)P.slots[j]=P.slots[i]||null;P.slots[i]=p.ab;setupHud();save();toast(p.name+' → slot '+(i+1));return true;}
+/* ---------- Perks panel ---------- */
+let perkTab=null,perkSel=null,perkConfirm=0;
+function openPerks(){if(!perkTab||!perkLinesFor(P.prof).includes(perkTab))perkTab=perkLinesFor(P.prof).find(k=>PERK_LINES[k].prof)||'grit';
+  const av=ppAvail(),tot=ppTotal(P.level),nextLv=P.level<PERK_START?PERK_START:P.level+1;
+  let h=`<div class="pkhead"><div class="pkpts"><b>${av}</b><span>perk point${av===1?'':'s'}</span></div><div class="pkinfo">${tot} earned (1 per level from Lv ${PERK_START})${P.level<MAXLVL||nextLv===PERK_START?' · next at Lv '+nextLv:''}.<br><span style="opacity:.7">Active perks (Lv ${PERK_ACTIVE_LVL}+) go on your action bar.</span></div></div>`;
+  h+='<div class="pktabs">'+perkLinesFor(P.prof).sort((a,b)=>(PERK_LINES[b].prof?1:0)-(PERK_LINES[a].prof?1:0)).map(k=>{const L=PERK_LINES[k],n=linePts(P.perks,k);return `<button class="pktab${k===perkTab?' on':''}${L.prof?' prof':''}" data-pk="tab" data-l="${k}"><span class="ic">${L.ic}</span><span class="tn">${esc(L.n)}</span><span class="tc">${n}/9</span></button>`;}).join('')+'</div>';
+  const L=PERK_LINES[perkTab];h+=`<div class="pkld">${esc(L.d)}</div><div class="pklist">`;
+  for(const id in PERKS){const p=PERKS[id];if(p.line!==perkTab)continue;const r=(P.perks[id]|0),why=perkCan(id),a=p.ab&&PERK_AB[p.ab];
+    const pips=Array.from({length:p.ranks},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('');
+    const now=r>0&&!a?`<div class="pknow">Now: ${perkFill(p,r,P)}</div>`:'';const nxt=r<p.ranks?`<div class="pknext">${a?'':'Rank '+(r+1)+': '}${a?esc(p.txt):perkFill(p,r+1,P)}</div>`:'';
+    const req=r<p.ranks&&why&&why!=='No perk points'?`<div class="pkreq">🔒 ${esc(why)}</div>`:'';
+    let act='';if(r<p.ranks)act=`<button class="sbtn pkbuy" data-pk="buy" data-id="${id}" ${why?'disabled':''}>${a?'Learn':'+1 rank'}</button>`;
+    let slots='';if(a&&r>0){const at=P.slots.indexOf(p.ab);slots=`<div class="pkslots"><span>${at>=0?'On bar: slot '+(at+1):'Put on bar:'}</span>${P.slots.map((sid,i)=>{const w=abDef(sid);return `<button class="pks${sid===p.ab?' on':''}" data-pk="slot" data-id="${id}" data-i="${i}" title="Slot ${i+1}${w?': '+esc(w.name):''}">${w?w.icon:i+1}</button>`;}).join('')}</div>
+      <div class="pkab">⏱ ${a.cd}s cooldown · ${a.cost} energy${a.range?' · '+a.range+'m':''}</div>`;}
+    h+=`<div class="pkcard${r>=p.ranks?' max':''}${a?' active':''}"><div class="pkic">${p.icon}</div><div class="pkbody"><div class="pkn"><b>${esc(p.name)}</b>${a?'<span class="pktag">ACTIVE</span>':''}<span class="pkpips">${pips}</span></div>${now}${nxt}${req}${slots}</div>${act}</div>`;}
+  h+='</div>';const sp=ppSpent(P.perks),w=perkResetWait(),pr=perkResetPrice();
+  h+=`<div class="pkfoot"><button class="sbtn alt" data-pk="reset" ${!sp||w>0?'disabled':''}>${perkConfirm>performance.now()?'Tap again to reset all perks':'↺ Reset all perks'}</button><span>${!sp?'Nothing to reset.':w>0?'Reset recharging: '+Math.ceil(w/60000)+' min':(pr?'Costs '+pr+'¢':'First reset is free')+' · refunds '+(sp===1?'your 1 point':'all '+sp+' points')+' · then a 30 min cooldown'}</span></div>`;
+  openPanel('PERKS · '+PROFS[P.prof].name.toUpperCase(),h,'perks');}
+pbody.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||b.disabled||panelOpen!=='perks')return;const a=b.dataset.pk;SFX.ui();
+  if(a==='tab'){perkTab=b.dataset.l;perkConfirm=0;openPerks();}
+  else if(a==='buy'){learnPerk(b.dataset.id);openPerks();}
+  else if(a==='slot'){perkToSlot(b.dataset.id,+b.dataset.i);openPerks();}
+  else if(a==='reset'){if(perkConfirm>performance.now()){perkConfirm=0;resetPerks();}else perkConfirm=performance.now()+4000;openPerks();}});
+function perkBadges(){const n=ppAvail();const b=$('#bPerks');if(b){b.classList.toggle('pts',n>0);$('#ppBadge').textContent=n>0?n:'';}
+  const m=perkMeta();if(state==='play'&&!m.intro&&n>0){m.intro=true;log('⭐ <b>Perks unlocked:</b> you have '+n+' perk point'+(n>1?'s':'')+' from your level. Open ⋯ → ⭐ Perks (P).');toast('⭐ '+n+' perk point'+(n>1?'s':'')+' to spend');save();}}
+function perksInit(){btn('#bPerks',()=>{if(panelOpen==='perks')closePanel();else openPerks();});}
+function perkExports(){return {normalizeChar,sheetFromPlayer,gainXp,xpNeed,PERKS,PERK_LINES,PERK_AB,ppTotal,ppSpent,ppAvail,perkCan,learnPerk,resetPerks,perkToSlot,openPerks,normPerks,perkLinesFor,perkResetPrice,perkResetWait,perkMeta,PERK_RESET_CD};}
+
+/* ---------------- LOOT overhaul: corpse loot window, auto-loot filter, junk, stacking ---------------- */
+const LOOTF={off:{n:'Off',d:'Nothing is picked up by walking over it. Tap a corpse (or press F) to open its loot.'},all:{n:'Everything',d:'Walk over drops to pick up everything.'},unc:{n:'Uncommon+',d:'Picks up Uncommon or better. Common gear and implants sell for credits on the spot, so junk never fills your pack.'},rare:{n:'Rare+',d:'Picks up Rare or better. Anything below sells for credits on the spot.'}};
+const LOOTF_ORDER=['off','all','unc','rare'];
+const LOOT_REACH=6,LOOT_PILE_R=3;
+function normLootF(v){return LOOTF[v]?v:'unc';}
+function lootF(){return P.lootF=normLootF(P.lootF);}
+function setLootF(v){if(!LOOTF[v])return false;P.lootF=v;save();return true;}
+function lootThr(f){return f==='rare'?2:f==='unc'?1:0;}
+function sellableKind(it){return !!it&&(it.kind==='gear'||isImp(it));}
+// disks, clothing, uniques, faction and quest items are always kept
+function lootKeep(it){return !sellableKind(it)||it.r>=4||!!it.uniq||!!it.fac||!!it.quest;}
+function lootDecide(it,f){f=f||lootF();if(f==='off')return 'leave';if(f==='all'||lootKeep(it))return 'take';return it.r>=lootThr(f)?'take':'sell';}
+function isJunkItem(it){if(!sellableKind(it)||isEquipped(it))return false;if(it.junk===true)return true;if(it.junk===false)return false;return it.r===0&&!it.uniq&&!it.fac&&!it.quest;}
+function stackN(it){return Math.max(1,(it&&it.n)|0);}
+function stackKey(it){return it&&isDisk(it)?'d:'+it.wid+':'+it.r:null;}
+function invCan(it){const k=stackKey(it);return (k&&P.inv.some(x=>stackKey(x)===k))||P.inv.length<24;}
+function invAdd(it){const k=stackKey(it);if(k){const ex=P.inv.find(x=>x!==it&&stackKey(x)===k);if(ex){ex.n=stackN(ex)+stackN(it);return true;}}if(P.inv.length>=24)return false;P.inv.push(it);return true;}
+function stackInv(){const seen={};let m=0;P.inv=P.inv.filter(it=>{if(it&&it.n!=null)it.n=stackN(it);if(it&&it.n===1)delete it.n;const k=stackKey(it);if(!k)return true;if(seen[k]){seen[k].n=stackN(seen[k])+stackN(it);m++;return false;}seen[k]=it;return true;});return m;}
+function junkList(){return P.inv.filter(isJunkItem);}
+function junkValue(){return junkList().reduce((a,it)=>a+it.value*stackN(it),0);}
+function sellJunk(){const L=junkList();if(!L.length){toast('No junk to sell');return 0;}const c=junkValue();P.inv=P.inv.filter(it=>!isJunkItem(it));P.credits+=c;SFX.coin();toast('🗑 Sold '+L.length+' junk item'+(L.length>1?'s':'')+' for '+c+'¢');log('🗑 Sold '+L.length+' junk item'+(L.length>1?'s':'')+' for <b style="color:#ffc85a">'+c+'¢</b>');if(invSel&&!findItem(invSel))invSel=null;save();return c;}
+function sellJunkBtn(){const n=junkList().length,c=junkValue();return `<button class="sbtn alt sjbtn" data-lt="selljunk" ${n?'':'disabled'} title="Sell every item tagged Junk">🗑 Sell Junk${n?' ('+n+' · '+c+'¢)':''}</button>`;}
+function lootFChips(){const f=lootF();return `<div class="ltf"><span>Auto-loot</span>${LOOTF_ORDER.map(k=>`<button class="ltchip${k===f?' on':''}" data-lt="filt" data-f="${k}">${LOOTF[k].n}</button>`).join('')}</div>`;}
+/* ---- world piles: drops within LOOT_PILE_R of each other belong to the same corpse ---- */
+function lootPile(l){return loots.filter(o=>Math.hypot(o.x-l.x,o.z-l.z)<=LOOT_PILE_R);}
+function lootRemove(l){const i=loots.indexOf(l);if(i<0)return;scene.remove(l.m);scene.remove(l.b);if(l.b.material)l.b.material.dispose();loots.splice(i,1);}
+function lootGot(it){SFX.loot();if(it.kind==='disk'){const w=WEAVES[it.wid];banner('📀 WEAVE DISK',w.name+' · '+profName(w.prof)+' · open the 📖 Weave Book');}log('Looted <b style="color:'+RAR[it.r].c+'">'+esc(it.name)+'</b>');}
+let lootSoldAcc=0,lootSoldN=0,lootSoldT=0;
+function lootAutoSell(it){const v=it.value*stackN(it);P.credits+=v;lootSoldAcc+=v;lootSoldN++;lootSoldT=0.6;
+  if(!P.lootHint){P.lootHint=true;log('🪙 <b>Auto-loot is on ('+LOOTF[lootF()].n+')</b>: lower-rarity gear sells for credits on the spot. Change it in 🎒 Inventory or any loot window.');}}
+function lootSoldFlush(dt){if(lootSoldT<=0)return;lootSoldT-=dt;if(lootSoldT>0)return;SFX.coin();floatText(tmpV.set(P.pos.x,P.pos.y+2.6,P.pos.z),'+'+lootSoldAcc+'¢ auto-sold','xp');log('<span style="color:#9a9a9a">🪙 Auto-sold '+lootSoldN+' low-rarity drop'+(lootSoldN>1?'s':'')+' for '+lootSoldAcc+'¢</span>');lootSoldAcc=0;lootSoldN=0;save();}
+// called from updLoot for a drop the player stands on; returns true when the drop is gone
+function lootAuto(l){const a=lootDecide(l.item);if(a==='leave')return false;
+  if(a==='sell'){lootRemove(l);lootAutoSell(l.item);return true;}
+  if(!invCan(l.item)){if(!l.fullW){l.fullW=1;warn('Pack full: tap the drop to see it, or sell junk');}return false;}
+  lootRemove(l);invAdd(l.item);lootGot(l.item);save();return true;}
+function lootTake(id){const l=loots.find(o=>o.item.id===id);if(!l)return false;if(P.dead)return false;
+  if(Math.hypot(l.x-P.pos.x,l.z-P.pos.z)>LOOT_REACH){warn('Move closer to loot');return false;}
+  if(!invCan(l.item)){warn('Pack full');return false;}lootRemove(l);invAdd(l.item);lootGot(l.item);save();return true;}
+function lootTakeAll(anchor){let n=0,full=0;for(const l of lootPile(anchor)){if(Math.hypot(l.x-P.pos.x,l.z-P.pos.z)>LOOT_REACH)continue;if(!invCan(l.item)){full++;continue;}lootRemove(l);invAdd(l.item);n++;}
+  if(n){SFX.loot();log('Looted '+n+' item'+(n>1?'s':''));save();}if(full)warn('Pack full: '+full+' left on the ground');else if(!n)warn('Move closer to loot');return n;}
+function lootSellPileJunk(anchor){let c=0,n=0;for(const l of lootPile(anchor)){if(!isJunkItem(l.item)||Math.hypot(l.x-P.pos.x,l.z-P.pos.z)>LOOT_REACH)continue;lootRemove(l);c+=l.item.value*stackN(l.item);n++;}if(n){P.credits+=c;SFX.coin();toast('🪙 Sold '+n+' junk drop'+(n>1?'s':'')+' for '+c+'¢');save();}return c;}
+/* ---- loot window ---- */
+let lootAnchor=null;
+function openLoot(l){if(!l)return;lootAnchor={x:l.x,z:l.z};renderLoot();}
+function renderLoot(){const A=lootAnchor;if(!A)return;const pile=lootPile(A).sort((a,b)=>b.item.r-a.item.r);
+  if(!pile.length){if(panelOpen==='loot')closePanel();lootAnchor=null;return;}
+  const d=Math.hypot(A.x-P.pos.x,A.z-P.pos.z),far=d>LOOT_REACH,jn=pile.filter(o=>isJunkItem(o.item)),jc=jn.reduce((a,o)=>a+o.item.value*stackN(o.item),0);
+  let h=`<div class="lthead"><button class="sbtn ltall" data-lt="all" ${far?'disabled':''}>Take all (${pile.length})</button>${jn.length?`<button class="sbtn alt ltall" data-lt="pjunk" ${far?'disabled':''}>🪙 Sell junk (${jc}¢)</button>`:''}<span class="ltpack">Pack ${P.inv.length}/24</span></div>`;
+  if(far)h+=`<div class="ltfar">Walk closer to loot (${Math.round(d)} m away)</div>`;
+  h+='<div class="ltlist">'+pile.map(o=>{const it=o.item,j=isJunkItem(it);return `<div class="ltrow${j?' jk':''}"><span class="ico" style="color:${RAR[it.r].c};border:1px solid ${RAR[it.r].c}">${icoOf(it)}</span><span class="ltn"><b style="color:${RAR[it.r].c}">${esc(it.name)}${stackN(it)>1?' ×'+stackN(it):''}</b><span>${RAR[it.r].n} · ${isImp(it)?IMPDEF[it.slot].n+' implant':isDisk(it)?profName(it.prof)+' Weave Disk':it.kind==='cloth'?'Clothing':itemType(it)}${j?' · <i class="jtag">Junk</i>':''} · ${it.value}¢</span></span><button class="sbtn ltake" data-lt="take" data-id="${it.id}" ${far?'disabled':''}>Take</button></div>`;}).join('')+'</div>';
+  h+=lootFChips()+`<div class="ltdesc">${LOOTF[lootF()].d}</div>`;
+  openPanel('💰 LOOT',h,'loot');}
+/* ---- picking: tap a corpse or the drop itself ---- */
+function lootPick(ray){let best=null,bd=1e9;const cam=camera.position;
+  for(const l of loots){const r=1.3;if(ray.ray.distanceSqToPoint(l.m.position)<r*r){const d=l.m.position.distanceTo(cam);if(d<bd){bd=d;best=l;}}}
+  for(const c of CORPSES){const e=c.e;if(!e||!e.dead)continue;entChest(e,tmpV);const r=(e.hitR||1)+0.7;if(ray.ray.distanceSqToPoint(tmpV)<r*r){const d=tmpV.distanceTo(cam);if(d<bd){let nl=null,nd=LOOT_PILE_R;for(const l of loots){const q=Math.hypot(l.x-e.pos.x,l.z-e.pos.z);if(q<=nd){nd=q;nl=l;}}if(nl){bd=d;best=nl;}}}}
+  return best;}
+function lootInteract(p){let b=null,bd=2.6;for(const l of loots){const d=Math.hypot(l.x-p.x,l.z-p.z);if(d<bd){bd=d;b=l;}}return b?{k:'loot',l:b,label:'💰 Loot ('+lootPile(b).length+')'}:null;}
+function lootInit(){pbody.addEventListener('click',e=>{const b=e.target.closest('[data-lt]');if(!b||b.disabled)return;const a=b.dataset.lt;SFX.ui();
+  if(a==='take'){lootTake(b.dataset.id);renderLoot();}
+  else if(a==='all'){lootTakeAll(lootAnchor);renderLoot();}
+  else if(a==='pjunk'){lootSellPileJunk(lootAnchor);renderLoot();}
+  else if(a==='filt'){setLootF(b.dataset.f);toast('Auto-loot: '+LOOTF[lootF()].n);if(panelOpen==='loot')renderLoot();else if(panelOpen==='inv')openInventory();}
+  else if(a==='selljunk'){sellJunk();if(panelOpen==='vend')openVendor();else if(panelOpen==='fvend')openFacVendor(curFV);else if(panelOpen==='inv')openInventory();}});}
+function lootExports(){return {LOOTF,lootF,setLootF,lootDecide,lootKeep,isJunkItem,invAdd,invCan,stackInv,stackN,junkList,junkValue,sellJunk,lootPile,lootTake,lootTakeAll,openLoot,renderLoot,lootPick,lootInteract,lootSellPileJunk,dropLoot,updLoot,learnDisk,openVendor,openFacVendor,openInventory,killEnemy,genDisk,findInteract,interact,tapPick,get loots(){return loots;},camera,VEND,bagAdd,bag,makeElite,exportText,entChest,findItem,CONSUM,setVendTab(t){vendTab=t;},get nearI(){return nearI;}};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -5396,17 +5596,18 @@ document.addEventListener('touchmove',e=>{if(!e.target.closest||!e.target.closes
 const ray=new THREE.Raycaster();const ndc=new THREE.Vector2();
 function tapPick(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(ndc,camera);let best=null,bd=1e9;
   for(const e of enemies){if(e.dead||!e.R.g.visible)continue;entChest(e,tmpV);const r=e.hitR+0.6;if(ray.ray.distanceSqToPoint(tmpV)<r*r){const d=tmpV.distanceTo(camera.position);if(d<bd){bd=d;best=e;}}}
-  if(best)setTarget(best);}
+  if(best){setTarget(best);return;}const lp=lootPick(ray);if(lp&&!P.dead){SFX.ui();openLoot(lp);}}
 function btn(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();el.classList.add('press');fn();});
   const up=()=>el.classList.remove('press');el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up);}
 btn('#bAtk',pressAttack);[0,1,2,3,4,5].forEach(i=>btn('#b'+i,()=>{if(!barIds()[i]){if(!P.morph)openBook();return;}useAbility(i);}));btn('#bBook',()=>{if(panelOpen==='book')closePanel();else{bookSel=null;openBook();}});btn('#bStim',useStim);btn('#bSk',()=>{if(panelOpen==='skills')closePanel();else openSkills();});
-hudDeclutterInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bTgt',cycleTarget);btn('#bUse',interact);
+hudDeclutterInit();perksInit();lootInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bTgt',cycleTarget);btn('#bUse',interact);
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;audioInit();inp.keys[e.code]=true;
   if(state!=='play')return;
   if(e.code==='Escape'){if(panelOpen)closePanel();else openMenu();return;}
   if(e.code==='KeyM'){toggleMap();return;}
   if(e.code==='KeyT'&&!panelOpen){toggleTeam();return;}if(e.code==='KeyG'&&!panelOpen){teamAttack();return;}if(e.code==='KeyY'&&!panelOpen){teamRegroup();return;}
   if(e.code==='KeyK'){if(panelOpen==='skills')closePanel();else openSkills();return;}
+  if(e.code==='KeyP'&&state==='play'){if(panelOpen==='perks')closePanel();else openPerks();return;}
   if(e.code==='KeyJ'){if(panelOpen==='craft')closePanel();else openCraft();return;}
   if(e.code==='KeyL'){if(panelOpen==='journal')closePanel();else openJournal();return;}
   if(e.code==='KeyH'){if(panelOpen==='help')closePanel();else openHelp();return;}
@@ -5421,11 +5622,12 @@ addEventListener('blur',()=>{inp.keys={};});
 
 /* ---------------- interact ---------------- */
 let nearI=null;
-function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk||DUN)return dk;const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;const hk=hubInteract(p);if(hk)return hk;
+function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk)return dk;if(DUN)return lootInteract(p);const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;const hk=hubInteract(p);if(hk)return hk;
   if(Math.hypot(p.x-TERMINAL.x,p.z-TERMINAL.z)<3.4)return {k:'term',label:'📟 Missions'};
   if(Math.hypot(p.x-VENDOR.x,p.z-VENDOR.z)<3.4)return {k:'vend',label:'🛒 Trade'};
-  return null;}
+  return lootInteract(p);}
 function interact(){if(!nearI||panelOpen)return;SFX.ui();
+  if(nearI.k==='loot'){openLoot(nearI.l);return;}
   if(nearI.k==='term')openTerminal();else if(nearI.k==='vend'){vendTab='buy';VEND.ctx='town';openVendor();}
   else if(hubDo(nearI)){}
   else if(questDo(nearI)){}
@@ -5579,13 +5781,13 @@ const ROLE={vanguard:'tank',weaver:'control',mender:'healer',flux:'dps',runner:'
 function newCharId(){return 'c'+Date.now().toString(36)+Math.floor(Math.random()*1e5).toString(36);}
 // Weave book migration: older characters know their starters, and get a valid (possibly empty) book and 6-slot loadout
 function weaveState(s){const pk=PROFS[s.prof]?s.prof:'vanguard';const st=starterIds(pk);const known=[...new Set(st.concat((s.known||[]).filter(id=>WEAVES[id]&&(WEAVES[id].prof===pk||WEAVES[id].prof==='any'))))];
-  let slots=Array.isArray(s.slots)?s.slots.slice(0,NSLOTS).map(id=>known.includes(id)?id:null):st.slice(0,NSLOTS);while(slots.length<NSLOTS)slots.push(null);return {known,slots};}
+  let slots=Array.isArray(s.slots)?s.slots.slice(0,NSLOTS).map(id=>known.includes(id)||perkAbOk(s,id)?id:null):st.slice(0,NSLOTS);while(slots.length<NSLOTS)slots.push(null);return {known,slots};}
 function normalizeChar(s){
   // migrates v1 single-save data: old 'implant' slot -> head implant, gear gets req [] (grandfathered), unspent points granted
   const eq0=s.eq||{};const imps={};IMPSLOTS.forEach(k=>imps[k]=migrateItem((s.imps||{})[k]||null));const inv=(s.inv||[]).slice();
   if(eq0.implant&&!imps.head)imps.head=migrateItem(eq0.implant);else if(eq0.implant)inv.push(eq0.implant);
   return {v:2,id:s.id||newCharId(),created:s.created||s.t||Date.now(),updated:s.updated||s.t||Date.now(),name:(typeof s.name==='string'&&s.name.replace(/\s+/g,' ').trim())?s.name.replace(/\s+/g,' ').trim():'Contractor',prof:PROFS[s.prof]?s.prof:'vanguard',level:s.level||1,xp:s.xp||0,
-    credits:s.credits??25,inv:inv.map(migrateItem).filter(Boolean),eq:Object.fromEntries(GSLOTS.map(k=>[k,migrateItem(eq0[k]||null)])),imps,perks:s.perks||{},pp:s.pp||0,dunClears:s.dunClears||{},savePoint:s.savePoint||null,nodes:s.nodes||['town'],mprefs:s.mprefs||{diff:1,pref:'any'},...futureFields(s),ab:s.ab||{},sb:s.sb||{},sp:s.sp??spTotal(s.level||1),
+    credits:s.credits??25,inv:inv.map(migrateItem).filter(Boolean),eq:Object.fromEntries(GSLOTS.map(k=>[k,migrateItem(eq0[k]||null)])),imps,perks:normPerks(s.perks,s.prof,s.level||1),pp:s.pp||0,dunClears:s.dunClears||{},savePoint:s.savePoint||null,nodes:s.nodes||['town'],mprefs:s.mprefs||{diff:1,pref:'any'},...futureFields(s),ab:s.ab||{},sb:s.sb||{},sp:s.sp??spTotal(s.level||1),
     consum:s.consum||(s.v===1||!s.v?{focus:1}:{}),buffs:s.buffs||[],stims:s.stims??3,mission:s.mission||null,kills:s.kills||0,pos:s.pos||null,hp:s.hp||0,en:s.en||0,dead:!!s.dead,
     party:s.party||{ai:'default',role:ROLE[s.prof]||'dps'},...weaveState(s)};
 }
@@ -5684,7 +5886,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
