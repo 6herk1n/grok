@@ -81,6 +81,7 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #storyPop .sp-u div{background:rgba(109,255,138,.12);border:1px solid rgba(109,255,138,.45);border-radius:10px;padding:8px;margin:6px 0}#storyPop .sp-u b{color:#6dff8a;font-size:17px;display:block}#storyPop .sp-u span{font-size:12px;opacity:.85}
 #storyPop .sp-r{margin:8px 0;font-weight:700;color:#fff3c8}#storyPop .sp-d{text-align:left;font-size:13px;opacity:.9}#storyPop .sp-d b{color:#5ff2ff}#storyPop .sp-b{display:flex;gap:10px;justify-content:center;margin-top:12px}#storyPop .sp-b button{min-height:48px;min-width:140px}
 .tdrow{font-size:13px;margin:3px 0;line-height:1.35}.tdrow small{opacity:.75}.tdrow.up{color:#9ff0b0}.tdrow.down{color:#ffb0a8}.tdbox{margin-top:8px}.tmsync{color:#ffb0ec;font-weight:700;margin:0 0 3px}
+.bkhid{font-size:13px;color:#ffd34a;background:rgba(255,211,74,.08);border:1px dashed rgba(255,211,74,.45);border-radius:8px;padding:6px 8px;margin:0 0 6px}.bkhid small{opacity:.7;color:#ddd}
 #teamHud{position:absolute;left:calc(12px + var(--sl));top:calc(150px + var(--st));width:250px;padding:6px 10px 8px;border-radius:12px;background:rgba(20,10,5,.55);font-size:12px;pointer-events:auto}
 .tmr{display:flex;align-items:center;gap:6px;height:18px}.tmr .tmn{width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tmr .tmb{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden}.tmr .tmb i{display:block;height:100%;background:#6dff8a}
 .tmr.down{opacity:.55}.tmr .tmd{width:30px;text-align:right;color:#ff9a8a}.tmc{display:flex;gap:6px;margin-top:6px}.tmbt{flex:1;min-height:36px;border-radius:9px;border:1px solid rgba(255,190,110,.4);background:rgba(60,35,15,.8);color:#f3e6d3;font-size:13px;font-weight:700}
@@ -255,10 +256,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261114T202721-fdd8fa40">
+<meta name="dr-build" content="20261114T210346-0e019ae3">
 <script>
 (function(){
-var BUILD='20261114T202721-fdd8fa40';window.DR_BUILD=BUILD;
+var BUILD='20261114T210346-0e019ae3';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1794,6 +1795,7 @@ function openTerminal(){
   openPanel('COMBINE CONTRACT TERMINAL',h,'term');
 }
 let vendTab='buy';
+let vendConfirm=null;
 function openVendor(){
   const L=P.level;
   if(T-stockAt>120||stockLvl!==L||vendorStock.length===0||stockCtx!==VEND.ctx){vendorStock=[];stockCtx=VEND.ctx;
@@ -1808,7 +1810,9 @@ function openVendor(){
     h+='<div class="h4" style="margin-top:10px">Weave Disks (learn new Weaves)</div>'+(vendorStock.filter(isDisk).map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')).join('')||'<div style="opacity:.6">No disks you need right now.</div>');
     h+='<div class="h4" style="margin-top:10px">Implants (several QLs: the high ones need twinking)</div>'+vendorStock.filter(isImp).map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')).join('');
     h+='<div class="h4" style="margin-top:10px">Gear</div>'+vendorStock.filter(i=>i.kind==='gear').map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')+cmpLine(it)).join('');}
-  else{h+=P.inv.map(it=>itemRow(it,`<span class="pr">${it.value}¢</span>`,false,'sell')).join('')||'<div style="opacity:.6">Nothing to sell. Equipped gear and installed implants can\'t be sold.</div>';
+  else{const vc=vendConfirm&&P.inv.find(x=>x.id===vendConfirm);if(!vc)vendConfirm=null;
+    if(vc){const pn=profName(diskProf(vc));h+=`<div class="mis sellconf" id="sellConf" style="border-color:#ffd34a"><b>Sell ${esc(vc.name)} for ${vc.value}¢?</b><div style="font-size:13px;margin:4px 0">📀 This disc is for a <b>${esc(pn)}</b>: ${esc(PROFS[P.prof].name)}s can't learn it, but a ${esc(pn)} can. Tip: store it in the 🏦 bank instead (only ${esc(pn)}s see it there).</div><div style="display:flex;gap:8px"><button class="sbtn" data-act="sellno">Keep it</button><button class="sbtn alt" data-act="sellok" data-id="${vc.id}">Sell anyway</button></div></div>`;}
+    h+=P.inv.map(it=>itemRow(it,`<span class="pr">${isDisk(it)&&!diskUsable(it)?'<span style="font-size:11px;color:#ffd34a">'+esc(profName(diskProf(it)))+' disc · </span>':''}${it.value}¢</span>`,false,'sell')).join('')||'<div style="opacity:.6">Nothing to sell. Equipped gear and installed implants can\'t be sold.</div>';
     }
   openPanel(vendTitle(),h,'vend');
   vendorStock._price=price;
@@ -1831,7 +1835,8 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='buyc'){const c=CONSUM[b.dataset.k];const pr=c.price(P.level);if(P.credits<pr)warn('Not enough credits');else{P.credits-=pr;P.consum[b.dataset.k]=(P.consum[b.dataset.k]||0)+1;SFX.coin();toast('Bought '+c.name);save();}openVendor();}
   else if(a==='buy'){const it=vendorStock.find(x=>x.id===b.dataset.id);if(!it)return;const pr=it.kind==='gear'?it.value*4:it.value*3;if(P.credits<pr){warn('Not enough credits');return;}if(P.inv.length>=24){warn('Inventory full');return;}
     P.credits-=pr;vendorStock.splice(vendorStock.indexOf(it),1);P.inv.push(it);SFX.coin();toast('Bought '+it.name);save();openVendor();}
-  else if(a==='sell'){const i=P.inv.findIndex(x=>x.id===b.dataset.id);if(i<0)return;P.credits+=P.inv[i].value;if(stackN(P.inv[i])>1)P.inv[i].n--;else P.inv.splice(i,1);SFX.coin();save();openVendor();}
+  else if(a==='sell'||a==='sellok'){const i=P.inv.findIndex(x=>x.id===b.dataset.id);if(i<0)return;if(a==='sell'&&isDisk(P.inv[i])&&!diskUsable(P.inv[i])){vendConfirm=P.inv[i].id;openVendor();return;}vendConfirm=null;P.credits+=P.inv[i].value;if(stackN(P.inv[i])>1)P.inv[i].n--;else P.inv.splice(i,1);SFX.coin();save();openVendor();}
+  else if(a==='sellno'){vendConfirm=null;openVendor();}
   else if(a==='sellall'){sellJunk();openVendor();}
   else if(a==='book'){openBook();}
   else if(a==='learn'){learnDisk(b.dataset.id);openBook();}
@@ -3486,9 +3491,9 @@ function openBank(tab){if(tab)BK.tab=tab;const B=loadBank();const t=BK.tab;const
   if(t==='items')bar+=`<div class="bkrow bkf"><input id="bankQ" type="search" placeholder="Search name…" value="${esc(BK.q)}" autocomplete="off"><div class="chips">${BFILT.map(([k,n])=>`<button class="chip${BK.f===k?' on':''}" data-act="bflt" data-f="${k}">${n}</button>`).join('')}</div><div class="chips">${BSORT.map(([k,n])=>`<button class="chip${BK.sort===k?' on':''}" data-act="bsort" data-s="${k}">${n}</button>`).join('')}</div></div>`;
   bar+='</div>';
   let h='';
-  if(t==='items'){const pk=bankSorted(bankFilter(P.inv)),bk=bankSorted(bankFilter(B.items));
+  if(t==='items'){const pk=bankSorted(bankFilter(P.inv)),bAll=bankFilter(B.items),bk=bankSorted(bAll.filter(it=>!isDisk(it)||diskUsable(it)));const nHid=bAll.reduce((a,it)=>a+(isDisk(it)&&!diskUsable(it)?stackN(it):0),0);
     h=`<div class="cols"><div><div class="h4">Your pack · tap to store ➜</div>${pk.map(it=>itemRow(it,`<span class="pr">${isJunk(it)?'<span style="opacity:.6;font-size:11px">junk </span>':''}Store ➜</span>`,false,'bdep')).join('')||'<div style="opacity:.6">Nothing here.</div>'}</div>
-      <div><div class="h4">Bank · tap to take ⬅</div>${bk.map(it=>itemRow(it,'<span class="pr">⬅ Take</span>',false,'bwd')).join('')||'<div style="opacity:.6">'+(B.items.length?'No matches.':'Bank empty. Anything stored here can be taken by any of your characters.')+'</div>'}</div></div>`;}
+      <div><div class="h4">Bank · tap to take ⬅</div>${nHid?`<div class="bkhid" id="bkHid">📀 ${nHid} disc${nHid>1?'s':''} for other professions hidden <small>(only the profession that can learn a disc sees it here)</small></div>`:''}${bk.map(it=>itemRow(it,'<span class="pr">⬅ Take</span>',false,'bwd')).join('')||'<div style="opacity:.6">'+(B.items.length?(nHid&&!bk.length?'Nothing else for '+PROFS[P.prof].name+'.':'No matches.'):'Bank empty. Anything stored here can be taken by any of your characters.')+'</div>'}</div></div>`;}
   else if(t==='parts')h=`<div class="stats" style="opacity:.8">Parts stack by type and QL and don't use bank slots.</div><div class="cols"><div><div class="h4">Your parts · tap to store the stack</div>${bagSort(bag()).map(o=>bagRow(o,'bdepm','<span class="pr">Store ➜</span>')).join('')||'<div style="opacity:.6">No parts.</div>'}</div><div><div class="h4">Bank parts</div>${bagSort(B.bag).map(o=>bagRow(o,'bwdm','<span class="pr">⬅ Take</span>')).join('')||'<div style="opacity:.6">None stored.</div>'}</div></div>`;
   else h=`<div class="stats">You carry <b style="color:#ffc85a">${P.credits}¢</b> · Bank holds <b style="color:#ffc85a">${B.credits}¢</b></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="sbtn" data-act="bcr" data-n="100">Store 100¢</button><button class="sbtn" data-act="bcr" data-n="${P.credits}">Store all</button><button class="sbtn alt" data-act="bcr" data-n="-100">Take 100¢</button><button class="sbtn alt" data-act="bcr" data-n="${-B.credits}">Take all</button></div>`;
   openPanel('🏦 BANK',bar+h,'locker');pbody.scrollTop=keep;
@@ -5534,8 +5539,11 @@ function lootThr(f){return f==='rare'?2:f==='unc'?1:0;}
 function sellableKind(it){return !!it&&(it.kind==='gear'||isImp(it));}
 // disks, clothing, uniques, faction and quest items are always kept
 function lootKeep(it){return !sellableKind(it)||it.r>=4||!!it.uniq||!!it.fac||!!it.quest;}
-function lootDecide(it,f){f=f||lootF();if(f==='off')return 'leave';if(f==='all'||lootKeep(it))return 'take';return it.r>=lootThr(f)?'take':'sell';}
-function isJunkItem(it){if(!sellableKind(it)||isEquipped(it))return false;if(it.junk===true)return true;if(it.junk===false)return false;return it.r===0&&!it.uniq&&!it.fac&&!it.quest;}
+function lootDecide(it,f){f=f||lootF();if(f==='off')return 'leave';if(isDisk(it))return 'take';if(f==='all'||lootKeep(it))return 'take';return it.r>=lootThr(f)?'take':'sell';}
+/* Weave disks: never junk, never auto-sold; diskProf/diskUsable say who can learn one (generic 'any' disks fit everyone) */
+function diskProf(it){const w=it&&WEAVES[it.wid];return w?w.prof:null;}
+function diskUsable(it,prof){const p=diskProf(it);return !p||p==='any'||!PROFS[p]||p===(prof||P.prof);}
+function isJunkItem(it){if(!it||isDisk(it)||!sellableKind(it)||isEquipped(it))return false;if(it.junk===true)return true;if(it.junk===false)return false;return it.r===0&&!it.uniq&&!it.fac&&!it.quest;}
 function stackN(it){return Math.max(1,(it&&it.n)|0);}
 function stackKey(it){return it&&isDisk(it)?'d:'+it.wid+':'+it.r:null;}
 function invCan(it){const k=stackKey(it);return (k&&P.inv.some(x=>stackKey(x)===k))||P.inv.length<24;}
@@ -5551,7 +5559,7 @@ function lootPile(l){return loots.filter(o=>Math.hypot(o.x-l.x,o.z-l.z)<=LOOT_PI
 function lootRemove(l){const i=loots.indexOf(l);if(i<0)return;scene.remove(l.m);scene.remove(l.b);if(l.b.material)l.b.material.dispose();loots.splice(i,1);}
 function lootGot(it){SFX.loot();if(it.kind==='disk'){const w=WEAVES[it.wid];banner('📀 WEAVE DISK',w.name+' · '+profName(w.prof)+' · open the 📖 Weave Book');}log('Looted <b style="color:'+RAR[it.r].c+'">'+esc(it.name)+'</b>');}
 let lootSoldAcc=0,lootSoldN=0,lootSoldT=0;
-function lootAutoSell(it){const v=it.value*stackN(it);P.credits+=v;lootSoldAcc+=v;lootSoldN++;lootSoldT=0.6;
+function lootAutoSell(it){if(isDisk(it))return;const v=it.value*stackN(it);P.credits+=v;lootSoldAcc+=v;lootSoldN++;lootSoldT=0.6;
   if(!P.lootHint){P.lootHint=true;log('🪙 <b>Auto-loot is on ('+LOOTF[lootF()].n+')</b>: lower-rarity gear sells for credits on the spot. Change it in 🎒 Inventory or any loot window.');}}
 function lootSoldFlush(dt){if(lootSoldT<=0)return;lootSoldT-=dt;if(lootSoldT>0)return;SFX.coin();floatText(tmpV.set(P.pos.x,P.pos.y+2.6,P.pos.z),'+'+lootSoldAcc+'¢ auto-sold','xp');log('<span style="color:#9a9a9a">🪙 Auto-sold '+lootSoldN+' low-rarity drop'+(lootSoldN>1?'s':'')+' for '+lootSoldAcc+'¢</span>');lootSoldAcc=0;lootSoldN=0;save();}
 // called from updLoot for a drop the player stands on; returns true when the drop is gone
@@ -5588,7 +5596,7 @@ function lootInit(){pbody.addEventListener('click',e=>{const b=e.target.closest(
   else if(a==='pjunk'){lootSellPileJunk(lootAnchor);renderLoot();}
   else if(a==='filt'){setLootF(b.dataset.f);toast('Auto-loot: '+LOOTF[lootF()].n);if(panelOpen==='loot')renderLoot();else if(panelOpen==='inv')openInventory();}
   else if(a==='selljunk'){sellJunk();if(panelOpen==='vend')openVendor();else if(panelOpen==='fvend')openFacVendor(curFV);else if(panelOpen==='inv')openInventory();}});}
-function lootExports(){return {LOOTF,lootF,setLootF,lootDecide,lootKeep,isJunkItem,invAdd,invCan,stackInv,stackN,junkList,junkValue,sellJunk,lootPile,lootTake,lootTakeAll,openLoot,renderLoot,lootPick,lootInteract,lootSellPileJunk,dropLoot,updLoot,learnDisk,openVendor,openFacVendor,openInventory,killEnemy,genDisk,findInteract,interact,tapPick,get loots(){return loots;},camera,VEND,bagAdd,bag,makeElite,exportText,entChest,findItem,CONSUM,setVendTab(t){vendTab=t;},get nearI(){return nearI;}};}
+function lootExports(){return {diskProf,diskUsable,lootAutoSell,get vendConfirm(){return vendConfirm;},LOOTF,lootF,setLootF,lootDecide,lootKeep,isJunkItem,invAdd,invCan,stackInv,stackN,junkList,junkValue,sellJunk,lootPile,lootTake,lootTakeAll,openLoot,renderLoot,lootPick,lootInteract,lootSellPileJunk,dropLoot,updLoot,learnDisk,openVendor,openFacVendor,openInventory,killEnemy,genDisk,findInteract,interact,tapPick,get loots(){return loots;},camera,VEND,bagAdd,bag,makeElite,exportText,entChest,findItem,CONSUM,setVendTab(t){vendTab=t;},get nearI(){return nearI;}};}
 
 /* ================= BUILD G: faction zones =================
    Four zones held by a faction (one per faction in the Duskcrown Highlands, Lv 14-17, and one per faction in the Rimefall Expanse, Lv 24-27).
