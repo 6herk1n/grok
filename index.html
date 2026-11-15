@@ -278,10 +278,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261115T112630-ac777c3f">
+<meta name="dr-build" content="20261115T134656-f76a24e6">
 <script>
 (function(){
-var BUILD='20261115T112630-ac777c3f';window.DR_BUILD=BUILD;
+var BUILD='20261115T134656-f76a24e6';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1397,7 +1397,9 @@ const RAR=[{n:'Common',c:'#cfcfcf',h:0xcfcfcf,m:1},{n:'Uncommon',c:'#4fe36a',h:0
   // Lv 12+ world tier (index 7, ranked between Epic and Legendary): rare drops in the Duskcrown Highlands, its dynas and the Choir dungeon; 4 bonuses
   {n:'Ascendant',c:'#ffe066',h:0xffe066,m:2.3},
   // index 8: team-content only (team dungeon bosses), the best gear tier; 6 bonuses
-  {n:'Paragon',c:'#ff5fd2',h:0xff5fd2,m:3.1}];// Mythic: ultra-rare Weave Disks (Shimmerveil)
+  {n:'Paragon',c:'#ff5fd2',h:0xff5fd2,m:3.1},
+  // index 9 (Build N): raid-only, The Sunless Throne; the top tier
+  {n:'Sunforged',c:'#ffd27a',h:0xffd27a,m:3.6}];// Mythic: ultra-rare Weave Disks (Shimmerveil)
 // Names: [condition] [type/family prefix] <type or slot noun> [suffix on Rare+]. Nouns are unique per weapon type / armour slot+family, so names always fit the item.
 const PRE=['Dusty','Scavenged','Worn','Tuned','Salvaged','Patched','Reach-made','Scoured'];
 const SUF=['of the Reach','of Kessra','of the Dunes','of Glass','of Embers','of the Long Night','Mk II','Mk III'];
@@ -1450,7 +1452,7 @@ const IMPDEF={head:{n:'Cortex',ic:'🧠',req:'int',pool:['int','psy','weave','po
   feet:{n:'Plantar',ic:'🦶',req:'agi',pool:['agi','sen','treat','pool','run']}};
 function rollRarity(boost){const r=Math.random()*100-(boost||0);return r<2?3:r<12?2:r<40?1:0;}
 const ASC=7;// Ascendant rarity index
-const rRank=r=>r===ASC?3.5:r===8?5.5:r;// ordering helper: Ascendant sits between Epic (3) and Legendary (4)
+const rRank=r=>r===ASC?3.5:r===8?5.5:r===9?6.5:r;// ordering helper: Ascendant sits between Epic (3) and Legendary (4)
 const rBon=r=>r===ASC?4:r===8?5:Math.min(r,3);// number of random bonuses
 // Lv 12+ drops can roll Ascendant: ~0.6% base, more with boost (elites, dynas, the Choir)
 function rollRarityL(lvl,boost){if(lvl>=12&&Math.random()<0.006*(1+(boost||0)/10))return ASC;return rollRarity(boost);}
@@ -1653,13 +1655,13 @@ function aggro(e){if(e.dead||P.dead)return;e.state='chase';e.nextAtk=Math.max(e.
   for(const o of enemies)if(o!==e&&!o.dead&&o.state==='idle'&&((e.pack&&o.pack===e.pack)||(o.type===e.type&&dist2D(o.pos,e.pos)<9))){o.state='chase';o.nextAtk=T+0.8;}}
 function healPlayer(v){const a=Math.min(Math.round(v),S.maxHp-Math.round(P.hp));P.hp=Math.min(S.maxHp,P.hp+v);floatText(tmpV.set(P.pos.x,P.pos.y+2.2,P.pos.z),'+'+Math.max(0,a),'heal');}
 function dodgeRoll(){return Math.random()*100<(S.dodge||0);}
-function dmgPlayer(amt,src,noDodge){if(P.dead)return;P.hurtT=T;
+function dmgPlayer(amt,src,noDodge,pure){if(P.dead)return;P.hurtT=T;
   if(P.cast&&P.cast.fragile)cancelCast('Interrupted');
   if(!noDodge&&dodgeRoll()){P.lastCombat=T;P.dodges=(P.dodges||0)+1;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'Dodged','dodge');tone(1300,0.06,'sine',0.03,400);if(!validTarget()&&src)P.target=src;return;}
   if(P.mount)dismount('Knocked off your '+VEHICLES[P.mount].name);
   if(src&&src.T&&src.T.slow)applySlow(src.T.slow.mul,src.T.slow.dur,src.T.slow.name);
   if(src&&src.T&&src.T.ai==='chill')addChill(1,src);
-  let a=amt*rand(0.9,1.1)*(100/(100+S.armor))*(1-(S.dr||0)/100);if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn();a=Math.max(1,Math.round(a));
+  let a=amt*rand(0.9,1.1)*(pure?1:(100/(100+S.armor))*(1-(S.dr||0)/100));if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn();a=Math.max(1,Math.round(a));
   P.hp-=a;profKHurt(a,src);P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
   if(!validTarget()&&src)P.target=src;if(P.hp<=0){P.hp=0;playerDie();}}
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
@@ -2230,7 +2232,8 @@ function makeUnique(key,vl){const u=UNIQUES[key];if(!u)return null;const r=u.rel
     if(u.slot==='weapon'){const W=WTYPES[u.wt];it.wt=u.wt;it.dmg=Math.round((4+lvl*2.4)*RAR[r].m*W.dm*(u.dmgM||1));it.req.push({s:W.sk,v:Math.round((4+lvl*4.5)*1.28)});}
     else{const F=AFAM[u.fam];it.fam=u.fam;it.armor=Math.round((4+lvl*3.5)*SLOTW[u.slot]*F.m*RAR[r].m);it.req.push({s:'body',v:Math.round((2+lvl*2.5)*(0.6+0.4*F.m)*1.28)});it.req.push({s:F.attr,v:Math.round(4+lvl*1.8)});}
     if(u.set)it.set=u.set;it.value=Math.round((6+lvl*5)*6);}
-  it.r=r;it.uniq=key;it.src=u.d;return it;}
+  if(u.rar&&RAR[u.rar]){const k=RAR[u.rar].m/RAR[r].m;if(it.dmg)it.dmg=Math.round(it.dmg*k);if(it.armor)it.armor=Math.round(it.armor*k);it.value=Math.round((it.value||0)*1.6);}// Build N: Sunforged
+  it.r=u.rar||r;it.uniq=key;it.src=u.d;return it;}
 
 /* ---------------- overworld doors ---------------- */
 const doorFx=[];
@@ -2299,7 +2302,7 @@ function buildDungeonV1(d){const D=d.D,pal=D.pal,G=d.group;const L=[],Bx=[],Cn=[
     if(r.boss){const B=BOSSES[r.boss];const e=spawnDunMob(B.etype,0,r.cz-hd*0.2,B.lvl,{boss:r.boss});e.boss={key:r.boss,def:B,room:r,final:!!r.final,engaged:false,done:{},next:{},enraged:false,baseT:e.T,baseDmg:e.dmg};e.leash=Math.max(r.w,r.d)*0.8;e.wr=0;d.bosses.push(e);}});
 }
 function spawnDunMob(t,x,z,lv,o){o=o||{};const m=DUN.mode;const e=makeEnemy(t,x,z,lv+(m.lvl||0),!!o.temp);e.dun=true;e.T=Object.assign({},e.T);e.maxHp=e.hp=Math.round(e.maxHp*(m.hp||1));e.dmg*=(m.dmg||1);e.leash=o.leash||38;e.wr=1.5;if(o.pack)e.pack=o.pack;return e;}
-function addPortal(d,x,z,label){const g=new THREE.Group();g.position.set(x,0,z);part(g,geoBox,M(0x2a2a30),-1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),0,3.8,0,4.2,0.5,0.7);
+function addPortal(d,x,z,label){const g=new THREE.Group();g.position.set(x,d.hAt?d.hAt(x,z):0,z);part(g,geoBox,M(0x2a2a30),-1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),0,3.8,0,4.2,0.5,0.7);
   const sw=part(g,new THREE.TorusGeometry(1.25,0.14,4,22),MB(0x6dff8a),0,1.8,0,1,1.25,1);const pl=part(g,new THREE.CircleGeometry(1.15,20),new THREE.MeshBasicMaterial({color:0x6dff8a,transparent:true,opacity:0.35,side:THREE.DoubleSide}),0,1.8,0,1,1.25,1);
   d.group.add(g);d.portals.push({x,z,label,sw,pl});}
 function dunInteract(p){if(DUN&&DUN.apt)return aptInteract(p);if(DUN){for(const q of DUN.portals)if(Math.hypot(p.x-q.x,p.z-q.z)<3.4)return {k:'dexit',label:'🌀 Leave dungeon'};return dunFeatInteract(p);}
@@ -2339,7 +2342,7 @@ function bossTick(e){const b=e.boss;if(e.dead)return;
   if(e.state!=='chase'){if(b.engaged)resetBoss(e);return;}
   if(!b.engaged){b.engaged=true;b.t0=T;b.def.mech.forEach((m,i)=>b.next[i]=T+(m.first||m.every||0));banner(e.T.name.toUpperCase(),b.def.intro);SFX.quest();}
   const hpF=e.hp/e.maxHp;
-  b.def.mech.forEach((m,i)=>{
+  b.def.mech.forEach((m,i)=>{if(m.ph&&m.ph.indexOf(b.phase||1)<0)return;// Build N: phase-gated mechanics
     if(m.t==='slam'||m.t==='pools'){if(T>=b.next[i]&&T>=(e.stunUntil||0)){b.next[i]=T+m.every;const dmg=b.baseDmg*m.mult;
       if(m.t==='slam'){e.rootUntil=T+m.delay;telegraph(e,e.pos.x,e.pos.z,m.r,m.delay,dmg,m.name);toast('⚠ '+m.name+': get out of the circle!');}
       else{for(const tg of dunTargets()){telegraph(e,tg.pos.x,tg.pos.z,m.r,m.delay,dmg,m.name);for(let k=1;k<m.count;k++){const a=rand(0,6.28),rr=rand(m.r*1.2,m.r*2.4);telegraph(e,tg.pos.x+Math.cos(a)*rr,tg.pos.z+Math.sin(a)*rr,m.r,m.delay+k*0.15,dmg,m.name);}}toast('⚠ '+m.name+': move!');}
@@ -2357,10 +2360,10 @@ function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,P.pos.y+4.5,P.
   for(const e of d.bosses){bossTick(e);if(d.mode&&d.mode.team)teamBossTick(e);}
   for(let i=d.tele.length-1;i>=0;i--){const t=d.tele[i];if(t.upd)t.upd(t);const k=clamp((T-t.t0)/(t.at-t.t0),0,1);t.fill.scale.set(t.r*k,1,t.r*k);t.edge.material.opacity=0.6+Math.sin(T*18)*0.35;
     if(T>=t.at){ringFx(t.x,t.z,0xff5a2a,t.r,0.45);nz(0.3,0.12,700);
-      for(const tg of dunTargets()){const dd=Math.hypot(tg.pos.x-t.x,tg.pos.z-t.z);if(!tg.dead&&dd<t.r+0.35&&(!t.inner||dd>t.inner-0.35)){floatText(tmpV.set(tg.pos.x,tg.pos.y+2.6,tg.pos.z),t.name,'info');if(tg===P)dmgPlayer(t.dmg,t.src);else allyTakeDmg(tg,t.dmg,t.src);if(t.fx)t.fx(tg);}}
+      for(const tg of dunTargets()){const dd=Math.hypot(tg.pos.x-t.x,tg.pos.z-t.z);if(!tg.dead&&dd<t.r+0.35&&(!t.inner||dd>t.inner-0.35)){floatText(tmpV.set(tg.pos.x,tg.pos.y+2.6,tg.pos.z),t.name,'info');const dm=t.dmgFn?t.dmgFn(tg):t.dmg;if(tg===P)dmgPlayer(dm,t.src,!!t.noDodge,!!t.pure);else allyTakeDmg(tg,dm,t.src);if(t.fx)t.fx(tg);}}
       d.group.remove(t.g);t.g.children.forEach(m=>m.material.dispose());d.tele.splice(i,1);}}}
 function dunRespawn(){const d=DUN;clearTele();for(const e of enemies.slice()){if(e.addOf){removeEnemy(e);continue;}if(!e.dead){e.state='idle';e.hp=e.maxHp;e.pos.set(e.home.x,0,e.home.z);e.dot=null;e.stunUntil=e.rootUntil=0;e.hexUntil=0;}if(e.boss)resetBoss(e);}
-  P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,0,d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT','Revived at the '+d.D.name+' entrance');if(d.D.raid)raidRez();save();}
+  P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,heightAt(d.entry.x,d.entry.z),d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT',d.sun?'Team revived at checkpoint '+(sunRec().stage|0)+' of '+SUN_STAGES.length+' · the boss resets':'Revived at the '+d.D.name+' entrance');if(d.sun)d.sun.wipes=(d.sun.wipes||0)+1;if(d.D.raid)raidRez();save();}
 function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&!(d.mode&&d.mode.team)&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> <span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span><br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
 function dunWaypoint(){const d=DUN;if(d.apt)return null;if(d.cleared){const q=d.portals[d.portals.length-1];return {x:q.x,z:q.z,label:'Exit'};}const b=d.bosses.find(e=>!e.dead);return b?{x:b.home.x,z:b.home.z,label:b.T.name}:null;}
 function dunMini(c,tf,sc){if(DUN.areas)return dunMini2(c,tf,sc);c.fillStyle='rgba(120,100,90,0.45)';c.strokeStyle='rgba(230,215,190,0.7)';c.lineWidth=2;
@@ -2512,7 +2515,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[]};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -3905,11 +3908,11 @@ function periodStart(t,per){const d=new Date(t);d.setHours(0,0,0,0);if(per!=='da
 function periodKey(t,per){const d=periodStart(t,per);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function nextReset(t,per){const d=periodStart(t,per);d.setDate(d.getDate()+(per==='day'?1:7));return d.getTime();}
 function fmtLeft(ms){ms=Math.max(0,ms);const m=Math.floor(ms/60000),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return d?d+'d '+h+'h':h?h+'h '+mi+'m':mi+'m';}
-function normRaidLock(x){const o={};if(x&&typeof x==='object')for(const k in x){const r=x[k];if(r&&typeof r.wk==='string')o[k]={wk:r.wk,used:Math.max(0,r.used|0)};}return o;}
-function raidRec(id){const R=RAIDS[id];const per=R.lockout.period;const k=periodKey(raidNow(),per);P.raidLock=P.raidLock||{};let r=P.raidLock[id];if(!r||r.wk!==k)r=P.raidLock[id]={wk:k,used:0};return r;}
+function normRaidLock(x){const o={};if(x&&typeof x==='object')for(const k in x){const r=x[k];if(r&&typeof r.wk==='string')o[k]={wk:r.wk,used:Math.max(0,r.used|0)};if(r.stage)o[k].stage=Math.max(0,Math.min(5,r.stage|0));if(r.done)o[k].done=true;}return o;}
+function raidRec(id){const R=RAIDS[id];const per=R.lockout.period;const k=per==='gweek'?gweekKey():periodKey(raidNow(),per);P.raidLock=P.raidLock||{};let r=P.raidLock[id];if(!r||r.wk!==k)r=P.raidLock[id]={wk:k,used:0};return r;}
 function raidLeft(id){const R=RAIDS[id];return Math.max(0,R.lockout.runs-raidRec(id).used);}
-function raidResetIn(id){return nextReset(raidNow(),RAIDS[id].lockout.period)-raidNow();}
-function raidResetTxt(id){const R=RAIDS[id];return (R.lockout.period==='day'?'daily at 00:00':'every Monday 00:00')+' (in '+fmtLeft(raidResetIn(id))+')';}
+function raidResetIn(id){if(RAIDS[id].lockout.period==='gweek')return gweekLeftMs();return nextReset(raidNow(),RAIDS[id].lockout.period)-raidNow();}
+function raidResetTxt(id){const R=RAIDS[id];if(R.lockout.period==='gweek')return gweekTxt();return (R.lockout.period==='day'?'daily at 00:00':'every Monday 00:00')+' (in '+fmtLeft(raidResetIn(id))+')';}
 function raidUse(id){const r=raidRec(id);r.used++;return r.used;}
 /* ---------- team ---------- */
 const MERC=[{prof:'vanguard',role:'tank',name:'Brask (contract)'},{prof:'mender',role:'healer',name:'Ilsa (contract)'},{prof:'flux',role:'dps',name:'Corr (contract)'},{prof:'runner',role:'dps',name:'Tamsin (contract)'},{prof:'wild',role:'dps',name:'Odo (contract)'},{prof:'weaver',role:'control',name:'Mirel (contract)'},{prof:'wright',role:'pet',name:'Gant (contract)'}];
@@ -3922,12 +3925,13 @@ function raidPicks(id){const R=RAIDS[id];const al=raidAlts(id);const ok=new Set(
 function mercSnap(m,lv){const c=normalizeChar({prof:m.prof,level:lv,name:m.name});c.id='merc_'+m.prof;const st=statsFor({...c,buffs:[]});const pr=PROFS[m.prof];const wt=PROF_WT[m.prof];
   st.dmg=Math.max(st.dmg,Math.round((4+lv*2.4)*1.6*WTYPES[wt].dm));st.armor=Math.max(st.armor,lv*14);
   return {id:c.id,merc:true,name:m.name,prof:m.prof,profName:pr.name,level:lv,role:m.role,ai:'default',stats:st,eq:{weapon:{wt}},imps:{},visual:{color:pr.color,accent:pr.accent,visor:pr.visor}};}
-function raidTeam(id,ids){const R=RAIDS[id];const pick=(ids||raidPicks(id)).slice(0,R.team.size-1);const team=pick.map(partySnapshot).filter(Boolean);
+function raidTeam(id,ids){const R=RAIDS[id];if(R.noMerc)return sunTeam(id,ids);const pick=(ids||raidPicks(id)).slice(0,R.team.size-1);const team=pick.map(partySnapshot).filter(Boolean);
   const roles=new Set([ROLE[P.prof],...team.map(t=>t.role)]);const need=MERC.filter(m=>(m.role==='tank'||m.role==='healer')&&!roles.has(m.role)).concat(MERC.filter(m=>m.role!=='tank'&&m.role!=='healer'));
   const vl=raidVetLv(id,team);const lv=vl||Math.min(R.cap,Math.max(R.minLvl,P.level));let i=0;while(team.length<R.team.size-1&&i<need.length)team.push(mercSnap(need[i++],lv));return team;}
 /* ---------- entry ---------- */
 function raidEntryCheck(id,party){const R=RAIDS[id];if(!R)return {ok:false,why:'unknown',msg:'Unknown raid'};
   if(R.future)return {ok:false,why:'future',msg:R.minLvl<=MAXLVL?R.name+' is sealed – it opens in a later update (Lv '+R.minLvl+'+ team raid)':'Requires level '+R.minLvl+' – the level cap is '+MAXLVL+' for now'};
+  if(R.unseal)return sunEntryCheck(id,party);// Build N: the Sunless Throne has its own unseal / team / lockout rules
   if(R.gate&&!gateOpen(R.gate)){const s=STEP[GATES[R.gate].step];return {ok:false,why:'story',step:s.id,msg:gateMsg(R.gate)};}
   const lv=partyTopLevel(party);const vet=raidVetLv(id,party);if(lv>R.cap&&!vet)return {ok:false,why:'cap',lv,msg:'Level cap '+raidHiCap(R)+' – '+(lv>P.level?'a team member (Lv '+lv+') is':'you are')+' too experienced for '+R.name};
   if(P.level<R.minLvl)return {ok:false,why:'min',lv,msg:'Requires level '+R.minLvl+' – you are level '+P.level};
@@ -3936,12 +3940,12 @@ function raidEntryCheck(id,party){const R=RAIDS[id];if(!R)return {ok:false,why:'
 function enterRaid(id,ids){const R=RAIDS[id];if(!R||DUN)return false;const team=raidTeam(id,ids);const ck=raidEntryCheck(id,team);
   if(!ck.ok){warn(ck.msg);if(ck.why==='story')lockedMsg(R.gate,true);else if(ck.why==='lockout')banner('RAID LOCKOUT',ck.msg.replace(/^Raid lockout: /,''));else if(ck.why==='cap')banner('LEVEL CAP '+R.cap,ck.msg.replace(/^Level cap \d+ – /,''));return false;}
   const vet=ck.vet;const V=R.vet;if(!enterDungeon(id,vet?{modeObj:{hp:V.hp,dmg:V.dmg,lvl:vet-R.cap,size:R.modes.team.size,vet},party:team}:{mode:'team',party:team}))return false;
-  DUN.raidRun={counted:false,kills:0,team:team.map(t=>t.id)};DUN.raidAllies=[];raidSpawnTeam();
-  banner(R.name.toUpperCase()+(vet?' · VETERAN':''),'Raid · team of '+R.team.size+(vet?' · scaled to Lv '+vet:'')+' · '+raidLeft(id)+'/'+R.lockout.runs+' runs left this week');
+  DUN.raidRun={counted:false,kills:0,team:team.map(t=>t.id)};DUN.raidAllies=[];raidSpawnTeam();if(R.onEnter)R.onEnter(DUN);
+  banner(R.name.toUpperCase()+(vet?' · VETERAN':''),'Raid · team of '+R.team.size+(vet?' · scaled to Lv '+vet:'')+' · '+raidLeft(id)+'/'+R.lockout.runs+(R.lockout.period==='gweek'?' run left this game-week':' runs left this week'));
   log('⚔ Raid: <b style="color:#ff9a2a">'+esc(R.name)+'</b>. The lockout run is used when the first boss dies.');return true;}
 function raidSpawnTeam(){const d=DUN;if(!d||!d.D.raid)return;for(const a of d.raidAllies.slice())if(!a.dead)removeAlly(a);d.raidAllies=[];
   d.party.forEach((s,i)=>{const a=spawnPartyMember(s);if(!a)return;a.raid=true;a.snapId=s.id;a.merc=!!s.merc;a.healCd=2+i*0.4;const hm=s.role==='tank'?3.5:2.2;a.maxHp=a.baseMax=a.hp=Math.round(a.hp*hm);a.dmg*=1.6;if(s.role==='tank'){a.dr=Math.min(0.6,a.dr+0.15);a.threat=1;}
-    if(s.merc)a.name=s.name;const ang=i/5*6.28;a.pos.set(P.pos.x+Math.cos(ang)*2.4,0,P.pos.z+Math.sin(ang)*2.4);d.raidAllies.push(a);});}
+    if(s.merc)a.name=s.name;const ang=i/5*6.28;a.pos.set(P.pos.x+Math.cos(ang)*2.4,0,P.pos.z+Math.sin(ang)*2.4);d.raidAllies.push(a);});if(d.D.onTeam)d.D.onTeam(d);}
 function raidExitCleanup(d){for(const a of (d.raidAllies||[]))if(!a.dead)removeAlly(a);d.raidAllies=[];}
 function raidRez(){const d=DUN;if(!d||!d.D.raid)return;raidSpawnTeam();log('⚔ Your team regroups at the entrance.');}
 /* ---------- runtime ---------- */
@@ -3971,8 +3975,8 @@ function novaTele(src,x,z,inner,r,delay,dmg,name){const g=new THREE.Group();g.po
 function raidOnBoss(e){const d=DUN,R=d.D,id=d.id;d.raidRun.kills++;
   if(!d.raidRun.counted){d.raidRun.counted=true;const u=raidUse(id);log('⚔ Raid lockout: run <b>'+u+'/'+R.lockout.runs+'</b> used this week (resets '+raidResetTxt(id)+').');}
   const n=Math.round((R.tokens[e.boss.key]||0)*(d.mode&&d.mode.vet&&R.vet?R.vet.sig:1));if(n){P.sigils=(P.sigils|0)+n;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1,e.pos.z),'+'+n+' '+RAID_CUR,'info');log('+<b>'+n+' '+SIGIL+'</b> '+RAID_CUR+' (you have '+P.sigils+')');}
-  if(e.boss.final){P.raidClears=P.raidClears||{};P.raidClears[id]=(P.raidClears[id]||0)+1;}save();}
-function raidTrack(){const d=DUN,R=d.D;const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;const al=d.raidAllies.filter(a=>!a.dead&&allies.includes(a)).length;
+  if(e.boss.final){P.raidClears=P.raidClears||{};P.raidClears[id]=(P.raidClears[id]||0)+1;}if(R.onBoss)R.onBoss(e);save();}
+function raidTrack(){const d=DUN,R=d.D;if(R.track)return R.track();const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;const al=d.raidAllies.filter(a=>!a.dead&&allies.includes(a)).length;
   return `<b>⚔ ${esc(R.name)}</b><br>Bosses ${k}/${tot} · Team ${al+(P.dead?0:1)}/${R.team.size} · ${d.raidRun.counted?'run counted':'run not used yet'} · ${raidLeft(d.id)}/${R.lockout.runs} left${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;}
 /* ---------- world portal ---------- */
 const raidFx=[];
@@ -3989,7 +3993,7 @@ function raidMini(c,tf){for(const k in RAIDS){const d=RAIDS[k].door;if(!d)contin
 /* ---------- panel ---------- */
 const RP={tab:'team'};
 function raidStatusLine(id){const R=RAIDS[id];return `<b class="${raidLeft(id)?'up':'down'}">${raidLeft(id)}/${R.lockout.runs} runs left this week</b> · resets ${esc(raidResetTxt(id))}`;}
-function openRaid(id,tab){id=id||'bastion';if(tab)RP.tab=tab;const R=RAIDS[id];RP.id=id;const team=raidTeam(id);const ck=raidEntryCheck(id,team);const t=RP.tab;
+function openRaid(id,tab){id=id||'bastion';if(RAIDS[id]&&RAIDS[id].panel)return RAIDS[id].panel(id,tab);if(tab)RP.tab=tab;const R=RAIDS[id];RP.id=id;const team=raidTeam(id);const ck=raidEntryCheck(id,team);const t=RP.tab;
   const picks=raidPicks(id),al=raidAlts(id);const nAlt=team.filter(s=>!s.merc).length,nMerc=team.length-nAlt;
   let h=`<div class="craftbar raidbar"><span class="cbi">⚔</span><span class="cbn"><b>${esc(R.name)}</b><small>Lv ${R.minLvl}–${R.cap}${R.vet?' (Veteran '+R.vet.minTop+'–'+R.vet.cap+')':''} · team of ${R.team.size} · ${raidLeft(id)}/${R.lockout.runs} runs left · resets in ${fmtLeft(raidResetIn(id))} · ${RAID_CUR} ${P.sigils|0}</small></span>
     <button class="sbtn${ck.ok?'':' locked'}" id="raidGo" data-act="${ck.ok?'rgo':'rno'}" data-id="${id}">${ck.ok?'Enter raid':ck.why==='lockout'?'🔒 Locked out':ck.why==='story'?'🔒 Story':ck.why==='cap'?'⛔ Over cap':'Lv '+R.minLvl+'+'}</button></div>`;
@@ -4012,7 +4016,7 @@ function raidBuy(k){const u=UNIQUES[k];if(!u||!u.sig||u.d!=='bastion')return fal
   if(P.inv.length>=24){warn('Pack full');return false;}P.sigils-=u.sig;const it=makeUnique(k);it.dropBy='Sigil Quartermaster';P.inv.push(it);SFX.ui();toast('Bought '+it.name);save();return true;}
 function raidAct(a,b){const D=b.dataset;if(a==='rtab')openRaid(RP.id,D.t);else if(a==='rgo'){closePanel();enterRaid(D.id);}else if(a==='rno'){const ck=raidEntryCheck(D.id,raidTeam(D.id));warn(ck.msg);}
   else if(a==='rtog'){let ids=raidPicks(RP.id);if(ids.includes(D.id))ids=ids.filter(x=>x!==D.id);else if(ids.length>=RAIDS[RP.id].team.size-1){warn('A raid team holds '+RAIDS[RP.id].team.size+' (you + '+(RAIDS[RP.id].team.size-1)+')');return true;}else ids.push(D.id);P.raidTeam=ids;save();openRaid(RP.id);}
-  else if(a==='rover')warn('Over the level cap: '+raidHiCap(RAIDS[RP.id]));else if(a==='rbuy'){raidBuy(D.id);openRaid(RP.id);}else return false;return true;}
+  else if(a==='rover')warn('Over the level cap: '+raidHiCap(RAIDS[RP.id]));else if(a==='rbuy'){raidBuy(D.id);openRaid(RP.id);}else if(a.startsWith('sun'))return sunAct(a,b);else return false;return true;}
 function raidJournalHtml(){return `<div class="stats">Raids are team instances (you + up to 5 alts; empty seats get contract mercenaries). Each raid can be run a limited number of times per week: the lockout resets every <b>Monday 00:00</b> (your local time) and is per character. You have <b>${P.sigils|0} ${RAID_CUR}</b> ${SIGIL}.</div>`+
   Object.values(RAIDS).map(R=>{if(R.future)return `<div class="jrow"><span class="jn">🔒</span><span style="flex:1"><b>${esc(R.name)}</b> <span style="opacity:.7">· Lv ${R.minLvl}+ · ${R.minLvl<=MAXLVL?'sealed: opens in a later update'+(R.hook&&R.hook.where?' ('+esc(R.hook.where)+')':''):'coming when the level cap rises (now '+MAXLVL+')'}</span></span></div>`;
     const ck=raidEntryCheck(R.id,[]);return `<div class="jrow${ck.ok?' done':''}"><span class="jn">⚔</span><span style="flex:1"><b>${esc(R.name)}</b> <span style="opacity:.7">· Lv ${R.minLvl}–${R.cap} · ${esc(BIOMES[biomeIdx(R.door.x,R.door.z)].name)}</span><br><span class="jun">${raidStatusLine(R.id)} · cleared ${(P.raidClears||{})[R.id]|0}×${ck.ok||ck.why==='lockout'?'':' · '+esc(ck.msg)}</span></span></div>`;}).join('');}
@@ -5154,7 +5158,7 @@ function dunLayout(d){const D=d.D,spec=DLAY[D.id]||dunAutoSpec(D);const areas=[]
     a.id=areas.length;areas.push(a);return a;};
   for(const s of spec){if(s.c){pend=s;continue;}
     const src=s.o!=null?D.rooms[s.o]:null;const prev=rooms[rooms.length-1];const cz=prev?prev.cz-prev.d/2-pend.len-s.d/2:60;
-    const A=mk({kind:'room',s:s.s,cx:0,cz,w:s.w,d:s.d,y:src&&src.boss?0:(s.y||0),nm:s.nm||s.n||(src&&src.boss?BOSSES[src.boss].etype:'Hall'),spec:s,entry:!!(src&&src.entry),boss:src?src.boss:null,final:!!(src&&src.final),packs:src?src.packs:null,isNew:!src,i:rooms.length});
+    const A=mk({kind:'room',s:s.s,cx:0,cz,w:s.w,d:s.d,y:src&&src.boss?(s.by||0):(s.y||0),nm:s.nm||s.n||(src&&src.boss?BOSSES[src.boss].etype:'Hall'),spec:s,entry:!!(src&&src.entry),boss:src?src.boss:null,final:!!(src&&src.final),packs:src?src.packs:null,isNew:!src,i:rooms.length});
     if(prev){const cw=pend.c==='bridge'?5:7;const C=mk({kind:'conn',t:pend.c,x0:-cw/2,x1:cw/2,z0:A.z1,z1:prev.z0,ya:prev.y,yb:A.y,y:Math.min(prev.y,A.y),walls:pend.c==='bridge'?[]:['xp','xm'],nm:'Passage'});
       C.h=(x,z)=>C.ya+(C.z1-z)/(C.z1-C.z0)*(C.yb-C.ya);prev.open.zm.push([0,cw]);A.open.zp.push([0,cw]);A.inConn=C;}
     rooms.push(A);}
@@ -7011,7 +7015,7 @@ const XMGATE=(function(){const p=XM.gate,y=heightAt(p.x,p.z);const g=new THREE.G
   scene.add(g);boxes.push({x0:p.x-5,x1:p.x+5,z0:p.z-1.2,z1:p.z+1.2,y0:y,y1:y+11});const bm=makeBeam(0xb46aff,60,0.9,0.22);bm.position.set(p.x,y,p.z);
   return {x:p.x,z:p.z,g,ring,seal,raid:'sunless'};})();
 let xmGateAcc=0;function updXmGate(dt){if(DUN||!XMGATE)return;XMGATE.ring.rotation.z+=dt*0.4;xmGateAcc+=dt;if(xmGateAcc<0.5)return;xmGateAcc=0;
-  const d=Math.hypot(P.pos.x-XMGATE.x,P.pos.z-XMGATE.z);if(d<12&&!XMGATE.told&&RG.cur==='scar'){XMGATE.told=true;const R=RAIDS[XMGATE.raid];banner('THE SUNLESS GATE','Sealed · '+(R?esc(R.name)+' (Lv '+R.minLvl+'+ raid) ':'a Lv 100 raid ')+'opens in a later update');log('🌀 <b>The Sunless Gate</b> is sealed. '+(R?esc(R.name):'A raid')+' waits beyond it for a team of Lv 100 contractors, in a later update.');}else if(d>30)XMGATE.told=false;}
+  const d=Math.hypot(P.pos.x-XMGATE.x,P.pos.z-XMGATE.z);if(d<12&&!XMGATE.told&&RG.cur==='scar'){XMGATE.told=true;const gm=sunGateMsg();banner(gm[0],gm[1]);log('🌀 <b>The Sunless Gate</b>: '+esc(gm[1])+'.');}else if(d>30)XMGATE.told=false;}
 /* ---------- dungeon looks (game24 DTHEME/DLAY) ---------- */
 (function xmDunLooks(){const DIM=[[30,24],[40,32],[38,34],[38,30],[36,34],[40,32],[38,30],[48,44]];
   for(const B of XMB()){const D=B.dun,id=D.id;const L=[];D.lay.forEach((s,i)=>{const a={s,w:DIM[i][0],d:DIM[i][1]};if(s==='flooded'||s==='forge')a.y=-3;
@@ -7088,6 +7092,322 @@ function tierUp(t,lv){tierUp_j(t,lv);const X=XM_TFX[t];const el=$('#tierFx');if(
 // world map labels for the outer regions (sector centres)
 XM.regions.forEach((R,b)=>{const p=xmAt(b*XM.span+XM.span/2,1050);BIOMES[XB+b].mapAt=p;});
 function capMExports(){return {ROLE,XM,XB,XMB,xmLv,xmBand,xmBand0,xmAt,xmDeg,XMHUBS,XMGATE,XM_WLV,XM_TFX,xrTypes,xrSpot,xrRegionName,expansionDataM,lineMax,perkNeedLine,perkLvl,TD_BANDS,TEAMD,RAIDS,MAXLVL,xpNeed,IMPQL_MAX,updXmGate};}
+
+/* ================= BUILD N: THE SUNLESS THRONE (Lv 100 end-game raid) =================
+   The sealed Sunless Gate in the Riftscar opens for a character at level 100 who has cleared Ossuary of Suns: Eclipse (team dungeon).
+   Data-driven on top of the RAIDS / dungeon engine (game14, game5, game24):
+   - RAIDS.sunless: team {size:4} = you + 3 roster companions (no mercenaries), R.req role list (tank, healer, control|support),
+     level sync: companions Lv 95-99 fight synced up to 100.
+   - Stages: 3 guardians (each built around one role), the Stair of Ash (an ascent under falling stars), then Ozmarath, the Sun-Eater:
+     3 phases, telegraphed attacks, adds, Corona Shards, a soft enrage and a hard enrage timer (Total Eclipse).
+   - Checkpoints: P.raidLock.sunless.stage (0-5) per character; a wipe or a re-entry resumes after the last cleared stage.
+   - Lockout: one run per game-week (7 in-game days of this character's play time, P.gday), reset on the game clock.
+   - Rewards: Sunforged rarity (RAR[9], raid-only): a 5-piece set per armour family (heavy / medium / light profession groups),
+     a weapon per weapon type, a relic heart and an ocular implant; first clear: title "Sunbreaker", the Corona Halo, +2 perk points
+     (+1 for each roster companion on their own first clear). Original names and code-built visuals only. */
+const SUNR=9,SUN_GWEEK=7;
+const SUN_FAM={heavy:{set:'throneguard',name:'Throneguard',pieces:['Throneguard Helm','Throneguard Plate','Throneguard Gauntlets','Throneguard Greaves','Throneguard Sabatons'],
+    b:[{sta:20,hp:300,body:30},{str:23,hp:440,power:16},{str:18,wpn:40,crit:8},{sta:19,hp:260,body:26},{sta:14,run:60,hp:160}]},
+  medium:{set:'duskstalker',name:'Duskstalker',pieces:['Duskstalker Mask','Duskstalker Harness','Duskstalker Grips','Duskstalker Leggings','Duskstalker Treads'],
+    b:[{agi:20,sen:18,crit:7},{agi:23,hp:400,treat:30},{agi:20,wpn:40,crit:8},{sta:19,sen:18,run:60},{agi:14,run:70,crit:6}]},
+  light:{set:'starweave',name:'Starweave',pieces:['Starweave Circlet','Starweave Robe','Starweave Wraps','Starweave Legwraps','Starweave Slippers'],
+    b:[{psy:20,weave:42,en:160},{psy:23,hp:360,weave:30},{int:18,weave:40,crit:8},{psy:18,sen:18,en:180},{psy:14,run:60,weave:26}]}};
+const SUN_SLOTS=['head','armor','hands','legs','feet'];
+const SUN_WPN={rifle:['Dawnpiercer',{wpn:62,agi:23,crit:9}],shotgun:['Eclipse Scattergun',{wpn:64,str:22,crit:8}],pistol:['Last Light',{wpn:52,treat:40,sen:18}],blade:['Sunsunder',{wpn:62,str:23,crit:9}],
+  smg:['Twin Coronas',{wpn:60,agi:24,crit:10}],bow:['Gloamstring',{wpn:62,agi:22,sen:16}],rod:['Sceptre of the Unlit',{weave:72,psy:24,en:250}],emitter:['Heart-of-Night Emitter',{weave:66,int:24,wpn:30}],
+  fist:['Corona Knuckles',{wpn:60,str:20,agi:16}],cannon:['Throneburner',{wpn:66,str:24,hp:300}]};
+const SUN_K=2.5;// Lv-46 templates x2.5 = the top tier at Lv 100
+const SUN_STAGES=[{k:'kharox',n:'The Bulwark Gate',role:'tank'},{k:'morwen',n:'The Ash Choir',role:'healer'},{k:'vhaela',n:'The Starless Loom',role:'control'},{k:'ascent',n:'The Stair of Ash'},{k:'ozmarath',n:'The Sunless Throne'}];
+/* ---------- creature builders (shared rigs, retinted and dressed) ---------- */
+function buildKharox(){const R=buildGolem(0x2a2430,0x120e16,0xffc84a);const arm=R.legs[0].k;
+  part(arm,geoBox,M(0x3a3040),0,-0.62,0.32,0.95,1.35,0.14);part(arm,geoBox,MB(0xffc84a),0,-0.62,0.4,0.42,0.42,0.05);
+  for(let i=0;i<5;i++)part(R.head,geoCone,MB(i%2?0xffc84a:0xb46aff),(i-2)*0.12,0.34,-0.04,0.06,0.42,0.06);return R;}
+function buildMorwen(){const R=buildHumanoid(0x3a2a2a,0xffc84a,0xffe9a0,0x8a7a6a,{robe:0x2a1a1a,hood:0x3a2a2a,bulk:1.05});
+  part(R.g,cq().ring,MB(0xffc84a),0,2.5,-0.18,0.42,0.42,0.42);xmSpikes(R.g,6,0.15,0.75,[0xffe9a0,0xff9a2a],0.07);return R;}
+function buildVhaela(){const R=buildHumanoid(0x1a1a2e,0x7ad8ff,0xb46aff,0x5a5a7a,{robe:0x14142a,hood:0x1a1a2e,bulk:1.0});
+  for(let i=0;i<3;i++)part(R.g,cq().ring,MB([0x7ad8ff,0xb46aff,0x5affe0][i]),0,0.9+i*0.55,0,0.9-i*0.18,0.9-i*0.18,0.25).rotation.x=Math.PI/2+i*0.3;return R;}
+function buildThrall(){const R=buildHumanoid(0x3a3036,0xff9a2a,0xffc84a,0x5a4a4a,{bulk:1.1});return R;}
+function buildAshSeraph(){const R=buildHumanoid(0x4a3a2a,0xffc84a,0xffe9a0,0x8a7a6a,{robe:0x3a2a1a,hood:0x4a3a2a});xmSpikes(R.g,4,1.9,0.45,[0xffc84a],0.06);return R;}
+function buildAshSpawn(){const R=buildVoidling();retint(R.g,0x3a2418,0.7,0xff9a2a);return R;}
+function buildVoidAnchor(){const R=buildPylon();retint(R.g,0x1a1428,0.75,0xb46aff);return R;}
+function buildCoronaShard(){const R=buildPylon();retint(R.g,0x4a3a1a,0.75,0xffc84a);return R;}
+// Ozmarath, the Sun-Eater: a hunched four-armed titan carrying a black sun on its back (merged into skinned meshes by bakeRig; detail parts drop at LOD)
+function buildSunEater(){const G=cq();const g=new THREE.Group();const R={g,det:[],kind:'golem',dieAxis:'x',legs:[]};const D=m=>{R.det.push(m);return m;};
+  const hide=MS(0x221a24),plate=MS(0x3a2e3a),bone=MS(0xd8c8a8),gl=MB(0xffb03a),gl2=MB(0xff5a2a),vo=MB(0x0a060c);
+  R.body=new THREE.Group();R.body.position.y=1.7;g.add(R.body);
+  R.trunk=part(R.body,G.cap,hide,0,0.25,0,1.25,0.75,0.95);part(R.body,G.sph,plate,0,0.5,0.28,0.9,0.55,0.6);part(R.body,G.sph,hide,0,-0.25,0.05,0.85,0.5,0.75);
+  R.core=part(R.body,G.sph,gl,0,0.38,0.78,0.2,0.2,0.12);
+  for(let i=0;i<6;i++){const a=(i-2.5)*0.32;D(part(R.body,geoBox,gl2,Math.sin(a)*0.75,0.1+Math.abs(i-2.5)*0.06,Math.cos(a)*0.55,0.04,0.5,0.04)).rotation.z=a;}
+  for(const s of [-1,1]){part(R.body,G.sph,plate,s*0.95,0.75,0,0.48,0.42,0.5);for(let k=0;k<3;k++)D(part(R.body,G.spike,bone,s*(0.85+k*0.12),1.05+k*0.05,-0.1-k*0.15,0.08,0.45,0.08)).rotation.z=-s*(0.5+k*0.2);}
+  // the black sun on its back
+  R.sun=new THREE.Group();R.sun.position.set(0,1.25,-0.75);R.body.add(R.sun);
+  part(R.sun,G.disc,vo,0,0,0,1.25,0.08,1.25).rotation.x=Math.PI/2;R.ring=part(R.sun,G.ring,gl,0,0,0,1.4,1.4,0.6);
+  for(let i=0;i<10;i++){const a=i*0.628;D(part(R.sun,G.spike,i%2?gl:gl2,Math.cos(a)*1.5,Math.sin(a)*1.5,0,0.09,0.55,0.09)).rotation.z=a-Math.PI/2;}
+  // head: crowned skull with a glowing maw and four eyes
+  R.head=new THREE.Group();R.head.position.set(0,0.75,0.95);R.body.add(R.head);
+  part(R.head,G.sph,hide,0,0,0,0.42,0.38,0.46);part(R.head,G.hemi,plate,0,0.12,0.05,0.44,0.24,0.42);
+  R.jaw=new THREE.Group();R.jaw.position.set(0,-0.2,0.15);R.head.add(R.jaw);part(R.jaw,G.sph,hide,0,-0.05,0.18,0.34,0.13,0.32);part(R.jaw,G.sph,gl2,0,0.03,0.2,0.24,0.06,0.24);
+  for(const s of [-1,1]){part(R.jaw,G.spike,bone,s*0.2,0.02,0.4,0.05,0.24,0.05).rotation.x=-0.4;
+    for(const k of [0,1])part(R.head,G.sph,gl,s*(0.14+k*0.12),0.08+k*0.08,0.4-k*0.06,0.055,0.045,0.035);
+    D(part(R.head,G.spike,bone,s*0.3,0.28,-0.1,0.09,0.75,0.09)).rotation.set(-0.5,0,-s*0.55);D(part(R.head,G.spike,bone,s*0.16,0.36,-0.2,0.06,0.5,0.06)).rotation.set(-0.7,0,-s*0.25);}
+  // four arms: two great clawed arms, two lesser arms lower on the trunk
+  for(const s of [-1,1])for(const lo of [0,1]){const sh=new THREE.Group();sh.position.set(s*(lo?0.95:1.3),lo?1.65:2.45,lo?0.3:0.15);sh.rotation.z=s*(lo?0.35:0.15);g.add(sh);const sz=lo?0.7:1;
+    part(sh,G.limb,hide,0,0.05,0,0.32*sz,0.95*sz,0.32*sz);const el=new THREE.Group();el.position.y=-0.92*sz;el.rotation.x=-0.3;sh.add(el);D(part(el,G.sph,gl2,0,0,0,0.16*sz,0.16*sz,0.16*sz));
+    part(el,G.limb,plate,0,0,0,0.3*sz,0.95*sz,0.3*sz);for(let i=0;i<3;i++){const c=part(el,G.claw,bone,(i-1)*0.13*sz,-1.0*sz,0.08,0.07*sz,0.38*sz,0.07*sz);c.rotation.x=-0.3;}
+    R.legs.push({j:sh,k:el,arm:true,lo,b:0,kb:-0.3,ph:(s<0?0:Math.PI)+lo*1.2});}
+  for(const s of [-1,1]){const hp=new THREE.Group();hp.position.set(s*0.55,1.25,-0.1);g.add(hp);part(hp,G.limb,hide,0,0.03,0,0.36,0.62,0.38);
+    const kn=new THREE.Group();kn.position.y=-0.6;kn.rotation.x=0.4;hp.add(kn);part(kn,G.limb,plate,0,0,0,0.3,0.65,0.32);part(kn,G.sph,hide,0,-0.66,0.12,0.34,0.15,0.45);
+    for(let i=0;i<3;i++)D(part(kn,G.claw,bone,(i-1)*0.14,-0.68,0.48,0.06,0.2,0.06));R.legs.push({j:hp,k:kn,arm:false,b:-0.1,kb:0.4,ph:s<0?Math.PI:0});}
+  R.extra=[];
+  R.anim=(t,mv,atk,hit)=>{const f=4.2,br=Math.sin(t*1.1);let amt=0;if(atk>0){const u=1-clamp(atk/0.35,0,1);amt=u<0.45?u/0.45:1-(u-0.45)/0.55;}
+    for(const L of R.legs){const a=t*f+L.ph;if(L.arm){L.j.rotation.x=Math.sin(a)*0.3*mv-(L.lo?1.2:2.2)*amt+br*0.06;L.k.rotation.x=L.kb-0.2*mv-0.6*amt;}else{L.j.rotation.x=L.b+Math.sin(a)*0.35*mv;L.k.rotation.x=L.kb+Math.max(0,Math.cos(a))*0.45*mv;}}
+    R.body.position.y=1.7+Math.abs(Math.sin(t*f))*0.07*mv+br*0.03;R.body.rotation.set(0.12-0.25*amt+(hit>0?0.08*Math.min(1,hit/0.15):0),Math.sin(t*f)*0.04*mv,0);
+    R.trunk.scale.set(1.25*(1+br*0.02),0.75*(1+br*0.025),0.95);R.ring.rotation.z=t*0.5;{const q=1+Math.sin(t*3)*0.2+0.5*amt;R.core.scale.set(0.2*q,0.2*q,0.12*q);}
+    R.head.rotation.set(-0.15*amt+Math.sin(t*0.5)*0.06,Math.sin(t*0.35)*0.3*(1-mv),0);R.jaw.rotation.x=0.08+0.5*amt+Math.max(0,Math.sin(t*0.8))*0.1;for(const f2 of R.extra)f2(t,mv,atk);};
+  return R;}
+/* ---------- registries ---------- */
+(function sunData(){
+  Object.assign(ETYPES,{
+    sunthrall:{name:'Throne Thrall',hp:120,dmg:16,atkCd:1.3,range:2.4,speed:6.0,aggro:17,xp:2.6,ranged:false,hitR:0.8,h:1.9,build:buildThrall,scale:0.86,desc:'Ash-bound soldiers of the Throne'},
+    ashseraph:{name:'Ash Seraph',hp:84,dmg:15,atkCd:2.0,range:18,speed:4.8,aggro:20,xp:2.6,ranged:true,hitR:0.7,h:1.9,build:buildAshSeraph,scale:0.84,desc:'Burns intruders from range'},
+    ashspawn:{name:'Ash Spawn',hp:64,dmg:13,atkCd:1.2,range:2.2,speed:6.6,aggro:30,xp:0.6,ranged:false,hitR:0.7,h:1.1,build:buildAshSpawn,scale:0.7},
+    voidanchor:{name:'Void Anchor',hp:240,dmg:8,atkCd:2.2,range:24,speed:0,aggro:30,xp:0.5,ranged:true,hitR:0.9,h:3,build:buildVoidAnchor,scale:0.6},
+    coronashard:{name:'Corona Shard',hp:300,dmg:9,atkCd:2.2,range:26,speed:0,aggro:34,xp:0.5,ranged:true,hitR:0.9,h:3,build:buildCoronaShard,scale:0.62},
+    kharox:{name:'Kharox, the Eclipse Bulwark',hp:2600,dmg:26,atkCd:2.1,range:5.0,speed:4.4,aggro:22,xp:26,ranged:false,hitR:1.6,h:2.6,build:buildKharox,scale:2.0},
+    morwen:{name:'Saint Morwen of the Ash Choir',hp:2300,dmg:23,atkCd:1.8,range:4.6,speed:4.8,aggro:22,xp:26,ranged:false,hitR:1.0,h:1.9,build:buildMorwen,scale:2.1},
+    vhaela:{name:'Vhaela, the Starless Loom',hp:2400,dmg:24,atkCd:1.9,range:4.8,speed:4.6,aggro:22,xp:26,ranged:false,hitR:1.0,h:1.9,build:buildVhaela,scale:2.1},
+    ozmarath:{name:'Ozmarath, the Sun-Eater',hp:6400,dmg:30,atkCd:2.4,range:7.0,speed:4.0,aggro:30,xp:60,ranged:false,hitR:0.8,h:2.9,build:buildSunEater,scale:3.2}});
+  const B=(o)=>o;
+  Object.assign(BOSSES,{
+    kharox:B({etype:'kharox',lvl:100,intro:'Gravemaul must land on a TANK. Everyone else: stay out of the marked circle!',role:'tank',mech:[
+      {t:'buster',name:'Gravemaul',every:13,first:6,r:3.2,delay:2.2,mult:3.6,tankK:0.4,desc:'A circle follows whoever Kharox is fighting, then locks and crushes it. A tank braces (-60%); anyone else takes the full hit, and anyone standing near them shares it.'},
+      {t:'slam',name:'Eclipse Quake',every:17,first:11,r:7.5,delay:2.0,mult:2.2,desc:'Telegraphed 7.5m quake around him. Everyone out.'},
+      {t:'adds',name:'Thrall Guard',at:[0.5],etype:'sunthrall',n:2,lvl:99,desc:'At 50% two Throne Thralls join. The tank picks them up.'}]}),
+    morwen:B({etype:'morwen',lvl:100,intro:'Withering Hymn curses two of you. A HEALER must cleanse it, and Requiem hits everyone!',role:'healer',mech:[
+      {t:'wither',name:'Withering Hymn',every:15,first:7,n:2,dur:9,pct:0.06,cleanse:2.6,by:['healer'],desc:'Two team members wither for 9s (6% of max HP per second). A living healer cleanses it after ~2.5s; without one it runs its full course.'},
+      {t:'pulse',name:'Requiem',every:19,first:12,pct:0.18,desc:'Every member loses 18% of max HP. Healing keeps the team standing.'},
+      {t:'pools',name:'Cinder Psalm',every:13,first:9,r:3.4,delay:1.9,mult:1.9,count:2,desc:'Embers fall on and around every member. Move.'}]}),
+    vhaela:B({etype:'vhaela',lvl:100,intro:'She weaves the Unmaking. A CONTROL or SUPPORT member must interrupt it!',role:'control',mech:[
+      {t:'unmaking',name:'The Unmaking',every:24,first:10,cast:5,react:2.2,pct:0.6,stun:3,by:['control','support'],desc:'A 5s channel that unmakes the whole hall (60% of max HP to everyone). A living Control (Vyreweaver / Dreamshaper) or Support (Anthemist / Exactor) member interrupts it and stuns her for 3s.'},
+      {t:'shield',name:'Void Anchors',at:[0.5],n:3,lvl:99,etype:'voidanchor',what:'Void Anchors',desc:'At 50% three Void Anchors pin her shield in place; she is immune until all are destroyed.'},
+      {t:'cross',name:'Loom Threads',every:14,first:7,len:7,gap:3.4,r:2.0,delay:1.7,mult:2.2,desc:'Threads burst out in four lines (a + then an x). Stand in the gaps.'}]}),
+    ozmarath:B({etype:'ozmarath',lvl:100,intro:'The Sun-Eater wakes. Watch the ground, break the Corona Shards, and kill it before Total Eclipse!',final:true,mech:[
+      {t:'phase',name:'Phases',at:[0.7,0.4],pause:2.6,names:['PHASE 2 · THE BLACK SUN','PHASE 3 · THE HUNGER'],subs:['The Black Sun rises: when it burns, run IN to the ring at its feet','It is starving: faster, harder hits and collapsing ground']},
+      {t:'slam',name:'Eclipse Slam',every:13,first:6,r:9,delay:2.2,mult:2.4,ph:[1,2],desc:'Phase 1-2: a 9m slam around it. Everyone out.'},
+      {t:'buster',name:'Devour',every:16,first:10,r:3.4,delay:2.4,mult:3.4,tankK:0.4,ph:[1,2,3],desc:'A circle follows whoever it fights, then it bites. A tank braces (-60%).'},
+      {t:'cross',name:'Corona Lances',every:15,first:12,len:9,gap:4,r:2.4,delay:1.8,mult:2.2,ph:[1,3],desc:'Phase 1 and 3: light lances out in four lines. Stand in the gaps.'},
+      {t:'nova',name:'The Black Sun',every:24,first:6,safe:9,r:44,delay:3.0,mult:2.6,ph:[2,3],desc:'Phase 2-3: the whole arena burns except a 9m ring at its feet. Run IN.'},
+      {t:'pools',name:'Starfall',every:12,first:9,r:3.6,delay:2.0,mult:1.8,count:2,ph:[2,3],desc:'Phase 2-3: stars fall on and around every member.'},
+      {t:'adds',name:'Ash Spawn',at:[0.65,0.45],etype:'ashspawn',n:3,lvl:99,desc:'At 65% and 45% three Ash Spawn crawl out of the dark.'},
+      {t:'shield',name:'Corona Shards',at:[0.55],n:3,lvl:99,etype:'coronashard',what:'Corona Shards',desc:'At 55% three Corona Shards shield it; it is immune until all three are broken.'},
+      {t:'slam',name:'Collapse',every:10,first:4,r:12,delay:2.4,mult:2.0,ph:[3],desc:'Phase 3: the floor collapses 12m around it. Get out.'},
+      {t:'enrage',name:'The Hunger',at:0.2,dmg:1.5,cd:0.75,spd:1.15,desc:'Below 20% it enrages: harder, faster hits.'},
+      {t:'hardenrage',name:'Total Eclipse',time:480,every:3,pct:0.45,desc:'After 8 minutes the Sun-Eater devours the light: everyone loses 45% of max HP every 3s. Kill it before then.'}]})});
+  // Sunforged gear: a 5-piece set per armour family, a weapon per weapon type, a relic heart and an ocular
+  const sc=(o,k)=>{const r={};for(const s in o)r[s]=Math.round(o[s]*k);return r;};
+  for(const fam in SUN_FAM){const F=SUN_FAM[fam];const ids=[];SUN_SLOTS.forEach((sl,i)=>{const id='sun_'+fam+'_'+sl;UNIQUES[id]={d:'sunless',name:F.pieces[i],slot:sl,fam,lvl:100,set:F.set,rar:SUNR,bonus:sc(F.b[i],SUN_K)};ids.push(id);});F.ids=ids;
+    SETS[F.set]={name:F.name,pieces:ids,bonus:{2:sc({hp:390,wpn:28,weave:28},SUN_K),3:sc({power:20,crit:6},SUN_K),5:sc({power:32,crit:9,armor:240,hp:300},SUN_K)}};}
+  for(const wt in SUN_WPN){const id='sun_w_'+wt;UNIQUES[id]={d:'sunless',name:SUN_WPN[wt][0],slot:'weapon',wt,lvl:100,dmgM:1.18,rar:SUNR,bonus:sc(SUN_WPN[wt][1],SUN_K)};}
+  UNIQUES.sun_relic={d:'sunless',name:'Ember of the Last Dawn',kind:'imp',slot:'chest',ql:500,relic:true,rar:SUNR,bonus:sc({sta:50,psy:34,body:70,hp:640,power:32},2.2)};
+  UNIQUES.sun_eye={d:'sunless',name:'Eye of the Sun-Eater',kind:'imp',slot:'eyes',ql:500,rar:SUNR,bonus:sc({sen:48,int:28,wpn:66,treat:56},2.2)};
+  // the raid
+  const P2=(a,lv)=>a.map(k=>[k,lv]);
+  RAIDS.sunless={id:'sunless',raid:true,name:'The Sunless Throne',sub:'Beyond the Sunless Gate: the abyss where the light was eaten',lvl:[100,100],minLvl:100,cap:100,rec:100,gate:null,
+    door:null,accent:0xb46aff,team:{size:4},noMerc:true,minMember:95,unseal:{lvl:100,td:'sunossuary'},
+    req:[{role:'tank',why:'Kharox\'s Gravemaul and the Sun-Eater\'s Devour must land on a tank'},{role:'healer',why:'Saint Morwen\'s Withering Hymn must be cleansed by a healer'},
+      {any:[{role:'control'},{role:'support'}],why:'Only Control (Vyreweaver / Dreamshaper) or Support (Anthemist / Exactor) can interrupt Vhaela\'s Unmaking'}],
+    lockout:{runs:1,period:'gweek'},tokens:{kharox:6,morwen:6,vhaela:6,ozmarath:16},
+    desc:'Under the Riftscar the Sunless Gate opens on a stair into the abyss. Three guardians hold the way, and at the top of the Stair of Ash, Ozmarath, the Sun-Eater, sits on the throne it built from the last light. Bring a full team of four.',
+    pal:{floor:0x241c2a,floor2:0x1c1622,wall:0x2e2438,trim:0x120c18,glow:[0xb46aff,0xffb03a],fog:0x0e0814,hemi:[0xd0c0e0,0x120c18,0.7],plight:0xffb03a},
+    rooms:[{w:22,d:18,entry:true},{w:28,d:24,packs:[P2(['sunthrall','sunthrall','ashseraph'],99),P2(['voidhound','sunthrall','ashseraph'],99)]},{w:40,d:36,boss:'kharox'},
+      {w:28,d:24,packs:[P2(['sunthrall','nullwarden','ashseraph'],99),P2(['voidhound','voidhound','sunthrall'],99)]},{w:40,d:36,boss:'morwen'},
+      {w:28,d:24,packs:[P2(['riftseer','sunthrall','nullwarden'],100),P2(['scarbehemoth','ashseraph'],100)]},{w:40,d:36,boss:'vhaela'},
+      {w:20,d:34,packs:[P2(['sunthrall','ashseraph','sunthrall'],100)],ascent:1},{w:20,d:30,packs:[P2(['voidmaw','ashseraph','sunthrall'],100)],ascent:2},
+      {w:64,d:58,boss:'ozmarath',final:true}],
+    loot:{trashP:0},modes:{team:{hp:60,dmg:1.25,lvl:0,size:[4,4]}},// hp x60: tuned to a geared Lv 100 team (~50-90k team DPS): guardians ~2-3 min, the Sun-Eater ~5-6 min inside its 8 min enrage
+   
+    onEnter:d=>sunOnEnter(d),onTeam:d=>sunTeamFix(d),onBoss:e=>sunOnBoss(e),panel:(id,tab)=>sunPanel(tab),track:()=>sunTrack()};
+  const N=['The Sunless Gate','Hall of Cinders','The Bulwark Gate','The Ashen Nave','The Ash Choir','The Loomworks','The Starless Loom','The Stair of Ash','The Last Landing','The Sunless Throne'];
+  DLAY.sunless=[{o:0,s:'hall',w:26,d:22,nm:N[0]},{c:'corr',len:12},{o:1,s:'nave',w:30,d:28,nm:N[1]},{c:'corr',len:12},{o:2,s:'arena',w:44,d:40,nm:N[2]},{c:'corr',len:12},
+    {o:3,s:'nave',w:30,d:28,nm:N[3]},{c:'corr',len:12},{o:4,s:'arena',w:44,d:40,nm:N[4]},{c:'corr',len:12},{o:5,s:'forge',w:30,d:28,nm:N[5]},{c:'corr',len:12},
+    {o:6,s:'arena',w:44,d:40,nm:N[6]},{c:'bridge',len:16},{o:7,s:'hall',w:22,d:34,y:3.5,outdoor:1,nm:N[7]},{c:'bridge',len:16},{o:8,s:'hall',w:22,d:30,y:7,outdoor:-1,nm:N[8]},
+    {c:'bridge',len:18},{o:9,s:'arena',w:68,d:62,by:10,nm:N[9]}];
+  DTHEME.sunless={tex:'basalt',texS:0.2,wallH:10,floor:0x241c2a,floor2:0x1c1622,wall:0x2e2438,trim:0x120c18,acc:0xb46aff,glow:[0xb46aff,0xffb03a,0xb46aff],crack:0xffb03a,crackK:1.0,
+    fog:0x140a1c,fogN:34,fogF:130,hemi:[0xe0d4f0,0x120c18,0.84],dir:0.42,light:[0xb46aff,0xffb03a,0xb46aff],pit:0xb46aff,water:0x4a1a6a,lava:false,
+    part:{col:0xffb03a,size:0.2,vy:0.5,drift:0.3,add:true},shaft:0xffb03a,sky:[0x0a0612,0xb46aff],name:'The abyss under the Sunless Gate'};
+  if(typeof XMGATE!=='undefined'&&XMGATE){const L=Math.hypot(XMGATE.x,XMGATE.z)||1;RAIDS.sunless.door={x:Math.round(XMGATE.x-XMGATE.x/L*4),z:Math.round(XMGATE.z-XMGATE.z/L*4)};}
+  RAIDS.sunless.hook={gate:RAIDS.sunless.door,region:'scar',where:'the Sunless Gate in the Riftscar',needs:{level:100,team:4},status:'open'};})();
+/* ---------- character fields (game6 futureFields) ---------- */
+function sunFields(s){return {gday:Math.max(0,+s.gday||0),titles:Array.isArray(s.titles)?s.titles.filter(t=>typeof t==='string'):[],title:typeof s.title==='string'?s.title:null,halo:!!s.halo,cosm:Array.isArray(s.cosm)?s.cosm.filter(t=>typeof t==='string'):[]};}
+/* ---------- game-clock lockout ---------- */
+function gweekKey(){return 'g'+Math.floor((P.gday||0)/SUN_GWEEK);}
+function gweekLeftDays(){const g=P.gday||0;return SUN_GWEEK-(g%SUN_GWEEK);}
+function gweekLeftMs(){return gweekLeftDays()*DAY_LEN*1000;}
+function gweekTxt(){const d=gweekLeftDays();return 'every '+SUN_GWEEK+' game days (in '+(d>=1?d.toFixed(1)+' game days':Math.ceil(d*DAY_LEN/60)+' min of play')+')';}
+function sunRec(){return raidRec('sunless');}
+function raidResumable(id){if(id!=='sunless')return false;const r=raidRec(id);return (r.stage|0)>0&&!r.done;}
+/* ---------- unseal + team ---------- */
+function sunUnsealed(c){c=c||P;const U=RAIDS.sunless.unseal;return (c.level|0)>=U.lvl&&!!((tgOf(c).n||{})[U.td]);}
+function sunTeam(id,ids){const R=RAIDS[id];const al=raidAlts(id).filter(a=>a.level>=R.minMember);const ok=new Set(al.map(a=>a.id));
+  // default picks fill the role requirements first (your own role counts), then the highest levels
+  const auto=()=>{const out=[],me={prof:P.prof,role:roleOfChar(P)};for(const r of R.req){if(reqMetBy(r,me)||out.some(id=>reqMetBy(r,al.find(a=>a.id===id))))continue;const a=al.find(x=>!out.includes(x.id)&&reqMetBy(r,x));if(a)out.push(a.id);}for(const a of al)if(out.length<R.team.size-1&&!out.includes(a.id))out.push(a.id);return out;};
+  const pick=(ids||(Array.isArray(P.raidTeam)&&P.raidTeam.length?P.raidTeam:auto())).filter(x=>ok.has(x)).slice(0,R.team.size-1);
+  return pick.map(cid=>{const s=partySnapshot(cid);if(!s)return null;const c=roster.chars.find(x=>x.id===cid);if(c&&c.level<R.cap){s.stats=statsFor({...c,level:R.cap,buffs:[]});s.level=R.cap;s.synced=c.level;}return s;}).filter(Boolean);}
+function sunMembers(team){return [{id:activeId,name:P.name,prof:P.prof,level:P.level,role:roleOfChar(P),you:true}].concat(team.map(s=>({id:s.id,name:s.name,prof:s.prof,level:s.synced||s.level,role:s.role})));}
+function sunEntryCheck(id,team){const R=RAIDS[id];team=team||sunTeam(id);const mem=sunMembers(team);const rows=[];
+  const td=TEAMD[R.unseal.td];const uns=sunUnsealed();
+  rows.push({ok:uns,t:'The Sunless Gate opens for you: level '+R.unseal.lvl+' + one clear of '+(td?td.name:R.unseal.td),d:uns?'':(P.level<R.unseal.lvl?'you are level '+P.level:'clear '+(td?td.name:'the Lv 90 team dungeon')+' first'),gate:1});
+  rows.push({ok:team.length===R.team.size-1,t:'Full team: you + '+(R.team.size-1)+' roster companions (Lv '+R.minMember+'+): '+(team.length+1)+'/'+R.team.size,d:team.length<R.team.size-1?'pick companions in the Team tab (no mercenaries in this raid)':team.filter(s=>s.synced).map(s=>s.name+' synced '+s.synced+'→'+R.cap).join(', ')});
+  for(const r of R.req){const who=mem.find(m=>reqMetBy(r,m));rows.push({ok:!!who,t:'Needs '+reqLabel(r)+(who?': '+who.name:''),d:r.why||'',req:1});}
+  const rec=raidRec(id);const left=raidLeft(id);const res=raidResumable(id);
+  rows.push({ok:left>0||res,t:res?'Run in progress: resume after stage '+rec.stage+' ('+SUN_STAGES[rec.stage-1].n+')':left>0?'Lockout: '+left+'/'+R.lockout.runs+' run left this game-week':'Locked out: cleared this game-week',d:'resets '+gweekTxt(),lock:1});
+  const bad=rows.find(r=>!r.ok);return {ok:!bad,why:bad?(bad.gate?'sealed':bad.lock?'lockout':bad.req?'req':'team'):'',msg:bad?R.name+': '+bad.t+(bad.d&&!bad.lock?' ('+bad.d+')':''):'',rows,team,lv:R.cap,vet:0};}
+/* ---------- entering / checkpoints / barriers ---------- */
+// tag each companion with its profession (role/profession checks in the mechanics)
+function sunTeamFix(d){for(const a of d.raidAllies){const s=d.party.find(q=>q.id===a.snapId);if(s)a.prof=s.prof;}}
+function sunRoomOf(k){return DUN.rooms.find(r=>r.boss===k);}
+function sunResumeRoom(st){const rs=DUN.rooms;if(st<=0)return null;if(st===1)return rs[3];if(st===2)return rs[5];if(st===3)return rs[7];return rs[9];}
+function sunOnEnter(d){const rec=sunRec();const st=Math.min(4,rec.stage|0);d.sun={st,bar:[],phase:1,fall:0,fx:null,he:false};
+  // guardians already cleared this run stay dead; their halls are empty
+  const R0=sunResumeRoom(st);
+  if(R0){for(const e of d.bosses){const i=SUN_STAGES.findIndex(s=>s.k===e.boss.key);if(i>=0&&i<st){e.dead=true;removeEnemy(e);}}
+    for(const e of enemies.slice())if(!e.boss&&e.pos.z>R0.z1+0.5)removeEnemy(e);
+    d.entry={x:0,z:R0.z1-3};P.pos.set(0,heightAt(0,R0.z1-3),R0.z1-3);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;raidSpawnTeam();
+    d.raidRun.counted=true;addPortal(d,6,R0.z1-4,'Exit to the Reach');}
+  // Umbral Wards seal each guardian hall until its guardian falls
+  for(const k of ['kharox','morwen','vhaela']){const r=sunRoomOf(k);const e=d.bosses.find(x=>x.boss.key===k);if(!r||!e||e.dead)continue;
+    const box={x0:-4.2,x1:4.2,z0:r.z0-0.9,z1:r.z0+0.6,y0:r.y,y1:r.y+7};boxes.push(box);
+    const m=new THREE.Mesh(geoBox,new THREE.MeshBasicMaterial({color:0xb46aff,transparent:true,opacity:0.4,depthWrite:false,blending:THREE.AdditiveBlending}));m.scale.set(8.4,6.5,0.3);m.position.set(0,r.y+3.25,r.z0-0.2);d.group.add(m);
+    d.sun.bar.push({k,box,m});}
+  sunArena(d);
+  if(st>0){banner('CHECKPOINT · '+SUN_STAGES[st-1].n.toUpperCase(),'Your run resumes after stage '+st+' of '+SUN_STAGES.length);log('🌑 <b>The Sunless Throne</b>: resuming after <b>'+esc(SUN_STAGES[st-1].n)+'</b> (checkpoint '+st+'/'+SUN_STAGES.length+').');}
+  else log('🌑 <b>The Sunless Throne</b>: stage 1 of '+SUN_STAGES.length+'. Checkpoints save after every stage; a wipe resumes from the last one.');}
+function sunOpenBarrier(k){const d=DUN;if(!d||!d.sun)return;const i=d.sun.bar.findIndex(b=>b.k===k);if(i<0)return;const b=d.sun.bar[i];const j=boxes.indexOf(b.box);if(j>=0)boxes.splice(j,1);d.group.remove(b.m);b.m.material.dispose();d.sun.bar.splice(i,1);
+  ringFx(0,b.box.z0,0xb46aff,5,0.8);toast('🌑 The Umbral Ward falls: the way deeper is open');}
+function sunSetStage(n){const rec=sunRec();if(n>(rec.stage|0)){rec.stage=n;const S=SUN_STAGES[n-1];if(n<SUN_STAGES.length){banner('CHECKPOINT '+n+'/'+SUN_STAGES.length,S.n+' cleared · a wipe now resumes from here');SFX.quest();}save();}}
+/* ---------- the throne arena: black sun, rune ring, obelisks (few draw calls) ---------- */
+function sunArena(d){const r=sunRoomOf('ozmarath');if(!r)return;const y=r.y,g=new THREE.Group();d.group.add(g);
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(15,40),new THREE.MeshBasicMaterial({color:0x050208,fog:false}));disc.position.set(0,y+30,r.z0-10);g.add(disc);
+  const cor=new THREE.Mesh(new THREE.RingGeometry(15,19.5,48),new THREE.MeshBasicMaterial({color:0xb46aff,transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));cor.position.copy(disc.position);cor.position.z+=0.1;g.add(cor);
+  const rune=new THREE.Mesh(new THREE.RingGeometry(18,19,64),new THREE.MeshBasicMaterial({color:0xffb03a,transparent:true,opacity:0.35,blending:THREE.AdditiveBlending,depthWrite:false}));rune.rotation.x=-Math.PI/2;rune.position.set(0,y+0.05,r.cz);g.add(rune);
+  const ob=new THREE.InstancedMesh(geoBox,M(0x1a1220),8),tip=new THREE.InstancedMesh(geoCone,MB(0xffb03a),8);const o=new THREE.Object3D();
+  for(let i=0;i<8;i++){const a=i/8*6.283+0.39,x=Math.cos(a)*27,z=r.cz+Math.sin(a)*24;o.position.set(x,y+4,z);o.scale.set(1.6,8,1.6);o.rotation.set(0,a,0);o.updateMatrix();ob.setMatrixAt(i,o.matrix);
+    o.position.y=y+8.9;o.scale.set(0.7,1.8,0.7);o.updateMatrix();tip.setMatrixAt(i,o.matrix);circles.push({x,z,r:1.3});}
+  g.add(ob);g.add(tip);d.sun.fx={g,disc,cor,rune,r};}
+function sunArenaPhase(ph){const d=DUN;if(!d||!d.sun||!d.sun.fx)return;const f=d.sun.fx;const col=[0xb46aff,0xff5a2a,0xd01a3a][ph-1]||0xb46aff;f.cor.material.color.setHex(col);f.rune.material.color.setHex(ph>=3?0xff3a2a:0xffb03a);
+  if(scene.fog)scene.fog.color.setHex([0x140a1c,0x2a0a0e,0x30060c][ph-1]||0x140a1c);scene.background=new THREE.Color(scene.fog?scene.fog.color.getHex():0x140a1c);}
+/* ---------- team helpers ---------- */
+function sunTeamList(){const d=DUN;const L=[{e:P,role:roleOfChar(P),prof:P.prof,name:'You',max:()=>S.maxHp}];
+  if(d&&d.raidAllies)for(const a of d.raidAllies)if(!a.dead&&allies.includes(a))L.push({e:a,role:a.role,prof:a.prof,name:a.name,max:()=>a.maxHp});return L.filter(x=>x.e===P?!P.dead:true);}
+function sunHit(x,amt,src){if(x.e===P){if(!P.dead)dmgPlayer(amt,src,true,true);}/* %max-HP raid mechanics ignore armour */else allyTakeDmg(x.e,amt/Math.max(0.4,1-(x.e.dr||0)),src);}
+/* ---------- guardian / final boss mechanics ---------- */
+// tank-buster: a circle follows the boss's current foe, locks, then lands; a tank takes tankK of it, others the full hit (and anyone near shares it)
+MECH_EXT.buster=(e,b,m,i)=>{if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;const L=sunTeamList();if(!L.length)return;const tgt=L.find(x=>x.e===e.foe)||L.find(x=>x.role==='tank')||L[0];
+  telegraph(e,tgt.e.pos.x,tgt.e.pos.z,m.r,m.delay,b.baseDmg*m.mult,m.name);const t=DUN.tele[DUN.tele.length-1];t.tgt=tgt;
+  t.upd=q=>{if(T<q.at-0.7&&!(q.tgt.e.dead)){q.x=q.tgt.e.pos.x;q.z=q.tgt.e.pos.z;q.g.position.set(q.x,heightAt(q.x,q.z)+0.06,q.z);}};
+  t.dmgFn=tg=>{const role=tg===P?roleOfChar(P):tg.role;return role==='tank'?t.dmg*m.tankK:t.dmg;};
+  b.busts=(b.busts||0)+1;toast('⚠ '+m.name+' on '+(tgt.e===P?'YOU':tgt.name)+(tgt.role==='tank'?' (tank braces)':': get a TANK on the boss!'));floatText(entChest(e,tmpV),m.name+'!','info');tone(130,0.6,'sawtooth',0.06,90);};
+// Withering Hymn: a damage-over-time curse that a living healer cleanses
+MECH_EXT.wither=(e,b,m,i)=>{if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;const L=sunTeamList();if(!L.length)return;
+  const pool=L.slice().sort((x,y)=>(x.role==='tank')-(y.role==='tank')||Math.random()-0.5).slice(0,m.n);const cl=L.find(x=>m.by.includes(x.role));
+  DUN.sun.wither=(DUN.sun.wither||[]).concat(pool.map(x=>({x,until:T+m.dur,tick:T+1,pct:m.pct,cleanseAt:cl?T+m.cleanse:null,by:cl?cl.name:null,src:e})));b.withers=(b.withers||0)+1;
+  toast('☠ '+m.name+' on '+pool.map(x=>x.e===P?'YOU':x.name).join(' + ')+(cl?' · '+cl.name+' will cleanse it':' · no healer: it runs its full course!'));for(const x of pool)ringFx(x.e.pos.x,x.e.pos.z,0x6a8a2a,1.6,0.8);};
+MECH_EXT.pulse=(e,b,m,i)=>{if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;for(const x of sunTeamList())sunHit(x,x.max()*m.pct,e);ringFx(e.pos.x,e.pos.z,0xffb03a,18,0.8);nz(0.4,0.1,300);toast('💢 '+m.name+': the whole team takes damage');b.pulses=(b.pulses||0)+1;};
+// The Unmaking: a long channel; a living control/support member interrupts it (and stuns her), else it unmakes the hall
+MECH_EXT.unmaking=(e,b,m,i)=>{const d=DUN;
+  if(b.ch){const c=b.ch;if(c.by&&T>=c.intAt){const ti=d.tele.indexOf(c.t);if(ti>=0){d.group.remove(c.t.g);c.t.g.children.forEach(q=>q.material.dispose());d.tele.splice(ti,1);}b.ch=null;e.rootUntil=0;e.stunUntil=T+m.stun;b.ints=(b.ints||0)+1;
+      banner('UNMAKING INTERRUPTED',c.by+' breaks the weave · Vhaela is stunned for '+m.stun+'s');ringFx(e.pos.x,e.pos.z,0x7ad8ff,6,0.8);SFX.boom();}
+    else if(T>=c.t.at){b.ch=null;b.lands=(b.lands||0)+1;}return;}
+  if(T<b.next[i]||T<(e.stunUntil||0))return;b.next[i]=T+m.every;const r=b.room;const L=sunTeamList();const it=L.find(x=>m.by.includes(x.role)&&Math.hypot(x.e.pos.x-e.pos.x,x.e.pos.z-e.pos.z)<34);
+  telegraph(e,r?0:e.pos.x,r?r.cz:e.pos.z,r?Math.max(r.w,r.d)*0.62:24,m.cast,0,m.name);const t=d.tele[d.tele.length-1];t.dmgFn=tg=>(tg===P?S.maxHp:tg.maxHp)*m.pct;t.noDodge=true;t.pure=true;
+  e.rootUntil=T+m.cast;b.ch={t,by:it?(it.e===P?'You':it.name):null,intAt:T+m.react};
+  banner('THE UNMAKING',it?(it.e===P?'You are':it.name+' is')+' moving to interrupt it…':'No Control or Support to interrupt: brace for it!');tone(110,1.2,'sawtooth',0.05,60);};
+// phases: data-driven HP thresholds; a short roar pause, the arena changes, and mechs tagged ph:[n] switch on
+MECH_EXT.phase=(e,b,m,i,hpF)=>{b.phase=b.phase||1;m.at.forEach((th,j)=>{if(b.done['ph'+j]||hpF>th)return;b.done['ph'+j]=1;b.phase=j+2;clearTele(e);e.rootUntil=T+m.pause;
+  b.def.mech.forEach((q,k)=>{if(q.t==='phase'||q.t==='adds'||q.t==='shield'||q.t==='enrage'||q.t==='hardenrage')return;if(!q.ph||q.ph.includes(b.phase))b.next[k]=Math.max(b.next[k]||0,T+m.pause+(q.first?Math.min(q.first,6):3));});
+  banner(m.names[j],m.subs[j]);ringFx(e.pos.x,e.pos.z,0xff5a2a,14,1.0);ringFx(e.pos.x,e.pos.z,0xffb03a,22,1.3);nz(0.8,0.16,160);SFX.boom();tone(70,1.4,'sawtooth',0.07,40);sunArenaPhase(b.phase);
+  if(DUN.sun)DUN.sun.phase=b.phase;});};
+// hard enrage: after m.time seconds of the fight everyone takes pct of max HP every m.every seconds
+MECH_EXT.hardenrage=(e,b,m)=>{if(T-b.t0<m.time)return;if(!b.he){b.he=true;b.heN=T;banner(m.name.toUpperCase(),'The Sun-Eater devours the light. Nothing survives this.');sunArenaPhase(3);if(DUN.sun)DUN.sun.he=true;}
+  if(T>=b.heN){b.heN=T+m.every;for(const x of sunTeamList())sunHit(x,x.max()*m.pct,e);ringFx(e.pos.x,e.pos.z,0xd01a3a,30,0.9);nz(0.5,0.14,120);}};
+/* ---------- per-frame raid logic ---------- */
+let sunAcc=0,HALO=null;
+function updSun(dt){if(state==='play'&&!(DUN&&DUN.apt))P.gday=(P.gday||0)+dt/DAY_LEN;
+  sunAcc+=dt;if(sunAcc>0.5){sunAcc=0;sunGateLook();}
+  sunHalo();
+  const d=DUN;if(!d||d.id!=='sunless'||!d.sun)return;const S2=d.sun;
+  // withers tick + cleanse
+  if(S2.wither)for(let k=S2.wither.length-1;k>=0;k--){const w=S2.wither[k];const dead=w.x.e===P?P.dead:w.x.e.dead;
+    if(dead||T>=w.until){S2.wither.splice(k,1);continue;}
+    if(w.cleanseAt&&T>=w.cleanseAt){S2.wither.splice(k,1);S2.cleansed=(S2.cleansed||0)+1;floatText(tmpV.set(w.x.e.pos.x,w.x.e.pos.y+2.4,w.x.e.pos.z),'Cleansed','heal');ringFx(w.x.e.pos.x,w.x.e.pos.z,0x6dff8a,1.8,0.5);if(S2.cleansed<=2||w.x.e===P)toast('✚ '+w.by+' cleanses the Withering Hymn');continue;}
+    if(T>=w.tick){w.tick+=1;sunHit(w.x,w.x.max()*w.pct,w.src);ringFx(w.x.e.pos.x,w.x.e.pos.z,0x6a8a2a,1.2,0.4);}}
+  // the Stair of Ash: falling stars while you climb (until the throne checkpoint)
+  const r7=d.rooms[7],r8=d.rooms[8],r9=d.rooms[9];
+  if(r7&&r8&&!P.dead&&(sunRec().stage|0)>=3&&(sunRec().stage|0)<4&&P.pos.z<r7.z1&&P.pos.z>r8.z0-18){S2.fall-=dt;if(S2.fall<=0){S2.fall=2.6;S2.stars=(S2.stars||0)+1;const src=S2.src||(S2.src={T:{name:'Starfall'},dead:true,hp:0,pos:new THREE.Vector3(0,-99,0)});
+      telegraph(src,P.pos.x+rand(-1,1),P.pos.z+rand(-1,1),3.0,1.9,0,'Starfall');d.tele[d.tele.length-1].dmgFn=tg=>(tg===P?S.maxHp:tg.maxHp)*0.22;
+      const ax=clamp(P.pos.x+rand(-6,6),-8,8),az=P.pos.z-rand(4,9);telegraph(src,ax,az,3.0,2.1,0,'Starfall');d.tele[d.tele.length-1].dmgFn=tg=>(tg===P?S.maxHp:tg.maxHp)*0.22;}}
+  if(r9&&(sunRec().stage|0)===3&&P.pos.z<r9.z1-1&&!P.dead){sunSetStage(4);d.entry={x:0,z:r9.z1-3};S2.fall=0;}
+  if(S2.fx){S2.fx.cor.rotation.z+=dt*0.05;S2.fx.rune.material.opacity=0.28+Math.sin(T*1.6)*0.1;}}
+/* ---------- kills: checkpoints, personal loot, the finale ---------- */
+function sunFam(prof){return PROF_FAM[prof]||'medium';}
+function sunSetPiece(fam,have){const F=SUN_FAM[fam];const miss=F.ids.filter(k=>!have.has(k));return pick(miss.length?miss:F.ids);}
+function sunOwned(){const s=new Set();for(const it of P.inv)if(it&&it.uniq)s.add(it.uniq);for(const k in P.eq){const it=P.eq[k];if(it&&it.uniq)s.add(it.uniq);}return s;}
+function sunDrop(e,keys){keys.forEach((k,i)=>{const it=makeUnique(k);if(!it)return;it.dropBy=e.T.name;const a=i/Math.max(1,keys.length)*6.28;dropLoot(e.pos.x+Math.cos(a)*2.4,e.pos.z+Math.sin(a)*2.4,it);});}
+function sunOnBoss(e){const d=DUN;const k=e.boss.key;const idx=SUN_STAGES.findIndex(s=>s.k===k);if(idx<0)return;const fam=sunFam(P.prof),own=sunOwned();
+  if(!e.boss.final){sunOpenBarrier(k);sunSetStage(idx+1);const keys=[sunSetPiece(fam,own)];if(Math.random()<0.3)keys.push(sunSetPiece(fam,new Set([...own,keys[0]])));sunDrop(e,keys);return;}
+  const rec=sunRec();const first=!((P.raidClears||{}).sunless>1);rec.stage=SUN_STAGES.length;rec.done=true;
+  const wts=wtAff(P.prof);const wt=wts.includes(PROF_WT[P.prof])?PROF_WT[P.prof]:pick(wts);const keys=[sunSetPiece(fam,own)];keys.push(sunSetPiece(fam,new Set([...own,keys[0]])));keys.push('sun_w_'+(SUN_WPN[wt]?wt:'rifle'));
+  if(first||Math.random()<0.3)keys.push('sun_relic');if(first||Math.random()<0.45)keys.push('sun_eye');sunDrop(e,keys);
+  let gift='';if(first){P.ppBonus=(P.ppBonus|0)+2;P.pp=ppAvail();if(!P.titles.includes('Sunbreaker'))P.titles.push('Sunbreaker');P.title='Sunbreaker';if(!P.cosm.includes('halo'))P.cosm.push('halo');P.halo=true;gift=' · +2 perk points · title «Sunbreaker» · Corona Halo';}
+  const names=[];for(const id of (d.raidRun.team||[])){const c=roster.chars.find(x=>x.id===id);if(!c)continue;c.raidClears=c.raidClears||{};const f1=!c.raidClears.sunless;c.raidClears.sunless=(c.raidClears.sunless|0)+1;
+    const it=makeUnique(sunSetPiece(sunFam(c.prof),new Set()));it.dropBy=e.T.name;sheetGive(c,it);if(f1){c.ppBonus=(c.ppBonus|0)+1;c.titles=Array.isArray(c.titles)?c.titles:[];if(!c.titles.includes('Sunbreaker'))c.titles.push('Sunbreaker');}
+    names.push(c.name+(f1?' (+1 perk point, title, '+it.name+')':' ('+it.name+')'));}
+  if(names.length)writeRoster(roster);
+  sunFinale(e,first);log('☀ <b>The Sun-Eater falls.</b> The Sunless Throne is cleared'+gift+'.'+(names.length?' Your team: '+esc(names.join(', '))+'.':'')+' Next run: '+esc(gweekTxt())+'.');save();}
+function sunFinale(e,first){const d=DUN;const x=e.pos.x,z=e.pos.z;d.sun.finale=T;
+  banner('THE SUN-EATER FALLS','Light returns to the Sunless Throne');
+  let fl=document.getElementById('sunFlash');if(!fl){fl=document.createElement('div');fl.id='sunFlash';fl.style.cssText='position:fixed;inset:0;background:radial-gradient(circle,#fff8e0 0%,#ffd27a 45%,rgba(255,176,58,0) 80%);pointer-events:none;z-index:40;opacity:0;transition:opacity 1.6s ease-out';document.body.appendChild(fl);}
+  fl.style.transition='none';fl.style.opacity='0.95';requestAnimationFrame(()=>requestAnimationFrame(()=>{fl.style.transition='opacity 1.6s ease-out';fl.style.opacity='0';}));
+  for(let k=0;k<6;k++)setTimeout(()=>{if(DUN!==d)return;ringFx(x,z,k%2?0xffb03a:0xfff0b0,6+k*5,1.0);},k*160);
+  nz(1.2,0.18,90);SFX.boom();[262,330,392,523,659,784].forEach((f,k)=>setTimeout(()=>tone(f,0.5,'triangle',0.07,f*1.01),200+k*140));setTimeout(()=>{tone(523,1.6,'sine',0.06);tone(659,1.6,'sine',0.05);tone(784,1.6,'sine',0.05);SFX.level();},1100);
+  if(d.sun.fx){d.sun.fx.disc.material.color.setHex(0xfff0b0);d.sun.fx.cor.material.color.setHex(0xffd27a);d.sun.fx.rune.material.color.setHex(0xfff0b0);}
+  if(scene.fog){scene.fog.color.setHex(0x3a2a1a);scene.background=new THREE.Color(0x3a2a1a);}
+  if(first)setTimeout(()=>{if(DUN!==d)return;banner('TITLE: SUNBREAKER','+2 perk points · the Corona Halo is yours (Raid panel → Rewards)');SFX.quest();},3600);}
+/* ---------- the gate, title, halo ---------- */
+function sunGateLook(){if(typeof XMGATE==='undefined'||!XMGATE||DUN)return;const u=sunUnsealed();if(XMGATE.uns===u)return;XMGATE.uns=u;XMGATE.seal.material.opacity=u?0.4:0.85;XMGATE.seal.material.color.setHex(u?0xffb03a:0x2a0a3a);XMGATE.ring.material=MB(u?0xffb03a:0xb46aff);}
+function sunGateMsg(){const R=RAIDS.sunless;const td=TEAMD[R.unseal.td];return sunUnsealed()?['THE SUNLESS GATE','Unsealed for you · '+R.name+' · team of '+R.team.size+' · Use the gate'] : ['THE SUNLESS GATE','Sealed · opens at level '+R.unseal.lvl+' after a clear of '+(td?td.name:'the Lv 90 team dungeon')];}
+function titleHtml(){return P.title?` <span class="ptitle" style="color:#ffd27a;font-size:12px">«${esc(P.title)}»</span>`:'';}
+function sunHalo(){const on=state==='play'&&P.halo&&(P.cosm||[]).includes('halo')&&!P.dead;if(!on){if(HALO)HALO.visible=false;return;}
+  if(!HALO){HALO=new THREE.Group();const r=new THREE.Mesh(new THREE.TorusGeometry(0.42,0.045,6,28),new THREE.MeshBasicMaterial({color:0xffd27a}));r.rotation.x=Math.PI/2;HALO.add(r);
+    for(let i=0;i<8;i++){const s=new THREE.Mesh(geoCone,MB(0xffb03a));const a=i/8*6.283;s.position.set(Math.cos(a)*0.5,0,Math.sin(a)*0.5);s.scale.set(0.05,0.16,0.05);s.rotation.set(Math.sin(a)*1.57,0,-Math.cos(a)*1.57);HALO.add(s);}scene.add(HALO);}
+  HALO.visible=PM&&PM.g.visible!==false;HALO.position.set(P.pos.x,P.pos.y+2.45*(PM&&PM.g?PM.g.scale.y:1),P.pos.z);HALO.rotation.y=T*0.8;}
+/* ---------- panel ---------- */
+function sunPanel(tab){const id='sunless',R=RAIDS[id];if(tab)RP.tab=tab;RP.id=id;const t=['team','stages','rewards'].includes(RP.tab)?RP.tab:'team';const ck=sunEntryCheck(id);const rec=sunRec();const al=raidAlts(id);const picks=sunTeam(id).map(s=>s.id);
+  const res=raidResumable(id);
+  let h=`<div class="craftbar raidbar"><span class="cbi">🌑</span><span class="cbn"><b>${esc(R.name)}</b><small>Lv ${R.minLvl} · team of ${R.team.size} · checkpoint ${rec.stage|0}/${SUN_STAGES.length} · ${raidLeft(id)}/${R.lockout.runs} run this game-week · ${RAID_CUR} ${P.sigils|0}</small></span>
+    <button class="sbtn${ck.ok?'':' locked'}" id="raidGo" data-act="${ck.ok?'rgo':'rno'}" data-id="${id}">${ck.ok?(res?'Resume (stage '+((rec.stage|0)+1)+')':'Enter raid'):ck.why==='sealed'?'🔒 Sealed':ck.why==='lockout'?'🔒 Locked out':'⛔ Team'}</button></div>`;
+  h+=`<div class="tabs">${[['team','👥 Team'],['stages','💀 Stages'],['rewards','☀ Rewards']].map(([k,n])=>`<button data-act="rtab" data-t="${k}" class="${t===k?'on':''}">${n}</button>`).join('')}</div>`;
+  if(t==='team'){h+=`<div class="mis" style="border-color:#b46aff"><p>${esc(R.desc)}</p><div style="font-size:13px;opacity:.85">One run per game-week (resets ${esc(gweekTxt())}). Checkpoints save after every stage: a wipe revives the team at the last checkpoint, and leaving keeps your progress for this game-week. Companions below Lv ${R.cap} are level-synced up to ${R.cap}.</div></div>
+      <div class="h4">Requirements</div>${tdRowsHtml(ck.rows)}<div class="h4">Your team (you + ${R.team.size-1})</div><div class="mis"><b>${esc(P.name)}</b> (you) · Lv ${P.level} ${esc(PROFS[P.prof].name)} · ${roleOfChar(P)}</div>`+
+      al.map(a=>{const on=picks.includes(a.id),low=a.level<R.minMember;return `<button class="item${on?' sel':''}" data-act="${low?'rover':'rtog'}" data-id="${a.id}" style="${low?'opacity:.55':''}"><span class="ico">${on?'✔':low?'⛔':'＋'}</span><span><div class="nm">${esc(a.name)}</div><div class="sub">Lv ${a.level} ${esc(PROFS[a.prof].name)} · ${a.role}${low?' · needs Lv '+R.minMember+'+':a.level<R.cap?' · synced to '+R.cap:''}</div></span></button>`;}).join('')+
+      (al.length?'':`<div style="opacity:.7;font-size:13px">Make more characters (alts) and level them to ${R.minMember}+: this raid takes no mercenaries.</div>`);}
+  else if(t==='stages'){h+=SUN_STAGES.map((S,i)=>{const B=BOSSES[S.k];const done=(rec.stage|0)>i;const head=`<b style="color:${done?'#6dff8a':'#ff9a2a'}">${i+1}. ${esc(S.n)}</b>${B?' · '+esc(ETYPES[B.etype].name):''}${S.role?' · '+reqLabel({role:S.role})+' check':''}${done?' · ✔ checkpoint':''}`;
+      if(!B)return `<div class="mis">${head}<div style="font-size:13px">Climb the Stair of Ash under falling stars (telegraphed circles every few seconds) and fight through the last guards. Reaching the throne saves a checkpoint.</div></div>`;
+      return `<div class="mis">${head}${B.mech.filter(m=>m.desc).map(m=>`<div style="font-size:13px"><b>${esc(m.name)}</b>: ${esc(m.desc)}</div>`).join('')}</div>`;}).join('');}
+  else{const fam=sunFam(P.prof),F=SUN_FAM[fam];const S=SETS[F.set];const bon=n=>Object.entries(S.bonus[n]).map(([s,v])=>'+'+v+' '+(SHORT[s]||s)).join(' ');
+    h+=`<div class="stats">Only this raid drops <b style="color:${RAR[SUNR].c}">${RAR[SUNR].n}</b> gear, the top rarity. Each guardian drops a piece of your armour family's set; the Sun-Eater drops two more, a weapon for your profession, and (often) the relic and the ocular. First clear: <b>+2 perk points</b>, the title <b>«Sunbreaker»</b> and the <b>Corona Halo</b>; each roster companion on their first clear gets +1 perk point and a set piece.</div>
+      <div class="h4">${esc(F.name)} (${fam} armour) · 2: ${bon(2)} · 3: ${bon(3)} · 5: ${bon(5)}</div>`+F.ids.concat(['sun_w_'+PROF_WT[P.prof],'sun_relic','sun_eye']).filter(k=>UNIQUES[k]).map(k=>{const it=makeUnique(k);return itemRow(it,'<span style="opacity:.7">drop only</span>',false,'noop');}).join('')+
+      `<div class="h4">Title and cosmetic</div><button class="sbtn${P.titles.includes('Sunbreaker')?'':' locked'}" data-act="suntitle">${P.title==='Sunbreaker'?'✔ Showing «Sunbreaker»':P.titles.includes('Sunbreaker')?'Show title «Sunbreaker»':'🔒 «Sunbreaker» (first clear)'}</button>
+      <button class="sbtn${(P.cosm||[]).includes('halo')?'':' locked'}" data-act="sunhalo" style="margin-left:6px">${P.halo&&(P.cosm||[]).includes('halo')?'✔ Corona Halo on':(P.cosm||[]).includes('halo')?'Wear the Corona Halo':'🔒 Corona Halo (first clear)'}</button>`;}
+  if(!ck.ok&&t!=='team')h+=`<div class="capmsg">⛔ ${esc(ck.msg)}</div>`;
+  openPanel('🌑 RAID · '+R.name.toUpperCase(),h,'raid');}
+function sunAct(a){if(a==='suntitle'){if(!P.titles.includes('Sunbreaker')){warn('Clear the Sunless Throne to earn «Sunbreaker»');return true;}P.title=P.title==='Sunbreaker'?null:'Sunbreaker';save();sunPanel('rewards');return true;}
+  if(a==='sunhalo'){if(!(P.cosm||[]).includes('halo')){warn('Clear the Sunless Throne to earn the Corona Halo');return true;}P.halo=!P.halo;save();sunPanel('rewards');return true;}return false;}
+function sunTrack(){const d=DUN,R=d.D,rec=sunRec();const st=rec.stage|0;const fin=d.bosses.find(e=>e.boss.final);const al=d.raidAllies.filter(a=>!a.dead&&allies.includes(a)).length;
+  let x='';if(fin&&!fin.dead&&fin.boss.engaged){const left=480-(T-fin.boss.t0);x=`<br>Phase ${fin.boss.phase||1}/3 · ${left>0?'Total Eclipse in '+Math.floor(left/60)+':'+String(Math.floor(left%60)).padStart(2,'0'):'<span style="color:#ff5a5a">TOTAL ECLIPSE</span>'}`;}
+  return `<b>🌑 ${esc(R.name)}</b><br>Stage ${Math.min(st+1,SUN_STAGES.length)}/${SUN_STAGES.length}: ${esc(SUN_STAGES[Math.min(st,SUN_STAGES.length-1)].n)} · Team ${al+(P.dead?0:1)}/${R.team.size} · checkpoint ${st}${x}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;}
+function sunExports(){return {PROF_WT,PROF_FAM,writeRoster,SUNR,SUN_FAM,SUN_STAGES,SUN_GWEEK,sunUnsealed,sunEntryCheck,sunTeam,sunRec,raidResumable,gweekKey,gweekLeftDays,sunOnBoss,sunPanel,sunAct,sunTeamList,sunGateMsg,buildSunEater,
+  sunSetStage,sunArenaPhase,bossTick,sunRoomOf,get XMGATE(){return typeof XMGATE!=='undefined'?XMGATE:null;},get boxes(){return boxes;},get sunD(){return DUN&&DUN.sun;},get halo(){return HALO;},titleHtml};}
 
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
@@ -7224,14 +7544,17 @@ function updEnemy(e,dt){
   if(!far){g.position.copy(e.pos);g.rotation.y=e.rotY;e.animT+=dt*(stunned?0:1);e.R.anim(e.animT,e.moving,e.atkT,Math.max(0,e.hitT));enemyPresent(e,dP);const base=e.T.scale*(1+(e.lv-1)*0.03)*(e.R.bossMul||1);g.scale.setScalar(base*(e.hitT>0?1.06:1));e.shadow.position.set(e.pos.x,e.pos.y+0.05,e.pos.z);}
 }
 function updCamera(dt){
-  const tx=P.pos.x,ty=P.pos.y+1.7,tz=P.pos.z;const cp=Math.cos(camS.pitch);
-  const ux=Math.sin(camS.yaw)*cp,uy=Math.sin(camS.pitch),uz=Math.cos(camS.yaw)*cp;let dist=camS.dist;
+  // titan framing: when fighting a huge boss (the Sun-Eater), ease the camera back and tilt the view up so the whole body reads
+  const tg=P.target,giant=tg&&!tg.dead&&tg.boss&&(tg.h||0)>9&&Math.hypot(tg.pos.x-P.pos.x,tg.pos.z-P.pos.z)<50;
+  camS.lift=lerp(camS.lift||0,giant?1:0,Math.min(1,dt*1.5));const lift=camS.lift>0.01?camS.lift:0,lookUp=lift?lift*Math.min(7,(tg&&tg.h||10)*0.36):0;
+  const tx=P.pos.x,ty=P.pos.y+1.7+lift*2.5,tz=P.pos.z;const cp=Math.cos(camS.pitch);
+  const ux=Math.sin(camS.yaw)*cp,uy=Math.sin(camS.pitch),uz=Math.cos(camS.yaw)*cp;let dist=camS.dist+lift*13;
   const occ=(px,py,pz,L)=>{for(let i=0;i<L.length;i++){const b=L[i];if(b.nocam)continue;if(px>b.x0-0.25&&px<b.x1+0.25&&pz>b.z0-0.25&&pz<b.z1+0.25&&py>b.y0-0.2&&py<b.y1+0.3)return true;}return false;};
-  for(let d=0.8;d<=camS.dist;d+=0.35){const px=tx+ux*d,py=ty+uy*d,pz=tz+uz*d;if(occ(px,py,pz,boxes)||occ(px,py,pz,camOcc)){dist=Math.max(1.2,d-0.35);break;}}
+  for(let d=0.8;d<=camS.dist+lift*13;d+=0.35){const px=tx+ux*d,py=ty+uy*d,pz=tz+uz*d;if(occ(px,py,pz,boxes)||occ(px,py,pz,camOcc)){dist=Math.max(1.2,d-0.35);break;}}
   camS.cur=camS.cur==null?dist:(dist<camS.cur?dist:lerp(camS.cur,dist,Math.min(1,dt*4)));dist=camS.cur;
   let x=tx+ux*dist,y=ty+uy*dist,z=tz+uz*dist;
   const gh=heightAt(x,z)+0.6;if(y<gh)y=gh;
-  camera.position.set(x,y,z);camera.lookAt(tx,ty,tz);window.__sky.position.copy(camera.position);
+  camera.position.set(x,y,z);camera.lookAt(tx,ty+lookUp,tz);window.__sky.position.copy(camera.position);
 }
 
 /* ---------------- HUD ---------------- */
@@ -7256,7 +7579,7 @@ function updHUD(dt){
     H.tstate.textContent=(t.enraged?'ENRAGED ':'')+(t.boss?'Boss · ':'')+(T<t.stunUntil?'Stunned ':'')+(T<t.rootUntil?'Rooted ':'')+(t.dot?(t.dot.en?'Leeched ':'Searing '):'')+(T<(t.hexUntil||0)?'Hexed ':'')+(t.state==='return'?'Evading':'')+' · '+Math.round(dist2D(t.pos,P.pos))+'m';}
   else H.tframe.classList.add('hidden');
   if(hudAcc>0.2){hudAcc=0;
-    H.pname.innerHTML=`${esc(P.name)} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
+    H.pname.innerHTML=`${esc(P.name)}${titleHtml()} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
     let b='';for(const bf of P.buffs){const left=bf.until-T;b+=`<span class="bf${left<20?' low':''}" title="${esc(bf.name)}: ${Object.keys(bf.mods).map(k=>'+'+bf.mods[k]+' '+SHORT[k]).join(' ')}">${bf.icon}<b>${fmtT(left)}</b></span>`;}
     if(T<P.bulwarkUntil)b+=`<span class="bf">🛡️<b>${Math.ceil(P.bulwarkUntil-T)}s</b></span>`;if(P.hot)b+=`<span class="bf">❋<b>${Math.ceil(P.hot.until-T)}s</b></span>`;b+=stage2Chips()+profKChips();if(T<(P.slowUntil||0))b+=`<span class="bf slow">🐌<b>${Math.ceil(P.slowUntil-T)}s</b></span>`;if(inTown(P.pos))b+='<span class="bf safe">🏠 Safe</span>';H.buffs.innerHTML=b;
     $('#bSk').classList.toggle('pts',P.sp>0);$('#spBadge').textContent=P.sp>0?P.sp:'';
@@ -7401,7 +7724,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updSun(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -7415,7 +7738,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
