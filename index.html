@@ -102,6 +102,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #profCards{flex-wrap:nowrap!important;gap:8px!important;width:100%;margin:10px 0 8px!important}
 #profCards .card{flex:1 1 0;min-width:0;max-width:158px;width:auto;padding:8px 9px;display:flex;flex-direction:column;gap:3px}#profCards .card h3{font-size:15px;padding-right:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#profCards .card .role{font-size:10px;letter-spacing:.05em}
 #profCards .card .sw{width:10px;height:10px;margin-right:4px}
+/* Build K: 14 professions -> a 7-column grid (2 rows) on iPad landscape, 4/3 columns on narrower screens; scrolls if it ever runs out of room */
+#profCards{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px!important;max-height:min(40vh,300px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:2px}
+#profCards .card{max-width:none;padding:5px 7px;gap:1px;min-height:0}#profCards .card .role{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#profCards .card .tag{font-size:11px;line-height:1.22;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:0 0 auto}#profCards .card .diff{font-size:12px;line-height:1.1}#profCards .card h3{font-size:14px;margin:0}
+@media (max-width:860px){#profCards{grid-template-columns:repeat(4,minmax(0,1fr))}}@media (max-width:540px){#profCards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .crbtns{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}.crbtns .btn{margin:0}
 #create .btxt{font-size:12px;margin:4px auto 2px;line-height:1.35}#create .seg button{padding:7px 14px}#createOpts{margin:0 0 8px}#createOpts .h4{margin:6px 0 4px}
 #profCards .card{position:relative}.pinfo{position:absolute;right:4px;top:4px;width:26px;height:26px;border-radius:13px;background:rgba(95,242,255,.12);color:#5ff2ff;font-size:15px;line-height:26px;text-align:center}
@@ -274,10 +278,10 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
 </style>
-<meta name="dr-build" content="20261114T222339-8f70bca0">
+<meta name="dr-build" content="20261115T073734-ce06448b">
 <script>
 (function(){
-var BUILD='20261114T222339-8f70bca0';window.DR_BUILD=BUILD;
+var BUILD='20261115T073734-ce06448b';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -999,7 +1003,7 @@ function refreshGearVisual(){if(!PM)return;clearVeil();if(PM.gear){PM.gear.forEa
   const famC=it=>it.r>=4?RAR[it.r].h:(AFAM[it.fam||'medium']||AFAM.medium).col,trimM=it=>it.r>=3?MB(RAR[it.r].h):MS(RAR[it.r]?RAR[it.r].h:0x888888);
   const w=eq.weapon,W=w&&WTYPES[w.wt];const ms=W?W.mesh:{l:0.62,w:0.12,c:0x222222};const leg=w&&w.r>=4;PM.melee=!!(W&&W.melee);
   PM.gun.scale.set(ms.w,ms.w*1.15,ms.l);PM.gun.position.set(0,-0.7,0.08+ms.l*0.32);PM.gun.material=(ms.glow||leg)?MB(leg?RAR[w.r].h:ms.c):M(ms.c);
-  if(W&&W.melee){PM.gun.scale.set(0.05,0.16,ms.l);}
+  if(W&&W.melee){PM.gun.scale.set(0.05,0.16,ms.l);}if(w&&w.wt==='fist'){PM.gun.scale.set(0.15,0.15,0.17);PM.gun.position.set(0,-0.74,0.03);}
   if(w&&w.r>=2)PM.gear.push(part(PM.gun,geoBox,MB(RAR[w.r].h),0,0.52,0.05,1.04,0.12,0.7));
   PM.helmOn=false;const h=eq.head;
   if(h&&!clothHides('head')){const c=MS(famC(h)),t=trimM(h);PM.helmOn=true;
@@ -1176,12 +1180,14 @@ const PROFS={
       {id:'bramble',name:'Bramble Snare',icon:'🪴',cost:16,cd:10,range:22,needTarget:true,kind:'nuke',mult:0.6,root:5,color:0x6a9a3a,desc:'Roots the target in thornweed for 5s and deals 60% damage.'},
       {id:'pathfinder',name:'Pathfinder\'s Instinct',icon:'🧭',cost:20,cd:5,range:0,buff:{dur:180,mods:L=>({run:30,sen:3+L,agi:3+L,wpn:5+L*2})},desc:'Self-buff (3 min): +30 Run Speed, plus Sense, Agility and Weapon Handling.'}]}
 };
+// Build K: seven new professions (data in game31.js, built by hoisted functions)
+Object.assign(PROFS,newProfDefs());
 /* Breeds (chosen at creation). mods = starting attributes, cap = multiplier on the trainable attribute cap, cost = skill-point cost change.
    Existing characters are Settlers (balanced, identical to the old rules). */
 // tradeskill training costs per profession (Dronewrights are natural tinkerers)
 {const TC={vanguard:[2,3],weaver:[3,2],mender:[2,1],flux:[3,2],runner:[2,2],wright:[1,1],wild:[2,2]};for(const k in PROFS){const c=TC[k]||[2,2];PROFS[k].cost.fab=PROFS[k].cost.fab||c[0];PROFS[k].cost.ia=PROFS[k].cost.ia||c[1];}}
 // Run Speed per profession: cost per point, trainable cap multiplier and innate points (Glintrunner/Wildshifter best, Vanguard/Dronewright worst)
-const RUNPROF={runner:{cost:1,cap:1.5,innate:6},wild:{cost:1,cap:1.5,innate:4},weaver:{cost:2,cap:1,innate:0},mender:{cost:2,cap:1,innate:0},flux:{cost:2,cap:1,innate:0},vanguard:{cost:3,cap:0.7,innate:0},wright:{cost:3,cap:0.7,innate:0}};
+const RUNPROF={runner:{cost:1,cap:1.5,innate:6},wild:{cost:1,cap:1.5,innate:4},weaver:{cost:2,cap:1,innate:0},mender:{cost:2,cap:1,innate:0},flux:{cost:2,cap:1,innate:0},vanguard:{cost:3,cap:0.7,innate:0},wright:{cost:3,cap:0.7,innate:0},fist:{cost:1,cap:1.4,innate:4},shade:{cost:1,cap:1.4,innate:4},siege:{cost:3,cap:0.7,innate:0}};
 for(const k in PROFS){const r=RUNPROF[k]||{cost:2,cap:1,innate:0};PROFS[k].cost.run=PROFS[k].cost.run||r.cost;PROFS[k].runCap=r.cap;if(r.innate)PROFS[k].innate.run=(PROFS[k].innate.run||0)+r.innate;}
 const BREEDS={
   settler:{name:'Settler',tag:'Balanced',desc:'Frontier-born humans. No weak attributes, no standout ones.',mods:{},cap:{},cost:{},hp:1,en:1,h:1,w:1,skin:0xa87a58},
@@ -1193,7 +1199,7 @@ const breedOf=c=>BREEDS[(c&&c.breed)]||BREEDS.settler;
 /* ---------------- Weave library (nano programs) ----------------
   Every castable ability is a Weave. Starters (tier 1) are known from creation; higher ones are learned from Weave Disks.
   Data-driven: add entries with any lvl (past 10 too). line = upgrade family (higher tier replaces lower in slots). kind = generic effect handler. */
-function wreq(prof,lvl){
+function wreq(prof,lvl){{const k=wreqK(prof,lvl);if(k)return k;}
   if(prof==='flux')return [{s:'weave',v:Math.round(10+lvl*6.5)},{s:'int',v:Math.round(10+lvl*1.5)}];
   if(prof==='weaver')return [{s:'weave',v:Math.round(10+lvl*6.5)},{s:'psy',v:Math.round(10+lvl*1.5)}];
   if(prof==='vanguard')return [{s:'weave',v:Math.round(2+lvl*1.5)},{s:'wpn',v:8+lvl*5}];
@@ -1304,6 +1310,7 @@ const NEW_WEAVES=[
 ];
 const WEAVES={};
 for(const pk in PROFS)PROFS[pk].abilities.forEach(a=>{a.prof=pk;a.line=a.id;a.tier=1;a.lvl=1;a.starter=true;a.req=[];WEAVES[a.id]=a;});
+newProfWeaves().forEach(w=>{if(WEAVES[w.id]||NEW_WEAVES.some(x=>x.id===w.id))throw new Error('weave id clash '+w.id);NEW_WEAVES.push(w);});
 NEW_WEAVES.forEach(w=>{w.req=w.reqx||wreq(w.prof,w.lvl);WEAVES[w.id]=w;});
 /* Build J: Lv 31-50 ranks, generated from each profession's two Rimefall lines (data: [line, [names...], [levels...]]) */
 (function(){const XW=[['sunder',['Sunder Spike V','Sunder Spike VI'],[31,41]],['starfall',['Starfall Torrent','Starfall Apocalypse'],[36,46]],['arc',['Arc Lance V','Arc Lance VI'],[31,41]],['storm',['Lattice Cataclysm','Lattice Singularity'],[35,45]],
@@ -1351,16 +1358,18 @@ const PRE=['Dusty','Scavenged','Worn','Tuned','Salvaged','Patched','Reach-made',
 const SUF=['of the Reach','of Kessra','of the Dunes','of Glass','of Embers','of the Long Night','Mk II','Mk III'];
 /* Weapon types: sk = skill required to wield; aff = professions that get full damage (others -20%); dm = damage mult; cd = attack-speed mult; rng = basic attack range */
 const WTYPES={
-  rifle:{n:'Rifle',ic:'🔫',sk:'wpn',aff:['vanguard','wild'],dm:1.0,cd:1.0,rng:24,proj:0xffe08a,pre:['Hollowpoint','Longshot','Scrapyard','Combine-issue','Sunscorch'],names:['Carbine','Rail Rifle','Repeater','Longarm','Marksman Rifle'],mesh:{l:0.78,w:0.12,c:0x2a2a2a}},
+  rifle:{n:'Rifle',ic:'🔫',sk:'wpn',aff:['vanguard','wild','siege'],dm:1.0,cd:1.0,rng:24,proj:0xffe08a,pre:['Hollowpoint','Longshot','Scrapyard','Combine-issue','Sunscorch'],names:['Carbine','Rail Rifle','Repeater','Longarm','Marksman Rifle'],mesh:{l:0.78,w:0.12,c:0x2a2a2a}},
   shotgun:{n:'Scattergun',ic:'💥',sk:'wpn',aff:['vanguard'],dm:1.45,cd:1.3,rng:13,proj:0xffb347,pre:['Pump-action','Riot-grade','Scrapyard','Ashborn','Sawn'],names:['Scattergun','Breacher','Riot Scattergun','Slug Scattergun','Trench Breacher'],mesh:{l:0.58,w:0.2,c:0x4a3524}},
-  pistol:{n:'Pistol',ic:'🔹',sk:'wpn',aff:['mender','runner','wright'],dm:0.8,cd:0.78,rng:20,proj:0x6dff8a,pre:['Field','Medic\'s','Combine-issue','Quickdraw','Scrapyard'],names:['Pulse Pistol','Suture Pistol','Sidearm','Needle Pistol','Holdout Pistol'],mesh:{l:0.34,w:0.11,c:0x3a4a4a}},
-  blade:{n:'Blade',ic:'🗡️',sk:'wpn',aff:['vanguard','mender','runner'],dm:1.4,cd:0.95,rng:3.6,melee:true,pre:['Glassed','Honed','Ashborn','Sunscorch','Drifter\'s'],names:['Machete','Vibro-Blade','Glass Sabre','Cleaver','Dune Knife'],mesh:{l:1.0,w:0.07,c:0xd8e0e8,glow:0}},
+  pistol:{n:'Pistol',ic:'🔹',sk:'wpn',aff:['mender','runner','wright','harm','exact'],dm:0.8,cd:0.78,rng:20,proj:0x6dff8a,pre:['Field','Medic\'s','Combine-issue','Quickdraw','Scrapyard'],names:['Pulse Pistol','Suture Pistol','Sidearm','Needle Pistol','Holdout Pistol'],mesh:{l:0.34,w:0.11,c:0x3a4a4a}},
+  blade:{n:'Blade',ic:'🗡️',sk:'wpn',aff:['vanguard','mender','runner','shade'],dm:1.4,cd:0.95,rng:3.6,melee:true,pre:['Glassed','Honed','Ashborn','Sunscorch','Drifter\'s'],names:['Machete','Vibro-Blade','Glass Sabre','Cleaver','Dune Knife'],mesh:{l:1.0,w:0.07,c:0xd8e0e8,glow:0}},
   smg:{n:'Twin Pistols',ic:'🔫',sk:'wpn',aff:['runner'],dm:0.62,cd:0.6,rng:20,proj:0x59c8ff,pre:['Quickdraw','Smuggler\'s','Twinned','Scrapyard','Ricochet'],names:['Twin Pistols','Pistol Pair','Duelling Pistols','Machine Pistols'],mesh:{l:0.36,w:0.13,c:0x2a4a50}},
   bow:{n:'Bow',ic:'🏹',sk:'wpn',aff:['wild'],dm:1.05,cd:1.0,rng:25,proj:0x9adf5a,pre:['Sinew-strung','Dunewood','Glass-tipped','Hunter\'s','Windcut'],names:['Longbow','Recurve','Hunting Bow','Shortbow','Horn Bow'],mesh:{l:0.95,w:0.06,c:0x6b4a2a}},
-  rod:{n:'Focus Rod',ic:'🪄',sk:'weave',aff:['weaver','flux','wright'],dm:1.0,cd:1.0,rng:24,proj:0x5ff2ff,pre:['Resonant','Lattice-tuned','Vyre-forged','Mirage','Prismatic'],names:['Focus Rod','Lattice Wand','Prism Rod','Vyre Wand','Channel Rod'],mesh:{l:0.95,w:0.08,c:0x5ff2ff,glow:1}},
-  emitter:{n:'Flux Emitter',ic:'🔆',sk:'weave',aff:['flux'],dm:1.15,cd:1.1,rng:21,proj:0xffb347,pre:['Overcharged','Vyre-forged','Searing','Prototype','Unstable'],names:['Flux Emitter','Arc Emitter','Cinder Emitter','Lance Emitter','Flux Coil'],mesh:{l:0.5,w:0.19,c:0xff8a2a,glow:1}}
+  rod:{n:'Focus Rod',ic:'🪄',sk:'weave',aff:['weaver','flux','wright','binder','mind','harm','exact'],dm:1.0,cd:1.0,rng:24,proj:0x5ff2ff,pre:['Resonant','Lattice-tuned','Vyre-forged','Mirage','Prismatic'],names:['Focus Rod','Lattice Wand','Prism Rod','Vyre Wand','Channel Rod'],mesh:{l:0.95,w:0.08,c:0x5ff2ff,glow:1}},
+  emitter:{n:'Flux Emitter',ic:'🔆',sk:'weave',aff:['flux'],dm:1.15,cd:1.1,rng:21,proj:0xffb347,pre:['Overcharged','Vyre-forged','Searing','Prototype','Unstable'],names:['Flux Emitter','Arc Emitter','Cinder Emitter','Lance Emitter','Flux Coil'],mesh:{l:0.5,w:0.19,c:0xff8a2a,glow:1}},
+  fist:{n:'Strikers',ic:'👊',sk:'wpn',aff:['fist'],dm:0.78,cd:0.62,rng:3.4,melee:true,pre:['Iron-bound','Duneworn','Kinetic','Ashborn','Stillwater'],names:['Strikers','Knucklebands','Palm Coils','Kinetic Bands','Grip Spurs'],mesh:{l:0.22,w:0.2,c:0x8a5a3a}},
+  cannon:{n:'Hand Cannon',ic:'🧨',sk:'wpn',aff:['siege'],dm:1.55,cd:1.35,rng:20,proj:0xffa040,pre:['Siege-grade','Thunder','Scrapyard','Rampart','Combine-issue'],names:['Hand Cannon','Autocannon','Rotary Gun','Mortar Tube','Railgun'],mesh:{l:0.9,w:0.24,c:0x3a3a30}}
 };
-const PROF_WT={vanguard:'rifle',weaver:'rod',mender:'pistol',flux:'emitter',runner:'smg',wright:'pistol',wild:'bow'};
+const PROF_WT={vanguard:'rifle',weaver:'rod',mender:'pistol',flux:'emitter',runner:'smg',wright:'pistol',wild:'bow',binder:'rod',mind:'rod',harm:'pistol',exact:'pistol',fist:'fist',shade:'blade',siege:'cannon'};
 const wtAff=pk=>Object.keys(WTYPES).filter(k=>WTYPES[k].aff.includes(pk));
 /* Armour: 5 slots (body keeps the old key 'armor' so old saves load), 3 families with different stat leanings */
 const ASLOTS=['head','armor','hands','legs','feet'];
@@ -1369,11 +1378,11 @@ const SLOTN={weapon:'Weapon',head:'Head',armor:'Body',hands:'Hands',legs:'Legs',
 const SLOTW={head:0.4,armor:1,hands:0.25,legs:0.5,feet:0.25};
 const SLOTICON={weapon:'🔫',head:'⛑️',armor:'🦺',hands:'🧤',legs:'👖',feet:'🥾'};
 const AFAM={
-  light:{n:'Light',m:0.65,attr:'psy',aff:['weaver','flux','wild'],lean:['int','psy','weave','pool','en','sen'],col:0x6b3fa0,
+  light:{n:'Light',m:0.65,attr:'psy',aff:['weaver','flux','wild','binder','mind','exact'],lean:['int','psy','weave','pool','en','sen'],col:0x6b3fa0,
     pre:['Silk','Weaver\'s','Lattice','Gossamer','Drift'],names:{head:['Hood','Cowl','Circlet'],armor:['Robe','Duster','Vestment'],hands:['Wraps','Grips','Mitts'],legs:['Trousers','Leggings'],feet:['Slippers','Sandals']}},
-  medium:{n:'Medium',m:1.0,attr:'agi',aff:['mender','vanguard','runner','wright','wild'],lean:['agi','sen','wpn','treat','crit','hp'],col:0x7a5a3a,
+  medium:{n:'Medium',m:1.0,attr:'agi',aff:['mender','vanguard','runner','wright','wild','harm','fist','shade','siege'],lean:['agi','sen','wpn','treat','crit','hp'],col:0x7a5a3a,
     pre:['Ranger','Scout','Sandrunner','Scaled','Leather'],names:{head:['Visor','Cap','Goggles'],armor:['Harness','Jacket','Brigandine'],hands:['Gloves','Bracers'],legs:['Chaps','Kilt','Breeches'],feet:['Boots','Striders']}},
-  heavy:{n:'Heavy',m:1.35,attr:'str',aff:['vanguard'],lean:['sta','str','body','hp','power','wpn'],col:0x6d7378,
+  heavy:{n:'Heavy',m:1.35,attr:'str',aff:['vanguard','siege'],lean:['sta','str','body','hp','power','wpn'],col:0x6d7378,
     pre:['Bastion','Plated','Ironclad','Breaker','Bulwark'],names:{head:['Helm','Greathelm','Faceguard'],armor:['Plate Vest','Carapace','Combat Shell'],hands:['Gauntlets','Fists'],legs:['Greaves','Legplates'],feet:['Treads','Sabatons']}}
 };
 function gearName(it){const r=it.r||0;const parts=[];if(Math.random()<0.55)parts.push(pick(PRE));
@@ -1388,7 +1397,7 @@ function nameFits(it){if(!it||it.kind!=='gear'||it.uniq||it.fac)return true;cons
   const F=AFAM[it.fam];if(!F||!F.names[it.slot]||!F.names[it.slot].some(b=>_wb(b).test(n))||!F.pre.some(p=>_wb(p).test(n)))return false;
   for(const fk in AFAM)for(const sl in AFAM[fk].names)if((fk!==it.fam||sl!==it.slot)&&AFAM[fk].names[sl].some(b=>_wb(b).test(n)))return false;
   for(const k in WTYPES)if(WTYPES[k].names.some(b=>_wb(b).test(n)))return false;return true;}
-const PROF_FAM={vanguard:'heavy',weaver:'light',mender:'medium',flux:'light',runner:'medium',wright:'medium',wild:'medium'};
+const PROF_FAM={vanguard:'heavy',weaver:'light',mender:'medium',flux:'light',runner:'medium',wright:'medium',wild:'medium',binder:'light',mind:'light',harm:'medium',exact:'light',fist:'medium',shade:'medium',siege:'heavy'};
 const IMPSLOTS=['head','eyes','chest','arms','hands','legs','feet'];
 const IMPDEF={head:{n:'Cortex',ic:'🧠',req:'int',pool:['int','psy','weave','pool']},eyes:{n:'Ocular',ic:'👁️',req:'sen',pool:['sen','int','wpn','treat']},
   chest:{n:'Thoracic',ic:'🫀',req:'sta',pool:['sta','body','psy','pool']},arms:{n:'Brachial',ic:'💪',req:'str',pool:['str','sta','wpn','body']},
@@ -1504,11 +1513,11 @@ function statsFor(c){
   const hp=((80+15*(L-1))*pr.hpMul+E.body*2.5+E.sta*1.5)*br.hp+(bon.hp||0);
   const en=((60+8*(L-1))*pr.enMul+E.pool*2+E.psy)*br.en+(bon.en||0);
   const dodge=Math.round(80*E.evade/(E.evade+120)*10)/10;
-  return {runPct:runPctOf(E.run),wt,setCount:sc,towers:tn,dodge,dr:Math.min(60,bon.dr||0),maxHp:Math.round(hp),maxEn:Math.round(en),armor:Math.round(armor),dmg:Math.round(dmg),syncLv:syn?L:0,crit:5+Math.round(E.sen*0.15)+(bon.crit||0),power:bon.power||0,E,bon};
+  return {runPct:runPctOf(E.run),wt,setCount:sc,towers:tn,dodge,dr:Math.min(60,bon.dr||0),maxHp:Math.round(hp),maxEn:Math.round(en),armor:Math.round(armor),dmg:Math.round(dmg),syncLv:syn?L:0,crit:5+Math.round(E.sen*0.15)+(bon.crit||0)+(pr.critB||0),power:bon.power||0,E,bon};
 }
 function calcStats(){S=statsFor(P);P.hp=Math.min(P.hp,S.maxHp);P.en=Math.min(P.en,S.maxEn);}
 let PM=null,pShadow=makeShadow(0.6);
-function buildPlayerModel(){if(PM)scene.remove(PM.g);const pr=PROFS[P.prof];const br=breedOf(P);PM=buildHumanoid(pr.color,pr.accent,pr.visor,br.skin);PM.isPlayer=true;PM.g.scale.set(br.w,br.h,br.w);scene.add(PM.g);refreshGearVisual();}
+function buildPlayerModel(){if(PM)scene.remove(PM.g);const pr=PROFS[P.prof];const br=breedOf(P);PM=buildHumanoid(pr.color,pr.accent,pr.visor,br.skin,Object.assign({},pr.look||{}));PM.isPlayer=true;PM.g.scale.set(br.w,br.h,br.w);scene.add(PM.g);refreshGearVisual();}
 // cheap gear visuals: weapon mesh shape/colour by type, helmet + shoulder pads by armour family, legendary glow
 function refreshGearVisual_v1(){if(!PM)return;clearVeil();if(PM.gear){PM.gear.forEach(m=>m.parent&&m.parent.remove(m));}PM.gear=[];const eq=P.eq||{};
   const w=eq.weapon,W=w&&WTYPES[w.wt];const ms=W?W.mesh:{l:0.62,w:0.12,c:0x222222};const leg=w&&w.r>=4;
@@ -1587,7 +1596,7 @@ function setTarget(e){P.target=e;if(e)SFX.ui();}
 function cycleTarget(){const list=enemies.filter(e=>!e.dead&&!fzSkip(e)&&dist2D(e.pos,P.pos)<35).sort((a,b)=>dist2D(a.pos,P.pos)-dist2D(b.pos,P.pos));if(!list.length){warn('No enemies nearby');return;}
   const i=list.indexOf(P.target);setTarget(list[(i+1)%list.length]);}
 function skillF(){return 1+Math.max(-0.2,(eff(PROFS[P.prof].dmgSkill)-12)/100);}
-function rollDmg(mult){const base=S.dmg*(1+0.08*(effLvP()-1))*skillF()*(1+S.power/100)*mult*rand(0.9,1.1);const crit=Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
+function rollDmg(mult){const op=openerTake();if(op)mult*=op;const base=S.dmg*(1+0.08*(effLvP()-1))*skillF()*(1+S.power/100)*mult*profKDmgOut()*rand(0.9,1.1);const crit=!!op||Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
 function dmgEnemy(e,mult,silentAggro){if(e.dead||fzSkip(e))return;
   if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');P.lastCombat=T;if(e.state!=='chase')aggro(e);return;}
@@ -1604,8 +1613,8 @@ function dmgPlayer(amt,src,noDodge){if(P.dead)return;P.hurtT=T;
   if(P.mount)dismount('Knocked off your '+VEHICLES[P.mount].name);
   if(src&&src.T&&src.T.slow)applySlow(src.T.slow.mul,src.T.slow.dur,src.T.slow.name);
   if(src&&src.T&&src.T.ai==='chill')addChill(1,src);
-  let a=amt*rand(0.9,1.1)*(100/(100+S.armor))*(1-(S.dr||0)/100);if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a=Math.max(1,Math.round(a));
-  P.hp-=a;P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
+  let a=amt*rand(0.9,1.1)*(100/(100+S.armor))*(1-(S.dr||0)/100);if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn();a=Math.max(1,Math.round(a));
+  P.hp-=a;profKHurt(a,src);P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
   if(!validTarget()&&src)P.target=src;if(P.hp<=0){P.hp=0;playerDie();}}
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
@@ -1690,7 +1699,7 @@ function useAbility(idx){
     if(dist2D(t.pos,P.pos)>ab.range+t.hitR){if(idx>=0||T-lastWarn>2)warn('Out of range');return false;}
     P.target=t;}
   P.en-=ab.cost;P.cds[ab.id]=T+ab.cd;if(ab.buff){addBuff(ab.id,ab.name,ab.icon,ab.buff.dur,ab.buff.mods(P.level));SFX.heal();return true;}
-  P.lastCombat=T;(ABILITY_FX[ab.id]||KIND[ab.kind])(t,ab);return true;
+  stealthOpener(ab);P.lastCombat=T;(ABILITY_FX[ab.id]||KIND[ab.kind])(t,ab);return true;
 }
 function addBuff(id,name,icon,dur,mods){P.buffs=P.buffs.filter(b=>b.id!==id);P.buffs.push({id,name,icon,until:T+dur,mods});calcStats();
   ringFx(P.pos.x,P.pos.z,0xc86bff,3.5,0.8);floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),name,'info');
@@ -2661,15 +2670,15 @@ function removeAlly(a){scene.remove(a.R.g);scene.remove(a.shadow);const i=allies
 function foeOf(e){const f=e.foe;if(f&&!f.dead&&allies.includes(f)&&dist2D(f.pos,e.pos)<40)return f;e.foe=null;return P;}
 function hitFoe(F,amt,src){if(F===P)dmgPlayer(amt,src);else allyTakeDmg(F,amt,src);}
 function allyHeal(a,v){if(!a||a.dead)return;const n=Math.min(Math.round(v),a.maxHp-Math.round(a.hp));a.hp=Math.min(a.maxHp,a.hp+v);floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.4,a.pos.z),'+'+Math.max(0,n),'heal');}
-function allyTakeDmg(a,amt,src){if(a.dead)return;let v=amt*rand(0.9,1.1)*(1-a.dr)*(T<(a.tauntDr||0)?0.75:1);v=Math.max(1,Math.round(v));a.hp-=v;a.hitT=0.15;a.lastHit=T;
+function allyTakeDmg(a,amt,src){if(a.dead)return;let v=amt*rand(0.9,1.1)*(1-a.dr)*(T<(a.tauntDr||0)?0.75:1)*(1-tbDr(a));v=Math.max(1,Math.round(v));a.hp-=v;a.hitT=0.15;a.lastHit=T;
   floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.3,a.pos.z),'-'+v,'phit');if(!a.target&&src&&a.cmd!=='stay'&&!src.dead)a.target=src;if(a.hp<=0)allyDie(a);}
 function allyDie(a){a.died=true;ringFx(a.pos.x,a.pos.z,0xff7a3a,3,0.6);SFX.boom();floatText(tmpV.set(a.pos.x,a.pos.y+a.h,a.pos.z),'Destroyed','info');
-  if(a===P.pet){P.pet=null;P.pets=[];toast('💥 Your '+a.name+' was destroyed. Rebuild it with Assemble');}removeAlly(a);}
+  if(a===P.pet){P.pet=null;P.pets=[];toast('💥 Your '+a.name+' was destroyed. '+(P.prof==='binder'?'Rebind it with a Bind weave':'Rebuild it with Assemble'));}removeAlly(a);}
 function allyHit(e,v,a,crit){if(!e||e.dead)return;if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');if(e.state!=='chase')aggro(e);return;}
   if(T<(e.wardUntil||0))v=Math.max(1,Math.round(v*WARD_MUL));e.hp-=v;e.hitT=0.15;floatText(entChest(e,tmpV),v+(crit?'!':''),'pet');P.lastCombat=T;if(e.state!=='chase'){aggro(e);if(!e.foe)e.foe=a;}
   if(T>(e.tauntUntil||0)&&e.foe!==a&&Math.random()<(e.foe?a.threat*0.3:a.threat))e.foe=a;if(e.hp<=0)killEnemy(e);}
-function allyAttack(a,t){const crit=Math.random()<0.08;const v=Math.max(1,Math.round(a.dmg*a.dmgMul*rand(0.9,1.1)*(crit?1.6:1)));a.atkT=0.35;
+function allyAttack(a,t){const crit=Math.random()<0.08;const v=Math.max(1,Math.round(a.dmg*a.dmgMul*tbMul(a)*rand(0.9,1.1)*(crit?1.6:1)));a.atkT=0.35;
   if(a.melee){allyHit(t,v,a,crit);ringFx(t.pos.x,t.pos.z,0xd8e0e8,1.0,0.2);tone(160,0.06,'square',0.015,-60);return;}
   const from=new V3(a.pos.x+Math.sin(a.rotY)*0.6,a.pos.y+a.h*0.75,a.pos.z+Math.cos(a.rotY)*0.6);
   fireProj(from,t,a.proj,34,()=>{allyHit(t,v,a,crit);if(a.splash){ringFx(t.pos.x,t.pos.z,a.proj,a.splash,0.35);for(const o of enemies.slice())if(o!==t&&!o.dead&&dist2D(o.pos,t.pos)<a.splash+o.hitR)allyHit(o,Math.round(v*0.5),a,false);}});tone(320,0.06,'square',0.015,-120);}
@@ -2697,7 +2706,7 @@ function updAlly(a,dt){if(a.dead)return;const dO=dist2D(a.pos,P.pos);
 function updAllies(dt){for(let i=allies.length-1;i>=0;i--)updAlly(allies[i],dt);}
 /* AI party members (future team missions): any roster snapshot becomes an ally with its own gear-derived stats */
 function spawnPartyMember(snap){if(!snap)return null;const v=snap.visual,st=snap.stats;const w=snap.eq&&snap.eq.weapon,W=w&&WTYPES[w.wt];
-  return createAlly({kind:'party',id:snap.id,name:snap.name,role:snap.role,R:buildHumanoid(v.color,v.accent,v.visor,null,{npc:1,armed:1,melee:!!(W&&W.melee)}),hp:st.maxHp,dmg:st.dmg*(1+0.08*(snap.level-1))*0.9,range:W?W.rng:18,melee:!!(W&&W.melee),
+  return createAlly({kind:'party',id:snap.id,name:snap.name,role:snap.role,R:buildHumanoid(v.color,v.accent,v.visor,null,Object.assign({},(PROFS[snap.prof]&&PROFS[snap.prof].look)||{},{npc:1,armed:1,melee:!!(W&&W.melee)})),hp:st.maxHp,dmg:st.dmg*(1+0.08*(snap.level-1))*0.9,range:W?W.rng:18,melee:!!(W&&W.melee),
     atkCd:1.2*(W?W.cd:1),speed:7.2,h:1.9,hitR:0.6,threat:snap.role==='tank'?0.9:0.4,proj:(W&&W.proj)||0xffe08a,dr:Math.min(0.5,st.armor/(st.armor+100))});}
 
 /* ---------- Dronewright bots ---------- */
@@ -2706,7 +2715,7 @@ const PETDEF={
   bot2:{name:'Brawler Frame',tier:2,hp:1.5,dmg:1.35,range:2.6,melee:true,atkCd:1.4,speed:7.4,build:'brawler',h:2.1,hitR:0.9,col:0x8a8f96,dr:0.18},
   bot3:{name:'Siege Walker',tier:3,hp:1.6,dmg:1.7,range:18,melee:false,atkCd:1.8,speed:7.0,build:'walker',h:2.5,hitR:0.9,col:0x6d7a5a,proj:0xffa040,dr:0.2},
   bot4:{name:'Sentinel Warframe',tier:4,hp:2.2,dmg:2.1,range:20,melee:false,splash:3.5,atkCd:1.6,speed:8,build:'sentinel',h:1.6,hitR:1.0,col:0x4f5a6a,proj:0x5ff2ff,dr:0.3}};
-function buildBot(def){const g=new THREE.Group();const R={g};const c=def.col,dk=0x2a2a2a,gl=def.proj||0xffa040;
+function buildBot_v1(def){const g=new THREE.Group();const R={g};const c=def.col,dk=0x2a2a2a,gl=def.proj||0xffa040;
   if(def.build==='crawler'){R.body=part(g,geoBox,M(c),0,0.6,0,0.8,0.42,1.0);part(g,geoBox,M(dk),0,0.86,-0.1,0.5,0.14,0.6);R.head=part(g,geoBox,M(c),0,0.75,0.58,0.42,0.3,0.3);part(g,geoBox,MB(gl),0,0.78,0.74,0.3,0.08,0.02);
     for(const sx of [-1,1]){const cl=part(g,geoCone,M(0xd8d0c0),sx*0.2,0.55,0.85,0.08,0.35,0.08);cl.rotation.x=Math.PI/2;}
     R.legs=[];for(let i=0;i<4;i++){const p=new THREE.Group();p.position.set(i<2?0.38:-0.38,0.5,i%2?0.32:-0.32);g.add(p);part(p,geoBox,M(dk),i<2?0.16:-0.16,-0.22,0,0.12,0.5,0.12);R.legs.push(p);}
@@ -2727,9 +2736,9 @@ function activePet(){return P.pet&&!P.pet.dead&&allies.includes(P.pet)?P.pet:nul
 function summonPet(pid,o){o=o||{};const def=PETDEF[pid];if(!def)return null;if(P.pet){removeAlly(P.pet);P.pet=null;}const st=petStats(def);
   const a=createAlly({kind:'pet',pid,name:def.name,R:buildBot(def),hp:st.hp,dmg:st.dmg,range:def.range,melee:def.melee,atkCd:def.atkCd,speed:def.speed,h:def.h,hitR:def.hitR,proj:def.proj||0xffa040,splash:def.splash,threat:0.65,dr:def.dr,role:'tank'});
   if(o.hpf)a.hp=Math.max(1,Math.round(a.maxHp*o.hpf));a.cmd=o.cmd==='stay'?'follow':(o.cmd||'follow');P.pet=a;
-  if(!o.silent){ringFx(a.pos.x,a.pos.z,0xffa040,2.5,0.7);SFX.heal();toast('🤖 '+def.name+' online: '+a.maxHp+' health');}savePetState();return a;}
+  if(!o.silent){ringFx(a.pos.x,a.pos.z,0xffa040,2.5,0.7);SFX.heal();toast((P.prof==='binder'?'🗿 ':'🤖 ')+def.name+' online: '+a.maxHp+' health');}savePetState();return a;}
 function savePetState(){const a=activePet();P.pets=a?[{pid:a.pid,hpf:+(a.hp/a.maxHp).toFixed(2),cmd:a.cmd}]:[];}
-function petCmd(c){const a=activePet();if(!a){warn(P.prof==='wright'?'No bot deployed: cast Assemble':'You have no pet');return false;}
+function petCmd(c){const a=activePet();if(!a){warn(P.prof==='wright'?'No bot deployed: cast Assemble':P.prof==='binder'?'No construct bound: cast a Bind weave':'You have no pet');return false;}
   if(c==='attack'){const t=validTarget()||autoTarget(25);if(!t){warn('No target for your bot');return false;}if(a.cmd!=='attack')a.prevCmd=a.cmd;a.cmd='attack';a.target=t;floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.5,a.pos.z),'Attack!','info');}
   else if(c==='follow'){a.cmd='follow';a.target=null;a.stayAt=null;}else if(c==='stay'){a.cmd='stay';a.stayAt=a.pos.clone();a.target=null;}
   SFX.ui();updPetHud();return true;}
@@ -2742,7 +2751,7 @@ KIND.taunt=(t,a)=>{const p=activePet();if(!p)return;let n=0;for(const e of enemi
 const petBarEl=$('.bar.php');
 let logTop=0;function fitLog(){let b=Math.round($('#pframe').getBoundingClientRect().bottom+6);if(b<=20)return;const th=$('#teamHud');if(th&&!th.classList.contains('hidden')){if(th._top!==b){th._top=b;th.style.top=b+'px';}b+=Math.round(th.offsetHeight)+6;}if(b!==logTop){logTop=b;$('#log').style.top=b+'px';}}
 function updPetHud(){const a=activePet();const el=$('#petf');fitLog();if(!a){el.classList.add('hidden');return;}el.classList.remove('hidden');
-  el.querySelector('.pn').innerHTML=`🤖 <b>${esc(a.name)}</b> <em>${a.target?'fighting':a.cmd==='stay'?'holding':'following'}${a.buff?' · ⚡'+fmtT(a.buff.until-T):''}${T<(a.tauntDr||0)?' · 📢':''}</em>`;
+  el.querySelector('.pn').innerHTML=`${P.prof==='binder'?'🗿':'🤖'} <b>${esc(a.name)}</b> <em>${a.target?'fighting':a.cmd==='stay'?'holding':'following'}${a.buff?' · ⚡'+fmtT(a.buff.until-T):''}${T<(a.tauntDr||0)?' · 📢':''}</em>`;
   setBar(petBarEl,a.hp,a.maxHp,Math.max(0,Math.ceil(a.hp))+' / '+a.maxHp);['attack','follow','stay'].forEach(c=>$('#pc_'+c).classList.toggle('on',a.cmd===c));}
 
 /* ---------- hooks used by the core files ---------- */
@@ -2758,7 +2767,7 @@ function stage2Mini(c,tf,dot){for(const s of TSITES){const o=TW[s.id].owner;cons
   c.beginPath();c.moveTo(q[0],q[1]-9);c.lineTo(q[0]+8,q[1]+6);c.lineTo(q[0]-8,q[1]+6);c.closePath();c.fill();c.stroke();}for(const n of NPCS)dot(n.x,n.z,'#'+n.mark.toString(16).padStart(6,'0'),5);}
 function stage2Reset(){dismount();cancelCast();for(const a of allies.slice())removeAlly(a);P.pet=null;for(const k in SITES)deactivateSite(SITES[k]);if(ASSAULT){for(const e of ASSAULT.list)if(enemies.includes(e))removeEnemy(e);ASSAULT=null;}}
 function stage2Start(){morphReset();exploreLoad();RG.cur=null;RG.cand=null;if(MAP.open)mapHide();if(!P.runSp){P.runSp=true;P.sp+=RUN_SP;}P.slowUntil=0;stage2Reset();fac();P.vehicles=P.vehicles||[];if(P.vsel&&!P.vehicles.includes(P.vsel))P.vsel=null;nextAssault=T+rand(240,420);
-  const ps=(P.pets||[])[0];if(P.prof==='wright'&&ps&&PETDEF[ps.pid])summonPet(ps.pid,{hpf:ps.hpf,cmd:ps.cmd,silent:true});else P.pets=[];setupMountBtn();updPetHud();stage3Start();calcStats();}
+  const ps=(P.pets||[])[0];if(isPetProf(P.prof)&&ps&&PETDEF[ps.pid])summonPet(ps.pid,{hpf:ps.hpf,cmd:ps.cmd,silent:true});else P.pets=[];setupMountBtn();updPetHud();stage3Start();calcStats();}
 let s2Acc=0;
 function updStage2(dt){updCast();updAllies(dt);updMountPose(dt);updTowers(dt);updNPCs(dt);updStory(dt);updMorph(dt);if(DUN&&P.mount)dismount('Vehicles can\'t enter dungeons');
   s2Acc+=dt;if(s2Acc>0.15){s2Acc=0;updPetHud();savePetState();const b=$('#bMount');b.classList.toggle('on',!!P.mount);if(DUN!==b._dun){b._dun=DUN;setupMountBtn();}}}
@@ -3998,7 +4007,7 @@ function teamRegroup(){let n=0;for(const a of comps()){a.target=null;if(a.cmd===
 function teamStance(s){const c=teamCfg();c.stance=s;for(const a of comps()){a.stance=s;if(s==='passive')a.target=null;if(s!=='hold'&&a.cmd==='stay'){a.cmd='follow';a.stayAt=null;}}save();}
 function teamInCombat(){return enemies.some(e=>!e.dead&&e.state==='chase'&&dist2D(e.pos,P.pos)<32)||T-(P.lastCombat||-99)<4;}
 // shared team tactics (heals + dodging telegraphs), also used for companions in normal dungeons and dyna fights
-function teamTactics(al,dt,teles){for(const a of al)for(const t of teles){if(T-t.t0<0.45||T>=t.at)continue;let dx=a.pos.x-t.x,dz=a.pos.z-t.z,dd=Math.hypot(dx,dz);if(dd<0.3){const px=P.pos.x-t.x,pz=P.pos.z-t.z,pd=Math.hypot(px,pz);const an=pd>0.5?Math.atan2(pz,px):(a.dodgeA??(a.dodgeA=Math.random()*6.28));dx=Math.cos(an)*0.3;dz=Math.sin(an)*0.3;dd=0.3;}
+function teamTactics_v1(al,dt,teles){for(const a of al)for(const t of teles){if(T-t.t0<0.45||T>=t.at)continue;let dx=a.pos.x-t.x,dz=a.pos.z-t.z,dd=Math.hypot(dx,dz);if(dd<0.3){const px=P.pos.x-t.x,pz=P.pos.z-t.z,pd=Math.hypot(px,pz);const an=pd>0.5?Math.atan2(pz,px):(a.dodgeA??(a.dodgeA=Math.random()*6.28));dx=Math.cos(an)*0.3;dz=Math.sin(an)*0.3;dd=0.3;}
     if(t.inner){if(dd>t.inner-1.2)moveAlly(a,t.x,t.z,a.speed*1.1,dt,t.inner*0.5);}else if(dd<t.r+0.8)moveAlly(a,t.x+dx/dd*(t.r+2),t.z+dz/dd*(t.r+2),a.speed*1.1,dt,0.2);}
   for(const a of al){if(a.role!=='healer')continue;a.healCd-=dt;if(a.healCd>0)continue;a.healCd=2.6;
     const pool=[{e:P,f:P.dead?1:P.hp/S.maxHp}].concat(al.map(o=>({e:o,f:o.hp/o.maxHp})));{const hp=teamCfg().healPri;const k=o=>o.f-(o.f<0.85&&((hp==='you'&&o.e===P)||(hp==='tank'&&(o.e===P?roleOfChar(P)==='tank':o.e.role==='tank')))?0.45:0);pool.sort((x,y)=>k(x)-k(y));}const w=pool[0];if(w.f>0.9)continue;
@@ -5800,14 +5809,14 @@ const TEAMD={
     req:[{role:'healer',why:'The Custodian\'s Purge Pulse hits the whole team every few seconds'}],
     mech:{buster:{name:'Breach Strike',every:12,first:7,mult:3.0},pulse:{name:'Purge Pulse',every:16,first:10,pct:0.2},adds:{name:'Lockdown drones',at:[0.66,0.33],n:3}}},
   choir:{key:'choir',band:2,name:'The Full Chorus',sub:'Team dungeon · every voice of the Choir at once',content:20,minLvl:17,lvl:3,minTeam:3,
-    req:[{role:'tank',why:'Crushing Verse would flatten anyone but a tank'},{prof:'weaver',why:'Only a Weaver can unweave the Hymn Seal on the Choirmother'}],
-    mech:{buster:{name:'Crushing Verse',every:11,first:6,mult:3.2},pulse:{name:'Dirge',every:15,first:9,pct:0.2},adds:{name:'Choir echoes',at:[0.7,0.35],n:3},seal:{name:'Hymn Seal',at:0.5,prof:'weaver',chan:5}}},
+    req:[{role:'tank',why:'Crushing Verse would flatten anyone but a tank'},{any:[{prof:'weaver'},{prof:'mind'}],why:'Only a Vyreweaver or a Dreamshaper can unweave the Hymn Seal on the Choirmother'}],
+    mech:{buster:{name:'Crushing Verse',every:11,first:6,mult:3.2},pulse:{name:'Dirge',every:15,first:9,pct:0.2},adds:{name:'Choir echoes',at:[0.7,0.35],n:3},seal:{name:'Hymn Seal',at:0.5,prof:'weaver',profs:['weaver','mind'],chan:5}}},
   stillvault:{key:'stillvault',band:3,name:'Stillvault: Deep Stacks',sub:'Team dungeon · the frozen archive wakes',content:30,minLvl:27,lvl:3,minTeam:3,
-    req:[{role:'tank',why:'The Rimewarden\'s Glacier Maul must land on a tank'},{role:'healer',why:'Hoarfrost ticks the whole team down'}],
+    req:[{role:'tank',why:'The Rimewarden\'s Glacier Maul must land on a tank'},{any:[{role:'healer'},{role:'support'}],why:'Hoarfrost ticks the whole team down: bring a healer or a support (Anthemist / Exactor) to keep everyone up'}],
     mech:{buster:{name:'Glacier Maul',every:11,first:6,mult:3.4},pulse:{name:'Hoarfrost',every:14,first:8,pct:0.22},adds:{name:'Frozen archivists',at:[0.7,0.4],n:3}}},
   // Build J: the Lv 40 gate (The Drowned Foundry in team mode) and, ready for the next cap raise, the Lv 50 gate (The Heartforge)
   foundry:{key:'foundry',band:4,name:'Foundry: Floodtide',sub:'Team dungeon · every sluice in the Drowned Foundry open at once',content:40,minLvl:37,lvl:3,minTeam:3,
-    req:[{role:'tank',why:'The Sluice Warden\'s Floodhammer must land on a tank'},{role:'healer',why:'Spore Rot ticks the whole team down'}],
+    req:[{role:'tank',why:'The Sluice Warden\'s Floodhammer must land on a tank'},{role:'healer',why:'Spore Rot ticks the whole team down'},{any:[{role:'control'},{role:'support'}],why:'Sluice adds flood the hall: bring crowd control (Vyreweaver / Dreamshaper) or a support (Anthemist / Exactor)'}],
     mech:{buster:{name:'Floodhammer',every:11,first:6,mult:3.5},pulse:{name:'Spore Rot',every:14,first:8,pct:0.23},adds:{name:'Drowned smelters',at:[0.7,0.4],n:3}}},
   heartforge:{key:'heartforge',band:5,name:'Heartforge: Ignition',sub:'Team dungeon · the Sovereign at full fire',content:50,minLvl:47,lvl:3,minTeam:3,
     req:[{role:'tank',why:'Sovereign\'s Brand would melt anyone but a tank'},{role:'healer',why:'Rift Heat burns the whole team'},{prof:'flux',why:'Only a Fluxwright can bleed off the Sovereign\'s Core Seal'}],
@@ -5840,6 +5849,7 @@ function teamShareXp(xp,e){if(!teamActive()||inRaid())return;const ref=tdActive(
     const up=sheetGainXp(c,Math.round(xp*TD_SHARE));ch=true;if(up){log('👥 <b>'+esc(c.name)+'</b> reached level '+c.level+'!');floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.6,a.pos.z),'LEVEL '+c.level,'info');removeAlly(a);TDS.sync=-1;}}
   if(ch)TDS.dirty=true;}
 /* ---------- team dungeon entry ---------- */
+function sealProfs(sl){return sl.profs||[sl.prof];}
 function reqLabel(r){if(r.any)return r.any.map(reqLabel).join(' or ');if(r.prof)return (PROFS[r.prof]?PROFS[r.prof].name:r.prof);const R=TEAM_ROLES[r.role];return R?R.ic+' '+R.n:r.role;}
 function reqMetBy(r,m){if(r.any)return r.any.some(x=>reqMetBy(x,m));if(r.prof)return m.prof===r.prof;return m.role===r.role;}
 function tdMembers(){const me={id:activeId,name:P.name,prof:P.prof,level:P.level,role:roleOfChar(P),you:true};const out=[me];
@@ -5861,7 +5871,7 @@ function enterTeamDungeon(id){const td=TEAMD[id];if(!td||DUN)return false;const 
 function tdRowsHtml(rows){return rows.map(r=>`<div class="tdrow ${r.ok?'up':'down'}">${r.ok?'✔':'✖'} ${esc(r.t)}${r.d?`<small> · ${esc(r.d)}</small>`:''}</div>`).join('');}
 function teamDoorHtml(id){const td=TEAMD[id];if(!td)return '';const ck=teamDunCheck(id);const tg=tgOf(P);const st=tg['b'+td.band];const E=TD_BANDS[td.band-1];
   return `<div class="mis tdbox" style="border-color:#ff5fd2"><b style="font-size:16px;color:#ff5fd2">👥 ${esc(td.name)}</b> <span style="opacity:.75">· ${esc(td.sub)}</span>
-    <div style="font-size:13px;margin:4px 0">Tuned for <b>level ${td.content}</b> (members count within ±${TD_RANGE}). Higher members are <b>level-synced</b> down. Bosses: <b>${esc(td.mech.buster.name)}</b> (tank-buster), <b>${esc(td.mech.pulse.name)}</b> (team-wide damage: bring healing), <b>${esc(td.mech.adds.name)}</b> (adds)${td.mech.seal?`, <b>${esc(td.mech.seal.name)}</b> (only a ${esc(PROFS[td.mech.seal.prof].name)} can break it)`:''}.</div>
+    <div style="font-size:13px;margin:4px 0">Tuned for <b>level ${td.content}</b> (members count within ±${TD_RANGE}). Higher members are <b>level-synced</b> down. Bosses: <b>${esc(td.mech.buster.name)}</b> (tank-buster), <b>${esc(td.mech.pulse.name)}</b> (team-wide damage: bring healing), <b>${esc(td.mech.adds.name)}</b> (adds)${td.mech.seal?`, <b>${esc(td.mech.seal.name)}</b> (only a ${esc(sealProfs(td.mech.seal).map(k=>PROFS[k].name).join(' or '))} can break it)`:''}.</div>
     <div class="h4" style="margin:4px 0">Requirements</div>${tdRowsHtml(ck.rows)}
     <div style="font-size:13px;margin-top:4px">🏅 First clear: unlocks <b>levels ${E+1}+</b>${st==='clear'?' (done ✔)':st==='grand'?' (you were already past it ✔)':''} and <b>+1 bonus perk point</b> for everyone counted. Only team bosses drop <b style="color:#ff5fd2">Paragon</b> gear.</div>
     <button class="sbtn${ck.ok?'':' locked'}" style="margin-top:8px;background:${ck.ok?'#a8338a':''}" data-act="${ck.ok?'tdenter':'noop'}" data-id="${id}">${ck.ok?'👥 Enter '+esc(td.name):'🔒 '+esc(ck.rows.find(r=>!r.ok).t)}</button></div>`;}
@@ -5882,8 +5892,8 @@ function teamBossTick(e){const td=tdActive();if(!td||e.dead)return;const M=td.me
     for(let n=0;n<M.adds.n;n++){const a=spawnDunMob(et,(n%2?1:-1)*(r.w/2-2.5),r.cz+rand(-r.d/3,r.d/3),td.content-1,{temp:true});a.addOf=e;a.tdAdd=e;a.state='chase';a.nextAtk=T+1.2;if(heal)a.foe=heal;ringFx(a.pos.x,a.pos.z,0xff5fd2,2.5,0.6);}
     toast('⚠ '+M.adds.name+'! Tank: pick them up');});
   // profession seal (data-driven): the boss is shielded until a member of the right profession channels it open
-  const sl=M.seal;if(sl&&b.final){if(!b.done.seal&&hpF<=sl.at){b.done.seal=1;b.sealT=null;e.immune=()=>true;banner('🔒 '+sl.name.toUpperCase(),'Only a '+PROFS[sl.prof].name+' can break it. Keep them alive and near the boss.');}
-    if(b.done.seal===1){const w=tdTeamList().find(x=>x.prof===sl.prof&&!(x.e===P&&P.dead)&&dist2D(x.e.pos,e.pos)<16);if(w){if(b.sealT==null){b.sealT=T+sl.chan;toast('🌀 '+(w.e===P?'You start':w.e.name+' starts')+' unweaving the '+sl.name+' ('+sl.chan+'s)');}
+  const sl=M.seal;if(sl&&b.final){if(!b.done.seal&&hpF<=sl.at){b.done.seal=1;b.sealT=null;e.immune=()=>true;banner('🔒 '+sl.name.toUpperCase(),'Only a '+sealProfs(sl).map(k=>PROFS[k].name).join(' or ')+' can break it. Keep them alive and near the boss.');}
+    if(b.done.seal===1){const w=tdTeamList().find(x=>sealProfs(sl).includes(x.prof)&&!(x.e===P&&P.dead)&&dist2D(x.e.pos,e.pos)<16);if(w){if(b.sealT==null){b.sealT=T+sl.chan;toast('🌀 '+(w.e===P?'You start':w.e.name+' starts')+' unweaving the '+sl.name+' ('+sl.chan+'s)');}
         else if(T>=b.sealT){b.done.seal=2;e.immune=null;ringFx(e.pos.x,e.pos.z,0xb46bff,6,0.8);banner(sl.name.toUpperCase()+' BROKEN','The boss is vulnerable again');}}else b.sealT=null;}}}
 function tdAddType(){const D=DUN.D;for(const r of D.rooms)if(r.packs&&r.packs[0]&&r.packs[0][0])return r.packs[0][0][0];return 'sentry';}
 /* ---------- team rewards ---------- */
@@ -6157,6 +6167,295 @@ DLAY.heartforge=[{o:0,s:'hall',w:30,d:24,nm:'Rift Gate'},
   {c:'corr',len:12},{o:5,s:'forge',w:38,d:30,nm:'Heart Antechamber'},
   {c:'bridge',len:18},{o:6,s:'arena',w:48,d:44,nm:'The Heartforge'}];
 
+/* ================= BUILD K: NEW PROFESSIONS (7 -> 14) =================
+   Riftbinder (construct summoner, pet), Dreamshaper (mez/fear/energy drain, control), Anthemist (team buffs + light heals, support),
+   Exactor (siphons enemy strength and hands it to you and your team, support), Ironpalm (unarmed martial artist, dps),
+   Veilblade (stealth assassin, dps), Siegebreaker (heavy weapons, AoE, reflect shield, tank).
+   The gadget-fixer archetype (snares + heal-over-time) is already covered by the Glintrunner (Snarewire, Patchloop), so it is not duplicated.
+   Data is built by hoisted functions (profKData) so game2 can merge it into PROFS / WEAVES while it builds the library.
+   All names are original to Dustreach. */
+function profKData(){if(profKData.c)return profKData.c;
+  const P_=(o)=>o;const pc=v=>Math.round(v*100)+'%';
+  const statN={power:'power',crit:'crit chance',dr:'damage reduction',hp:'max health',en:'max energy',str:'Strength',agi:'Agility',sta:'Stamina',int:'Intelligence',psy:'Psychic',sen:'Sense',wpn:'Weapon Handling',weave:'Weave Craft',treat:'Treatment',body:'Body Development',evade:'Evasion',run:'Run Speed',spd:'run speed'};
+  const modsTxt2=m=>'more '+Object.keys(m).map(k=>statN[k]).join(', ').replace(/, ([^,]*)$/,' and $1')+', growing with your level';
+  // description per kind (kept in sync with the numbers for every rank)
+  const D=w=>{switch(w.kind){
+    case 'nuke':return 'A '+(w.dmgN||'bolt')+' for '+pc(w.mult)+' damage'+(w.root?' that roots the target for '+w.root+'s':'')+(w.stun?' and stuns for '+w.stun+'s':'')+'.';
+    case 'strike':return 'Melee strike for '+pc(w.mult)+' damage'+(w.stun?', stunning for '+w.stun+'s (not bosses)':'')+(w.heal?', healing you for '+pc(w.heal)+' of max health':'')+'.'+(w.opener?' From Shroud it is your opener.':'');
+    case 'lunge':return 'Dash up to '+w.range+'m to the target and strike for '+pc(w.mult)+' damage'+(w.stun?', stunning it for '+w.stun+'s (not bosses)':'')+'.';
+    case 'flurry':return w.hits+' lightning-fast strikes for '+pc(w.mult)+' damage each.';
+    case 'aoeSelf':return 'AoE: '+pc(w.mult)+' damage to every enemy within '+w.radius+'m'+(w.heal?', and heals you for '+pc(w.heal)+' of max health':'')+(w.root?'; roots them for '+w.root+'s':'')+'.';
+    case 'aoeT':return 'AoE: '+pc(w.mult)+' damage to everything within '+w.radius+'m of the target'+(w.root?', rooting them for '+w.root+'s':'')+'.';
+    case 'barrage':return 'AoE: '+w.waves+' waves of fire on the target area ('+w.radius+'m) for '+pc(w.mult)+' damage each.';
+    case 'field':return 'AoE: sets the ground at the target ablaze for '+pc(w.mult)+' damage per second in a '+w.radius+'m field for '+w.dur+'s.';
+    case 'heal':return 'Heal yourself for '+pc(w.pct)+' of max health (more with Treatment)'+(w.dr?' and take '+pc(w.dr)+' less damage for '+w.dur+'s':'')+'.';
+    case 'dot':return 'Deals '+pc(w.mult)+' damage every second for '+w.dur+'s'+(w.en?' and returns '+w.en+' energy per tick':'')+'.';
+    case 'mez':return 'Mesmerise the target for '+w.dur+'s: it stands dazed until it takes damage. Bosses resist.';
+    case 'mezAoe':return 'Mesmerise every enemy within '+w.radius+'m of the target for '+w.dur+'s (breaks on damage). Bosses resist.';
+    case 'fear':return 'Terrify the target'+(w.mult?' ('+pc(w.mult)+' damage)':'')+': it flees from you for '+w.dur+'s and cannot attack. Bosses resist.';
+    case 'drain':return pc(w.mult)+' damage, drains '+pc(w.en)+' of your max energy back to you and slows the target\'s attacks by '+w.slow+'s.';
+    case 'steal':return (w.mult?pc(w.mult)+' damage and siphons':'Siphons')+' the target for '+w.dur+'s: it deals '+pc(w.weak||0)+' less damage'+(w.amp&&w.amp>1?' and takes '+pc(w.amp-1)+' more':'')+'. The stolen strength flows to you ('+modsTxt2(w.tmods)+')'+(w.ally?' and your companions and pets deal +'+pc(w.ally)+' damage':'')+'.';
+    case 'stealAoe':return 'AoE siphon: '+pc(w.mult)+' damage to every enemy within '+w.radius+'m of the target; each deals '+pc(w.weak)+' less damage for '+w.dur+'s. You gain '+modsTxt2(w.tmods)+' (scaled by foes drained, up to 4)'+(w.ally?', and your team deals +'+pc(w.ally)+' damage':'')+'.';
+    case 'stealth':return (w.vanish?'Vanish mid-fight: ordinary foes chasing you lose track. ':'Shroud yourself out of combat. ')+'For '+w.dur+'s enemies do not notice you. Your next attack deals '+w.opener+'x damage and always crits. Attacking or taking damage ends it.';
+    case 'reflect':return 'Raise a reflector shield for '+w.dur+'s: take '+pc(w.dr)+' less damage and reflect '+pc(w.pct)+' of every hit back at the attacker.';
+    case 'teambuff':return (w.ally||w.allyDr?'Team buff':'Self-buff')+' ('+(w.dur>=60?Math.round(w.dur/60)+' min':w.dur+'s')+'): you gain '+modsTxt2(w.tmods)+(w.ally?'; companions and pets deal +'+pc(w.ally)+' damage':'')+(w.allyDr?(w.ally?' and':'; companions and pets')+' take '+pc(w.allyDr)+' less damage':'')+'.';
+    case 'teamheal':return 'Heals you and every ally within 22m for '+pc(w.pct)+' of max health'+(w.hot?', plus '+pc(w.hot)+' per second for 6s':'')+'.';
+    case 'summon':return w.petDesc;
+    case 'petheal':return 'Mends your construct for '+pc(w.pct)+' of its health, plus '+pc(w.hot)+' per second for 6s.';
+    case 'petbuff':return 'Construct buff ('+Math.round(w.dur/60)+' min): +'+Math.round((w.dmg-1)*100)+'% construct damage, faster attacks and '+Math.round(w.hp*100)+'% more health.';
+    case 'taunt':return 'Your construct roars: every enemy within '+w.radius+'m attacks it for '+w.dur+'s, and it takes 25% less damage meanwhile.';
+    case 'battery':return 'Restores '+pc(w.pct)+' of your energy.';
+  }return '';};
+  // line spec: [prof, line, base(rank 1 fields incl. lvl 1 starter flag), ranks:[[lvl,name,{overrides}]...], grow:{field:delta|'x'factor}]
+  const G=(o,g,i)=>{const r=Object.assign({},o);for(const k in g){const v=g[k];if(typeof v==='string'&&v[0]==='x')r[k]=Math.round(o[k]*Math.pow(+v.slice(1),i)*100)/100;else if(typeof v==='number')r[k]=Math.round((o[k]+v*i)*100)/100;}
+    if(o.tmods){r.tmods={};for(const k in o.tmods)r.tmods[k]=[Math.round(o.tmods[k][0]*(1+0.35*i)),Math.round(o.tmods[k][1]*(1+0.3*i)*100)/100];}return r;};
+  const LINES=[
+   // ---------- Riftbinder ----------
+   ['binder','bindgolem',{name:'Bind: Dust Golem',icon:'🗿',cost:30,cd:6,range:0,needTarget:false,kind:'summon',pet:'golem1',petDesc:'Binds a Dust Golem: a slow, heavy stone construct that holds enemies on itself and pounds them in melee. Recast to rebind it.'},
+     [[5,'Bind: Basalt Golem',{pet:'golem2',icon:'🪨',petDesc:'Binds a Basalt Golem: tougher stone hide and heavier fists.'}],[12,'Bind: Ironroot Golem',{pet:'golem3',petDesc:'Binds an Ironroot Golem: iron-veined, it shrugs off a third of all damage.'}],[24,'Bind: Obsidian Colossus',{pet:'golem4',petDesc:'Binds an Obsidian Colossus: a towering glass-black brute.'}],[38,'Bind: Riftstone Titan',{pet:'golem5',petDesc:'Binds a Riftstone Titan: the mightiest stone construct, crackling with rift-light.'}]],{cost:'x1.2'}],
+   ['binder','bindwisp',{name:'Bind: Ember Wisp',icon:'🔥',cost:30,cd:6,range:0,needTarget:false,kind:'summon',pet:'wisp1',petDesc:'Binds an Ember Wisp: a floating flame construct that bombards your target from range. Fragile but fierce.'},
+     [[8,'Bind: Cinder Wisp',{pet:'wisp2',petDesc:'Binds a Cinder Wisp: hotter bolts, steadier flame.'}],[20,'Bind: Storm Wisp',{pet:'wisp3',icon:'🌩️',petDesc:'Binds a Storm Wisp: its bolts arc to enemies near the target.'}],[34,'Bind: Prism Wisp',{pet:'wisp4',icon:'💎',petDesc:'Binds a Prism Wisp: refracted bolts with a wide splash.'}],[46,'Bind: Riftfire Seraph',{pet:'wisp5',icon:'🪽',petDesc:'Binds a Riftfire Seraph: a winged storm of rift-flame.'}]],{cost:'x1.2'}],
+   ['binder','riftmend',{name:'Rift Mend',icon:'🩵',cost:15,cd:6,range:0,needTarget:false,needPet:true,kind:'petheal',pct:0.35,hot:0.03},[[6,'Rift Mend II'],[19,'Rift Mend III'],[33,'Rift Mend IV'],[47,'Rift Mend V']],{pct:0.12,hot:0.01,cost:'x1.15'}],
+   ['binder','riftshard',{name:'Rift Shard',icon:'💠',cost:14,cd:3,range:24,needTarget:true,kind:'nuke',mult:1.6,color:0x7ff8ff,dmgN:'shard of rift-glass'},[[4,'Rift Shard II'],[14,'Rift Shard III'],[27,'Rift Lance'],[40,'Rift Spear'],[50,'Rift Cataclysm']],{mult:'x1.32',cost:'x1.16'}],
+   ['binder','tether',{lvl:3,name:'Rift Tether',icon:'⛓️',cost:20,cd:20,range:0,needTarget:false,needPet:true,kind:'petbuff',dmg:1.3,hp:0.2,spd:0.85,dur:180},[[16,'Rift Tether II'],[30,'Rift Tether III'],[44,'Rift Tether IV']],{dmg:0.35,hp:0.15,cost:'x1.15'}],
+   ['binder','stonecall',{lvl:10,name:'Stonecall',icon:'📯',cost:25,cd:15,range:0,needTarget:false,needPet:true,kind:'taunt',radius:10,dur:6},[[29,'Stonecall II',{radius:12,dur:8}]],{}],
+   // ---------- Dreamshaper ----------
+   ['mind','lull',{name:'Lull',icon:'💤',cost:18,cd:8,range:24,needTarget:true,kind:'mez',dur:10,color:0xff9ae8},[[9,'Deep Lull'],[22,'Slumberweave'],[36,'Dreamlock'],[48,'Endless Lull']],{dur:3,cost:'x1.1'}],
+   ['mind','dread',{name:'Dread',icon:'😱',cost:20,cd:12,range:22,needTarget:true,kind:'fear',dur:4,mult:0.5,color:0x9a5aff},[[12,'Dread II'],[28,'Night Terror'],[42,'Abyssal Dread']],{dur:1,mult:'x1.4',cost:'x1.12'}],
+   ['mind','mindleech',{name:'Mind Leech',icon:'🫧',cost:10,cd:6,range:22,needTarget:true,kind:'drain',mult:1.2,en:0.08,slow:1.2,color:0xd08aff},[[14,'Mind Leech II'],[31,'Mind Leech III'],[47,'Soul Siphon']],{mult:'x1.35',en:0.03,slow:0.4,cost:'x1.1'}],
+   ['mind','psyspike',{name:'Psyche Spike',icon:'🔮',cost:14,cd:3,range:24,needTarget:true,kind:'nuke',mult:1.7,color:0xff6ad8,dmgN:'spike of raw thought'},[[4,'Psyche Spike II'],[17,'Psyche Spike III'],[26,'Psyche Lance'],[39,'Psyche Rupture'],[50,'Psyche Shatter']],{mult:'x1.3',cost:'x1.16'}],
+   ['mind','hush',{lvl:6,name:'Hush Field',icon:'🌫️',cost:40,cd:20,range:24,needTarget:true,kind:'mezAoe',radius:6,dur:8,color:0xffb8f0},[[19,'Hush Field II'],[33,'Grand Hush'],[45,'Stillwave']],{radius:1,dur:1.5,cost:'x1.12'}],
+   // ---------- Anthemist ----------
+   ['harm','rally',{name:'Rally Anthem',icon:'📣',cost:25,cd:10,range:0,needTarget:false,kind:'teambuff',dur:120,tmods:{power:[5,0.4],crit:[2,0.06]},ally:0.15},[[7,'Rally Anthem II'],[18,'Battle Anthem'],[32,'Anthem of Valor'],[46,'Anthem of the Reach']],{ally:0.07,cost:'x1.12'}],
+   ['harm','ward',{name:'Warding Chord',icon:'🛡️',cost:25,cd:10,range:0,needTarget:false,kind:'teambuff',dur:120,tmods:{dr:[4,0.06],hp:[10,4]},allyDr:0.12},[[10,'Warding Chord II'],[24,'Bastion Chord'],[38,'Aegis Chord']],{allyDr:0.05,cost:'x1.12'}],
+   ['harm','refrain',{name:'Soothing Refrain',icon:'🎶',cost:22,cd:8,range:0,needTarget:false,kind:'teamheal',pct:0.15,hot:0.02},[[5,'Soothing Refrain II'],[15,'Mending Refrain'],[29,'Restoring Refrain'],[43,'Lifesong Refrain']],{pct:0.05,hot:0.005,cost:'x1.14'}],
+   ['harm','discord',{name:'Discord Note',icon:'🎵',cost:14,cd:3,range:24,needTarget:true,kind:'nuke',mult:1.5,color:0xffe08a,dmgN:'jarring note'},[[12,'Discord Note II'],[35,'Shattering Note']],{mult:'x1.6',cost:'x1.3'}],
+   ['harm','cadence',{lvl:20,name:'Quickstep Cadence',icon:'🥁',cost:30,cd:10,range:0,needTarget:false,kind:'teambuff',dur:120,tmods:{run:[20,0.3],agi:[6,0.3]},ally:0.1},[[41,'Wildfire Cadence']],{ally:0.1}],
+   ['harm','crescendo',{lvl:26,name:'Crescendo',icon:'🎺',cost:45,cd:14,range:0,needTarget:false,kind:'aoeSelf',radius:8,mult:2.4,heal:0.1,color:0xffd76a},[[49,'Final Crescendo']],{mult:'x1.5',heal:0.05,radius:1}],
+   // ---------- Exactor ----------
+   ['exact','tithe',{name:'Tithe',icon:'🪙',cost:16,cd:10,range:24,needTarget:true,kind:'steal',mult:0.9,dur:15,weak:0.2,amp:1,tmods:{power:[4,0.4]},ally:0.08,color:0xff7a5a},[[8,'Tithe II'],[19,'Heavy Tithe'],[33,'Grand Tithe'],[47,'Crown\'s Tithe']],{mult:'x1.3',weak:0.04,ally:0.03,cost:'x1.12'}],
+   ['exact','skim',{name:'Skim Plating',icon:'🧲',cost:18,cd:12,range:24,needTarget:true,kind:'steal',mult:0.7,dur:15,weak:0.05,amp:1.2,tmods:{dr:[3,0.08]},color:0xffb070},[[11,'Skim Plating II'],[25,'Strip Plating'],[40,'Flay Plating']],{mult:'x1.3',amp:0.06,cost:'x1.12'}],
+   ['exact','levy',{name:'Levy',icon:'🩸',cost:14,cd:8,range:24,needTarget:true,kind:'dot',mult:0.35,dur:10,en:2,color:0xc02a2a},[[6,'Levy II'],[21,'Blood Levy'],[37,'Ruinous Levy']],{mult:'x1.45',en:1,cost:'x1.15'}],
+   ['exact','writ',{name:'Writ Bolt',icon:'📜',cost:14,cd:3,range:24,needTarget:true,kind:'nuke',mult:1.6,color:0xff7a5a,dmgN:'sealed writ of force'},[[3,'Writ Bolt II'],[16,'Writ of Seizure'],[28,'Writ of Ruin'],[41,'Writ of Forfeit'],[50,'Writ of Annulment']],{mult:'x1.35',cost:'x1.16'}],
+   ['exact','grandlevy',{lvl:14,name:'Grand Levy',icon:'⚖️',cost:40,cd:18,range:24,needTarget:true,kind:'stealAoe',radius:6,mult:1.0,dur:12,weak:0.2,tmods:{power:[2,0.15]},ally:0.06,color:0xff5a3a},[[30,'Grand Levy II'],[44,'Total Forfeiture']],{radius:1,mult:'x1.4',weak:0.05,ally:0.03,cost:'x1.15'}],
+   // ---------- Ironpalm ----------
+   ['fist','palmstrike',{name:'Palm Strike',icon:'🖐️',cost:12,cd:2.5,range:4,needTarget:true,kind:'strike',mult:1.9,color:0xffc070},[[3,'Palm Strike II'],[13,'Iron Palm'],[24,'Thunder Palm'],[36,'Mountain Palm'],[48,'Palm of the Still Storm']],{mult:'x1.3',cost:'x1.15'}],
+   ['fist','whirlkick',{name:'Whirlwind Kick',icon:'🌀',cost:20,cd:7,range:0,needTarget:false,kind:'aoeSelf',radius:5,mult:1.3,color:0xffa050},[[6,'Whirlwind Kick II'],[19,'Cyclone Kick'],[33,'Tempest Kick'],[45,'Typhoon Kick']],{mult:'x1.33',radius:0.5,cost:'x1.14'}],
+   ['fist','innerbreath',{name:'Inner Breath',icon:'🫁',cost:18,cd:12,range:0,needTarget:false,kind:'heal',pct:0.25},[[8,'Inner Breath II'],[22,'Deep Breath'],[39,'Breath of Iron']],{pct:0.07,cost:'x1.15'}],
+   ['fist','stillmind',{name:'Still Mind',icon:'☯️',cost:20,cd:5,range:0,needTarget:false,kind:'teambuff',dur:180,tmods:{agi:[3,1],str:[3,1],crit:[1,0.08]}},[[16,'Still Mind II'],[35,'Still Mind III']],{}],
+   ['fist','gapstep',{lvl:5,name:'Gap Step',icon:'💨',cost:16,cd:10,range:14,needTarget:true,kind:'lunge',mult:1.4,stun:1.5,color:0xffd08a},[[31,'Gap Step II',{stun:2}]],{mult:'x1.9'}],
+   ['fist','hundredhands',{lvl:10,name:'Hundred Hands',icon:'👐',cost:24,cd:9,range:4,needTarget:true,kind:'flurry',hits:5,mult:0.55},[[27,'Hundred Hands II',{hits:6}],[42,'Thousand Hands',{hits:7}]],{mult:'x1.35',cost:'x1.15'}],
+   // ---------- Veilblade ----------
+   ['shade','shroud',{name:'Shroud',icon:'🌑',cost:15,cd:12,range:0,needTarget:false,kind:'stealth',dur:20,opener:2.5},[[18,'Deep Shroud',{opener:3}],[40,'Umbral Shroud',{opener:3.5,dur:30}]],{}],
+   ['shade','ambush',{name:'Ambush',icon:'🗡️',cost:14,cd:4,range:4,needTarget:true,kind:'strike',mult:2.0,opener:1,color:0xff3a5a},[[4,'Ambush II'],[14,'Backstab'],[26,'Heartseeker'],[38,'Assassinate'],[50,'Final Silence']],{mult:'x1.3',cost:'x1.15'}],
+   ['shade','rend',{name:'Rend',icon:'🩸',cost:14,cd:8,range:6,needTarget:true,kind:'dot',mult:0.5,dur:8,color:0xb0203a},[[7,'Rend II'],[20,'Deep Rend'],[34,'Arterial Rend'],[46,'Exsanguinate']],{mult:'x1.35',cost:'x1.15'}],
+   ['shade','killedge',{name:'Killing Edge',icon:'🔪',cost:20,cd:5,range:0,needTarget:false,kind:'teambuff',dur:180,tmods:{crit:[4,0.12],agi:[3,0.8]}},[[17,'Killing Edge II'],[35,'Killing Edge III']],{}],
+   ['shade','vanish',{lvl:6,name:'Vanish',icon:'💨',cost:25,cd:45,range:0,needTarget:false,kind:'stealth',vanish:true,dur:8,opener:2.0},[[30,'Smoke Vanish',{opener:2.6,dur:10}]],{}],
+   ['shade','glassfan',{lvl:10,name:'Glass Fan',icon:'✴️',cost:28,cd:9,range:0,needTarget:false,kind:'aoeSelf',radius:6,mult:1.5,color:0xc8f0ff},[[23,'Glass Fan II'],[41,'Glass Storm']],{mult:'x1.45',radius:1,cost:'x1.15'}],
+   // ---------- Siegebreaker ----------
+   ['siege','slug',{name:'Slug Round',icon:'🧨',cost:20,cd:6,range:22,needTarget:true,kind:'nuke',mult:2.6,color:0xffa040,dmgN:'heavy cannon slug'},[[3,'Slug Round II'],[13,'Tungsten Slug'],[25,'Siege Slug'],[37,'Rampart Breaker']],{mult:'x1.3',cost:'x1.15'}],
+   ['siege','shellburst',{name:'Shellburst',icon:'💥',cost:22,cd:7,range:22,needTarget:true,kind:'aoeT',radius:5,mult:1.6,color:0xff8a2a},[[5,'Shellburst II'],[15,'High-Explosive Shell'],[27,'Cluster Shell'],[39,'Thermobaric Shell'],[49,'Earthshaker Shell']],{mult:'x1.3',radius:0.5,cost:'x1.14'}],
+   ['siege','reflector',{name:'Reflector Shield',icon:'🔰',cost:25,cd:22,range:0,needTarget:false,kind:'reflect',dur:8,dr:0.35,pct:0.4},[[12,'Reflector Shield II'],[29,'Mirror Bulwark'],[43,'Retribution Shield']],{dr:0.05,pct:0.15,dur:1,cost:'x1.12'}],
+   ['siege','ironstance',{name:'Iron Stance',icon:'🦾',cost:20,cd:5,range:0,needTarget:false,kind:'teambuff',dur:180,tmods:{body:[4,1.5],str:[3,1],dr:[2,0.05]}},[[18,'Iron Stance II'],[44,'Iron Stance III']],{}],
+   ['siege','hailfire',{lvl:8,name:'Hailfire',icon:'☄️',cost:35,cd:12,range:24,needTarget:true,kind:'barrage',radius:5,mult:0.9,delay:0.6,waves:3,gap:0.45,color:0xffa040},[[21,'Hailfire II'],[35,'Hailstorm Barrage'],[47,'Siege Apocalypse']],{mult:'x1.35',radius:0.5,cost:'x1.12'}],
+   ['siege','napalm',{lvl:10,name:'Napalm Strip',icon:'🔥',cost:40,cd:14,range:22,needTarget:true,kind:'field',mult:0.6,radius:6,dur:8,color:0xff6a1a},[[31,'Napalm Strip II']],{mult:'x2.1',radius:1}]
+  ];
+  const weaves=[],starters={};const romanFix=n=>n;
+  for(const [prof,line,base,ranks,grow] of LINES){const b=Object.assign({},base);delete b.petDesc;const lv0=base.lvl||1;
+    const mk=(o,tier,lvl,name,ov)=>{const w=Object.assign({},o,ov||{});w.id=tier===1?line:line+tier;w.line=line;w.tier=tier;w.prof=prof;w.lvl=lvl;w.name=name;if(w.kind==='summon')w.petDesc=(ov&&ov.petDesc)||base.petDesc;
+      w.desc=D(w);delete w.dmgN;if(w.kind!=='summon')delete w.petDesc;return w;};
+    const r1=mk(b,1,lv0,base.name,{petDesc:base.petDesc});if(lv0===1){(starters[prof]=starters[prof]||[]).push(r1);}else weaves.push(r1);
+    let prev=b;ranks.forEach((rk,i)=>{const g=G(b,grow,i+1);const w=mk(g,i+2,rk[0],rk[1],rk[2]);if(w.dur)w.dur=Math.round(w.dur*10)/10;if(w.cost)w.cost=Math.round(w.cost);weaves.push(w);});}
+  const prof=(k,o)=>{o.abilities=(starters[k]||[]).map(a=>{const c=Object.assign({},a);delete c.prof;delete c.line;delete c.tier;delete c.lvl;return c;});return o;};
+  const profs={
+    binder:prof('binder',{name:'Riftbinder',role:'Construct Summoner',color:0x2f8a8a,accent:0x4a3018,visor:0x7ff8ff,hpMul:0.95,enMul:1.3,dmgSkill:'weave',look:{scarf:0x2f8a8a,padGlow:0x7ff8ff},
+      attrs:{str:7,agi:9,sta:10,int:13,psy:12,sen:10},innate:{weave:5,pool:2},cost:{str:3,agi:3,sta:2,int:1,psy:2,sen:2,wpn:3,weave:1,treat:2,body:2,pool:1,evade:3},
+      desc:'A rift-scholar who binds stone and flame into living constructs. Commands one construct at a time: a hulking Golem that holds enemies or a Wisp that bombards from range.',
+      basic:{id:'basic',name:'Binding Bolt',icon:'🔹',cost:0,cd:1.0,range:22,mult:0.85,proj:0x7ff8ff}}),
+    mind:prof('mind',{name:'Dreamshaper',role:'Mind-bender / Crowd Control',color:0xb04a8e,accent:0x34142c,visor:0xffd0ff,hpMul:0.85,enMul:1.45,dmgSkill:'weave',look:{robe:true,scarf:0xffd0ff},
+      attrs:{str:6,agi:9,sta:9,int:12,psy:14,sen:11},innate:{weave:5,pool:3},cost:{str:3,agi:3,sta:3,int:2,psy:1,sen:2,wpn:3,weave:1,treat:2,body:2,pool:1,evade:3},
+      desc:'A mind-bender who lulls foes into dazed sleep, scatters them in terror and drinks their focus to refill her own. Controls fights instead of winning them outright.',
+      basic:{id:'basic',name:'Thought Needle',icon:'🪡',cost:0,cd:0.95,range:22,mult:0.8,proj:0xff9ae8}}),
+    harm:prof('harm',{name:'Anthemist',role:'Team Support / Buffer',color:0xc8962e,accent:0x4a3010,visor:0xfff0a0,hpMul:1.0,enMul:1.3,dmgSkill:'weave',look:{scarf:0xfff0a0,padGlow:0xffd76a},
+      attrs:{str:8,agi:9,sta:11,int:10,psy:13,sen:11},innate:{weave:4,treat:3},cost:{str:3,agi:2,sta:2,int:2,psy:1,sen:2,wpn:2,weave:1,treat:1,body:2,pool:2,evade:2},
+      desc:'A frontier singer whose Vyre-tuned anthems make a whole team hit harder, shrug off blows and recover between fights. Light heals, strong buffs.',
+      basic:{id:'basic',name:'Tone Dart',icon:'🎵',cost:0,cd:0.9,range:22,mult:0.8,proj:0xffe08a}}),
+    exact:prof('exact',{name:'Exactor',role:'Debuffer / Siphoner',color:0x8a2a2a,accent:0x221010,visor:0xffb070,hpMul:0.95,enMul:1.3,dmgSkill:'weave',look:{robe:true,forec:0x3a1010,scarf:0xb08a3a},
+      attrs:{str:8,agi:9,sta:10,int:13,psy:11,sen:10},innate:{weave:5,pool:2},cost:{str:3,agi:3,sta:2,int:1,psy:2,sen:2,wpn:2,weave:1,treat:2,body:2,pool:1,evade:3},
+      desc:'A collector of debts no one agreed to. Siphons the strength out of enemies (less damage dealt, more taken) and pays it straight to you and your team.',
+      basic:{id:'basic',name:'Writ Pistol',icon:'🔸',cost:0,cd:0.85,range:21,mult:0.85,proj:0xff7a5a}}),
+    fist:prof('fist',{name:'Ironpalm',role:'Unarmed Martial Artist',color:0xc8622a,accent:0x3a2414,visor:0xffe0a0,hpMul:1.1,enMul:0.9,dmgSkill:'wpn',critB:3,look:{scarf:0xc8302a,bulk:1.04},
+      attrs:{str:12,agi:13,sta:11,int:7,psy:9,sen:9},innate:{wpn:5,evade:3},cost:{str:1,agi:1,sta:2,int:3,psy:2,sen:2,wpn:1,weave:2,treat:2,body:1,pool:2,evade:1},
+      desc:'A wandering fighter who needs no weapon. Fast unarmed strikes, a dashing Gap Step, spinning kicks and an Inner Breath that heals mid-fight.',
+      basic:{id:'basic',name:'Palm Jab',icon:'👊',cost:0,cd:0.62,range:3.4,mult:0.8,melee:true}}),
+    shade:prof('shade',{name:'Veilblade',role:'Stealth Assassin',color:0x2e2e40,accent:0x111118,visor:0xff3a5a,hpMul:0.95,enMul:1.0,dmgSkill:'wpn',critB:6,look:{scarf:0x111118,forec:0x1a1a24,legc:0x1a1a24},
+      attrs:{str:9,agi:14,sta:9,int:8,psy:8,sen:13},innate:{wpn:5,evade:4},cost:{str:2,agi:1,sta:2,int:3,psy:3,sen:1,wpn:1,weave:2,treat:2,body:2,pool:2,evade:1},
+      desc:'An unseen blade. Shrouds out of sight, opens with a crushing critical Ambush, bleeds the target and Vanishes when the fight turns. High crit, low armour.',
+      basic:{id:'basic',name:'Glass Knife',icon:'🔪',cost:0,cd:0.8,range:3.6,mult:0.9,melee:true}}),
+    siege:prof('siege',{name:'Siegebreaker',role:'Heavy Weapons / Tank',color:0x6a6a4e,accent:0x2a2a1e,visor:0xff9a2a,hpMul:1.3,enMul:0.8,dmgSkill:'wpn',look:{heavy:true,bulk:1.12},
+      attrs:{str:13,agi:8,sta:14,int:7,psy:7,sen:9},innate:{wpn:5,body:6},cost:{str:1,agi:2,sta:1,int:3,psy:3,sen:3,wpn:1,weave:3,treat:2,body:1,pool:3,evade:2},
+      desc:'A walking artillery piece in heavy plate. Hand cannons, area shells, Hailfire barrages and a Reflector Shield that throws damage back at attackers.',
+      basic:{id:'basic',name:'Cannon Shot',icon:'🧨',cost:0,cd:1.3,range:20,mult:1.25,proj:0xffa040}})};
+  profKData.c={profs,weaves};return profKData.c;}
+function newProfDefs(){return profKData().profs;}
+function newProfWeaves(){return profKData().weaves;}
+function wreqK(prof,lvl){const m={binder:['int',1.6],mind:['psy',1.6],harm:['psy',1.5],exact:['int',1.6],fist:['agi',1.6],shade:['agi',1.6],siege:['str',1.6]}[prof];if(!m)return null;
+  return [{s:'weave',v:Math.round(4+lvl*(m[0]==='int'||m[0]==='psy'?3.5:2.5))},{s:m[0],v:Math.round(10+lvl*m[1])}];}
+const PROFS_K=['binder','mind','harm','exact','fist','shade','siege'];
+const isPetProf=p=>p==='wright'||p==='binder';
+
+/* ---------- Riftbinder constructs (pets): reuse the bot AI (follow / attack / assist / stay) ---------- */
+Object.assign(PETDEF,{
+  golem1:{name:'Dust Golem',tier:1,hp:1.3,dmg:0.85,range:2.6,melee:true,atkCd:1.5,speed:7.0,build:'golem',h:1.9,hitR:0.95,col:0xb09a78,proj:0x7ff8ff,dr:0.18},
+  golem2:{name:'Basalt Golem',tier:2,hp:1.7,dmg:1.1,range:2.7,melee:true,atkCd:1.5,speed:7.0,build:'golem',h:2.1,hitR:1.0,col:0x5a5650,proj:0x7ff8ff,dr:0.24},
+  golem3:{name:'Ironroot Golem',tier:3,hp:2.1,dmg:1.35,range:2.8,melee:true,atkCd:1.45,speed:7.2,build:'golem',h:2.3,hitR:1.05,col:0x6a4a3a,proj:0xffa040,dr:0.33},
+  golem4:{name:'Obsidian Colossus',tier:4,hp:2.6,dmg:1.6,range:3.0,melee:true,atkCd:1.4,speed:7.4,build:'golem',h:2.6,hitR:1.15,col:0x26222e,proj:0xc86bff,dr:0.38},
+  golem5:{name:'Riftstone Titan',tier:5,hp:3.2,dmg:1.95,range:3.2,melee:true,atkCd:1.35,speed:7.6,build:'golem',h:2.9,hitR:1.2,col:0x3a5a6a,proj:0x7ff8ff,dr:0.42},
+  wisp1:{name:'Ember Wisp',tier:1,hp:0.75,dmg:1.25,range:16,melee:false,atkCd:1.4,speed:8.2,build:'wisp',h:1.2,hitR:0.6,col:0xff8a3a,proj:0xffa040,dr:0.05},
+  wisp2:{name:'Cinder Wisp',tier:2,hp:0.9,dmg:1.6,range:17,melee:false,atkCd:1.35,speed:8.2,build:'wisp',h:1.2,hitR:0.6,col:0xff5a2a,proj:0xff7a3a,dr:0.08},
+  wisp3:{name:'Storm Wisp',tier:3,hp:1.05,dmg:1.95,range:18,melee:false,splash:3,atkCd:1.3,speed:8.4,build:'wisp',h:1.25,hitR:0.65,col:0x6ab8ff,proj:0x9fe8ff,dr:0.1},
+  wisp4:{name:'Prism Wisp',tier:4,hp:1.25,dmg:2.35,range:19,melee:false,splash:3.5,atkCd:1.25,speed:8.6,build:'wisp',h:1.3,hitR:0.7,col:0xd8f0ff,proj:0xff9ae8,dr:0.14},
+  wisp5:{name:'Riftfire Seraph',tier:5,hp:1.5,dmg:2.8,range:20,melee:false,splash:4,atkCd:1.2,speed:8.8,build:'wisp',h:1.4,hitR:0.75,col:0x7ff8ff,proj:0x7ff8ff,dr:0.18}});
+// code-built construct models (few boxes/spheres, one emissive core; animation is transform-only, so they stay cheap)
+function buildBot(def){if(def.build!=='golem'&&def.build!=='wisp')return buildBot_v1(def);const g=new THREE.Group();const R={g};const c=def.col,gl=def.proj||0x7ff8ff,s=def.h/2.0;
+  if(def.build==='golem'){const st=M(c),dk=M(dimc?dimc(c,0.7):0x333333);
+    R.torso=part(g,geoBox,st,0,1.25*s,0,1.15*s,0.95*s,0.8*s);part(g,geoBox,dk,0,1.82*s,-0.05*s,1.35*s,0.3*s,0.85*s);R.head=part(g,geoBox,st,0,2.08*s,0.12*s,0.45*s,0.36*s,0.42*s);
+    R.core=part(g,geoIco,MB(gl),0,1.3*s,0.38*s,0.22*s,0.22*s,0.1*s);part(g,geoBox,MB(gl),0,2.1*s,0.34*s,0.3*s,0.07*s,0.02);
+    const limb=(x,y,w,h,m)=>{const p=new THREE.Group();p.position.set(x,y,0);g.add(p);part(p,geoBox,m,0,-h/2,0,w,h,w*1.05);return p;};
+    R.legL=limb(-0.32*s,0.8*s,0.38*s,0.8*s,dk);R.legR=limb(0.32*s,0.8*s,0.38*s,0.8*s,dk);R.armL=limb(-0.82*s,1.72*s,0.36*s,1.0*s,st);R.armR=limb(0.82*s,1.72*s,0.36*s,1.0*s,st);
+    part(R.armL,geoBox,dk,0,-1.08*s,0.04,0.5*s,0.42*s,0.5*s);part(R.armR,geoBox,dk,0,-1.08*s,0.04,0.5*s,0.42*s,0.5*s);
+    for(const sx of [-1,1]){const sp=part(g,geoCone,MB(gl),sx*0.45*s,1.95*s,-0.25*s,0.08*s,0.32*s,0.08*s);sp.rotation.z=-sx*0.4;}
+    R.anim=(t,mv,atk)=>{const w=Math.sin(t*6)*0.4*mv;R.legL.rotation.x=w;R.legR.rotation.x=-w;R.armL.rotation.x=-w*0.5;R.armR.rotation.x=atk>0?-1.9:w*0.5;R.armL.rotation.z=atk>0?0.3:0;R.torso.position.y=1.25*s+Math.abs(Math.sin(t*6))*0.05*mv;R.core.rotation.y=t*2;};}
+  else{R.hover=true;R.core=part(g,geoIco,MB(gl),0,0.55,0,0.42,0.5,0.42);R.shell=part(g,geoIco,M(c),0,0.55,0,0.3,0.36,0.3);
+    R.orb=[];for(let i=0;i<3;i++){const o=part(g,geoIco,MB(c),0,0.55,0,0.12,0.12,0.12);R.orb.push(o);}
+    if(def.tier>=5){R.wings=[];for(const sx of [-1,1]){const w=part(g,geoBox,MB(gl),sx*0.6,0.7,-0.15,0.7,0.05,0.28);w.rotation.z=sx*0.35;R.wings.push(w);}}
+    R.anim=(t,mv,atk)=>{R.orb.forEach((o,i)=>{const a=t*2.6+i*2.09;o.position.set(Math.cos(a)*0.7,0.55+Math.sin(t*3+i)*0.15,Math.sin(a)*0.7);});const k=1+(atk>0?0.25:0)+Math.sin(t*7)*0.06;R.core.scale.set(0.42*k,0.5*k,0.42*k);R.shell.rotation.y=-t*1.4;
+      if(R.wings)R.wings.forEach((w,i)=>w.rotation.z=(i?-1:1)*(0.35+Math.sin(t*5)*0.25));};}
+  return R;}
+
+/* ---------- crowd control: mez (breaks on damage) and fear (flee); bosses and outpost guards resist ---------- */
+const PK={cc:new Set(),fade:null,shield:null,cbUntil:0};
+function ccImmune(e){return !!(e.boss||e.guard||(e.T&&e.T.boss)||e.raidBoss);}
+function mezApply(e,d){if(!e||e.dead)return false;if(ccImmune(e)){floatText(entChest(e,tmpV),'Resisted','info');return false;}e.mezUntil=T+d;e.mezHp=e.hp;e.stunUntil=Math.max(e.stunUntil||0,T+d);PK.cc.add(e);
+  floatText(entChest(e,tmpV),'Mesmerised','info');ringFx(e.pos.x,e.pos.z,0xff9ae8,1.8,0.6);return true;}
+function fearApply(e,d){if(!e||e.dead)return false;if(ccImmune(e)){floatText(entChest(e,tmpV),'Resisted','info');return false;}e.fearUntil=T+d;e.stunUntil=Math.max(e.stunUntil||0,T+d);PK.cc.add(e);
+  floatText(entChest(e,tmpV),'Terrified','info');ringFx(e.pos.x,e.pos.z,0x9a5aff,2,0.6);return true;}
+const isMezzed=e=>!!e&&T<(e.mezUntil||0),isFeared=e=>!!e&&T<(e.fearUntil||0);
+KIND.mez=(t,a)=>{shoot(t,0,a.color||0xff9ae8,()=>{if(!t.dead)mezApply(t,a.dur);});SFX.zap();};
+KIND.mezAoe=(t,a)=>{shoot(t,0,a.color||0xffb8f0,()=>{ringFx(t.pos.x,t.pos.z,a.color||0xffb8f0,a.radius,0.9);let n=0;for(const e of enemies)if(!e.dead&&dist2D(e.pos,t.pos)<a.radius+e.hitR&&mezApply(e,a.dur))n++;if(!n)toast('Nothing was lulled');});SFX.zap();};
+KIND.fear=(t,a)=>{shoot(t,0,a.color||0x9a5aff,()=>{if(t.dead)return;if(a.mult)dmgEnemy(t,a.mult);if(!t.dead){if(t.state!=='chase')aggro(t);fearApply(t,a.dur);}});SFX.zap();};
+KIND.drain=(t,a)=>{shoot(t,0,a.color||0xd08aff,()=>{if(t.dead)return;dmgEnemy(t,a.mult);if(!t.dead){t.nextAtk=Math.max(t.nextAtk||0,T)+(a.slow||0);fireProj(entChest(t,new V3()),P,a.color||0xd08aff,30,()=>{});}
+  P.en=Math.min(S.maxEn,P.en+S.maxEn*(a.en||0));floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),'+Energy','info');});SFX.zap();};
+/* ---------- melee kinds (Ironpalm, Veilblade) ---------- */
+function meleeHit(t,a,mult){if(!t||t.dead)return;dmgEnemy(t,mult);ringFx(t.pos.x,t.pos.z,a.color||0xffd08a,1.3,0.25);if(a.stun&&!t.dead&&!ccImmune(t)){t.stunUntil=Math.max(t.stunUntil||0,T+a.stun);floatText(entChest(t,tmpV),'Stunned','info');}if(a.heal)healPlayer(S.maxHp*a.heal);}
+KIND.strike=(t,a)=>{faceTarget(t);P.atkAnim=0.35;meleeHit(t,a,a.mult);SFX.hit();};
+KIND.lunge=(t,a)=>{const dx=t.pos.x-P.pos.x,dz=t.pos.z-P.pos.z,d=Math.hypot(dx,dz)||1;const k=Math.max(0,d-1.8)/d;ringFx(P.pos.x,P.pos.z,a.color||0xffd08a,1.6,0.3);P.pos.x+=dx*k;P.pos.z+=dz*k;
+  if(typeof collide==='function')collide(P.pos,0.5);P.pos.y=heightAt(P.pos.x,P.pos.z);faceTarget(t);P.atkAnim=0.4;meleeHit(t,a,a.mult);SFX.hit();};
+KIND.flurry=(t,a)=>{faceTarget(t);for(let i=0;i<a.hits;i++)later(i*0.14,()=>{if(t.dead||P.dead)return;if(dist2D(t.pos,P.pos)>a.range+t.hitR+1.5)return;faceTarget(t);P.atkAnim=0.2;dmgEnemy(t,a.mult);SFX.hit();});};
+/* ---------- Exactor: siphon (debuff the enemy, transfer the strength to you + your allies) ---------- */
+function tbSet(a,key,until,mul,dr){if(!a||a.dead)return;a.tb=a.tb||{};a.tb[key]={until,mul:mul||1,dr:dr||0};}
+function tbMul(a){let m=1;if(a&&a.tb)for(const k in a.tb){const b=a.tb[k];if(T<b.until)m*=b.mul;}return m;}
+function tbDr(a){let r=0;if(a&&a.tb)for(const k in a.tb){const b=a.tb[k];if(T<b.until)r=1-(1-r)*(1-b.dr);}return Math.min(0.6,r);}
+function tmodsAt(tm,L,f){const m={};for(const k in tm||{}){const v=Math.round((tm[k][0]+tm[k][1]*L)*(f||1));if(v)m[k]=v;}return m;}
+function teamBoost(a,key,f){f=f||1;if(!a.ally&&!a.allyDr)return 0;let n=0;for(const al of allies){if(al.dead||al.passive||dist2D(al.pos,P.pos)>30)continue;tbSet(al,key,T+a.dur,1+(a.ally||0)*f,a.allyDr||0);ringFx(al.pos.x,al.pos.z,a.color||0xffd76a,1.3,0.4);n++;}return n;}
+function stealOn(e,a){e.hexUntil=T+a.dur;e.hexWeak=Math.max(0.3,1-(a.weak||0));e.hexAmp=a.amp||1;e.tithed=T+a.dur;floatText(entChest(e,tmpV),'Siphoned','info');fireProj(entChest(e,new V3()),P,a.color||0xff7a5a,28,()=>{});}
+KIND.steal=(t,a)=>{shoot(t,0,a.color||0xff7a5a,()=>{if(t.dead)return;if(a.mult)dmgEnemy(t,a.mult);if(t.dead)return;if(t.state!=='chase')aggro(t);stealOn(t,a);
+  addBuff(a.line,a.name,a.icon,a.dur,tmodsAt(a.tmods,P.level,1));teamBoost(a,a.line,1);});SFX.zap();};
+KIND.stealAoe=(t,a)=>{shoot(t,0,a.color||0xff5a3a,()=>{ringFx(t.pos.x,t.pos.z,a.color||0xff5a3a,a.radius,0.7);SFX.boom();let n=0;
+  for(const e of enemies.slice())if(!e.dead&&dist2D(e.pos,t.pos)<a.radius+e.hitR){dmgEnemy(e,a.mult);if(!e.dead){stealOn(e,a);n++;}}
+  if(n){const f=Math.min(4,n);addBuff(a.line,a.name,a.icon,a.dur,tmodsAt(a.tmods,P.level,f));teamBoost(a,a.line,Math.min(2,0.5+f*0.25));}else toast('Nothing to siphon');});SFX.zap();};
+/* ---------- Anthemist: team buffs and heals ---------- */
+KIND.teambuff=(t,a)=>{addBuff(a.line,a.name,a.icon,a.dur,tmodsAt(a.tmods,P.level,1));const n=teamBoost(a,a.line,1);ringFx(P.pos.x,P.pos.z,a.ally||a.allyDr?0xffd76a:0xc86bff,a.ally||a.allyDr?8:3.5,0.9);if(n)floatText(tmpV.set(P.pos.x,P.pos.y+2.8,P.pos.z),'Team +'+n,'info');};
+KIND.teamheal=(t,a)=>{const tr=1+eff('treat')/200;healPlayer(S.maxHp*a.pct*tr);if(a.hot)P.hot={until:T+6,next:T+1,pct:a.hot};
+  for(const al of allies){if(al.dead||dist2D(al.pos,P.pos)>22)continue;allyHeal(al,al.maxHp*a.pct*1.2*tr);if(a.hot)al.hot={until:T+6,next:T+1,pct:a.hot};ringFx(al.pos.x,al.pos.z,0x6dff8a,1.4,0.4);}
+  ringFx(P.pos.x,P.pos.z,0xfff0a0,6,0.8);SFX.heal();};
+/* ---------- Siegebreaker: reflector shield ---------- */
+KIND.reflect=(t,a)=>{P.reflUntil=T+a.dur;P.reflPct=a.pct;P.bulwarkUntil=T+a.dur;P.drAmt=a.dr;ringFx(P.pos.x,P.pos.z,0xffc85a,3,0.8);SFX.heal();floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),'Reflector','info');shieldFx(true);};
+function shieldFx(on){if(!PM)return;if(on){if(!PK.shield){PK.shield=new THREE.Mesh(new THREE.SphereGeometry(1.25,16,10),new THREE.MeshBasicMaterial({color:0xffc85a,transparent:true,opacity:0.22,depthWrite:false,blending:THREE.AdditiveBlending}));PK.shield.position.y=1.1;}
+  if(PK.shield.parent!==PM.g)PM.g.add(PK.shield);PK.shield.visible=true;}else if(PK.shield){PK.shield.visible=false;}}
+/* ---------- Veilblade: stealth ---------- */
+const stealthed=()=>T<(P.stealthUntil||0);
+KIND.stealth=(t,a)=>{const hot=enemies.some(e=>!e.dead&&e.state==='chase'&&foeOf(e)===P&&dist2D(e.pos,P.pos)<25);
+  if(hot&&!a.vanish){P.en=Math.min(S.maxEn,P.en+a.cost);P.cds[a.id]=0;warn('Enemies are on you: break away first'+(P.known&&P.known.includes('vanish')?' or use Vanish':''));return;}
+  if(a.vanish)for(const e of enemies)if(!e.dead&&e.state==='chase'&&!ccImmune(e)&&dist2D(e.pos,P.pos)<45&&foeOf(e)===P){e.state='return';e.foe=null;}
+  P.stealthUntil=T+a.dur;P.stealthOpen=a.opener;P.autoAtk=false;fadeModel(true);ringFx(P.pos.x,P.pos.z,0x2a2a40,2.5,0.6);floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),a.vanish?'Vanished':'Shrouded','info');SFX.ui&&SFX.ui();};
+function breakStealth(why){if(!P.stealthUntil)return;P.stealthUntil=0;fadeModel(false);if(why)floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),why,'info');}
+function fadeModel(on){if(!PM)return;if(on){if(PK.fade&&PK.fade.g===PM.g)return;const list=[];PM.g.traverse(o=>{if(o.isMesh&&o!==PK.shield){const m=o.material;const c=m.clone();c.transparent=true;c.opacity=0.22;c.depthWrite=false;list.push([o,m,c]);o.material=c;}});PK.fade={g:PM.g,list};}
+  else if(PK.fade){for(const [o,m,c] of PK.fade.list){if(o.material===c)o.material=m;c.dispose();}PK.fade=null;}}
+// called from useAbility just before an ability fires: anything but a stealth weave or a self-buff from Shroud is the opener
+function stealthOpener(ab){if(!stealthed()||ab.kind==='stealth')return;P.openUntil=T+2.5;P.openMul=P.stealthOpen||2;breakStealth();}
+// called from rollDmg: consume the opener (x mult, guaranteed crit)
+function openerTake(){if(T<(P.openUntil||0)){P.openUntil=0;return P.openMul||2;}return 0;}
+// called from dmgPlayer after damage lands
+function profKHurt(a,src){if(stealthed())breakStealth('Revealed');
+  if(src&&T<(P.reflUntil||0)&&src.T&&!src.dead&&enemies.includes(src)&&src.state!=='return'&&!(src.immune&&src.immune())){const v=Math.max(1,Math.round(a*(P.reflPct||0.3)));src.hp-=v;src.hitT=0.15;floatText(entChest(src,tmpV),v+'↩','hit');if(src.hp<=0)killEnemy(src);}}
+// incoming damage multiplier (support companions' Harmony)
+function profKDmgIn(){return T<(PK.cbUntil||0)?0.9:1;}
+function profKDmgOut(){return T<(PK.cbUntil||0)?1.1:1;}
+/* ---------- per-frame upkeep: CC breaks / flee movement, stealth + reflector expiry ---------- */
+function updProfK(dt){if(PK.cc.size)for(const e of PK.cc){if(e.dead||(!isMezzed(e)&&!isFeared(e))){PK.cc.delete(e);if(!e.dead&&T>=(e.mezUntil||0))e.mezUntil=0;continue;}
+    if(isMezzed(e)&&e.hp<(e.mezHp||0)-0.5){e.mezUntil=0;e.stunUntil=Math.min(e.stunUntil,T);if(!isFeared(e))PK.cc.delete(e);floatText(entChest(e,tmpV),'Woke','info');if(e.state!=='chase')aggro(e);continue;}
+    if(isFeared(e)){const dx=e.pos.x-P.pos.x,dz=e.pos.z-P.pos.z,d=Math.hypot(dx,dz)||1;if(d<40){moveToward(e,e.pos.x+dx/d*6,e.pos.z+dz/d*6,e.T.speed*0.85,dt,0.1);e.animT+=dt;e.moving=1;}}}
+  if(P.stealthUntil&&!stealthed())breakStealth();if(P.reflUntil&&T>=P.reflUntil){P.reflUntil=0;shieldFx(false);}
+  if(PK.fade&&PK.fade.g!==(PM&&PM.g)){PK.fade=null;if(stealthed())fadeModel(true);}}
+function profKChips(){let b='';if(stealthed())b+=`<span class="bf">🌑<b>${Math.ceil(P.stealthUntil-T)}s</b></span>`;if(T<(P.reflUntil||0))b+=`<span class="bf">🔰<b>${Math.ceil(P.reflUntil-T)}s</b></span>`;if(T<(PK.cbUntil||0))b+=`<span class="bf">✦<b>${Math.ceil(PK.cbUntil-T)}s</b></span>`;return b;}
+/* ---------- companion AI for the new roles: support (Harmony pulse / light heal) and control (mez or root an add) ---------- */
+function teamTactics(al,dt,teles){teamTactics_v1(al,dt,teles);const fight=typeof teamInCombat==='function'?teamInCombat():true;
+  for(const a of al){if(a.dead)continue;
+    if(a.role==='support'){a.supCd=(a.supCd==null?3:a.supCd)-dt;if(a.supCd>0||!fight)continue;a.supCd=8;
+      const low=[{e:P,f:P.dead?1:P.hp/S.maxHp}].concat(al.map(o=>({e:o,f:o.hp/o.maxHp}))).sort((x,y)=>x.f-y.f)[0];
+      if(low&&low.f<0.55){if(low.e===P)healPlayer(S.maxHp*0.08);else allyHeal(low.e,low.e.maxHp*0.1);ringFx(low.e.pos.x,low.e.pos.z,0x6dff8a,1.4,0.35);}
+      PK.cbUntil=T+8;for(const o of al)tbSet(o,'harmony',T+8,1.12,0.1);ringFx(a.pos.x,a.pos.z,0xffd76a,6,0.6);}
+    else if(a.role==='control'){a.ccCd=(a.ccCd==null?2:a.ccCd)-dt;if(a.ccCd>0||!fight)continue;
+      const tgt=validTarget();const foes=enemies.filter(e=>!e.dead&&e.state==='chase'&&dist2D(e.pos,P.pos)<24&&!ccImmune(e)&&!isMezzed(e)&&!isFeared(e));
+      if(!foes.length){a.ccCd=1.5;continue;}a.ccCd=9;const adds=foes.filter(e=>e!==tgt&&e!==a.target);
+      if(adds.length&&enemies.filter(e=>!e.dead&&e.state==='chase'&&dist2D(e.pos,P.pos)<24).length>=2){const e=adds[0];if(mezApply(e,6)){a.rotY=Math.atan2(e.pos.x-a.pos.x,e.pos.z-a.pos.z);a.atkT=0.35;}}
+      else{const e=foes[0];e.rootUntil=Math.max(e.rootUntil||0,T+3);floatText(entChest(e,tmpV),'Rooted','info');ringFx(e.pos.x,e.pos.z,0xb46bff,1.6,0.4);}}}}
+
+/* ---------- perk lines (Tier 1-3 + a Lv 15 active) and Tier-4 masteries ---------- */
+Object.assign(TEAM_ROLES,{support:{n:'Support',ic:'✦'}});
+Object.assign(PERK_LINES,{
+  riftlore:{n:'Riftlore',ic:'🗿',prof:'binder',d:'Riftbinder: deeper binds and sturdier constructs.'},
+  reverie:{n:'Reverie',ic:'💤',prof:'mind',d:'Dreamshaper: longer lulls and a deeper well of focus.'},
+  cadence:{n:'Cadence',ic:'🎶',prof:'harm',d:'Anthemist: stronger anthems and steadier footing.'},
+  ledger:{n:'Iron Ledger',ic:'⚖️',prof:'exact',d:'Exactor: sharper siphons and collateral to spare.'},
+  innerway:{n:'Inner Way',ic:'☯️',prof:'fist',d:'Ironpalm: hard knuckles and flowing footwork.'},
+  umbra:{n:'Umbral Arts',ic:'🌑',prof:'shade',d:'Veilblade: keen edges and soft steps.'},
+  artillery:{n:'Artillery Doctrine',ic:'💣',prof:'siege',d:'Siegebreaker: heavier rounds and blast plating.'}});
+(function(){const L=c=>(c&&c.level)||1,R=Math.round;
+  const def=(id,line,tier,name,icon,ranks,mods,txt,ab)=>{PERKS[id]={id,line,tier,name,icon,ranks,mods,txt,ab:ab?'pk_'+id:null};
+    if(ab){ab.id='pk_'+id;ab.name=name;ab.icon=icon;ab.perk=id;ab.prof='perk';ab.line='pk_'+id;ab.tier=1;ab.req=[];PERK_AB[ab.id]=ab;}};
+  const mdef=(id,line,name,icon,mods,txt)=>{PERKS[id]={id,line,tier:4,name,icon,ranks:3,mods,txt,ab:null,tierReq:3};};
+  def('boundwill','riftlore',1,'Bound Will','🧿',5,r=>({weave:3*r,int:r}),'+{weave} Weave Craft, +{int} Intelligence');
+  def('sharedpulse','riftlore',2,'Shared Pulse','💓',3,(r,c)=>({hp:R(r*(5+L(c))),pool:2*r}),'+{hp} max health, +{pool} Vyre Pool');
+  def('shardrain','riftlore',3,'Shard Rain','🌠',1,()=>({}),'Active: rift-glass rains on the target for 3 waves of 95% area damage.',{kind:'barrage',radius:4.5,mult:0.95,delay:0.5,waves:3,gap:0.4,color:0x7ff8ff,cost:30,cd:40,range:24,needTarget:true,desc:'Perk: 3 waves of 95% area damage.'});
+  def('lucid','reverie',1,'Lucid Focus','🧠',5,r=>({psy:2*r,weave:2*r}),'+{psy} Psychic, +{weave} Weave Craft');
+  def('dreamthief','reverie',2,'Dreamthief','🫧',3,(r,c)=>({en:R(r*(4+L(c)/2)),pool:2*r}),'+{en} max energy, +{pool} Vyre Pool');
+  def('massslumber','reverie',3,'Mass Slumber','🌙',1,()=>({}),'Active: mesmerise every enemy within 8m of the target for 7s.',{kind:'mezAoe',radius:8,dur:7,color:0xffb8f0,cost:35,cd:60,range:24,needTarget:true,desc:'Perk: 8m area mez for 7s.'});
+  def('resonant','cadence',1,'Resonant Voice','🎙️',5,r=>({psy:r,treat:2*r,weave:r}),'+{psy} Psychic, +{treat} Treatment, +{weave} Weave Craft');
+  def('steadybeat','cadence',2,'Steady Beat','🥁',3,(r,c)=>({hp:R(r*(5+L(c))),dr:r}),'+{hp} max health, +{dr}% damage reduction');
+  def('encore','cadence',3,'Encore','👏',1,()=>({}),'Active: heal you and every ally within 22m for 30% of max health, plus 3% per second for 6s.',{kind:'teamheal',pct:0.3,hot:0.03,cost:30,cd:60,range:0,needTarget:false,desc:'Perk: 30% team heal + HoT.'});
+  def('sharpaccounts','ledger',1,'Sharp Accounts','🧾',5,r=>({int:r,power:r,weave:r}),'+{int} Intelligence, +{power}% power, +{weave} Weave Craft');
+  def('collateral','ledger',2,'Collateral','🏦',3,(r,c)=>({hp:R(r*(5+L(c))),dr:r}),'+{hp} max health, +{dr}% damage reduction');
+  def('foreclosure','ledger',3,'Foreclosure','🏚️',1,()=>({}),'Active: siphon every enemy within 7m of the target (120% damage, -25% enemy damage for 12s); you gain power per foe.',{kind:'stealAoe',radius:7,mult:1.2,dur:12,weak:0.25,tmods:{power:[3,0.2]},ally:0.08,color:0xff5a3a,cost:35,cd:50,range:24,needTarget:true,desc:'Perk: area siphon, power per foe.'});
+  def('ironknuckles','innerway',1,'Iron Knuckles','👊',5,r=>({str:r,wpn:3*r}),'+{str} Strength, +{wpn} Weapon Handling');
+  def('flowingstep','innerway',2,'Flowing Step','🍃',3,r=>({evade:4*r,agi:2*r}),'+{evade} Evasion, +{agi} Agility');
+  def('sevenstorms','innerway',3,'Seven Storms','🌪️',1,()=>({}),'Active: seven lightning strikes on your target for 65% damage each.',{kind:'flurry',hits:7,mult:0.65,cost:25,cd:35,range:4,needTarget:true,desc:'Perk: 7 strikes at 65%.'});
+  def('keenedge','umbra',1,'Keen Edge','🗡️',5,r=>({crit:r,agi:r}),'+{crit}% crit, +{agi} Agility');
+  def('softsteps','umbra',2,'Soft Steps','🐾',3,r=>({evade:4*r,sen:2*r}),'+{evade} Evasion, +{sen} Sense');
+  def('shadowdance','umbra',3,'Shadow Dance','🌘',1,()=>({}),'Active: vanish mid-fight for 6s; your next attack deals 2.2x damage and always crits.',{kind:'stealth',vanish:true,dur:6,opener:2.2,cost:20,cd:60,range:0,needTarget:false,desc:'Perk: in-combat vanish, 2.2x opener.'});
+  def('heavyrounds','artillery',1,'Heavy Rounds','🔩',5,r=>({power:r,str:r,wpn:r}),'+{power}% power, +{str} Strength, +{wpn} Weapon Handling');
+  def('blastplating','artillery',2,'Blast Plating','🧱',3,(r,c)=>({dr:r,hp:R(r*(6+L(c)))}),'+{dr}% damage reduction, +{hp} max health');
+  def('mortarrain','artillery',3,'Mortar Rain','🎆',1,()=>({}),'Active: four waves of mortar fire on the target for 85% area damage each.',{kind:'barrage',radius:5,mult:0.85,delay:0.6,waves:4,gap:0.4,color:0xff8a2a,cost:35,cd:45,range:24,needTarget:true,desc:'Perk: 4 waves of 85% area damage.'});
+  mdef('m_riftlore','riftlore','Riftbond Mastery','🌀',r=>({weave:4*r,int:2*r}),'+{weave} Weave Craft, +{int} Intelligence');
+  mdef('m_reverie','reverie','Dreamweave Mastery','🌌',r=>({psy:3*r,power:r}),'+{psy} Psychic, +{power}% power');
+  mdef('m_cadence','cadence','Anthem Mastery','🎼',(r,c)=>({treat:3*r,hp:R(r*(3+L(c)/2))}),'+{treat} Treatment, +{hp} max health');
+  mdef('m_ledger','ledger','Usury Mastery','💰',r=>({power:2*r,int:r}),'+{power}% power, +{int} Intelligence');
+  mdef('m_innerway','innerway','Stillstorm Mastery','⛈️',r=>({agi:3*r,crit:r}),'+{agi} Agility, +{crit}% crit');
+  mdef('m_umbra','umbra','Nightblade Mastery','🌑',r=>({crit:r,evade:4*r}),'+{crit}% crit, +{evade} Evasion');
+  mdef('m_artillery','artillery','Bombardier Mastery','🎯',r=>({dr:r,power:r}),'+{dr}% damage reduction, +{power}% power');})();
+function profKExports(){return {ROLE,openPanel,dist2D,hitFoe,renderCards,PROF_TAG,PROF_WT,PROF_FAM,sealProfs,reqLabel,PROFS_K,profKData,isPetProf,PK,ccImmune,mezApply,fearApply,isMezzed,isFeared,stealthed,breakStealth,stealthOpener,openerTake,profKHurt,tbMul,tbDr,tmodsAt,updProfK,profKChips,teamTactics,PETDEF,buildBot,KIND,wreqK};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -6273,7 +6572,7 @@ function updEnemy(e,dt){
     if(T>e.nextWander){const wr=e.wr==null?8:e.wr;e.wt.set(e.home.x+rand(-wr,wr),0,e.home.z+rand(-wr,wr));e.nextWander=T+rand(3,8);}
     if(!far)moving=moveToward(e,e.wt.x,e.wt.z,e.T.speed*0.3,dt,0.5);
     let ar=e.T.aggro;if(P.level>e.lv+3)ar*=0.5;
-    if(e.guard){if(fzGuardWants(e,dP))aggro(e);}else if(!P.dead&&!inTown(P.pos)&&dP<ar)aggro(e);
+    if(e.guard){if(fzGuardWants(e,dP))aggro(e);}else if(!P.dead&&!inTown(P.pos)&&dP<ar&&!stealthed())aggro(e);
   }else if(e.state==='chase'){const F=foeOf(e),fp=F.pos,dF=dist2D(e.pos,fp),fr=F===P?0:F.hitR*0.6;
     if((F===P&&(P.dead||(inTown(P.pos)&&!e.guard)||(e.guard&&(!fzCanHit(e)||fzGuardFar(e)))))||dH>(e.leash||45)){e.state='return';e.foe=null;}
     else{const ax=e.T.ai&&AIX[e.T.ai]?AIX[e.T.ai](e,dt,F,fp,dF,rooted,stunned,fr):null;
@@ -6326,7 +6625,7 @@ function updHUD(dt){
   if(hudAcc>0.2){hudAcc=0;
     H.pname.innerHTML=`${esc(P.name)} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
     let b='';for(const bf of P.buffs){const left=bf.until-T;b+=`<span class="bf${left<20?' low':''}" title="${esc(bf.name)}: ${Object.keys(bf.mods).map(k=>'+'+bf.mods[k]+' '+SHORT[k]).join(' ')}">${bf.icon}<b>${fmtT(left)}</b></span>`;}
-    if(T<P.bulwarkUntil)b+=`<span class="bf">🛡️<b>${Math.ceil(P.bulwarkUntil-T)}s</b></span>`;if(P.hot)b+=`<span class="bf">❋<b>${Math.ceil(P.hot.until-T)}s</b></span>`;b+=stage2Chips();if(T<(P.slowUntil||0))b+=`<span class="bf slow">🐌<b>${Math.ceil(P.slowUntil-T)}s</b></span>`;if(inTown(P.pos))b+='<span class="bf safe">🏠 Safe</span>';H.buffs.innerHTML=b;
+    if(T<P.bulwarkUntil)b+=`<span class="bf">🛡️<b>${Math.ceil(P.bulwarkUntil-T)}s</b></span>`;if(P.hot)b+=`<span class="bf">❋<b>${Math.ceil(P.hot.until-T)}s</b></span>`;b+=stage2Chips()+profKChips();if(T<(P.slowUntil||0))b+=`<span class="bf slow">🐌<b>${Math.ceil(P.slowUntil-T)}s</b></span>`;if(inTown(P.pos))b+='<span class="bf safe">🏠 Safe</span>';H.buffs.innerHTML=b;
     $('#bSk').classList.toggle('pts',P.sp>0);$('#spBadge').textContent=P.sp>0?P.sp:'';
     const stk=storyTrack();const qt=questTrackHtml();let mt;if(DUN){mt=dunTrack();}else if(ASSAULT){mt=assaultTrack();}else if(qt){mt=stk+qt;}else mt=stk||(inTown(P.pos)?'<b>Tip</b><br>Visit the 📟 terminal for contracts':'');if(H.mtrack._h!==mt){H.mtrack._h=mt;H.mtrack.innerHTML=mt;}
     nearI=findInteract();if(nearI&&!panelOpen){H.bUse.classList.remove('hidden');H.bUse.textContent=nearI.label;}else H.bUse.classList.add('hidden');
@@ -6372,7 +6671,7 @@ function drawMini(dt){miniAcc+=dt;if(miniAcc<0.08)return;miniAcc=0;const W=300,R
   state (credits,mission,pos,hp,en,buffs[{id,name,icon,rem,mods}]) and party:{ai,role} for future team missions.
   partySnapshot(id) turns any sheet into a ready-to-spawn party member (stats computed from its own gear/implants). */
 const ROSTER_KEY='dustreach_roster_v1',MAX_SLOTS=6;
-const ROLE={vanguard:'tank',weaver:'control',mender:'healer',flux:'dps',runner:'dps',wright:'pet',wild:'dps'};
+const ROLE={vanguard:'tank',weaver:'control',mender:'healer',flux:'dps',runner:'dps',wright:'pet',wild:'dps',binder:'pet',mind:'control',harm:'support',exact:'support',fist:'dps',shade:'dps',siege:'tank'};
 function newCharId(){return 'c'+Date.now().toString(36)+Math.floor(Math.random()*1e5).toString(36);}
 // Weave book migration: older characters know their starters, and get a valid (possibly empty) book and 6-slot loadout
 function weaveState(s){const pk=PROFS[s.prof]?s.prof:'vanguard';const st=starterIds(pk);const known=[...new Set(st.concat((s.known||[]).filter(id=>WEAVES[id]&&(WEAVES[id].prof===pk||WEAVES[id].prof==='any'))))];
@@ -6442,7 +6741,9 @@ let selProf='vanguard';
 const NAMES=['Rook','Vesh','Kade','Talin','Mara','Juno','Sable','Orrin','Nyx','Dace','Ilsa','Corvo'];
 function openCreate(){$('#title').classList.add('hidden');$('#create').classList.remove('hidden');state='create';createNameUi();renderCards();renderCreateOpts();previewProf();}
 const PROF_TAG={vanguard:['Heavy-armoured gunner. Very hard to kill.',1],weaver:['Caster who roots, drains and weakens foes.',2],mender:['Field medic. Heals, outlasts, strong implants.',2],
-  flux:['Glass-cannon nuker. Huge damage, fragile.',2],runner:['Fast skirmisher who dodges, snares and kites.',3],wright:['Builds combat bots that fight and tank for you.',1],wild:['Shapeshifter who takes on beast forms.',3]};
+  flux:['Glass-cannon nuker. Huge damage, fragile.',2],runner:['Fast skirmisher who dodges, snares and kites.',3],wright:['Builds combat bots that fight and tank for you.',1],wild:['Shapeshifter who takes on beast forms.',3],
+  binder:['Binds stone golems and flame wisps to fight for you.',1],mind:['Lulls, terrifies and drains foes. Crowd control.',3],harm:['Team buffer: anthems that power up everyone, light heals.',1],
+  exact:['Siphons enemy strength and pays it to your team.',2],fist:['Unarmed martial artist. Fast strikes, self-heals.',2],shade:['Stealth assassin. Huge crit openers, then vanish.',3],siege:['Heavy guns, AoE shells and a reflector shield.',1]};
 const DIFF_N=['','Easy','Medium','Hard'];
 function profFullHtml(k){const p=PROFS[k];return `<h3><span class="sw" style="background:#${p.color.toString(16).padStart(6,'0')}"></span>${p.name}</h3><div class="role">${p.role} · ${'★'.repeat((PROF_TAG[k]||['',2])[1])}${'☆'.repeat(3-(PROF_TAG[k]||['',2])[1])} ${DIFF_N[(PROF_TAG[k]||['',2])[1]]}</div><p>${p.desc}</p><ul><li>${p.basic.icon} <b>${p.basic.name}</b> (auto-attack)</li>${p.abilities.map(a=>`<li>${a.icon} <b>${a.name}</b>: ${a.desc} <span style="color:#9ff">(${a.cost} energy)</span></li>`).join('')}</ul><p style="color:#5ff2ff">+ ${Object.values(WEAVES).filter(w=>w.prof===k&&!w.starter).length} more Weaves to learn from Weave Disks up to level 10 (${Object.values(WEAVES).filter(w=>w.prof===k&&!w.starter&&/AoE/.test(w.desc)).length} AoE)</p><p style="opacity:.7">Health ×${p.hpMul} · Energy ×${p.enMul}<br>Cheap to train: ${Object.keys(p.cost).filter(x=>p.cost[x]===1).map(x=>STATN[x]).join(', ')}</p>`;}
 function openProfFull(k){const b=$('#profFull');b.querySelector('.pfbody').innerHTML=profFullHtml(k);b.classList.remove('hidden');}
@@ -6467,7 +6768,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -6481,7 +6782,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
