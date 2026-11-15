@@ -277,11 +277,18 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #death{background:rgba(60,0,0,.55);z-index:25}
 #death h2{font-size:44px;letter-spacing:.2em;color:#ff7a5a;margin:0 0 8px;text-shadow:0 0 20px #000}
 #fps{position:fixed;left:calc(270px + var(--sl));top:calc(10px + var(--st));font-size:11px;opacity:.5;z-index:6;pointer-events:none}
+/* Build O: iPad touch targets >= 44px everywhere in panels/overlays */
+#panel .sbtn,#panel .tabs button,#panel .seg button,#panel button[data-act],#saveBox button,#renameBox button{min-height:44px}
+#panel .chip{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+#panel .sbtn[data-act=raise],#panel .sbtn[data-act=mdiff]{min-width:44px;min-height:44px}
+#panel .pks{width:44px;height:44px}
+#panel .x{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;right:-6px;top:-8px;padding:0}
+#panel input[type=range],#panel input[type=text],#panel input[type=search],#panel input:not([type]){min-height:44px;box-sizing:border-box}
 </style>
-<meta name="dr-build" content="20261115T134656-f76a24e6">
+<meta name="dr-build" content="20261115T191531-cf28aae7">
 <script>
 (function(){
-var BUILD='20261115T134656-f76a24e6';window.DR_BUILD=BUILD;
+var BUILD='20261115T191531-cf28aae7';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1508,7 +1515,7 @@ const PERKS={};
 // Build C: the multiplier stops growing at Lv 20 (x2.98), so 21-30 keeps climbing only with the base curve: ~85 same-level kills at Lv 21, ~100 at Lv 29.
 // Build J: past 30 the base curve keeps climbing plus +2% per level (~110 same-level kills at 31, ~150 at 49).
 // Build M: past 50 the late multiplier grows 0.008/level (was 0.02) so Lv 51-100 stay ~200-250 band kills per level; levels 1-50 are unchanged
-const xpNeed=l=>Math.round(80*Math.pow(l,1.6)*(l>=10?1+0.18*(Math.min(l,20)-9):1)*(l>30?1+0.02*(Math.min(l,50)-30)+0.008*Math.max(0,l-50):1));
+const xpNeed=l=>Math.round(80*Math.pow(l,1.6)*(balOn()?(l>5?1+1.98*Math.pow((Math.min(l,20)-5)/15,1.3):1):(l>=10?1+0.18*(Math.min(l,20)-9):1))*(l>30?1+0.02*(Math.min(l,50)-30)+0.008*Math.max(0,l-50):1));
 const MAXLVL=100;// Build M: 50 -> 100 (Build J: 30 -> 50). Raising it further is data: MAXLVL, XREG regions/dungeons, TEAMD bands (TD_BANDS), TIERS already reach 100+
 const SP_START=20,SP_LVL=25;
 const SP_HI=5;// extra skill points per level past 10 (the bigger skill caps need them), and again past 20
@@ -1582,7 +1589,7 @@ function makeEnemy(type,x,z,lv,temp){
   const T0=ETYPES[type];const R=T0.build();if(R.kind==='hum'&&R.melee==null)R.melee=!T0.ranged;bakeRig(R);const sc=T0.scale*(1+Math.min(lv-1,29)*0.03+Math.max(0,Math.min(lv,60)-30)*0.008);R.g.scale.setScalar(sc);scene.add(R.g);/* Build M: size growth stops at Lv 60 */
   const e={type,T:T0,R,lv,temp:!!temp,home:new V3(x,0,z),pos:new V3(x,heightAt(x,z),z),rotY:srand(0,6.28),state:'idle',hp:0,maxHp:0,
     nextAtk:0,nextWander:0,wt:new V3(x,0,z),stunUntil:0,rootUntil:0,dot:null,dead:false,respawnAt:0,hitT:0,atkT:0,moving:0,shadow:makeShadow(T0.hitR*0.9*sc),hitR:T0.hitR*sc,h:T0.h*sc,animT:Math.random()*10};
-  e.maxHp=e.hp=Math.round(T0.hp*(1+0.38*(lv-1)));e.dmg=T0.dmg*(1+0.27*(lv-1));
+  e.maxHp=e.hp=Math.round(T0.hp*(1+0.38*(lv-1))*eHpK(lv));e.dmg=T0.dmg*(1+0.27*(lv-1));/* Build O: eHpK keeps time-to-kill flat across levels (player power grows ~cubically) */
   enemies.push(e);return e;
 }
 function spawnWorldEnemies(){
@@ -1603,7 +1610,7 @@ function updProjs(dt){for(let i=projs.length-1;i>=0;i--){const p=projs[i];const 
   entChest(p.to,tmpV);tmpV2.subVectors(tmpV,p.m.position);const d=tmpV2.length();const step=p.speed*dt;
   if(d<=step+0.3){scene.remove(p.m);projs.splice(i,1);p.onHit();}else p.m.position.addScaledVector(tmpV2,step/d);}}
 const rings=[];const ringGeo=new THREE.RingGeometry(0.85,1,32);ringGeo.rotateX(-Math.PI/2);
-function ringFx(x,z,color,r,dur){const m=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color,transparent:true,opacity:0.9,depthWrite:false,side:THREE.DoubleSide}));m.position.set(x,heightAt(x,z)+0.25,z);scene.add(m);rings.push({m,t:0,dur:dur||0.6,r});}
+function ringFx(x,z,color,r,dur){if(SIMP)return;const m=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color,transparent:true,opacity:0.9,depthWrite:false,side:THREE.DoubleSide}));m.position.set(x,heightAt(x,z)+0.25,z);scene.add(m);rings.push({m,t:0,dur:dur||0.6,r});}
 function updRings(dt){for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.t+=dt;const k=r.t/r.dur;if(k>=1){scene.remove(r.m);r.m.material.dispose();rings.splice(i,1);continue;}const s=0.3+k*r.r;r.m.scale.set(s,1,s);r.m.material.opacity=0.9*(1-k);}}
 // beam for waypoint & loot
 const beamGeo=new THREE.CylinderGeometry(0.5,0.5,1,8,1,true);beamGeo.translate(0,0.5,0);
@@ -1612,7 +1619,7 @@ const wpBeam=makeBeam(0xffc85a,70,1.4,0.28);wpBeam.visible=false;
 
 /* ---------------- floating text ---------------- */
 const dmgLayer=$('#dmgLayer');const floats=[];const fpool=[];
-function floatText(pos,txt,cls){let el=fpool.pop();if(!el){el=document.createElement('div');dmgLayer.appendChild(el);}el.className='dmg '+cls;el.textContent=txt;el.style.display='block';
+function floatText(pos,txt,cls){if(SIMP)return;let el=fpool.pop();if(!el){el=document.createElement('div');dmgLayer.appendChild(el);}el.className='dmg '+cls;el.textContent=txt;el.style.display='block';
   if(floats.length>40){const f=floats.shift();f.el.style.display='none';fpool.push(f.el);}
   floats.push({el,p:new V3(pos.x+rand(-0.4,0.4),pos.y,pos.z+rand(-0.4,0.4)),t:0});}
 const projV=new V3();
@@ -1644,7 +1651,7 @@ function setTarget(e){P.target=e;if(e)SFX.ui();}
 function cycleTarget(){const list=enemies.filter(e=>!e.dead&&!fzSkip(e)&&dist2D(e.pos,P.pos)<35).sort((a,b)=>dist2D(a.pos,P.pos)-dist2D(b.pos,P.pos));if(!list.length){warn('No enemies nearby');return;}
   const i=list.indexOf(P.target);setTarget(list[(i+1)%list.length]);}
 function skillF(){return 1+Math.max(-0.2,(eff(PROFS[P.prof].dmgSkill)-12)/100);}
-function rollDmg(mult){const op=openerTake();if(op)mult*=op;const base=S.dmg*(1+0.08*(effLvP()-1))*skillF()*(1+S.power/100)*mult*profKDmgOut()*rand(0.9,1.1);const crit=!!op||Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
+function rollDmg(mult){const op=openerTake();if(op)mult*=op;const base=S.dmg*(1+0.08*(effLvP()-1))*skillF()*(1+S.power/100)*mult*profKDmgOut()*profDmgK(P.prof,effLvP())*rand(0.9,1.1);const crit=!!op||Math.random()*100<S.crit;return {v:Math.max(1,Math.round(base*(crit?1.75:1))),crit};}
 function dmgEnemy(e,mult,silentAggro){if(e.dead||fzSkip(e))return;
   if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');P.lastCombat=T;if(e.state!=='chase')aggro(e);return;}
@@ -1653,7 +1660,7 @@ function dmgEnemy(e,mult,silentAggro){if(e.dead||fzSkip(e))return;
   P.lastCombat=T;if(e.state!=='chase')aggro(e);if(e.hp<=0)killEnemy(e);}
 function aggro(e){if(e.dead||P.dead)return;e.state='chase';e.nextAtk=Math.max(e.nextAtk,T+0.5);
   for(const o of enemies)if(o!==e&&!o.dead&&o.state==='idle'&&((e.pack&&o.pack===e.pack)||(o.type===e.type&&dist2D(o.pos,e.pos)<9))){o.state='chase';o.nextAtk=T+0.8;}}
-function healPlayer(v){const a=Math.min(Math.round(v),S.maxHp-Math.round(P.hp));P.hp=Math.min(S.maxHp,P.hp+v);floatText(tmpV.set(P.pos.x,P.pos.y+2.2,P.pos.z),'+'+Math.max(0,a),'heal');}
+function healPlayer(v){const a=Math.min(Math.round(v),S.maxHp-Math.round(P.hp));if(SIMST)SIMST.ph+=Math.max(0,a);P.hp=Math.min(S.maxHp,P.hp+v);floatText(tmpV.set(P.pos.x,P.pos.y+2.2,P.pos.z),'+'+Math.max(0,a),'heal');}
 function dodgeRoll(){return Math.random()*100<(S.dodge||0);}
 function dmgPlayer(amt,src,noDodge,pure){if(P.dead)return;P.hurtT=T;
   if(P.cast&&P.cast.fragile)cancelCast('Interrupted');
@@ -1661,8 +1668,8 @@ function dmgPlayer(amt,src,noDodge,pure){if(P.dead)return;P.hurtT=T;
   if(P.mount)dismount('Knocked off your '+VEHICLES[P.mount].name);
   if(src&&src.T&&src.T.slow)applySlow(src.T.slow.mul,src.T.slow.dur,src.T.slow.name);
   if(src&&src.T&&src.T.ai==='chill')addChill(1,src);
-  let a=amt*rand(0.9,1.1)*(pure?1:(100/(100+S.armor))*(1-(S.dr||0)/100));if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn();a=Math.max(1,Math.round(a));
-  P.hp-=a;profKHurt(a,src);P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
+  let a=amt*rand(0.9,1.1)*(pure?1:(armC(src)/(armC(src)+S.armor))*(1-(S.dr||0)/100));if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn();a=Math.max(1,Math.round(a));
+  P.hp-=a;if(SIMST)SIMST.pt+=a;profKHurt(a,src);P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
   if(!validTarget()&&src)P.target=src;if(P.hp<=0){P.hp=0;playerDie();}}
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
@@ -1680,7 +1687,7 @@ function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;
   if(P.target===e){P.target=null;let nb=null,nd=1e9;for(const o of enemies)if(!o.dead&&o!==e&&o.state==='chase'){const d=dist2D(o.pos,P.pos);if(d<nd&&d<26){nd=d;nb=o;}}
     if(nb){P.target=nb;}else P.autoAtk=false;}
   save();}
-function gainXp(n){if(P.level>=MAXLVL)return;const capL=Math.min(MAXLVL,bandCapOf(P));if(P.level>=capL){P.xp=Math.min(P.xp+n,xpNeed(P.level)-1);if(n>0)bandCapMsg(capL);return;}P.xp+=n;const t0=tierOfLv(P.level);while(P.level<capL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':P.level===31?' · the Mirelight Fen awaits':P.level===41?' · the Sundered Heights await':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
+function gainXp(n){if(P.xpLock){xpLockedNote(n);return;}if(P.level>=MAXLVL)return;const capL=Math.min(MAXLVL,bandCapOf(P));if(P.level>=capL){P.xp=Math.min(P.xp+n,xpNeed(P.level)-1);if(n>0)bandCapMsg(capL);return;}P.xp+=n;const t0=tierOfLv(P.level);while(P.level<capL&&P.xp>=xpNeed(P.level)){P.xp-=xpNeed(P.level);P.level++;const g=spGain(P.level);P.sp+=g;calcStats();P.hp=S.maxHp;P.en=S.maxEn;SFX.level();banner('LEVEL '+P.level,'+'+g+' skill points'+(P.level>=PERK_START?' · +1 perk point':'')+'. Open 📈 Skills to spend them'+(P.level===11?' · the Duskcrown Highlands await':P.level===21?' · the Rimefall Expanse awaits':P.level===31?' · the Mirelight Fen awaits':P.level===41?' · the Sundered Heights await':''));if(typeof onLevelUp==='function')onLevelUp(P.level);ringFx(P.pos.x,P.pos.z,0xffc85a,6,1.2);log('<b style="color:#ffc85a">Reached level '+P.level+'</b>');}
   const t1=tierOfLv(P.level);if(t1>t0){P.tier=t1;tierUp(t1,P.level);}
   if(P.level>=MAXLVL)P.xp=0;}
 function faceTarget(t){if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);}
@@ -1758,7 +1765,7 @@ function useConsum(k){const c=CONSUM[k];if(!c||!(P.consum[k]>0)){warn('You have 
 function pressAttack(){if(P.dead)return;let t=validTarget();if(!t){t=autoTarget(30);if(!t){warn('No enemies nearby');return;}P.target=t;}P.autoAtk=true;useAbility(-1);}
 function useStim(){if(P.dead)return;if(P.stims<=0){warn('No med-stims. Buy some from the trader');return;}if((P.cds.stim||0)>T){warn('Stim recharging');return;}
   P.stims--;P.cds.stim=T+15;healPlayer(S.maxHp*0.4);SFX.heal();}
-function playerDie(){P.dead=true;P.autoAtk=false;P.target=null;SFX.death();for(const e of enemies)if(e.state==='chase')e.state='return';
+function playerDie(){if(SIMST)SIMST.pd++;P.dead=true;P.autoAtk=false;P.target=null;SFX.death();for(const e of enemies)if(e.state==='chase')e.state='return';
   const fee=Math.floor(P.credits*0.05);P.credits-=fee;const loss=applyXpLoss();const spn=savePointName();
   $('#deathTxt').textContent=(loss.unsaved>0?'Unsaved XP since your last Save Point: '+loss.unsaved+'. You lost '+loss.lost+' XP. ':'Your XP was saved: nothing lost. ')+(DUN?'You\'ll be revived at the '+DUN.D.name+' entrance checkpoint. Bosses reset to full health.':'Respawning at your Save Point: '+spn+'.')+(fee?' Recovery fee: '+fee+'¢.':'');
   $('#bRespawn').textContent=DUN?'Revive at dungeon entrance':'Respawn at '+spn;
@@ -1886,7 +1893,7 @@ function openSkills(){
   const pr=PROFS[P.prof];
   const row=(s,isA)=>{const bought=isA?(P.ab[s]||0):(P.sb[s]||0);const cap=isA?attrCap(s):skillCap(s);const c=costOf(s);const bon=S.bon[s]||0;const base=baseOf(s);const trick=isA?0:eff(s)-base-bought-bon;const dis=P.sp<c?'disabled':'';const atCap=bought>=cap,over=bought>cap;
     return `<div class="sk"><div class="skn"><b>${STATN[s]}</b> <span class="cst c${c}">${c} SP</span><div class="st">${base} base${bought?' + '+bought+' trained':''}${trick?' + '+trick+' from attributes':''}${bon?` <span class="${bon>0?'up':'down'}">+${bon} gear/implants/buffs</span>`:''}</div>${s==='run'?`<div class="st"><b class="up">Move speed +${S.runPct}%</b> on foot (cap +${RUN_CAP}%) · ${PROFS[P.prof].runCap>1?'your profession trains it furthest':PROFS[P.prof].runCap<1?'your profession can only train it to '+Math.round(PROFS[P.prof].runCap*100)+'% of the normal cap':'normal training cap'}</div>`:''}<div class="st" style="opacity:.6">${STATDESC[s]}</div></div><div class="skv">${eff(s)}<div class="st${atCap?' capd':''}" title="Trained / cap (Tier ${pTier()})">${bought}/${cap}${over?'<br><span class="capw">over cap (kept)</span>':atCap?'<br><span class="capw">CAP</span>':''}</div></div><button class="sbtn" data-act="raise" data-s="${s}" data-n="1" ${dis}>+1</button><button class="sbtn alt" data-act="raise" data-s="${s}" data-n="5" ${dis}>+5</button></div>`;};
-  const html=`<div class="namebar"><span>👤</span><b>${esc(P.name)}</b><span style="opacity:.7">Lv ${P.level} ${esc(PROFS[P.prof].name)}</span><button class="sbtn alt" data-act="rename">✏️ Rename</button></div>${tierBar()}<div class="sphead"><span>Unspent skill points: <b>${P.sp}</b></span><span style="opacity:.75;font-size:13px">You get ${SP_LVL} per level. The cost per point depends on your profession and breed (green = cheap). Training caps rise each level and each tier; your breed (${breedOf(P).name}) raises or lowers the attribute caps.</span></div>
+  const html=`<div class="namebar"><span>👤</span><b>${esc(P.name)}</b><span style="opacity:.7">Lv ${P.level} ${esc(PROFS[P.prof].name)}</span><button class="sbtn alt" data-act="rename">✏️ Rename</button>${xpLockBtn()}</div>${tierBar()}<div class="sphead"><span>Unspent skill points: <b>${P.sp}</b></span><span style="opacity:.75;font-size:13px">You get ${SP_LVL} per level. The cost per point depends on your profession and breed (green = cheap). Training caps rise each level and each tier; your breed (${breedOf(P).name}) raises or lowers the attribute caps.</span></div>
   <div class="cols"><div><div class="h4">Attributes</div>${ATTRS.map(a=>row(a,true)).join('')}</div><div><div class="h4">Skills</div>${SKILLS.map(a=>row(a,false)).join('')}<div class="h4" style="margin-top:10px">Active buffs</div>${buffList()}</div></div>
   <div class="h4" style="margin-top:12px">Summary</div>${statsHtml()}<button class="sbtn alt" style="margin-top:10px" data-act="respec">Reset all points (${20*P.level}¢)</button>`;
   openPanel('SKILLS · '+PROFS[P.prof].name.toUpperCase(),html,'skills');
@@ -1945,6 +1952,7 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='usec'){useConsum(b.dataset.k);openInventory();}
   else if(a==='raise'){raise(b.dataset.s,+b.dataset.n);openSkills();}
   else if(a==='respec'){respec();openSkills();}
+  else if(a==='xplock'){setXpLock(!P.xpLock);openSkills();}
   else if(a==='accept')acceptMission(+b.dataset.i);
   else if(a==='abandon')abandonMission(b.dataset.id);
   else if(a==='turnin')turnIn(b.dataset.id);
@@ -2151,6 +2159,7 @@ function capMsg(D){return 'Level cap '+D.cap+' – you are too experienced for '
 function dunDef(id){return DUNGEONS[id]||(RAIDS&&RAIDS[id])||null;}
 function dunEntryCheck(id,party){if(TEAM_ENTERING===id)return teamDunCheck(id);const D=dunDef(id);if(D&&D.raid)return raidEntryCheck(id,party);if(!D)return {ok:false,why:'unknown',msg:'Unknown dungeon'};const lv=partyTopLevel(party);
   if(D.gate&&typeof gateOpen==='function'&&!gateOpen(D.gate)){const s=STEP[GATES[D.gate].step];return {ok:false,why:'story',lv,step:s.id,msg:gateMsg(D.gate)};}
+  if(lv>D.cap&&!D.raid){const sr=storyDunStep(id);if(sr&&P.level>=D.minLvl)return {ok:true,lv,story:sr};}
   if(lv>D.cap)return {ok:false,why:'cap',lv,msg:(party&&party.length&&lv>P.level?'Level cap '+D.cap+' – your party\'s highest member (Lv '+lv+') is too experienced for '+D.name:capMsg(D))};
   if(P.level<D.minLvl)return {ok:false,why:'min',lv,msg:'Requires level '+D.minLvl+' – you are level '+P.level};return {ok:true,lv};}
 // loot payoff: clearing at (or one under) the cap means you out-geared the place by twinking, so bosses drop a bit more
@@ -2250,7 +2259,7 @@ for(const k in DUNGEONS){const D=DUNGEONS[k],d=D.door;const y=heightAt(d.x,d.z);
 let DUN=null;
 const CORR=10,WH=2.6;// low cut-away walls so the third-person camera can see over them
 const dunTargets=()=>DUN&&DUN.D.raid?[P].concat(allies.filter(a=>a.raid&&!a.dead)):[P].concat(allies.filter(a=>a.comp&&!a.dead));// raids: the whole team
-function enterDungeon(id,opt){const D=dunDef(id);if(!D||DUN)return false;opt=opt||{};if(!D.raid&&!opt.party&&teamActive()){opt.party=teamSnaps();const n=opt.party.length;if(n)opt.modeObj={hp:1+0.32*n,dmg:1+0.05*n,lvl:0,size:[2,6]};}{const ck=dunEntryCheck(id,opt.party);if(!ck.ok){warn(ck.msg);if(ck.why==='cap')banner('LEVEL CAP '+D.cap,ck.msg.replace(/^Level cap \d+ – /,''));if(ck.why==='story')lockedMsg(D.gate,true);return false;}}const mode=opt.modeObj||D.modes[opt.mode||'solo'];questOnEnterDungeon();
+function enterDungeon(id,opt){const D=dunDef(id);if(!D||DUN)return false;opt=opt||{};if(!D.raid&&!opt.party&&teamActive()){opt.party=teamSnaps();const n=opt.party.length;if(n)opt.modeObj={hp:1+0.32*n,dmg:1+0.05*n,lvl:0,size:[2,6]};}let storyRun=null;{const ck=dunEntryCheck(id,opt.party);if(!ck.ok){warn(ck.msg);if(ck.why==='cap')banner('LEVEL CAP '+D.cap,ck.msg.replace(/^Level cap \d+ – /,''));if(ck.why==='story')lockedMsg(D.gate,true);return false;}if(ck.story&&!(opt.modeObj&&(opt.modeObj.team||opt.modeObj.vet)))storyRun=storyRunMode(D,ck,opt.modeObj);}const mode=storyRun||opt.modeObj||D.modes[opt.mode||'solo'];questOnEnterDungeon();
   P.target=null;P.autoAtk=false;for(const p of projs)scene.remove(p.m);projs.length=0;for(const r of rings){scene.remove(r.m);}rings.length=0;clearFx();
   const hidden=[];const keep=new Set([PM.g,pShadow]);for(const o of scene.children)if(o.visible&&!keep.has(o)){o.visible=false;hidden.push(o);}
   DUN={id,D,mode,party:opt.party||[],ret:{x:D.door.x+Math.sin(Math.atan2(-D.door.x,-D.door.z))*4,z:D.door.z+Math.cos(Math.atan2(-D.door.x,-D.door.z))*4},hidden,
@@ -2259,7 +2268,7 @@ function enterDungeon(id,opt){const D=dunDef(id);if(!D||DUN)return false;opt=opt
   FLAT=true;scene.add(DUN.group);buildDungeon(DUN);envTexGroup(DUN.group);if(typeof dismount==='function'&&P.mount)dismount();for(const al of allies){for(const o of [al.R.g,al.shadow]){o.visible=true;const k=hidden.indexOf(o);if(k>=0)hidden.splice(k,1);}al.pos.set(P.pos.x+1.5,0,P.pos.z+1.5);al.target=null;}
   {const th=DUN.th;if(th){scene.fog=new THREE.Fog(th.fog,th.fogN,GFXC.lvl==='low'?th.fogF*0.8:th.fogF);scene.background=new THREE.Color(th.fog);}else{scene.fog=new THREE.Fog(D.pal.fog,16,64);scene.background=new THREE.Color(D.pal.fog);}}
   P.pos.set(DUN.entry.x,0,DUN.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.pitch=0.62;camS.dist=11;camS.cur=null;
-  banner(D.name.toUpperCase(),D.sub+' · Recommended level '+D.rec);log('Entered <b style="color:#ff9a2a">'+esc(D.name)+'</b>. Checkpoint set at the entrance.');SFX.quest();save();return true;}
+  if(mode.story)storyRunBanner(D,mode);else banner(D.name.toUpperCase(),D.sub+' · Recommended level '+D.rec);log('Entered <b style="color:#ff9a2a">'+esc(D.name)+'</b>. Checkpoint set at the entrance.');SFX.quest();save();return true;}
 function exitDungeon(silent){if(!DUN)return;const d=DUN;clearTele();if(d.D.raid)raidExitCleanup(d);
   // auto-collect dungeon loot left on the floor
   let got=0,lost=0;for(const l of loots){scene.remove(l.m);scene.remove(l.b);l.b.material.dispose();if(invAdd(l.item))got++;else lost++;}loots.length=0;
@@ -2299,22 +2308,22 @@ function buildDungeonV1(d){const D=d.D,pal=D.pal,G=d.group;const L=[],Bx=[],Cn=[
   let packN=0;rooms.forEach(r=>{const hw=r.w/2,hd=r.d/2;
     (r.packs||[]).forEach((pk,j,arr)=>{packN++;const px=arr.length>1?(j?1:-1)*r.w/4:0,pz=r.cz+(arr.length>1?(j?-1:1)*r.d/6:0);
       pk.forEach(([t,lv],k)=>{const a=k/pk.length*6.28;spawnDunMob(t,px+Math.cos(a)*2.4,pz+Math.sin(a)*2.4,lv,{pack:'p'+packN});});});
-    if(r.boss){const B=BOSSES[r.boss];const e=spawnDunMob(B.etype,0,r.cz-hd*0.2,B.lvl,{boss:r.boss});e.boss={key:r.boss,def:B,room:r,final:!!r.final,engaged:false,done:{},next:{},enraged:false,baseT:e.T,baseDmg:e.dmg};e.leash=Math.max(r.w,r.d)*0.8;e.wr=0;d.bosses.push(e);}});
+    if(r.boss){const B=BOSSES[r.boss];const e=spawnDunMob(B.etype,0,r.cz-hd*0.2,B.lvl,{boss:r.boss});e.boss={key:r.boss,def:B,room:r,final:!!r.final,engaged:false,done:{},next:{},enraged:false,baseT:e.T,baseDmg:e.dmg};e.leash=Math.max(r.w,r.d)*(balOn()?1.3:0.8);e.wr=0;d.bosses.push(e);}});
 }
-function spawnDunMob(t,x,z,lv,o){o=o||{};const m=DUN.mode;const e=makeEnemy(t,x,z,lv+(m.lvl||0),!!o.temp);e.dun=true;e.T=Object.assign({},e.T);e.maxHp=e.hp=Math.round(e.maxHp*(m.hp||1));e.dmg*=(m.dmg||1);e.leash=o.leash||38;e.wr=1.5;if(o.pack)e.pack=o.pack;return e;}
+function spawnDunMob(t,x,z,lv,o){o=o||{};const m=DUN.mode;const e=makeEnemy(t,x,z,lv+(m.lvl||0),!!o.temp);e.dun=true;e.T=Object.assign({},e.T);const rk=typeof RAID_K!=='undefined'&&RAID_K[DUN.D.id]&&balOn();e.maxHp=e.hp=Math.round(e.maxHp*(m.hp||1)*(o.boss||rk?dunBossK(DUN.D.id,m):1));e.dmg*=(m.dmg||1)*(o.boss||rk?dunBossK(DUN.D.id,m,1):1);if(rk&&o.boss&&RAID_BOSS_K[o.boss])e.maxHp=e.hp=Math.round(e.maxHp*RAID_BOSS_K[o.boss]);e.leash=o.leash||38;e.wr=1.5;if(o.pack)e.pack=o.pack;return e;}
 function addPortal(d,x,z,label){const g=new THREE.Group();g.position.set(x,d.hAt?d.hAt(x,z):0,z);part(g,geoBox,M(0x2a2a30),-1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),0,3.8,0,4.2,0.5,0.7);
   const sw=part(g,new THREE.TorusGeometry(1.25,0.14,4,22),MB(0x6dff8a),0,1.8,0,1,1.25,1);const pl=part(g,new THREE.CircleGeometry(1.15,20),new THREE.MeshBasicMaterial({color:0x6dff8a,transparent:true,opacity:0.35,side:THREE.DoubleSide}),0,1.8,0,1,1.25,1);
   d.group.add(g);d.portals.push({x,z,label,sw,pl});}
 function dunInteract(p){if(DUN&&DUN.apt)return aptInteract(p);if(DUN){for(const q of DUN.portals)if(Math.hypot(p.x-q.x,p.z-q.z)<3.4)return {k:'dexit',label:'🌀 Leave dungeon'};return dunFeatInteract(p);}
-  for(const k in DUNGEONS){const d=DUNGEONS[k].door;if(Math.hypot(p.x-d.x,p.z-d.z)<6)return {k:'door',id:k,label:'🚪 '+DUNGEONS[k].name+(P.level>DUNGEONS[k].cap?' ⛔':'')};}return null;}
+  for(const k in DUNGEONS){const d=DUNGEONS[k].door;if(Math.hypot(p.x-d.x,p.z-d.z)<6)return {k:'door',id:k,label:'🚪 '+DUNGEONS[k].name+(P.level>DUNGEONS[k].cap?(storyDunStep(k)?' · 📜 Story run':' ⛔'):'')};}return null;}
 function openDoor(id){const D=DUNGEONS[id];const ck=dunEntryCheck(id,teamActive()?teamSnaps():null);const ok=ck.ok;const over=ck.why==='cap';const bosses=D.rooms.filter(r=>r.boss).map(r=>BOSSES[r.boss]);
   D._prev=D._prev||Object.keys(UNIQUES).filter(k=>UNIQUES[k].d===id).map(makeUnique);
   const h=`<div class="cols"><div><div class="mis" style="border-color:#ff9a2a"><b style="font-size:17px">${esc(D.name)}</b> <span style="opacity:.7">· ${esc(D.sub)}</span><p>${esc(D.desc)}</p>
     <div>Levels <b>${D.lvl[0]}-${D.lvl[1]}</b> · Entry <b class="${P.level>=D.minLvl?'up':'down'}">min ${D.minLvl}</b> · <b class="${over?'down':'up'}">level cap ${D.cap}</b> (you are ${P.level}) · Recommended <b>${D.rec}</b> with good gear</div>
-    ${over?`<div class="capmsg">⛔ ${esc(ck.msg)}</div>`:''}${ck.why==='story'?`<div class="capmsg story">${esc(ck.msg)}. Talk to ${esc(giverWhere(ck.step))}.</div>`:''}
+    ${over?`<div class="capmsg">⛔ ${esc(ck.msg)}</div>`:''}${ck.story?`<div class="capmsg story" id="storyRunNote">📜 <b>Story run</b>: you are over the level cap, but "${esc(ck.story.n)}" still needs ${esc(ck.story.obj.label)}. Enemies are scaled to your level (Lv ${ck.lv}); normal loot; no outgrown lockout.${storyNotTaken(ck.story)?` <b>Accept the step from ${esc(giverWhere(ck.story.id))} first so the boss counts.</b>`:''}</div>`:''}${ck.why==='story'?`<div class="capmsg story">${esc(ck.msg)}. Talk to ${esc(giverWhere(ck.step))}.</div>`:''}
     <div style="opacity:.8;font-size:13px;margin-top:4px">🎯 Capped dungeon: characters above level ${D.cap} can't enter. Twink to win here: buff up, then wear gear and implants above your level. Clearing at level ${D.cap-1}-${D.cap} gives the bosses <b>+25% extra-drop chance</b> and <b>×1.5 Relic chance</b> (more with a full group).</div>
     <div style="opacity:.8;font-size:13px;margin-top:4px">Solo, or with your 👥 team along. Death revives you at the entrance checkpoint (bosses reset). The harder team-only version is below.</div>
-    <button class="sbtn${ok?'':' locked'}" style="margin-top:10px" data-act="${ok?'denter':'noop'}" data-id="${id}">${ok?'Enter '+esc(D.name):over?'Level cap '+D.cap+' – too experienced':ck.why==='story'?'🔒 Story: step '+(STEP[ck.step].i+1)+' "'+esc(STEP[ck.step].n)+'"':'Requires level '+D.minLvl}</button></div>
+    <button class="sbtn${ok?'':' locked'}" style="margin-top:10px" data-act="${ok?'denter':'noop'}" data-id="${id}">${ok?(ck.story?'📜 Story run: Enter '+esc(D.name):'Enter '+esc(D.name)):over?'Level cap '+D.cap+' – too experienced':ck.why==='story'?'🔒 Story: step '+(STEP[ck.step].i+1)+' "'+esc(STEP[ck.step].n)+'"':'Requires level '+D.minLvl}</button></div>
     ${teamDoorHtml(id)}<div class="h4">Bosses</div>${bosses.map(B=>`<div class="mis"><b style="color:#ff9a2a">${esc(ETYPES[B.etype].name)}</b> · Lv ${B.lvl}${B===bosses[bosses.length-1]?' · final boss':' · mini-boss'}${B.mech.map(m=>`<div style="font-size:13px"><b>${esc(m.name)}</b>: ${esc(m.desc)}</div>`).join('')}</div>`).join('')}</div>
     <div><div class="h4">Exclusive loot (only here)</div>${D._prev.map(it=>itemRow(it,'',false,'noop')).join('')}<div style="opacity:.7;font-size:12px;margin-top:6px">Bosses always drop at least one. The Relic is rare (~7% from the final boss) and the Weave Disk is 20%.</div></div></div>`;
   openPanel('🚪 '+D.name.toUpperCase(),h,'door');}
@@ -2355,7 +2364,7 @@ function bossTick(e){const b=e.boss;if(e.dead)return;
       banner(e.T.name.toUpperCase()+' ENRAGED',m.name);ringFx(e.pos.x,e.pos.z,0xff2a1a,6,0.8);SFX.boom();}}
   });}
 function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,P.pos.y+4.5,P.pos.z);updDun2(dt);if(d.D.raid)updRaid(dt);
-  if(!d.apt&&!d.outgrown&&P.level>d.D.cap&&!(d.mode&&(d.mode.vet||d.mode.team))){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
+  if(!d.apt&&!d.outgrown&&P.level>d.D.cap&&!(d.mode&&(d.mode.vet||d.mode.team||d.mode.story))){d.outgrown=true;banner('OUTGROWN '+d.D.name.toUpperCase(),'Level '+P.level+' is over the cap ('+d.D.cap+'). Finish this run; you can\'t re-enter afterwards.');log('⛔ You are now over the level cap for '+esc(d.D.name)+'. This run continues; re-entry is blocked.');}
   for(const q of d.portals){q.sw.rotation.z+=dt*1.5;q.pl.material.opacity=0.3+Math.sin(T*3)*0.1;}if(d.checkpoint)d.checkpoint.material.opacity=0.4+Math.sin(T*2)*0.15;
   for(const e of d.bosses){bossTick(e);if(d.mode&&d.mode.team)teamBossTick(e);}
   for(let i=d.tele.length-1;i>=0;i--){const t=d.tele[i];if(t.upd)t.upd(t);const k=clamp((T-t.t0)/(t.at-t.t0),0,1);t.fill.scale.set(t.r*k,1,t.r*k);t.edge.material.opacity=0.6+Math.sin(T*18)*0.35;
@@ -2364,7 +2373,7 @@ function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,P.pos.y+4.5,P.
       d.group.remove(t.g);t.g.children.forEach(m=>m.material.dispose());d.tele.splice(i,1);}}}
 function dunRespawn(){const d=DUN;clearTele();for(const e of enemies.slice()){if(e.addOf){removeEnemy(e);continue;}if(!e.dead){e.state='idle';e.hp=e.maxHp;e.pos.set(e.home.x,0,e.home.z);e.dot=null;e.stunUntil=e.rootUntil=0;e.hexUntil=0;}if(e.boss)resetBoss(e);}
   P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,heightAt(d.entry.x,d.entry.z),d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT',d.sun?'Team revived at checkpoint '+(sunRec().stage|0)+' of '+SUN_STAGES.length+' · the boss resets':'Revived at the '+d.D.name+' entrance');if(d.sun)d.sun.wipes=(d.sun.wipes||0)+1;if(d.D.raid)raidRez();save();}
-function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&!(d.mode&&d.mode.team)&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> <span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span><br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
+function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&!(d.mode&&d.mode.team)&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> ${d.mode&&d.mode.story?'<span style="color:#ffd25a">· 📜 Story run (scaled to you)</span>':`<span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span>`}<br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
 function dunWaypoint(){const d=DUN;if(d.apt)return null;if(d.cleared){const q=d.portals[d.portals.length-1];return {x:q.x,z:q.z,label:'Exit'};}const b=d.bosses.find(e=>!e.dead);return b?{x:b.home.x,z:b.home.z,label:b.T.name}:null;}
 function dunMini(c,tf,sc){if(DUN.areas)return dunMini2(c,tf,sc);c.fillStyle='rgba(120,100,90,0.45)';c.strokeStyle='rgba(230,215,190,0.7)';c.lineWidth=2;
   for(const r of DUN.rects){const a=tf(r[0],r[1]),b=tf(r[0]+r[2],r[1]),e=tf(r[0]+r[2],r[1]+r[3]),f=tf(r[0],r[1]+r[3]);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(e[0],e[1]);c.lineTo(f[0],f[1]);c.closePath();c.fill();c.stroke();}
@@ -2515,7 +2524,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s)};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -2718,10 +2727,10 @@ function createAlly(o){const a=Object.assign({kind:'ally',name:'Ally',hp:100,dmg
 function removeAlly(a){scene.remove(a.R.g);scene.remove(a.shadow);const i=allies.indexOf(a);if(i>=0)allies.splice(i,1);a.dead=true;for(const e of enemies)if(e.foe===a)e.foe=null;}
 function foeOf(e){const f=e.foe;if(f&&!f.dead&&allies.includes(f)&&dist2D(f.pos,e.pos)<40)return f;e.foe=null;return P;}
 function hitFoe(F,amt,src){if(F===P)dmgPlayer(amt,src);else allyTakeDmg(F,amt,src);}
-function allyHeal(a,v){if(!a||a.dead)return;const n=Math.min(Math.round(v),a.maxHp-Math.round(a.hp));a.hp=Math.min(a.maxHp,a.hp+v);floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.4,a.pos.z),'+'+Math.max(0,n),'heal');}
-function allyTakeDmg(a,amt,src){if(a.dead)return;let v=amt*rand(0.9,1.1)*(1-a.dr)*(T<(a.tauntDr||0)?0.75:1)*(1-tbDr(a));v=Math.max(1,Math.round(v));a.hp-=v;a.hitT=0.15;a.lastHit=T;
+function allyHeal(a,v){if(!a||a.dead)return;const n=Math.min(Math.round(v),a.maxHp-Math.round(a.hp));if(SIMST)SIMST.ah+=Math.max(0,n);a.hp=Math.min(a.maxHp,a.hp+v);floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.4,a.pos.z),'+'+Math.max(0,n),'heal');}
+function allyTakeDmg(a,amt,src){if(a.dead)return;let v=amt*rand(0.9,1.1)*(1-a.dr)*(T<(a.tauntDr||0)?0.75:1)*(1-tbDr(a));v=Math.max(1,Math.round(v));a.hp-=v;if(SIMST)SIMST.at+=v;a.hitT=0.15;a.lastHit=T;
   floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.3,a.pos.z),'-'+v,'phit');if(!a.target&&src&&a.cmd!=='stay'&&!src.dead)a.target=src;if(a.hp<=0)allyDie(a);}
-function allyDie(a){a.died=true;ringFx(a.pos.x,a.pos.z,0xff7a3a,3,0.6);SFX.boom();floatText(tmpV.set(a.pos.x,a.pos.y+a.h,a.pos.z),'Destroyed','info');
+function allyDie(a){if(SIMST)SIMST.ad++;a.died=true;ringFx(a.pos.x,a.pos.z,0xff7a3a,3,0.6);SFX.boom();floatText(tmpV.set(a.pos.x,a.pos.y+a.h,a.pos.z),'Destroyed','info');
   if(a===P.pet){P.pet=null;P.pets=[];toast('💥 Your '+a.name+' was destroyed. '+(P.prof==='binder'?'Rebind it with a Bind weave':'Rebuild it with Assemble'));}removeAlly(a);}
 function allyHit(e,v,a,crit){if(!e||e.dead)return;if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');if(e.state!=='chase')aggro(e);return;}
@@ -2755,7 +2764,7 @@ function updAlly(a,dt){if(a.dead)return;const dO=dist2D(a.pos,P.pos);
 function updAllies(dt){for(let i=allies.length-1;i>=0;i--)updAlly(allies[i],dt);}
 /* AI party members (future team missions): any roster snapshot becomes an ally with its own gear-derived stats */
 function spawnPartyMember(snap){if(!snap)return null;const v=snap.visual,st=snap.stats;const w=snap.eq&&snap.eq.weapon,W=w&&WTYPES[w.wt];
-  return createAlly({kind:'party',id:snap.id,name:snap.name,role:snap.role,R:buildHumanoid(v.color,v.accent,v.visor,v.skin==null?null:v.skin,Object.assign({},(PROFS[snap.prof]&&PROFS[snap.prof].look)||{},{npc:1,armed:1,melee:!!(W&&W.melee)},v.face?{face:v.face,hair:v.hair,hairc:v.hairc}:{})),hp:st.maxHp,dmg:st.dmg*(1+0.08*(snap.level-1))*0.9,range:W?W.rng:18,melee:!!(W&&W.melee),
+  return createAlly({kind:'party',id:snap.id,name:snap.name,role:snap.role,R:buildHumanoid(v.color,v.accent,v.visor,v.skin==null?null:v.skin,Object.assign({},(PROFS[snap.prof]&&PROFS[snap.prof].look)||{},{npc:1,armed:1,melee:!!(W&&W.melee)},v.face?{face:v.face,hair:v.hair,hairc:v.hairc}:{})),hp:st.maxHp,dmg:st.dmg*(1+0.08*(snap.level-1))*0.9*allyPowF(snap),range:W?W.rng:18,melee:!!(W&&W.melee),
     atkCd:1.2*(W?W.cd:1),speed:7.2,h:1.9,hitR:0.6,threat:snap.role==='tank'?0.9:0.4,proj:(W&&W.proj)||0xffe08a,dr:Math.min(0.5,st.armor/(st.armor+100))});}
 
 /* ---------- Dronewright bots ---------- */
@@ -2780,7 +2789,7 @@ function buildBot_v1(def){const g=new THREE.Group();const R={g};const c=def.col,
     R.pods=[];for(const sx of [-1,1]){const p=part(g,geoBox,M(0x333333),sx*0.85,0.6,0.1,0.28,0.28,0.8);R.pods.push(p);part(g,geoBox,MB(gl),sx*0.85,0.6,0.52,0.12,0.12,0.04);}
     R.anim=(t,mv,atk)=>{R.ring.rotation.z=t*2;R.core.rotation.y=t*0.6;R.pods.forEach(p=>p.position.z=atk>0?-0.05:0.1);};}
   return R;}
-function petStats(def){const L=P.level,w=eff('weave');return {hp:Math.round((55+30*L)*def.hp*(1+w/250)),dmg:(3+2.4*L)*def.dmg*(1+w/150)};}
+function petStats(def){const L=P.level,w=eff('weave');return {hp:Math.round((55+30*L)*def.hp*(1+w/250)),dmg:petDmgBase()*def.dmg};}/* Build O: bot damage follows its owner's own damage (level, skill, power), like the player's hits */
 function activePet(){return P.pet&&!P.pet.dead&&allies.includes(P.pet)?P.pet:null;}
 function summonPet(pid,o){o=o||{};const def=PETDEF[pid];if(!def)return null;if(P.pet){removeAlly(P.pet);P.pet=null;}const st=petStats(def);
   const a=createAlly({kind:'pet',pid,name:def.name,R:buildBot(def),hp:st.hp,dmg:st.dmg,range:def.range,melee:def.melee,atkCd:def.atkCd,speed:def.speed,h:def.h,hitR:def.hitR,proj:def.proj||0xffa040,splash:def.splash,threat:0.65,dr:def.dr,role:'tank'});
@@ -4061,6 +4070,8 @@ function teamTactics_v1(al,dt,teles){for(const a of al)for(const t of teles){if(
     if(t.inner){if(dd>t.inner-1.2)moveAlly(a,t.x,t.z,a.speed*1.1,dt,t.inner*0.5);}else if(dd<t.r+0.8)moveAlly(a,t.x+dx/dd*(t.r+2),t.z+dz/dd*(t.r+2),a.speed*1.1,dt,0.2);}
   for(const a of al){if(a.role!=='healer')continue;a.healCd-=dt;if(a.healCd>0)continue;a.healCd=2.6;
     const pool=[{e:P,f:P.dead?1:P.hp/S.maxHp}].concat(al.map(o=>({e:o,f:o.hp/o.maxHp})));{const hp=teamCfg().healPri;const k=o=>o.f-(o.f<0.85&&((hp==='you'&&o.e===P)||(hp==='tank'&&(o.e===P?roleOfChar(P)==='tank':o.e.role==='tank')))?0.45:0);pool.sort((x,y)=>k(x)-k(y));}const w=pool[0];if(w.f>0.9)continue;
+    // Build O: group heal when two or more members are hurt (team-wide pulses outpaced a single-target 14%/2.6s healer)
+    if(balOn()&&pool.filter(o=>o.f<0.75&&!(o.e===P&&P.dead)&&!o.e.dead).length>=2){for(const o of pool){if(o.e.dead||(o.e===P&&P.dead)||dist2D(o.e.pos,a.pos)>24)continue;if(o.e===P)healPlayer(S.maxHp*0.07);else allyHeal(o.e,o.e.maxHp*0.09);}ringFx(a.pos.x,a.pos.z,0x6dff8a,5,0.45);continue;}
     if(w.e===P)healPlayer(S.maxHp*0.1);else allyHeal(w.e,w.e.maxHp*0.14);ringFx(w.e.pos.x,w.e.pos.z,0x6dff8a,1.4,0.35);}}
 function updTeam(dt){if(state!=='play')return;TM.acc+=dt;
   // downed companions: revive near you once the fight is over
@@ -4086,9 +4097,11 @@ function openTeam(){const c=teamCfg();const al=teamAlts();const picks=teamPicks(
     <div class="h4">Heal priority</div><div class="tabs" style="margin:0 0 6px">${[['lowest','🩸 Lowest HP'],['tank','🛡 Tank first'],['you','🙋 Me first']].map(([k,n])=>`<button data-act="tmheal" data-h="${k}" class="${c.healPri===k?'on':''}">${n}</button>`).join('')}</div>
     <div class="h4">Companions (${picks.length}/${TEAM_COMP} alts${c.merc?' + mercenaries':''})</div>`;
   h+=al.map(a=>{const sel=picks.includes(a.id);const live=allies.find(o=>o.comp&&o.snapId===a.id&&!o.dead);return `<button class="item${sel?' sel':''}" data-act="tmpick" data-id="${a.id}"><span class="ico">${sel?'✔':'＋'}</span><span><div class="nm">${esc(a.name)}</div><div class="sub">Lv ${a.level}${SYNC.lv&&SYNC.lv<a.level?' (⇩'+SYNC.lv+')':''} ${esc(PROFS[a.prof].name)} · ${(TEAM_ROLES[a.role]||{ic:''}).ic} ${a.role}${live?' · '+Math.round(live.hp)+'/'+live.maxHp+' HP':TM.dead[a.id]!=null?' · down':''}</div></span></button>`;}).join('')||'<div style="opacity:.7">No alts yet. Make more characters on the title screen, or switch on mercenary fill.</div>';
+  h+=compXpLockHtml(al);
   h+=`<div style="opacity:.75;font-size:12px;margin-top:8px">Companions use their own saved level, gear, implants and perks, and get a 50% XP share saved to their own sheets (loot goes to you; team-dungeon clears also credit them). Dungeon level caps judge the team by its highest (synced) member. Downed companions get back up ${TEAM_REVIVE}s after the fight ends. Raids use their own team.</div>`;
   h+=teamPanelExtra();openPanel('👥 TEAM',h,'team');}
 function teamAct(a,b){const D=b.dataset;if(a==='tmtog')toggleTeam();else if(a==='tmst'){teamStance(D.s);openTeam();}else if(a==='tmatk'){teamAttack();}else if(a==='tmreg'){teamRegroup();}
+  else if(a==='tmxl'){toggleCompXpLock(D.id);openTeam();}
   else if(a==='tmheal'){teamCfg().healPri=D.h;save();openTeam();}
   else if(a==='tmmerc'){const c=teamCfg();c.merc=!c.merc;save();teamSync();openTeam();}
   else if(a==='tmpick'){const c=teamCfg();let ids=teamPicks();if(ids.includes(D.id))ids=ids.filter(x=>x!==D.id);else if(ids.length>=TEAM_COMP){warn('A team holds '+(TEAM_COMP+1)+' (you + '+TEAM_COMP+' companions)');return true;}else ids.push(D.id);c.ids=ids;save();teamSync();openTeam();}
@@ -4857,7 +4870,7 @@ const AIX={
     return null;},
   // Choir Tender: every 6s heals the most wounded enemy within 20m for 16% of its health; keeps ~12m away
   heal(e,dt,F,fp,dF,rooted,stunned){if(!stunned&&T>=(e.healAt||0)){let best=null,bk=0.85;for(const o of enemies)if(!o.dead&&o!==e&&!o.isCore&&dist2D(o.pos,e.pos)<20){const k=o.hp/o.maxHp;if(k<bk){bk=k;best=o;}}
-      if(best){e.healAt=T+6;const tgt=best;fireProj(new V3(e.pos.x,e.pos.y+1.6,e.pos.z),tgt,0x9fff9a,20,()=>{if(tgt.dead)return;const a=Math.round(tgt.maxHp*0.16);tgt.hp=Math.min(tgt.maxHp,tgt.hp+a);e.heals=(e.heals||0)+1;
+      if(best){e.healAt=T+6;const tgt=best;fireProj(new V3(e.pos.x,e.pos.y+1.6,e.pos.z),tgt,0x9fff9a,20,()=>{if(tgt.dead)return;const a=Math.round(tgt.maxHp*(tgt.boss&&balOn()?0.04:0.16));tgt.hp=Math.min(tgt.maxHp,tgt.hp+a);e.heals=(e.heals||0)+1;
           floatText(tmpV.set(tgt.pos.x,tgt.pos.y+tgt.h+0.4,tgt.pos.z),'+'+a,'info');ringFx(tgt.pos.x,tgt.pos.z,0x6dff8a,1.6,0.4);});e.atkT=0.35;}else e.healAt=T+1.5;}
     return aiKeepAway(e,dt,fp,dF,rooted,11);}};
 /* ---------- boss mechanics ---------- */
@@ -5410,7 +5423,7 @@ function buildDungeon(d){const D=d.D,th=dunTheme(D.id),G=d.group;const gl=GFX_LV
     if(r.packs&&!r.boss){r.packs.forEach((pk,j,arr)=>{if(j===1&&r.bal){spawnPack(pk,r.bal.mx,r.bal.mz,true);return;}const px=arr.length>1?(j?1:-1)*r.w/4:0,pz=r.cz+(arr.length>1?(j?-1:1)*r.d/6:0);spawnPack(pk,px,pz);});}
     if(r.isNew&&r.spec.pk){const lv=lvNear(i);for(let k=0;k<r.spec.pk;k++){const n=raid?4:3;const pk=[];for(let q=0;q<n;q++){const p=pick(pool);pk.push([p[0],Math.min(maxLv,Math.max(D.lvl[0],lv+randi(-1,0)))]);}
       let px=(k%2?1:-1)*r.w/5,pz=r.cz-(k?r.d/6:0);if(r.s==='chasm')pz=r.z0+5;if(r.s==='shaft'&&k===0&&r.ledge){spawnPack(pk.slice(0,2),(r.ledge.x0+r.ledge.x1)/2,(r.ledge.z0+r.ledge.z1)/2+2,true);continue;}spawnPack(pk,px,pz);}}
-    if(r.boss){const B=BOSSES[r.boss];const e=spawnDunMob(B.etype,0,r.cz-hd*0.2,B.lvl,{boss:r.boss});e.boss={key:r.boss,def:B,room:r,final:!!r.final,engaged:false,done:{},next:{},enraged:false,baseT:e.T,baseDmg:e.dmg};e.leash=Math.max(r.w,r.d)*0.8;e.wr=0;d.bosses.push(e);}});
+    if(r.boss){const B=BOSSES[r.boss];const e=spawnDunMob(B.etype,0,r.cz-hd*0.2,B.lvl,{boss:r.boss});e.boss={key:r.boss,def:B,room:r,final:!!r.final,engaged:false,done:{},next:{},enraged:false,baseT:e.T,baseDmg:e.dmg};e.leash=Math.max(r.w,r.d)*(balOn()?1.3:0.8);e.wr=0;d.bosses.push(e);}});
   for(const W of areas.filter(a=>a.kind==='wing')){const lv=lvNear(W.parent.i);
     if(W.wk==='elite'){const types=[...new Set(pool.map(p=>p[0]))].sort((a,b)=>(ETYPES[b].hp||0)-(ETYPES[a].hp||0));const p=spot(W.cx,W.cz);const e=spawnDunMob(types[0],p[0],p[1],maxLv,{pack:'elite'+W.id});
       e.eliteD=true;e.elite=true;e.maxHp=e.hp=Math.round(e.maxHp*3.2);e.dmg*=1.35;e.T.name=e.T.name+' Champion';e.T.scale=(e.T.scale||1)*1.3;e.T.xp=(e.T.xp||1)*3;W.champ=e;light(W.cx,W.y+3,W.cz,0xffd34a,1.2,14);
@@ -5902,7 +5915,7 @@ function tdActive(){return DUN&&DUN.mode&&DUN.mode.team?TEAMD[DUN.mode.tkey]:nul
 function teamTrueTop(){let t=P.level;for(const a of comps())if(!a.merc){const c=roster.chars.find(x=>x.id===a.snapId);if(c)t=Math.max(t,c.level);}return t;}
 function teamXpAdj(xp,e){if(!teamActive()||inRaid()||!comps().length)return xp;const ref=tdActive()?tdActive().content:e.lv;const over=teamTrueTop()-ref-TD_RANGE;if(over<=0)return xp;
   const m=Math.max(0.1,1-0.2*over);if(T-TDS.xpT>30){TDS.xpT=T;log('📉 Team XP reduced to '+Math.round(m*100)+'%: someone on your team is far above this content (level '+teamTrueTop()+').');}return Math.max(1,Math.round(xp*m));}
-function sheetGainXp(c,n){if(!c||n<=0)return 0;const cap=Math.min(MAXLVL,bandCapOf(c));if(c.level>=cap){c.xp=Math.min((c.xp||0)+n,xpNeed(c.level)-1);return 0;}c.xp=(c.xp||0)+n;let up=0;
+function sheetGainXp(c,n){if(!c||n<=0||c.xpLock)return 0;const cap=Math.min(MAXLVL,bandCapOf(c));if(c.level>=cap){c.xp=Math.min((c.xp||0)+n,xpNeed(c.level)-1);return 0;}c.xp=(c.xp||0)+n;let up=0;
   while(c.level<cap&&c.xp>=xpNeed(c.level)){c.xp-=xpNeed(c.level);c.level++;c.sp=(c.sp||0)+spGain(c.level);up++;}if(c.level>=cap)c.xp=Math.min(c.xp,xpNeed(c.level)-1);return up;}
 function teamShareXp(xp,e){if(!teamActive()||inRaid())return;const ref=tdActive()?tdActive().content:e.lv;let ch=false;
   for(const a of comps()){if(a.merc)continue;const c=roster.chars.find(x=>x.id===a.snapId);if(!c||Math.abs(c.level-ref)>TD_RANGE||dist2D(a.pos,P.pos)>45)continue;
@@ -5953,9 +5966,13 @@ function teamBossTick(e){const td=tdActive();if(!td||e.dead)return;const M=td.me
     toast('⚠ '+M.adds.name+'! Tank: pick them up');});
   // profession seal (data-driven): the boss is shielded until a member of the right profession channels it open
   const sl=M.seal;if(sl&&b.final){if(!b.done.seal&&hpF<=sl.at){b.done.seal=1;b.sealT=null;e.immune=()=>true;banner('🔒 '+sl.name.toUpperCase(),'Only a '+sealProfs(sl).map(k=>PROFS[k].name).join(' or ')+' can break it. Keep them alive and near the boss.');}
-    if(b.done.seal===1){const w=tdTeamList().find(x=>sealProfs(sl).includes(x.prof)&&!(x.e===P&&P.dead)&&dist2D(x.e.pos,e.pos)<16);if(w){if(b.sealT==null){b.sealT=T+sl.chan;toast('🌀 '+(w.e===P?'You start':w.e.name+' starts')+' unweaving the '+sl.name+' ('+sl.chan+'s)');}
+    if(b.done.seal===1){const sp=tdTeamList().filter(x=>sealProfs(sl).includes(x.prof)&&!x.e.dead&&!(x.e===P&&P.dead));const w=sp.find(x=>dist2D(x.e.pos,e.pos)<(x.e===P?16:24));
+    // Build O: no living sealer left (companion downed) -> the seal frays on its own after 20 s instead of an endless immune boss
+    if(!sp.length){if(b.frayT==null){b.frayT=T+20;toast('🔓 No '+sealProfs(sl).map(k=>PROFS[k].name).join('/')+' standing: the '+sl.name+' will fray on its own in 20 s');}else if(T>=b.frayT){b.done.seal=2;e.immune=null;b.frayT=null;banner(sl.name.toUpperCase()+' FRAYED','It gave way on its own. The boss is vulnerable again');}}else b.frayT=null;if(w){if(b.sealT==null){b.sealT=T+sl.chan;toast('🌀 '+(w.e===P?'You start':w.e.name+' starts')+' unweaving the '+sl.name+' ('+sl.chan+'s)');}
         else if(T>=b.sealT){b.done.seal=2;e.immune=null;ringFx(e.pos.x,e.pos.z,0xb46bff,6,0.8);banner(sl.name.toUpperCase()+' BROKEN','The boss is vulnerable again');}}else b.sealT=null;}}}
-function tdAddType(){const D=DUN.D;for(const r of D.rooms)if(r.packs&&r.packs[0]&&r.packs[0][0])return r.packs[0][0][0];return 'sentry';}
+function tdAddType(){const D=DUN.D;let first=null;for(const r of D.rooms)if(r.packs)for(const pk of r.packs)for(const m of (pk||[])){const t=m&&m[0];if(!t||!ETYPES[t])continue;first=first||t;
+  // Build O: the tank-pickup adds must not be enemy healers (a healer pack type made Floodtide's boss heal 8%/s)
+  if(!balOn()||!/heal/.test(String(ETYPES[t].ai||ETYPES[t].behav||ETYPES[t].role||'')))return t;}return first||'sentry';}
 /* ---------- team rewards ---------- */
 function genParagon(lvl,prof){prof=prof||P.prof;const slot=Math.random()<0.4?'weapon':pick(['head','armor','hands','legs','feet']);const it=genItem(lvl,slot,3,slot==='weapon'?{wt:pick(wtAff(prof))}:{fam:PROF_FAM[prof]});
   const k=RAR[PARA].m/RAR[3].m;it.r=PARA;if(it.dmg)it.dmg=Math.round(it.dmg*k);if(it.armor)it.armor=Math.round(it.armor*k);const have=new Set(it.bonus.map(b=>b.s));
@@ -5982,7 +5999,7 @@ function tdUpdate(dt){if(state!=='play')return;TDS.acc+=dt;if(TDS.acc<0.25)retur
   for(const a of al){if(cfg.stance==='hold'&&a.cmd!=='attack'&&a.cmd!=='stay'&&T>(a.regroupUntil||0)){a.cmd='stay';a.stayAt={x:a.pos.x,z:a.pos.z};}
     if(a.role!=='tank'||a.stance==='passive')continue;a.tauntCd=(a.tauntCd||0)-st;if(a.tauntCd>0)continue;
     let n=0;for(const e of enemies){if(e.dead||e.state!=='chase'||e.guard||e.foe===a)continue;if(dist2D(e.pos,a.pos)>14)continue;e.foe=a;e.tauntUntil=T+5;n++;}
-    if(n){a.tauntCd=8;ringFx(a.pos.x,a.pos.z,0x5fb0ff,4,0.5);floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.5,a.pos.z),'Taunt','info');}}}
+    if(n){a.tauntCd=balOn()?4.5:8;ringFx(a.pos.x,a.pos.z,0x5fb0ff,4,0.5);floatText(tmpV.set(a.pos.x,a.pos.y+a.h+0.5,a.pos.z),'Taunt','info');}}}
 function syncHudLine(){if(!SYNC.lv)return '';return `<div class="tmsync">⇩ Level sync: Lv ${SYNC.lv}</div>`;}
 function teamPanelExtra(){const tg=tgOf(P);const cap=Math.min(MAXLVL,bandCapOf(P));let h='';
   h+=`<div class="h4">Progress & level sync</div><div style="font-size:13px">`+(cap<MAXLVL?`🔒 You can level to <b>${cap}</b>. ${esc(bandCapMsg(cap,true))}.`:`✔ No band lock for you right now (max level ${MAXLVL}).`)+
@@ -6248,7 +6265,7 @@ function profKData(){if(profKData.c)return profKData.c;
     case 'aoeT':return 'AoE: '+pc(w.mult)+' damage to everything within '+w.radius+'m of the target'+(w.root?', rooting them for '+w.root+'s':'')+'.';
     case 'barrage':return 'AoE: '+w.waves+' waves of fire on the target area ('+w.radius+'m) for '+pc(w.mult)+' damage each.';
     case 'field':return 'AoE: sets the ground at the target ablaze for '+pc(w.mult)+' damage per second in a '+w.radius+'m field for '+w.dur+'s.';
-    case 'heal':return 'Heal yourself for '+pc(w.pct)+' of max health (more with Treatment)'+(w.dr?' and take '+pc(w.dr)+' less damage for '+w.dur+'s':'')+'.';
+    case 'heal':return (w.prof==='mender'&&balOn()?'Smart heal: the lowest-health member within 22m (you, a companion or your pet; you first under 50%) heals ':'Heal yourself for ')+pc(w.pct)+' of max health (more with Treatment)'+(w.dr?' and take '+pc(w.dr)+' less damage for '+w.dur+'s':'')+'.';
     case 'dot':return 'Deals '+pc(w.mult)+' damage every second for '+w.dur+'s'+(w.en?' and returns '+w.en+' energy per tick':'')+'.';
     case 'mez':return 'Mesmerise the target for '+w.dur+'s: it stands dazed until it takes damage. Bosses resist.';
     case 'mezAoe':return 'Mesmerise every enemy within '+w.radius+'m of the target for '+w.dur+'s (breaks on damage). Bosses resist.';
@@ -6437,7 +6454,7 @@ function shieldFx(on){if(!PM)return;if(on){if(!PK.shield){PK.shield=new THREE.Me
 const stealthed=()=>T<(P.stealthUntil||0);
 KIND.stealth=(t,a)=>{const hot=enemies.some(e=>!e.dead&&e.state==='chase'&&foeOf(e)===P&&dist2D(e.pos,P.pos)<25);
   if(hot&&!a.vanish){P.en=Math.min(S.maxEn,P.en+a.cost);P.cds[a.id]=0;warn('Enemies are on you: break away first'+(P.known&&P.known.includes('vanish')?' or use Vanish':''));return;}
-  if(a.vanish)for(const e of enemies)if(!e.dead&&e.state==='chase'&&!ccImmune(e)&&dist2D(e.pos,P.pos)<45&&foeOf(e)===P){e.state='return';e.foe=null;}
+  if(a.vanish)for(const e of enemies)if(!e.dead&&!(e.boss&&balOn())&&e.state==='chase'&&!ccImmune(e)&&dist2D(e.pos,P.pos)<45&&foeOf(e)===P){e.state='return';e.foe=null;}
   P.stealthUntil=T+a.dur;P.stealthOpen=a.opener;P.autoAtk=false;fadeModel(true);ringFx(P.pos.x,P.pos.z,0x2a2a40,2.5,0.6);floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),a.vanish?'Vanished':'Shrouded','info');SFX.ui&&SFX.ui();};
 function breakStealth(why){if(!P.stealthUntil)return;P.stealthUntil=0;fadeModel(false);if(why)floatText(tmpV.set(P.pos.x,P.pos.y+2.4,P.pos.z),why,'info');}
 function fadeModel(on){if(!PM)return;if(on){if(PK.fade&&PK.fade.g===PM.g)return;const list=[];PM.g.traverse(o=>{if(o.isMesh&&o!==PK.shield){const m=o.material;const c=m.clone();c.transparent=true;c.opacity=0.22;c.depthWrite=false;list.push([o,m,c]);o.material=c;}});PK.fade={g:PM.g,list};}
@@ -7071,7 +7088,7 @@ Object.assign(TEAMD,{
       {role:'control',why:'Charged adds must be held: bring a Vyreweaver or a Dreamshaper'}],
     mech:{buster:{name:'Lightning Brand',every:11,first:6,mult:3.8},pulse:{name:'Static Storm',every:13,first:8,pct:0.26},adds:{name:'Charged stormwards',at:[0.7,0.35],n:3},seal:{name:'Grounding Coil',at:0.5,prof:'weaver',profs:['weaver','mind'],chan:5}}},
   sunossuary:{key:'sunossuary',band:9,name:'Ossuary of Suns: Eclipse',sub:'Team dungeon · the hollow sun at noon',content:90,minLvl:87,lvl:3,minTeam:4,
-    req:[{role:'tank',why:'Solmaw\'s Sunbrand would burn anyone but a tank'},{role:'healer',why:'Noon Glare scorches the whole team'},{role:'support',why:'Eclipse drains everyone\'s energy: an Anthemist or an Exactor keeps the team casting'},
+    req:[{role:'tank',why:'Solmaw\'s Sunbrand would burn anyone but a tank'},{any:[{role:'healer'},{role:'support'}],why:'Noon Glare scorches the whole team and Eclipse drains everyone\'s energy: bring a healer or a support (an Anthemist or Exactor keeps the team casting; both is best)'},
       {any:[{prof:'flux'},{prof:'wild'},{prof:'siege'}],why:'Only raw power (Fluxwright, Wildshifter or Siegebreaker) can shatter the Sun Seal'}],
     mech:{buster:{name:'Sunbrand',every:11,first:6,mult:3.9},pulse:{name:'Noon Glare',every:13,first:8,pct:0.27},adds:{name:'Bone choir',at:[0.7,0.35],n:3},seal:{name:'Sun Seal',at:0.5,prof:'flux',profs:['flux','wild','siege'],chan:5}}}});
 /* ---------- the future Lv 100 raid: a hook only (opened by a later build) ---------- */
@@ -7409,6 +7426,157 @@ function sunTrack(){const d=DUN,R=d.D,rec=sunRec();const st=rec.stage|0;const fi
 function sunExports(){return {PROF_WT,PROF_FAM,writeRoster,SUNR,SUN_FAM,SUN_STAGES,SUN_GWEEK,sunUnsealed,sunEntryCheck,sunTeam,sunRec,raidResumable,gweekKey,gweekLeftDays,sunOnBoss,sunPanel,sunAct,sunTeamList,sunGateMsg,buildSunEater,
   sunSetStage,sunArenaPhase,bossTick,sunRoomOf,get XMGATE(){return typeof XMGATE!=='undefined'?XMGATE:null;},get boxes(){return boxes;},get sunD(){return DUN&&DUN.sun;},get halo(){return HALO;},titleHtml};}
 
+/* ===== Build O: balance simulation hooks (dev-only, inert in play) =====
+   SIMP: when true the render loop idles and float text / ring fx are skipped, so the harness can step the real game logic fast.
+   SIMST: counters filled by dmgPlayer / healPlayer / allyHeal / allyTakeDmg / playerDie / allyDie while a sim fight runs.
+   simChar(prof,lv,rar): a "typical" character sheet for that level (gear of item level lv at rarity rar, implants QL 4*lv,
+   skill points spent like a sensible player, best Weave rank per line, perks spent). simFight(o): one boss fight with a bot player. */
+var SIMP=false,SIMST=null;
+function simStep(dt){T+=dt;updStage1(dt);if(state!=='play')return;
+  updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);
+  for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;
+  updXmGate(dt);updSun(dt);fzUpdate(dt);tdUpdate(dt);updFloats(dt);}
+const SIM_KIND={heal:'sus',hot:'sus',dr:'sus',teamheal:'sus',petheal:'sus',reflect:'sus',battery:'en',summon:'setup',pet:'setup',petbuff:'setup',teambuff:'setup',morph:'setup',
+  nuke:'dmg',aoeSelf:'dmg',barrage:'dmg',aoeT:'dmg',cone:'dmg',rattle:'dmg',field:'dmg',dot:'dmg',strike:'dmg',steal:'dmg',stealAoe:'dmg',flurry:'dmg',drain:'dmg',hex:'dmg',lunge:'dmg',pounce:'dmg',mbite:'dmg',taunt:'dmg',imp:'dmg'};
+function simWeaves(prof,lv){const best={};for(const id in WEAVES){const w=WEAVES[id];if(w.excl||(w.prof!==prof&&w.prof!=='any'))continue;if((w.lvl||1)>lv)continue;const k=w.line||id;if(!best[k]||w.tier>best[k].tier)best[k]=w;}return Object.values(best);}
+function simAbScore(w){const k=SIM_KIND[w.kind]||(w.buff?'setup':'');if(k==='dmg')return 10+(w.mult||1)*(w.radius?1.2:1)/Math.max(1,w.cd||1)*10;if(k==='setup')return 30;if(k==='sus')return 25;if(k==='en')return 18;return 0;}
+// a player-like bar: pet setup, the 3 best damage Weaves, one heal, one damage buff, then more damage / energy; movement-only buffs last
+function simBar(ws,prof){const K=w=>SIM_KIND[w.kind]||(w.buff?'setup':'');const dmgV=w=>(w.mult||1)*(w.radius||w.kind==='cone'?1.25:1)*(w.kind==='dot'||w.kind==='field'?(w.dur||6)*0.7:1)/Math.max(1.2,w.cd||1.2);
+  const dmg=ws.filter(w=>K(w)==='dmg'&&w.kind!=='taunt').sort((a,b)=>dmgV(b)-dmgV(a));const out=[];const add=w=>{if(w&&!out.includes(w.id)&&out.length<NSLOTS)out.push(w.id);};
+  const role=ROLE[prof];const buffMods=w=>{try{return Object.keys(w.buff.mods(50));}catch(e){return [];}};const dmgBuff=w=>w.buff&&buffMods(w).some(m=>['power','crit','weave','wpn','int','psy','agi','str','sen'].includes(m));
+  for(const w of ws)if(['summon','pet'].includes(w.kind))add(w);for(const w of ws)if(w.kind==='petbuff')add(w);
+  dmg.slice(0,3).forEach(add);
+  const heals=ws.filter(w=>K(w)==='sus'&&w.kind!=='petheal').sort((a,b)=>((b.pct||b.heal||0.2)-(a.pct||a.heal||0.2)));
+  if(role==='healer'||role==='support'){ws.filter(w=>w.kind==='teamheal'||w.kind==='teambuff').forEach(add);}add(heals[0]);
+  ws.filter(dmgBuff).forEach(add);for(const w of ws)if(w.kind==='petheal')add(w);
+  dmg.slice(3).forEach(add);add(ws.find(w=>w.kind==='battery'));heals.slice(1).forEach(add);ws.forEach(w=>{if(K(w))add(w);});return out;}
+function simChar(prof,lv,rar,id,name){const c={v:2,id:id||('sim_'+prof),name:name||PROFS[prof].name,prof,level:lv,xp:0,credits:0,inv:[],imps:{},ab:{},sb:{},perks:{},buffs:[],consum:{},stims:3,party:{ai:'default',role:ROLE[prof]||'dps'},
+    story:{done:['s1','s2','s3','s4','s5','s6','s7','s8','s9'],cur:null,track:false,gf:Object.keys(GATES),v:1},faction:{side:'combine',rep:{combine:0,ashborn:0}},tsBonus:true,runSp:true,
+    tg:{b1:'clear',b2:'clear',b3:'clear',b4:'clear',b5:'clear',b6:'clear',b7:'clear',b8:'clear',b9:'clear',n:{}}};
+  const eq={weapon:genItem(lv,'weapon',rar,{wt:PROF_WT[prof]})};for(const s of ['head','armor','hands','legs','feet'])eq[s]=genItem(lv,s,rar,{fam:PROF_FAM[prof]});c.eq=eq;
+  const ql=Math.max(1,Math.round(lv*4));for(const s of IMPSLOTS)c.imps[s]=genImplant(ql,s,Math.min(rar,2));
+  // skill points: meet the requirements of the best Weaves, then the damage skill, then health / evasion (what a sensible player does)
+  const pr=PROFS[prof],ws=simWeaves(prof,lv),need={};for(const w of ws)for(const r of (w.req||[]))need[r.s]=Math.max(need[r.s]||0,r.v);
+  const lvSave=P.level,profSave=P.prof;P.level=lv;P.prof=prof;
+  let pts=spTotal(lv);const base=s=>baseOf(s),cap=s=>ATTRS.includes(s)?attrCap(s):skillCap(s);
+  const raise=(s,to)=>{const o=ATTRS.includes(s)?c.ab:c.sb;while(pts>=costOf(s)&&(base(s)+(o[s]||0))<Math.min(to,cap(s))){o[s]=(o[s]||0)+1;pts-=costOf(s);}};
+  const pri=[[pr.dmgSkill,0.6],['body',0.25],['evade',0.15]];
+  for(const s in need)raise(s,Math.round(need[s]*0.85));
+  let guard=0;while(pts>0&&guard++<4000){let did=false;for(const [s,w] of pri){const o=c.sb;const before=pts;raise(s,base(s)+(o[s]||0)+Math.max(1,Math.round(8*w)));if(pts<before)did=true;}if(!did)break;}
+  P.level=lvSave;P.prof=profSave;
+  c.known=ws.map(w=>w.id);c.slots=simBar(ws,prof);while(c.slots.length<NSLOTS)c.slots.push(null);
+  // perks: spend every point, own line first
+  try{let g=0;while(ppAvail(c)>0&&g++<200){const ids=Object.keys(PERKS).filter(k=>!perkCan(k,c)).sort((a,b)=>(PERK_LINES[PERKS[b].line].prof?1:0)-(PERK_LINES[PERKS[a].line].prof?1:0));if(!ids.length)break;c.perks[ids[0]]=(c.perks[ids[0]]|0)+1;}}catch(e){}
+  return c;}
+// the bot player: focuses the boss (or whatever makes it immune), keeps its weapon range, walks out of (or into) telegraphs, uses Weaves sensibly
+const SIMB={next:0,focus:null,gcd:0.7};// gcd: one Weave press per 0.7s, a typical touch player (no global cooldown in the game itself)
+function simDanger(){if(!DUN)return null;for(const t of DUN.tele){if(T>=t.at||t.at-T>2.2)continue;const dd=Math.hypot(P.pos.x-t.x,P.pos.z-t.z);if(dd<t.r+0.6&&(!t.inner||dd>t.inner-0.6))return {t,dd};}return null;}
+function simMoveTo(x,z,dt,stop){const dx=x-P.pos.x,dz=z-P.pos.z,d=Math.hypot(dx,dz);if(d<=stop)return false;const s=Math.min(SPEED*moveMul()*dt,d-stop);P.pos.x+=dx/d*s;P.pos.z+=dz/d*s;collide(P.pos,0.4);P.pos.y=heightAt(P.pos.x,P.pos.z);if(SIMST)SIMST.moved+=s;return true;}
+function simPickTarget(){const b=SIMB.focus;const live=enemies.filter(e=>!e.dead&&(e.state==='chase'||e.addOf||e.tdAdd||e.echo||e.T.heals)&&dist2D(e.pos,P.pos)<(e.addOf||e.tdAdd?36:28));
+  if(b&&!b.dead&&b.immune&&b.immune()){for(const e of enemies)if(!e.dead&&e.addOf===b&&!live.includes(e))live.push(e);}// shield anchors anywhere in the arena
+  // a sensible player kills adds first (healers, shield anchors), then the boss
+  if(b&&!b.dead&&!(b.immune&&b.immune())&&!live.some(e=>e!==b&&!e.boss))return b;let best=null,bd=1e9;for(const e of live){if(e===b)continue;const d=dist2D(e.pos,P.pos);if(d<bd){bd=d;best=e;}}return best||(b&&!b.dead?b:null);}
+function simBot(dt){if(P.dead||state!=='play')return;const t=simPickTarget();if(t){P.target=t;P.autoAtk=true;}
+  const dz=simDanger();
+  if(dz){const t2=dz.t;if(t2.inner)simMoveTo(t2.x,t2.z,dt,Math.max(0.5,t2.inner-1.4));else{let ax=P.pos.x-t2.x,az=P.pos.z-t2.z,l=Math.hypot(ax,az)||1;ax/=l;az/=l;
+    // dodge out of the circle but drift back toward the room centre (a player re-centres; pure radial dodging walks the boss out of its leash)
+    const rm=SIMB.focus&&SIMB.focus.boss&&SIMB.focus.boss.room;if(rm){let cx=0-t2.x,cz=rm.cz-t2.z;const cl=Math.hypot(cx,cz);if(cl>2){ax+=cx/cl*0.9;az+=cz/cl*0.9;const n=Math.hypot(ax,az)||1;ax/=n;az/=n;}}
+    simMoveTo(t2.x+ax*(t2.r+1.8),t2.z+az*(t2.r+1.8),dt,0.2);}}
+  else if(t){const ab=basicAb();const want=ab.melee?t.hitR+1.0:Math.max(t.hitR+2,Math.min(ab.range*0.8,14));const d=dist2D(t.pos,P.pos);
+    if(d>want+0.6)simMoveTo(t.pos.x,t.pos.z,dt,want);}
+  if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);
+  if(T<SIMB.next)return;SIMB.next=T+0.25;
+  const hpF=P.hp/S.maxHp;if(hpF<0.35&&P.stims>0&&(P.cds.stim||0)<=T){useStim();if(SIMST)SIMST.stims++;}
+  const ids=barIds();let starved=false;
+  for(let i=0;i<ids.length;i++){const w=abDef(ids[i]);if(!w)continue;if((P.cds[w.id]||0)>T)continue;const k=SIM_KIND[w.kind]||(w.buff?'setup':'');if(!k)continue;
+    let want=false;
+    if(k==='sus')want=w.kind==='petheal'?!!(activePet()&&activePet().hp<activePet().maxHp*0.6):(w.kind==='teamheal'?(hpF<0.7||allies.some(a=>!a.dead&&a.hp<a.maxHp*0.6)):(hpF<(w.kind==='dr'?0.75:0.6)||((w.kind==='heal'||w.kind==='hot')&&menderAllyLow(w.kind==='hot'?0.8:0.6))));
+    else if(k==='en')want=P.en<S.maxEn*0.35;
+    else if(k==='setup'){if(w.kind==='summon'||w.kind==='pet')want=!activePet();else if(w.kind==='petbuff')want=!!activePet()&&!activePet().buff;else if(w.kind==='morph')want=!P.morph;else if(w.buff)want=!P.buffs.some(b=>b.id===w.id);else want=true;}
+    else if(k==='dmg'){if(!t)continue;if(w.needTarget!==false&&w.range&&dist2D(t.pos,P.pos)>w.range+t.hitR)continue;if(!w.needTarget&&w.radius&&dist2D(t.pos,P.pos)>w.radius+t.hitR&&w.kind!=='cone')continue;if(w.kind==='cone'&&dist2D(t.pos,P.pos)>(w.range||12))continue;want=true;}
+    if(!want)continue;if(P.en<(w.cost||0)){starved=true;continue;}
+    if(useAbility(i)){if(SIMST)SIMST.casts++;SIMB.next=T+SIMB.gcd;break;}}
+  if(starved&&SIMST)SIMST.starve+=0.25;}
+function simReset(){P.hp=S.maxHp;P.en=S.maxEn;P.cds={};P.dead=false;P.buffs=P.buffs||[];}
+/* one fight. o: {boss: enemy, maxT, team:bool, stopOnWipe:true}. Returns stats. */
+function simRunFight(o){const b=o.boss;SIMB.focus=b;SIMB.next=0;SIMST={pt:0,ph:0,ah:0,at:0,pd:0,ad:0,starve:0,casts:0,stims:0,moved:0};
+  const t0=T,hp0=b.hp,dt=0.05,maxT=o.maxT||600;SIMP=true;let res='timeout',enT=0;const tr=[];const mxHp=b.maxHp;let minEnF=1,ens=0,enN=0;
+  try{while(T-t0<maxT){simBot(dt);simStep(dt);if(P.en/S.maxEn<minEnF)minEnF=P.en/S.maxEn;ens+=P.en/S.maxEn;enN++;
+      if(o.trace&&((T-t0)%o.trace)<dt)tr.push([+(T-t0).toFixed(1),b.dead,b.hp|0,+(P.hp/S.maxHp).toFixed(2),b.foe===P?'onP':(b.foe?b.foe.name:'-'),SIMST.pt|0,+(b.hp/b.maxHp).toFixed(3),b.immune?String(b.immune).slice(0,20):0,b.boss&&b.boss.phase,P.target===b?'B':(P.target?P.target.T.name:'-'),Math.round(dist2D(P.pos,b.pos)),b.state||'',enemies.filter(e=>!e.dead).length]);if(b.dead){res='kill';break;}if(P.dead){res='death';break;}if(b.boss&&b.boss.he&&!enT)enT=T-t0;}}
+  finally{SIMP=false;}
+  const el=T-t0,lost=b.dead?hp0:hp0-b.hp;
+  return {res,t:+el.toFixed(1),dps:Math.round(lost/el),hpLostF:+(lost/mxHp).toFixed(3),maxHp:Math.round(mxHp),taken:Math.round(SIMST.pt),takenPct:+(SIMST.pt/S.maxHp).toFixed(2),selfHeal:Math.round(SIMST.ph),allyHeal:Math.round(SIMST.ah),allyTaken:Math.round(SIMST.at),
+    deaths:SIMST.pd,allyDeaths:SIMST.ad,starveF:+(SIMST.starve/el).toFixed(2),enAvg:+(ens/Math.max(1,enN)).toFixed(2),enMin:+minEnF.toFixed(2),casts:SIMST.casts,stims:SIMST.stims,hardEnrage:enT?+enT.toFixed(0):0,phase:b.boss&&b.boss.phase||1,maxHpP:S.maxHp,tr:o.trace?tr:undefined};}
+// place the player (and allies) at the boss room and pull the boss; other enemies outside the room are removed (a cleared run)
+function simStage(boss,keepAdds){const r=boss.boss&&boss.boss.room;for(const e of enemies.slice()){if(e===boss||e.dead)continue;if(keepAdds&&r&&Math.abs(e.pos.z-r.cz)<r.d/2)continue;removeEnemy(e);}
+  const cz=r?r.cz:boss.pos.z,dz=r?Math.min(10,r.d*0.3):9;P.pos.set(0,heightAt(0,cz+dz),cz+dz);P.rotY=Math.PI;
+  for(const a of allies){a.pos.set((Math.random()*6-3),heightAt(0,cz+dz+1.5),cz+dz+1.5);a.target=null;if(a.hp!=null)a.hp=a.maxHp;}
+  boss.pos.set(r?0:boss.pos.x,boss.pos.y,r?cz-2:boss.pos.z);simReset();}
+function simExports(){return {simStep,simChar,simRunFight,simStage,simBot,simReset,simWeaves,SIMB,reqMetBy,storyDunStep,storyRunMode,stepDone,inTown,get FLAT(){return FLAT;},get SIMP(){return SIMP;},set SIMP(v){SIMP=v;}};}
+/* ---------- Build O balance curves ----------
+   eHpK(lv): enemy health multiplier by enemy level. Measured with the sim (sim_out/dummy.json): a typical player's sustained DPS grows ~40,000x from Lv 1 to 100
+   while base enemy health grows ~39x, so everything above Lv ~15 died in a fraction of a second. The curve restores Lv 1's time-to-kill (~3s per same-level trash)
+   at every level, ramping to ~4.5s at Lv 100. Log-linear interpolation; beyond 100 it keeps the last slope. (Function-local table: makeEnemy runs at load.) */
+var BAL_DEFAULT=false;// Build O balance retune ships OFF in the hotfix; the harness sets window.__BALON (or localStorage dustreach_bal_o=1) to measure it
+function balOn(){if(window.__BALOFF)return false;if(window.__BALON)return true;try{if(localStorage.getItem('dustreach_bal_o')==='1')return true;}catch(e){}return BAL_DEFAULT;}// the sim sets window.__BALOFF before load to measure the pre-Build-O game (before/after tables)
+function eHpK(lv){if(!balOn())return 1;const t=[[1,1],[5,2.2],[10,3.8],[15,7],[20,10.5],[25,16.5],[30,24],[40,44],[50,75],[60,130],[70,210],[80,360],[90,680],[100,1060]];
+  lv=Math.max(1,lv||1);let i=0;while(i<t.length-2&&lv>t[i+1][0])i++;const a=t[i],b=t[i+1];const f=(lv-a[0])/(b[0]-a[0]);const k=Math.pow(10,Math.log10(a[1])+f*(Math.log10(b[1])-Math.log10(a[1])));
+  return k*(1+0.55*Math.min(1,(lv-1)/99));}
+// companions: same level x skill x power growth as a player's basic hit (they ignored skill and power before, so they fell ~1000x behind by Lv 100)
+function allyPowF(snap){if(!balOn())return 1;const st=snap.stats||{},pr=PROFS[snap.prof];const sk=pr&&st.E?st.E[pr.dmgSkill]||12:12;return (1+Math.max(-0.2,(sk-12)/100))*(1+(st.power||0)/100)*profDmgK(snap.prof,snap.level)*ALLY_K;}
+var ALLY_K=1;
+// bots / constructs: a share of the owner's basic-hit damage
+function petDmgBase(){if(!balOn())return (3+2.4*P.level)*(1+eff('weave')/150);return S.dmg*(1+0.08*(effLvP()-1))*skillF()*(1+S.power/100)*profDmgK(P.prof,effLvP())*PET_K;}
+var PET_K=0.6;
+/* per-profession damage coefficient (player hits, their bots, and the same profession as a companion). From the sim dummy sweep (geo-mean Lv 20-100) so each
+   profession lands on its role's target share of the dps-role median: dps 1.0, pet 0.95, control 0.85, tank 0.75, support 0.7, healer 0.6 (tanks/healers/supports
+   bring survival and team value; the solo floor keeps every role able to clear solo dungeons). */
+var PROF_DMGK={vanguard:[0.89,0.68,0.66],siege:[0.61,0.55,0.49],mender:[1.28,1.7,2.43],weaver:[0.61,0.52,0.49],mind:[1.38,1.63,1.29],harm:[1.46,1.37,1.78],exact:[0.8,0.68,0.44],flux:[0.74,0.54,0.44],runner:[1.62,1.37,1.47],wild:[0.99,1.03,1.1],fist:[0.94,1.04,1.09],shade:[0.69,0.73,0.61],wright:[1.38,1.44,2.2],binder:[1.08,1.25,1.14]};// [Lv 10, Lv 40, Lv 85] anchors, linear between, flat outside
+function profDmgK(p,lv){if(!balOn())return 1;const k=PROF_DMGK&&PROF_DMGK[p];if(!k)return 1;lv=lv||P.level;return lv<=10?k[0]:lv<=40?k[0]+(k[1]-k[0])*(lv-10)/30:lv<=85?k[1]+(k[2]-k[1])*(lv-40)/45:k[2];}
+/* boss health per dungeon after eHpK, from the sim (simBossK.js): solo bosses target ~65s median kill time (45-90s band), team bosses ~100s (60-150s) */
+var SOLO_BK={"mine":0.766,"choir":0.36,"stillvault":0.143,"foundry":0.32,"heartforge":0.501,"oxidevault":0.395,"briarsepulchre":0.335,"galecrown":0.253,"sunossuary":0.112,"riftvestibule":0.048};
+var TEAM_BK={"vault":0.7,"choir":0.19,"stillvault":0.23,"foundry":0.1,"heartforge":0.26,"oxidevault":0.25,"briarsepulchre":0.15,"galecrown":0.128,"sunossuary":0.118};
+var RAID_K={sunless:[0.025,1]},RAID_BOSS_K={ozmarath:0.76};// [boss hp, boss dmg] on top of the raid mode (bosses only)
+function dunBossK(id,m,dmg){if(!balOn())return 1;if(RAID_K[id])return RAID_K[id][dmg?1:0];if(!DUNGEONS[id]||DUNGEONS[id].raid)return 1;const team=m&&m.team;return (dmg?(team?TEAM_BD:SOLO_BD)[id]:(team?TEAM_BK:SOLO_BK)[id])||1;}
+/* armour: damage taken = C/(C+armour). C was a flat 100, so gear armour (952 at Lv 100) cut boss hits to 9.5% while a Lv 6 took 62%: high-level bosses did nothing.
+   C now grows with the attacker's level (100 + 9 per level), like the attacker-level armour constant in classic MMOs: ~50-70% gets through at every level. */
+function armC(src){if(!balOn())return 100;const lv=(src&&src.lv)||P.level||1;return 100+9*(lv-1);}
+// in-combat energy regen: 3.5 + 1.2%/s starved low-level casters (30-60% of a fight energy-blocked at Lv 6-36); 6 + 1.5%/s
+function enRegenC(){return balOn()?6+S.maxEn*0.015:3.5+S.maxEn*0.012;}
+// boss damage per dungeon (after the armour fix): solo boss fights should cost ~1.2x your max health in total (heals/stims needed, deaths rare)
+var SOLO_BD={mine:0.58,choir:0.81,stillvault:0.89,foundry:1.41,heartforge:1.7,oxidevault:1.89,briarsepulchre:1.84,galecrown:1.63,sunossuary:1.26,riftvestibule:1.08};
+var TEAM_BD={"vault":0.45,"choir":0.6,"stillvault":0.6,"foundry":0.5,"heartforge":0.55,"oxidevault":0.55,"briarsepulchre":0.55,"galecrown":0.55,"sunossuary":0.5};
+/* ---------- XP lock (per character): farm dungeons for sets without levelling ----------
+   P.xpLock / sheet.xpLock: no XP from any source (gainXp for the active character, sheetGainXp for companion shares). Loot, credits, perk-point
+   rewards and team XP gates are untouched. Saved per character (futureFields), default off (old saves: off). */
+function xpFields(s){return {xpLock:!!s.xpLock};}
+function setXpLock(on){P.xpLock=!!on;toast(on?'🔒 XP locked: '+P.name+' gains no XP (loot, credits and rewards still drop)':'🔓 XP unlocked: '+P.name+' gains XP again');log(on?'🔒 <b>XP lock on</b>: no XP from kills, contracts, clears or team shares until you turn it off (📈 Skills).':'🔓 <b>XP lock off</b>.');save();try{hudAcc=1;}catch(e){}updHUD(0);}
+function xpLockBtn(){return `<button class="sbtn${P.xpLock?'':' alt'}" id="xpLockBtn" data-act="xplock" style="min-height:44px" title="Stop gaining XP (farm without levelling)">${P.xpLock?'🔒 XP locked':'🔓 XP lock: off'}</button>`;}
+function xpLockHtml(){return P.xpLock?' <span id="xpLockBadge" class="xplock" title="XP lock on: no XP gained" style="font-size:12px;padding:1px 6px;border-radius:8px;background:#5a2a10;color:#ffcf8a;border:1px solid #ff9a2a">🔒 XP</span>':'';}
+let xpNoteT=-99;function xpLockedNote(n){if(n>0&&T-xpNoteT>20){xpNoteT=T;floatText(tmpV.set(P.pos.x,P.pos.y+2.6,P.pos.z),'XP locked','info');}}
+function compXpLockHtml(al){if(!al||!al.length)return '';return `<div class="h4">Companion XP lock</div><div style="display:flex;flex-wrap:wrap;gap:6px">${al.map(a=>{const c=roster.chars.find(x=>x.id===a.id)||a;return `<button class="sbtn${c.xpLock?'':' alt'}" data-act="tmxl" data-id="${a.id}" style="min-height:44px">${c.xpLock?'🔒':'🔓'} ${esc(a.name)}</button>`;}).join('')}</div><div style="opacity:.7;font-size:12px">Locked companions get no XP share; each character keeps its own setting.</div>`;}
+function toggleCompXpLock(id){const c=roster.chars.find(x=>x.id===id);if(!c)return;c.xpLock=!c.xpLock;writeRoster(roster);toast((c.xpLock?'🔒 ':'🔓 ')+c.name+(c.xpLock?' gains no XP share':' gains XP shares again'));}
+function xpLockExports(){return {setXpLock,xpLockHtml,toggleCompXpLock,sheetGainXp:typeof sheetGainXp==='function'?sheetGainXp:null};}
+/* ---------- Story runs (out-levelling soft-lock fix) ----------
+   A story boss step (k:'boss') that is not done yet keeps its dungeon open over the level cap as a 'Story run': mobs and bosses are lifted to your level
+   (Veteran-style level offset, so eHpK keeps it a real fight), the run can't be outgrown, loot is normal. */
+function storyDunStep(id){if(typeof STORY==='undefined')return null;for(const s of STORY){if(s.obj&&s.obj.k==='boss'&&s.obj.dungeon===id&&!stepDone(s.id))return s;}return null;}
+function storyRunMode(D,ck,mo){const base=mo||D.modes.solo||{hp:1,dmg:1,lvl:0};const lift=Math.max(0,(ck.lv||P.level)-D.lvl[1]);return Object.assign({},base,{lvl:(base.lvl||0)+lift,story:ck.story.id,storyLift:lift});}
+function storyRunBanner(D,m){const s=STEP[m.story];banner('📜 STORY RUN · '+D.name.toUpperCase(),'Over the level cap: enemies raised '+m.storyLift+' levels to match you · '+(s?s.obj.label:''));
+  log('📜 <b>Story run</b> of <b>'+esc(D.name)+'</b>: you out-levelled it, so it is scaled to you (+'+m.storyLift+' levels) for the story step "'+esc(s?s.n:'')+'". Normal loot, no level-cap lockout.');}
+/* ---------- Mender team healing (Build O) ----------
+   The Medic profession's heal/HoT only ever healed the player, so a Mender leading companions was a team with no healer.
+   Heal = smart heal (lowest-health member within 22m: you, a companion or your pet; you first when under 50%); HoT also lands on companions within 22m. */
+function menderSmart(){return balOn()&&P.prof==='mender';}
+function healPool(){const L=[{e:P,f:P.dead?1:P.hp/S.maxHp}];for(const a of allies){if(a.dead||dist2D(a.pos,P.pos)>22)continue;L.push({e:a,f:a.hp/a.maxHp});}return L;}
+{const _h=KIND.heal,_o=KIND.hot;
+ KIND.heal=(t,a)=>{if(!menderSmart())return _h(t,a);const self=P.hp/S.maxHp;const low=healPool().sort((x,y)=>x.f-y.f)[0];
+   if(!low||low.e===P||self<0.5||low.f>=self)return _h(t,a);const al=low.e;allyHeal(al,al.maxHp*a.pct*(1+eff('treat')/150));ringFx(al.pos.x,al.pos.z,0x6dff8a,2.4,0.5);SFX.heal();
+   if(Math.random()<0.25)floatText(tmpV.set(al.pos.x,(al.pos.y||0)+2.6,al.pos.z),'Healed '+al.name,'heal');};
+ KIND.hot=(t,a)=>{_o(t,a);if(!menderSmart())return;for(const al of allies){if(al.dead||dist2D(al.pos,P.pos)>22)continue;al.hot={until:T+a.dur,next:T+1,pct:a.pct};ringFx(al.pos.x,al.pos.z,0x6dff8a,1.6,0.4);}};}
+function menderAllyLow(th){return menderSmart()&&healPool().some(x=>x.e!==P&&x.f<th);}
+function storyNotTaken(st){const c=sto().cur;return !c||c.id!==st.id;}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -7503,7 +7671,7 @@ function updPlayer(dt){
     if(t&&dist2D(t.pos,P.pos)>60)P.target=null;
     if(t&&P.moving<0.3&&P.autoAtk){const tr=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);let d=tr-P.rotY;d=Math.atan2(Math.sin(d),Math.cos(d));P.rotY+=d*Math.min(1,dt*10);}
     // regen
-    const ooc=T-P.lastCombat>4;P.hp=Math.min(S.maxHp,P.hp+S.maxHp*(ooc?0.04:0.004)*dt);P.en=Math.min(S.maxEn,P.en+(3.5+S.maxEn*(ooc?0.04:0.012))*dt);
+    const ooc=T-P.lastCombat>4;P.hp=Math.min(S.maxHp,P.hp+S.maxHp*(ooc?0.04:0.004)*dt);P.en=Math.min(S.maxEn,P.en+(ooc?3.5+S.maxEn*0.04:enRegenC())*dt);
     if(inTown(P.pos)){P.hp=Math.min(S.maxHp,P.hp+S.maxHp*0.06*dt);}
     if(P.hot&&T>=P.hot.next){if(T>P.hot.until)P.hot=null;else{P.hot.next+=1;healPlayer(S.maxHp*(P.hot.pct||0.04)*(1+eff('treat')/200));}}
     updBuffs();
@@ -7579,7 +7747,7 @@ function updHUD(dt){
     H.tstate.textContent=(t.enraged?'ENRAGED ':'')+(t.boss?'Boss · ':'')+(T<t.stunUntil?'Stunned ':'')+(T<t.rootUntil?'Rooted ':'')+(t.dot?(t.dot.en?'Leeched ':'Searing '):'')+(T<(t.hexUntil||0)?'Hexed ':'')+(t.state==='return'?'Evading':'')+' · '+Math.round(dist2D(t.pos,P.pos))+'m';}
   else H.tframe.classList.add('hidden');
   if(hudAcc>0.2){hudAcc=0;
-    H.pname.innerHTML=`${esc(P.name)}${titleHtml()} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
+    H.pname.innerHTML=`${esc(P.name)}${titleHtml()}${xpLockHtml()} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
     let b='';for(const bf of P.buffs){const left=bf.until-T;b+=`<span class="bf${left<20?' low':''}" title="${esc(bf.name)}: ${Object.keys(bf.mods).map(k=>'+'+bf.mods[k]+' '+SHORT[k]).join(' ')}">${bf.icon}<b>${fmtT(left)}</b></span>`;}
     if(T<P.bulwarkUntil)b+=`<span class="bf">🛡️<b>${Math.ceil(P.bulwarkUntil-T)}s</b></span>`;if(P.hot)b+=`<span class="bf">❋<b>${Math.ceil(P.hot.until-T)}s</b></span>`;b+=stage2Chips()+profKChips();if(T<(P.slowUntil||0))b+=`<span class="bf slow">🐌<b>${Math.ceil(P.slowUntil-T)}s</b></span>`;if(inTown(P.pos))b+='<span class="bf safe">🏠 Safe</span>';H.buffs.innerHTML=b;
     $('#bSk').classList.toggle('pts',P.sp>0);$('#spBadge').textContent=P.sp>0?P.sp:'';
@@ -7656,7 +7824,7 @@ function save(){if(state!=='play'||!activeId)return;const sh=sheetFromPlayer();c
 function deleteChar(id){roster.chars=roster.chars.filter(c=>c.id!==id);if(roster.active===id)roster.active=roster.chars[0]?roster.chars[0].id:null;writeRoster(roster);}
 // Hook for future team missions: other roster characters as AI party members, with their own level, gear and implants.
 function partySnapshot(id){const c=roster.chars.find(x=>x.id===id);if(!c)return null;const st=statsFor({...c,buffs:[],sync:SYNC.lv});const pr=PROFS[c.prof];
-  return {id:c.id,name:c.name,prof:c.prof,profName:pr.name,level:SYNC.lv&&SYNC.lv<c.level?SYNC.lv:c.level,trueLevel:c.level,role:c.party.role,ai:c.party.ai,stats:st,eq:c.eq,imps:c.imps,
+  return {id:c.id,name:c.name,prof:c.prof,profName:pr.name,level:SYNC.lv&&SYNC.lv<c.level?SYNC.lv:c.level,trueLevel:c.level,role:(c.party||{}).role||ROLE[c.prof]||'dps',ai:(c.party||{}).ai||'default',stats:st,eq:c.eq,imps:c.imps,
     basic:pr.basic.id,abilities:c.slots.filter(Boolean),known:c.known,visual:{color:pr.color,accent:pr.accent,visor:pr.visor,face:faceKey(c.clothing&&c.clothing.face),hair:c.clothing&&c.clothing.hair||'crop',hairc:hairCol(c.clothing&&c.clothing.hairc),skin:breedOf(c).skin}};}
 function partyCandidates(){return roster.chars.filter(c=>c.id!==activeId).map(c=>partySnapshot(c.id));}
 setInterval(save,10000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});addEventListener('pagehide',save);
@@ -7721,7 +7889,7 @@ $('#bRespawn').onclick=()=>{SFX.ui();respawnPlayer();};
 
 /* ---------------- main loop ---------------- */
 let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
-function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
+function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
     updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updSun(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
@@ -7738,7 +7906,7 @@ function frame(now){requestAnimationFrame(frame);if(GFXC.fps30&&now-last<30)retu
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>
