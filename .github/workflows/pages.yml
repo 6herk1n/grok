@@ -15,7 +15,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Plays every profession in a headless browser and checks a save survives a reload
+  # (tests/smoke_test.py). If it fails, the deploy job doesn't run, so the live game
+  # stays on the last good build.
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright + Chromium
+        run: |
+          pip install playwright==1.47.0
+          python -m playwright install --with-deps chromium
+
+      - name: Smoke test
+        run: python tests/smoke_test.py
+
   deploy:
+    needs: smoke-test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
