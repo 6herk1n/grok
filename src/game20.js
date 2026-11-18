@@ -17,9 +17,24 @@ function exportData(){const data={};for(const k of EXP_KEYS){const v=localStorag
   return {format:'dustreach-export',v:1,build:window.DR_BUILD||'',exported:new Date().toISOString(),summary:chars.map(c=>c.name+' (Lv '+c.level+')'),data};}
 function exportText(){return JSON.stringify(exportData());}
 function exportName(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `dustreach-save-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;}
-function exportDownload(){const t=exportText();const blob=new Blob([t],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=exportName();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);svMsg('⬇ Save file downloaded: '+a.download+'. On iPad it appears in Files → Downloads.');return t.length;}
-function exportShare(){const t=exportText();try{const f=new File([t],exportName(),{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'DUSTREACH save'}).then(()=>svMsg('📤 Shared')).catch(()=>{});return true;}}catch(e){}return exportDownload();}
-function exportCopy(){const t=exportText();const ta=$('#svText');if(ta){ta.value=t;ta.classList.remove('hidden');}
+// ---- Build P: save-safety reminder. Safari can clear a site's storage after ~7 days without a visit (normal tab), so after 7 days
+// without an export we show a gentle card on the title screen (Export now / Later = snooze 3 days) and one log line in game.
+const LASTEXP_KEY='dustreach_lastexport_v1',FIRSTSEEN_KEY='dustreach_firstseen_v1',NAGSNOOZE_KEY='dustreach_exportnag_v1';let saveNagShown=false;
+function markExported(){try{localStorage.setItem(LASTEXP_KEY,String(Date.now()));localStorage.removeItem(NAGSNOOZE_KEY);}catch(e){}}
+function isStandaloneApp(){try{return navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;}catch(e){return false;}}
+function isIOSDevice(){const ua=navigator.userAgent||'';return /iPad|iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1);}
+function exportAge(){let last=+(localStorage.getItem(LASTEXP_KEY)||0),first=+(localStorage.getItem(FIRSTSEEN_KEY)||0);
+  if(!first){first=Date.now();try{localStorage.setItem(FIRSTSEEN_KEY,String(first));}catch(e){}}return {days:(Date.now()-(last||first))/864e5,never:!last,last};}
+function saveNagDue(){try{const a=exportAge();if(a.days<7)return null;if(Date.now()<+(localStorage.getItem(NAGSNOOZE_KEY)||0))return null;return a;}catch(e){return null;}}
+function a2hsHint(){return isStandaloneApp()?'':isIOSDevice()?' Safari can clear website data after about 7 days without a visit. Adding DUSTREACH to your Home Screen (Share ⬆ → <b>Add to Home Screen</b>) keeps it safer.':' Browsers can clear website data. Installing the game (Add to Home Screen / Install app) keeps it safer.';}
+function saveNagEl(){const a=saveNagDue();if(!a)return null;const d=Math.floor(a.days);const el=document.createElement('div');el.id='saveNag';
+  el.innerHTML=`<div class="sn-t">💾 ${a.never?'You haven\'t exported a save yet.':'Your last save export was '+d+' days ago.'} An exported file is your safety copy.${a2hsHint()}</div><div class="sn-b"><button class="sbtn" data-sn="exp">💾 Export now</button><button class="sbtn alt" data-sn="later">Later</button></div>`;
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-sn]');if(!b)return;try{audioInit();SFX.ui();}catch(_){}if(b.dataset.sn==='exp')openSaveTools('export');else{try{localStorage.setItem(NAGSNOOZE_KEY,String(Date.now()+3*864e5));}catch(_){}}el.remove();});return el;}
+function saveNagInGame(){if(saveNagShown)return;const a=saveNagDue();if(!a)return;saveNagShown=true;
+  setTimeout(()=>{try{if(state==='play')log('💾 '+(a.never?'You haven\'t exported a save yet':'Last save export: '+Math.floor(a.days)+' days ago')+'. ☰ Menu → <b>Export save</b> keeps a safety copy.');}catch(e){}},9000);}
+function exportDownload(){const t=exportText();const blob=new Blob([t],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=exportName();document.body.appendChild(a);a.click();markExported();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);svMsg('⬇ Save file downloaded: '+a.download+'. On iPad it appears in Files → Downloads.');return t.length;}
+function exportShare(){const t=exportText();try{const f=new File([t],exportName(),{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'DUSTREACH save'}).then(()=>{markExported();svMsg('📤 Shared');}).catch(()=>{});return true;}}catch(e){}return exportDownload();}
+function exportCopy(){const t=exportText();markExported();const ta=$('#svText');if(ta){ta.value=t;ta.classList.remove('hidden');}
   const done=ok=>svMsg(ok?'📋 Save copied to the clipboard. Paste it into Notes or Files to keep it.':'Copy blocked: select the text below and copy it by hand.');
   if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t).then(()=>done(true),()=>{try{ta.select();done(document.execCommand('copy'));}catch(e){done(false);}});}
   try{ta.select();done(document.execCommand('copy'));}catch(e){done(false);}}
@@ -61,7 +76,7 @@ function openSaveTools(tab){const box=$('#saveBox');box.classList.remove('hidden
     <div class="svbtns"><button class="btn alt" data-sv="paste">📥 Import pasted text</button>${pre?'<button class="btn alt" data-sv="undo">↩ Undo last import</button>':''}</div>`)+
   `<textarea id="svText" class="${tab==='import'?'':'hidden'}" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Paste save text here" ${tab==='import'?'':'readonly'}></textarea>
    <div id="svMsg" class="svmsg"></div>
-   <div class="svinfo">Storage: ${pers}.${bak?' Automatic backup: '+new Date(bak.t).toLocaleString()+'.':''}${SAVEST.fails?' <b style="color:#ff9a8a">'+SAVEST.fails+' failed save attempt(s) this session.</b>':''}</div>
+   <div class="svinfo">Storage: ${pers}. Last export: ${(()=>{const a=exportAge();return a.last?new Date(a.last).toLocaleDateString():'never';})()}.${tab!=='import'?a2hsHint():''}${bak?' Automatic backup: '+new Date(bak.t).toLocaleString()+'.':''}${SAVEST.fails?' <b style="color:#ff9a8a">'+SAVEST.fails+' failed save attempt(s) this session.</b>':''}</div>
    <div class="svbtns"><button class="btn alt" data-sv="close">Close</button></div>`;
   const f=$('#svFile');if(f)f.onchange=()=>{const file=f.files&&f.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{const p=parseImport(rd.result);if(!p.ok){svMsg('✖ '+p.msg);SFX.err();return;}applyImport(p);};rd.readAsText(file);f.value='';};}
 function closeSaveTools(){$('#saveBox').classList.add('hidden');}

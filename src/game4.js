@@ -1,6 +1,8 @@
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
+// Build P: no on-screen joystick ring on devices without touch (desktop uses WASD); it comes back on the first touch (hybrid laptops)
+if(!((navigator.maxTouchPoints||0)>0||('ontouchstart' in window))){document.documentElement.classList.add('notouch');addEventListener('pointerdown',e=>{if(e.pointerType==='touch')document.documentElement.classList.remove('notouch');},{capture:true,passive:true});}
 function resetInput(){for(const k in ptrs)delete ptrs[k];inp.pinch=null;inp.jx=inp.jy=0;inp.joyId=inp.camId=null;joyEl.classList.remove('on');joyEl.style.left='';joyEl.style.top='';knob.style.transform='';inp.keys={};}
 const ptrs={};// active touch points on the 3D view
 // touches that land in the small gaps around the ability buttons are ignored, so a slightly-missed button press never spins the camera or retargets
@@ -254,7 +256,7 @@ window.__drSave=save;
 /* ---------------- screens ---------------- */
 function resetWorld(){stage2Reset();if(DUN)exitDungeon(true);for(const e of enemies.slice())if(e.temp)removeEnemy(e);campReset();for(const e of enemies){respawnEnemy(e);}
   for(const l of loots){scene.remove(l.m);scene.remove(l.b);}loots.length=0;clearCache();for(const p of projs)scene.remove(p.m);projs.length=0;clearFx();missionOffers=[];vendorStock=[];}
-function startGame(s0){
+function startGame(s0){saveNagInGame();
   resetWorld();const s=normalizeChar(s0);activeId=s.id;
   Object.assign(P,futureFields(s),{savePoint:s.savePoint,nodes:s.nodes,mprefs:s.mprefs,transit:null,dodges:0,perks:s.perks,pp:s.pp,dunClears:s.dunClears,known:s.known,slots:s.slots,name:s.name,prof:s.prof,level:s.level,xp:s.xp,credits:s.credits,inv:s.inv,eq:s.eq,imps:s.imps,ab:s.ab,sb:s.sb,sp:s.sp,consum:s.consum,buffs:[],stims:s.stims,kills:s.kills,
     target:null,autoAtk:false,cds:{},bulwarkUntil:0,hot:null,dead:false,lastCombat:-99});
@@ -262,7 +264,7 @@ function startGame(s0){
   calcStats();P.hp=s.hp?Math.min(s.hp,S.maxHp):S.maxHp;P.en=s.en?Math.min(s.en,S.maxEn):S.maxEn;
   if(s.pos&&!s.dead){P.pos.set(s.pos[0],0,s.pos[1]);collide(P.pos,0.45);}else P.pos.set(0,0,10);
   if(s.dead)P.hp=S.maxHp;
-  P.rotY=Math.PI;camS.yaw=0;camS.pitch=0.38;camS.dist=CAMP.dist;
+  P.rotY=Math.PI;camS.yaw=0;if(!(s.pos&&!s.dead)){P.rotY=-Math.PI/2;camS.yaw=Math.PI/2;}/* Build P: a fresh spawn at (0,10) faces west across the plaza toward Archivist Sela Marr (the crystal pylon dead ahead blocked W) */camS.pitch=0.38;camS.dist=CAMP.dist;
   qRestoreAll();
   if(!P.savePoint)P.savePoint={id:'town',tot:totXp(),t:Date.now()};
   buildPlayerModel();setupHudForProf();state='play';stage2Start();
@@ -281,7 +283,7 @@ function renderTitle(){roster=loadRoster();const tb=$('#titleBtns');tb.innerHTML
     tb.appendChild(box);}
   const full=roster.chars.length>=MAX_SLOTS;const n=document.createElement('button');n.className='btn'+(chars.length?' alt':'');n.id='bNew';n.innerHTML='NEW CONTRACTOR'+(full?'<small>All '+MAX_SLOTS+' slots used. Delete one first</small>':chars.length?'<small>Slot '+(chars.length+1)+' of '+MAX_SLOTS+'</small>':'');
   n.disabled=full;n.onclick=()=>{if(full)return;audioInit();SFX.ui();openCreate();};tb.appendChild(n);
-  const sv=document.createElement('div');sv.className='svrow';sv.innerHTML='<button class="sbtn alt" id="bExport">💾 Export save</button><button class="sbtn alt" id="bImport">📥 Import save</button>';sv.querySelector('#bExport').onclick=()=>{audioInit();SFX.ui();openSaveTools('export');};sv.querySelector('#bImport').onclick=()=>{audioInit();SFX.ui();openSaveTools('import');};tb.appendChild(sv);}
+  const sv=document.createElement('div');sv.className='svrow';sv.innerHTML='<button class="sbtn alt" id="bExport">💾 Export save</button><button class="sbtn alt" id="bImport">📥 Import save</button>';sv.querySelector('#bExport').onclick=()=>{audioInit();SFX.ui();openSaveTools('export');};sv.querySelector('#bImport').onclick=()=>{audioInit();SFX.ui();openSaveTools('import');};tb.appendChild(sv);const nag=saveNagEl();if(nag)tb.insertBefore(nag,tb.children[1]||null);}
 let selProf='vanguard';
 const NAMES=['Rook','Vesh','Kade','Talin','Mara','Juno','Sable','Orrin','Nyx','Dace','Ilsa','Corvo'];
 function openCreate(){$('#title').classList.add('hidden');$('#create').classList.remove('hidden');state='create';createNameUi();renderCards();renderCreateOpts();previewProf();}

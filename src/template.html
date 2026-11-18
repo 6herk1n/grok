@@ -150,6 +150,8 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 .tb:active{background:rgba(255,170,70,.4)}
 #joy{position:absolute;width:130px;height:130px;margin:-65px 0 0 -65px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);left:calc(110px + var(--sl));bottom:auto;top:calc(100% - 120px - var(--sb));opacity:.55}
 #joy.on{opacity:1}
+html.notouch #joy{display:none}
+#saveNag{margin:10px auto 0;max-width:460px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,190,110,.45);background:rgba(40,22,10,.85);font-size:13px;line-height:1.4;text-align:left}#saveNag .sn-b{display:flex;gap:8px;justify-content:center;margin-top:8px}#saveNag .sbtn{min-height:44px}
 #joyKnob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px;border-radius:50%;background:rgba(255,200,130,.55);border:2px solid rgba(255,255,255,.5)}
 .ab{position:absolute;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(90,60,40,.9),rgba(25,14,8,.9));border:2px solid rgba(255,190,110,.55);overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.45)}
 .ab.mab{border-color:#c8f060;box-shadow:0 0 14px rgba(200,240,96,.55);background:radial-gradient(circle at 40% 35%,rgba(80,110,40,.95),rgba(20,30,10,.92))}body.morphed #bAtk{border-color:#c8f060}
@@ -300,8 +302,34 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 #joy{width:100px;height:100px;margin:-50px 0 0 -50px;left:calc(80px + var(--sl));top:calc(100% - 85px - var(--sb))}#joyKnob{width:44px;height:44px;margin:-22px}
-#banner{font-size:22px;top:30%}#banner small{font-size:12px}#toast{font-size:13px;top:22%}
+/* Build P: centre column stack under the top band (tracker ends ~120px): region banner at 122px, tip toast under it.
+   Both stay between the left frames/log (<=212px) and the right-hand tracker/buttons, so the tip never sits over the Story tracker. */
+#banner{font-size:22px;top:calc(122px + var(--st));left:calc(222px + var(--sl));right:calc(222px + var(--sr))}#banner small{font-size:12px}
+#toast{font-size:13px;top:calc(176px + var(--st));white-space:normal;text-align:center;width:max-content;max-width:calc(100vw - 444px - var(--sl) - var(--sr))}
+#mtrack{max-height:66px;overflow-y:auto;overscroll-behavior:contain}
+/* Build P: title screen on short screens: scroll from the top (centring cut off the lore) and keep the hint line below the buttons instead of on top of them */
+#title{justify-content:flex-start;padding:calc(12px + var(--st)) 16px calc(12px + var(--sb))}#title>*{flex-shrink:0}#title .hint{position:static;margin-top:10px}#title h1{font-size:min(9vw,56px)}#title .sub{font-size:12px}#title .lore{font-size:12.5px;margin:8px 20px}
 #cPrev{width:84px;height:107px}#create{padding-left:calc(104px + var(--sl))}#create>*{flex-shrink:0}#profCards{max-height:none}
+}
+/* Build P: phone portrait (narrow screens held upright). The iPad HUD did not fit 375-430px wide: the top buttons ran over the
+   player frame. Compact HUD; top buttons in a row under the player frame; tracker under the minimap; banner/toast mid-screen. */
+@media (orientation:portrait) and (max-width:540px){
+#pframe{width:190px;padding:5px 8px}#pname{font-size:12px}.bar{height:12px;margin-top:3px}.bar span{font-size:9px;line-height:12px}
+#tframe{left:calc(12px + var(--sl));top:calc(176px + var(--st));width:190px;padding:5px 8px}
+#topright{width:100px}#mini{width:100px;height:100px}#credits{font-size:12px;margin-top:3px}#clock{font-size:11px;margin-top:2px}#region{font-size:11px}
+#topbtns{right:auto;left:calc(12px + var(--sl));top:calc(128px + var(--st));gap:6px}.tb{width:38px;height:38px;font-size:18px;line-height:36px;border-radius:10px}
+#mtrack{position:fixed;right:calc(10px + var(--sr));top:calc(172px + var(--st));margin:0;width:min(200px,calc(100vw - 230px));font-size:11px;padding:4px 6px;max-height:96px;overflow-y:auto;overscroll-behavior:contain}
+#log,#teamHud{top:calc(232px + var(--st));width:190px;font-size:11px}
+#banner{font-size:22px;top:42%;left:calc(16px + var(--sl));right:calc(16px + var(--sr))}#banner small{font-size:12px}
+#toast{font-size:13px;top:calc(42% + 64px);white-space:normal;text-align:center;width:max-content;max-width:calc(100vw - 40px)}
+#joy{width:110px;height:110px;margin:-55px 0 0 -55px;left:calc(80px + var(--sl));top:calc(100% - 220px - var(--sb))}#joyKnob{width:48px;height:48px;margin:-24px}
+.ab{width:49px;height:49px}.ab .ic{font-size:21px}.ab .ct{font-size:14px}.ab .cost{font-size:8px;bottom:3px}.ab .cnt{font-size:9px;right:4px;top:2px}
+.ab.big{width:70px;height:70px}.ab.big .ic{font-size:28px}.ab.small{width:40px;height:40px}.ab.small .ic{font-size:16px}
+#bAtk{right:calc(15px + var(--sr));bottom:calc(15px + var(--sb))}
+#b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
+#b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
+#bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
+#bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 }
 </style>
 <meta name="dr-build" content="__BUILD__">

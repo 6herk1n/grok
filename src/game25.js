@@ -389,9 +389,10 @@ function previewProf(){P.prof=selProf;P.breed=selBreed;P.clothing=normCloth({hai
   try{const w=genItem(1,'weapon',0,{wt:PROF_WT[selProf]}),a=genItem(1,'armor',0,{fam:PROF_FAM[selProf]});P.eq={weapon:w,armor:a};}catch(err){}
   buildPlayerModel();lookInit();renderLook();}
 function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().length||getComputedStyle(cv).display==='none')return;const ctx=cv.getContext('2d');if(!ctx)return;
-  const pr=renderer.getPixelRatio(),W=cv.width,Hh=cv.height,cw=Math.floor(W/pr),ch=Math.floor(Hh/pr);if(!prevCam)prevCam=new THREE.PerspectiveCamera(30,W/Hh,0.1,200);prevCam.aspect=W/Hh;prevCam.updateProjectionMatrix();
+  const pr=renderer.getPixelRatio(),W=cv.width,Hh=cv.height,sz=renderer.getDrawingBufferSize(new THREE.Vector2());
+  // Build P: phones in landscape (Safari bars) can have a drawing buffer shorter than the 336px preview canvas; render smaller and scale up instead of skipping (was: blank preview on phones)
+  const k=Math.min(1,sz.x/W,sz.y/Hh),cw=Math.max(1,Math.floor(W*k/pr)),ch=Math.max(1,Math.floor(Hh*k/pr));if(!prevCam)prevCam=new THREE.PerspectiveCamera(30,W/Hh,0.1,200);prevCam.aspect=W/Hh;prevCam.updateProjectionMatrix();
   const hs=(PM.g.scale.y||1),fz=performance.now()<prevFaceT;if(fz){prevCam.position.set(0,1.86*hs,14+1.25*hs);prevCam.lookAt(0,1.8*hs,14);}else{prevCam.position.set(0,1.25*hs,14+5.6*hs);prevCam.lookAt(0,1.0*hs,14);}
-  const sz=renderer.getDrawingBufferSize(new THREE.Vector2());if(sz.x<W||sz.y<Hh)return;
   renderer.setScissorTest(true);renderer.setScissor(0,0,cw,ch);renderer.setViewport(0,0,cw,ch);renderer.render(scene,prevCam);
   try{ctx.clearRect(0,0,W,Hh);ctx.drawImage(renderer.domElement,0,sz.y-ch*pr,cw*pr,ch*pr,0,0,W,Hh);}catch(err){}
   renderer.setScissorTest(false);const s2=renderer.getSize(new THREE.Vector2());renderer.setViewport(0,0,s2.x,s2.y);renderer.setScissor(0,0,s2.x,s2.y);}

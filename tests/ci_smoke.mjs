@@ -1,6 +1,7 @@
 // tests/ci_smoke.mjs: DUSTREACH pre-deploy smoke test (GitHub Actions and local).
 //   node tests/ci_smoke.mjs [siteDir]      siteDir defaults to the repo root (where index.html lives)
 //   SMOKE_ONLY=desktop|ipad|phone          run one pass only
+//   SMOKE_SIZE=WxH                         phone pass viewport (default 750x342)
 // Pass "ipad" (1180x820 landscape, touch): same flow and HUD layout check as the phone pass.
 // Info only: this file is NOT run by .github/workflows/pages.yml (tests/smoke_test.py is the deploy gate).
 // Pass 1 "desktop" (1280x800, mouse): load, create a character, deploy, walk; fail on any pageerror,
@@ -17,6 +18,9 @@ import path from 'node:path';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 const ONLY = process.env.SMOKE_ONLY || 'all';
+// SMOKE_SIZE=WxH changes the phone pass viewport (default 750x342), e.g. 667x375 (iPhone SE) or 390x844 (portrait)
+const [PW, PH] = (process.env.SMOKE_SIZE || '750x342').split('x').map(Number);
+const PHONE_SIZE = { width: PW, height: PH };
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json',
   '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 
@@ -117,7 +121,7 @@ try {
     good = await pass(browser, url, 'ipad', { touch: true, layout: true, ctx: { viewport: { width: 1180, height: 820 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true,
       userAgent: 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1' } }) && good;
   if (ONLY === 'all' || ONLY === 'phone')
-    good = await pass(browser, url, 'phone', { touch: true, layout: true, ctx: { viewport: { width: 750, height: 342 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true,
+    good = await pass(browser, url, 'phone', { touch: true, layout: true, ctx: { viewport: PHONE_SIZE, deviceScaleFactor: 2, hasTouch: true, isMobile: true,
       userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1' } }) && good;
 } finally { await browser.close(); srv.close(); }
 console.log(good ? 'CI SMOKE OK' : 'CI SMOKE FAILED: do not deploy');

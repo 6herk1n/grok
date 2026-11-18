@@ -150,6 +150,8 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 .tb:active{background:rgba(255,170,70,.4)}
 #joy{position:absolute;width:130px;height:130px;margin:-65px 0 0 -65px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);left:calc(110px + var(--sl));bottom:auto;top:calc(100% - 120px - var(--sb));opacity:.55}
 #joy.on{opacity:1}
+html.notouch #joy{display:none}
+#saveNag{margin:10px auto 0;max-width:460px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,190,110,.45);background:rgba(40,22,10,.85);font-size:13px;line-height:1.4;text-align:left}#saveNag .sn-b{display:flex;gap:8px;justify-content:center;margin-top:8px}#saveNag .sbtn{min-height:44px}
 #joyKnob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px;border-radius:50%;background:rgba(255,200,130,.55);border:2px solid rgba(255,255,255,.5)}
 .ab{position:absolute;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(90,60,40,.9),rgba(25,14,8,.9));border:2px solid rgba(255,190,110,.55);overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.45)}
 .ab.mab{border-color:#c8f060;box-shadow:0 0 14px rgba(200,240,96,.55);background:radial-gradient(circle at 40% 35%,rgba(80,110,40,.95),rgba(20,30,10,.92))}body.morphed #bAtk{border-color:#c8f060}
@@ -300,14 +302,40 @@ input{font:inherit;-webkit-user-select:text;user-select:text}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 #joy{width:100px;height:100px;margin:-50px 0 0 -50px;left:calc(80px + var(--sl));top:calc(100% - 85px - var(--sb))}#joyKnob{width:44px;height:44px;margin:-22px}
-#banner{font-size:22px;top:30%}#banner small{font-size:12px}#toast{font-size:13px;top:22%}
+/* Build P: centre column stack under the top band (tracker ends ~120px): region banner at 122px, tip toast under it.
+   Both stay between the left frames/log (<=212px) and the right-hand tracker/buttons, so the tip never sits over the Story tracker. */
+#banner{font-size:22px;top:calc(122px + var(--st));left:calc(222px + var(--sl));right:calc(222px + var(--sr))}#banner small{font-size:12px}
+#toast{font-size:13px;top:calc(176px + var(--st));white-space:normal;text-align:center;width:max-content;max-width:calc(100vw - 444px - var(--sl) - var(--sr))}
+#mtrack{max-height:66px;overflow-y:auto;overscroll-behavior:contain}
+/* Build P: title screen on short screens: scroll from the top (centring cut off the lore) and keep the hint line below the buttons instead of on top of them */
+#title{justify-content:flex-start;padding:calc(12px + var(--st)) 16px calc(12px + var(--sb))}#title>*{flex-shrink:0}#title .hint{position:static;margin-top:10px}#title h1{font-size:min(9vw,56px)}#title .sub{font-size:12px}#title .lore{font-size:12.5px;margin:8px 20px}
 #cPrev{width:84px;height:107px}#create{padding-left:calc(104px + var(--sl))}#create>*{flex-shrink:0}#profCards{max-height:none}
 }
+/* Build P: phone portrait (narrow screens held upright). The iPad HUD did not fit 375-430px wide: the top buttons ran over the
+   player frame. Compact HUD; top buttons in a row under the player frame; tracker under the minimap; banner/toast mid-screen. */
+@media (orientation:portrait) and (max-width:540px){
+#pframe{width:190px;padding:5px 8px}#pname{font-size:12px}.bar{height:12px;margin-top:3px}.bar span{font-size:9px;line-height:12px}
+#tframe{left:calc(12px + var(--sl));top:calc(176px + var(--st));width:190px;padding:5px 8px}
+#topright{width:100px}#mini{width:100px;height:100px}#credits{font-size:12px;margin-top:3px}#clock{font-size:11px;margin-top:2px}#region{font-size:11px}
+#topbtns{right:auto;left:calc(12px + var(--sl));top:calc(128px + var(--st));gap:6px}.tb{width:38px;height:38px;font-size:18px;line-height:36px;border-radius:10px}
+#mtrack{position:fixed;right:calc(10px + var(--sr));top:calc(172px + var(--st));margin:0;width:min(200px,calc(100vw - 230px));font-size:11px;padding:4px 6px;max-height:96px;overflow-y:auto;overscroll-behavior:contain}
+#log,#teamHud{top:calc(232px + var(--st));width:190px;font-size:11px}
+#banner{font-size:22px;top:42%;left:calc(16px + var(--sl));right:calc(16px + var(--sr))}#banner small{font-size:12px}
+#toast{font-size:13px;top:calc(42% + 64px);white-space:normal;text-align:center;width:max-content;max-width:calc(100vw - 40px)}
+#joy{width:110px;height:110px;margin:-55px 0 0 -55px;left:calc(80px + var(--sl));top:calc(100% - 220px - var(--sb))}#joyKnob{width:48px;height:48px;margin:-24px}
+.ab{width:49px;height:49px}.ab .ic{font-size:21px}.ab .ct{font-size:14px}.ab .cost{font-size:8px;bottom:3px}.ab .cnt{font-size:9px;right:4px;top:2px}
+.ab.big{width:70px;height:70px}.ab.big .ic{font-size:28px}.ab.small{width:40px;height:40px}.ab.small .ic{font-size:16px}
+#bAtk{right:calc(15px + var(--sr));bottom:calc(15px + var(--sb))}
+#b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
+#b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
+#bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
+#bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
+}
 </style>
-<meta name="dr-build" content="20261118T160549-a6aae288">
+<meta name="dr-build" content="20261118T173817-012a7a4e">
 <script>
 (function(){
-var BUILD='20261118T160549-a6aae288';window.DR_BUILD=BUILD;
+var BUILD='20261118T173817-012a7a4e';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1129,9 +1157,10 @@ function previewProf(){P.prof=selProf;P.breed=selBreed;P.clothing=normCloth({hai
   try{const w=genItem(1,'weapon',0,{wt:PROF_WT[selProf]}),a=genItem(1,'armor',0,{fam:PROF_FAM[selProf]});P.eq={weapon:w,armor:a};}catch(err){}
   buildPlayerModel();lookInit();renderLook();}
 function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().length||getComputedStyle(cv).display==='none')return;const ctx=cv.getContext('2d');if(!ctx)return;
-  const pr=renderer.getPixelRatio(),W=cv.width,Hh=cv.height,cw=Math.floor(W/pr),ch=Math.floor(Hh/pr);if(!prevCam)prevCam=new THREE.PerspectiveCamera(30,W/Hh,0.1,200);prevCam.aspect=W/Hh;prevCam.updateProjectionMatrix();
+  const pr=renderer.getPixelRatio(),W=cv.width,Hh=cv.height,sz=renderer.getDrawingBufferSize(new THREE.Vector2());
+  // Build P: phones in landscape (Safari bars) can have a drawing buffer shorter than the 336px preview canvas; render smaller and scale up instead of skipping (was: blank preview on phones)
+  const k=Math.min(1,sz.x/W,sz.y/Hh),cw=Math.max(1,Math.floor(W*k/pr)),ch=Math.max(1,Math.floor(Hh*k/pr));if(!prevCam)prevCam=new THREE.PerspectiveCamera(30,W/Hh,0.1,200);prevCam.aspect=W/Hh;prevCam.updateProjectionMatrix();
   const hs=(PM.g.scale.y||1),fz=performance.now()<prevFaceT;if(fz){prevCam.position.set(0,1.86*hs,14+1.25*hs);prevCam.lookAt(0,1.8*hs,14);}else{prevCam.position.set(0,1.25*hs,14+5.6*hs);prevCam.lookAt(0,1.0*hs,14);}
-  const sz=renderer.getDrawingBufferSize(new THREE.Vector2());if(sz.x<W||sz.y<Hh)return;
   renderer.setScissorTest(true);renderer.setScissor(0,0,cw,ch);renderer.setViewport(0,0,cw,ch);renderer.render(scene,prevCam);
   try{ctx.clearRect(0,0,W,Hh);ctx.drawImage(renderer.domElement,0,sz.y-ch*pr,cw*pr,ch*pr,0,0,W,Hh);}catch(err){}
   renderer.setScissorTest(false);const s2=renderer.getSize(new THREE.Vector2());renderer.setViewport(0,0,s2.x,s2.y);renderer.setScissor(0,0,s2.x,s2.y);}
@@ -4779,9 +4808,24 @@ function exportData(){const data={};for(const k of EXP_KEYS){const v=localStorag
   return {format:'dustreach-export',v:1,build:window.DR_BUILD||'',exported:new Date().toISOString(),summary:chars.map(c=>c.name+' (Lv '+c.level+')'),data};}
 function exportText(){return JSON.stringify(exportData());}
 function exportName(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `dustreach-save-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;}
-function exportDownload(){const t=exportText();const blob=new Blob([t],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=exportName();document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);svMsg('⬇ Save file downloaded: '+a.download+'. On iPad it appears in Files → Downloads.');return t.length;}
-function exportShare(){const t=exportText();try{const f=new File([t],exportName(),{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'DUSTREACH save'}).then(()=>svMsg('📤 Shared')).catch(()=>{});return true;}}catch(e){}return exportDownload();}
-function exportCopy(){const t=exportText();const ta=$('#svText');if(ta){ta.value=t;ta.classList.remove('hidden');}
+// ---- Build P: save-safety reminder. Safari can clear a site's storage after ~7 days without a visit (normal tab), so after 7 days
+// without an export we show a gentle card on the title screen (Export now / Later = snooze 3 days) and one log line in game.
+const LASTEXP_KEY='dustreach_lastexport_v1',FIRSTSEEN_KEY='dustreach_firstseen_v1',NAGSNOOZE_KEY='dustreach_exportnag_v1';let saveNagShown=false;
+function markExported(){try{localStorage.setItem(LASTEXP_KEY,String(Date.now()));localStorage.removeItem(NAGSNOOZE_KEY);}catch(e){}}
+function isStandaloneApp(){try{return navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;}catch(e){return false;}}
+function isIOSDevice(){const ua=navigator.userAgent||'';return /iPad|iPhone|iPod/.test(ua)||(/Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1);}
+function exportAge(){let last=+(localStorage.getItem(LASTEXP_KEY)||0),first=+(localStorage.getItem(FIRSTSEEN_KEY)||0);
+  if(!first){first=Date.now();try{localStorage.setItem(FIRSTSEEN_KEY,String(first));}catch(e){}}return {days:(Date.now()-(last||first))/864e5,never:!last,last};}
+function saveNagDue(){try{const a=exportAge();if(a.days<7)return null;if(Date.now()<+(localStorage.getItem(NAGSNOOZE_KEY)||0))return null;return a;}catch(e){return null;}}
+function a2hsHint(){return isStandaloneApp()?'':isIOSDevice()?' Safari can clear website data after about 7 days without a visit. Adding DUSTREACH to your Home Screen (Share ⬆ → <b>Add to Home Screen</b>) keeps it safer.':' Browsers can clear website data. Installing the game (Add to Home Screen / Install app) keeps it safer.';}
+function saveNagEl(){const a=saveNagDue();if(!a)return null;const d=Math.floor(a.days);const el=document.createElement('div');el.id='saveNag';
+  el.innerHTML=`<div class="sn-t">💾 ${a.never?'You haven\'t exported a save yet.':'Your last save export was '+d+' days ago.'} An exported file is your safety copy.${a2hsHint()}</div><div class="sn-b"><button class="sbtn" data-sn="exp">💾 Export now</button><button class="sbtn alt" data-sn="later">Later</button></div>`;
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-sn]');if(!b)return;try{audioInit();SFX.ui();}catch(_){}if(b.dataset.sn==='exp')openSaveTools('export');else{try{localStorage.setItem(NAGSNOOZE_KEY,String(Date.now()+3*864e5));}catch(_){}}el.remove();});return el;}
+function saveNagInGame(){if(saveNagShown)return;const a=saveNagDue();if(!a)return;saveNagShown=true;
+  setTimeout(()=>{try{if(state==='play')log('💾 '+(a.never?'You haven\'t exported a save yet':'Last save export: '+Math.floor(a.days)+' days ago')+'. ☰ Menu → <b>Export save</b> keeps a safety copy.');}catch(e){}},9000);}
+function exportDownload(){const t=exportText();const blob=new Blob([t],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=exportName();document.body.appendChild(a);a.click();markExported();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);svMsg('⬇ Save file downloaded: '+a.download+'. On iPad it appears in Files → Downloads.');return t.length;}
+function exportShare(){const t=exportText();try{const f=new File([t],exportName(),{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'DUSTREACH save'}).then(()=>{markExported();svMsg('📤 Shared');}).catch(()=>{});return true;}}catch(e){}return exportDownload();}
+function exportCopy(){const t=exportText();markExported();const ta=$('#svText');if(ta){ta.value=t;ta.classList.remove('hidden');}
   const done=ok=>svMsg(ok?'📋 Save copied to the clipboard. Paste it into Notes or Files to keep it.':'Copy blocked: select the text below and copy it by hand.');
   if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t).then(()=>done(true),()=>{try{ta.select();done(document.execCommand('copy'));}catch(e){done(false);}});}
   try{ta.select();done(document.execCommand('copy'));}catch(e){done(false);}}
@@ -4823,7 +4867,7 @@ function openSaveTools(tab){const box=$('#saveBox');box.classList.remove('hidden
     <div class="svbtns"><button class="btn alt" data-sv="paste">📥 Import pasted text</button>${pre?'<button class="btn alt" data-sv="undo">↩ Undo last import</button>':''}</div>`)+
   `<textarea id="svText" class="${tab==='import'?'':'hidden'}" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Paste save text here" ${tab==='import'?'':'readonly'}></textarea>
    <div id="svMsg" class="svmsg"></div>
-   <div class="svinfo">Storage: ${pers}.${bak?' Automatic backup: '+new Date(bak.t).toLocaleString()+'.':''}${SAVEST.fails?' <b style="color:#ff9a8a">'+SAVEST.fails+' failed save attempt(s) this session.</b>':''}</div>
+   <div class="svinfo">Storage: ${pers}. Last export: ${(()=>{const a=exportAge();return a.last?new Date(a.last).toLocaleDateString():'never';})()}.${tab!=='import'?a2hsHint():''}${bak?' Automatic backup: '+new Date(bak.t).toLocaleString()+'.':''}${SAVEST.fails?' <b style="color:#ff9a8a">'+SAVEST.fails+' failed save attempt(s) this session.</b>':''}</div>
    <div class="svbtns"><button class="btn alt" data-sv="close">Close</button></div>`;
   const f=$('#svFile');if(f)f.onchange=()=>{const file=f.files&&f.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{const p=parseImport(rd.result);if(!p.ok){svMsg('✖ '+p.msg);SFX.err();return;}applyImport(p);};rd.readAsText(file);f.value='';};}
 function closeSaveTools(){$('#saveBox').classList.add('hidden');}
@@ -7599,6 +7643,8 @@ function storyNotTaken(st){const c=sto().cur;return !c||c.id!==st.id;}
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
+// Build P: no on-screen joystick ring on devices without touch (desktop uses WASD); it comes back on the first touch (hybrid laptops)
+if(!((navigator.maxTouchPoints||0)>0||('ontouchstart' in window))){document.documentElement.classList.add('notouch');addEventListener('pointerdown',e=>{if(e.pointerType==='touch')document.documentElement.classList.remove('notouch');},{capture:true,passive:true});}
 function resetInput(){for(const k in ptrs)delete ptrs[k];inp.pinch=null;inp.jx=inp.jy=0;inp.joyId=inp.camId=null;joyEl.classList.remove('on');joyEl.style.left='';joyEl.style.top='';knob.style.transform='';inp.keys={};}
 const ptrs={};// active touch points on the 3D view
 // touches that land in the small gaps around the ability buttons are ignored, so a slightly-missed button press never spins the camera or retargets
@@ -7852,7 +7898,7 @@ window.__drSave=save;
 /* ---------------- screens ---------------- */
 function resetWorld(){stage2Reset();if(DUN)exitDungeon(true);for(const e of enemies.slice())if(e.temp)removeEnemy(e);campReset();for(const e of enemies){respawnEnemy(e);}
   for(const l of loots){scene.remove(l.m);scene.remove(l.b);}loots.length=0;clearCache();for(const p of projs)scene.remove(p.m);projs.length=0;clearFx();missionOffers=[];vendorStock=[];}
-function startGame(s0){
+function startGame(s0){saveNagInGame();
   resetWorld();const s=normalizeChar(s0);activeId=s.id;
   Object.assign(P,futureFields(s),{savePoint:s.savePoint,nodes:s.nodes,mprefs:s.mprefs,transit:null,dodges:0,perks:s.perks,pp:s.pp,dunClears:s.dunClears,known:s.known,slots:s.slots,name:s.name,prof:s.prof,level:s.level,xp:s.xp,credits:s.credits,inv:s.inv,eq:s.eq,imps:s.imps,ab:s.ab,sb:s.sb,sp:s.sp,consum:s.consum,buffs:[],stims:s.stims,kills:s.kills,
     target:null,autoAtk:false,cds:{},bulwarkUntil:0,hot:null,dead:false,lastCombat:-99});
@@ -7860,7 +7906,7 @@ function startGame(s0){
   calcStats();P.hp=s.hp?Math.min(s.hp,S.maxHp):S.maxHp;P.en=s.en?Math.min(s.en,S.maxEn):S.maxEn;
   if(s.pos&&!s.dead){P.pos.set(s.pos[0],0,s.pos[1]);collide(P.pos,0.45);}else P.pos.set(0,0,10);
   if(s.dead)P.hp=S.maxHp;
-  P.rotY=Math.PI;camS.yaw=0;camS.pitch=0.38;camS.dist=CAMP.dist;
+  P.rotY=Math.PI;camS.yaw=0;if(!(s.pos&&!s.dead)){P.rotY=-Math.PI/2;camS.yaw=Math.PI/2;}/* Build P: a fresh spawn at (0,10) faces west across the plaza toward Archivist Sela Marr (the crystal pylon dead ahead blocked W) */camS.pitch=0.38;camS.dist=CAMP.dist;
   qRestoreAll();
   if(!P.savePoint)P.savePoint={id:'town',tot:totXp(),t:Date.now()};
   buildPlayerModel();setupHudForProf();state='play';stage2Start();
@@ -7879,7 +7925,7 @@ function renderTitle(){roster=loadRoster();const tb=$('#titleBtns');tb.innerHTML
     tb.appendChild(box);}
   const full=roster.chars.length>=MAX_SLOTS;const n=document.createElement('button');n.className='btn'+(chars.length?' alt':'');n.id='bNew';n.innerHTML='NEW CONTRACTOR'+(full?'<small>All '+MAX_SLOTS+' slots used. Delete one first</small>':chars.length?'<small>Slot '+(chars.length+1)+' of '+MAX_SLOTS+'</small>':'');
   n.disabled=full;n.onclick=()=>{if(full)return;audioInit();SFX.ui();openCreate();};tb.appendChild(n);
-  const sv=document.createElement('div');sv.className='svrow';sv.innerHTML='<button class="sbtn alt" id="bExport">💾 Export save</button><button class="sbtn alt" id="bImport">📥 Import save</button>';sv.querySelector('#bExport').onclick=()=>{audioInit();SFX.ui();openSaveTools('export');};sv.querySelector('#bImport').onclick=()=>{audioInit();SFX.ui();openSaveTools('import');};tb.appendChild(sv);}
+  const sv=document.createElement('div');sv.className='svrow';sv.innerHTML='<button class="sbtn alt" id="bExport">💾 Export save</button><button class="sbtn alt" id="bImport">📥 Import save</button>';sv.querySelector('#bExport').onclick=()=>{audioInit();SFX.ui();openSaveTools('export');};sv.querySelector('#bImport').onclick=()=>{audioInit();SFX.ui();openSaveTools('import');};tb.appendChild(sv);const nag=saveNagEl();if(nag)tb.insertBefore(nag,tb.children[1]||null);}
 let selProf='vanguard';
 const NAMES=['Rook','Vesh','Kade','Talin','Mara','Juno','Sable','Orrin','Nyx','Dace','Ilsa','Corvo'];
 function openCreate(){$('#title').classList.add('hidden');$('#create').classList.remove('hidden');state='create';createNameUi();renderCards();renderCreateOpts();previewProf();}
