@@ -55,7 +55,9 @@ function simBot(dt){if(P.dead||state!=='play')return;const t=simPickTarget();if(
     const rm=SIMB.focus&&SIMB.focus.boss&&SIMB.focus.boss.room;if(rm){let cx=0-t2.x,cz=rm.cz-t2.z;const cl=Math.hypot(cx,cz);if(cl>2){ax+=cx/cl*0.9;az+=cz/cl*0.9;const n=Math.hypot(ax,az)||1;ax/=n;az/=n;}}
     simMoveTo(t2.x+ax*(t2.r+1.8),t2.z+az*(t2.r+1.8),dt,0.2);}}
   else if(t){const ab=basicAb();const want=ab.melee?t.hitR+1.0:Math.max(t.hitR+2,Math.min(ab.range*0.8,14));const d=dist2D(t.pos,P.pos);
-    if(d>want+0.6)simMoveTo(t.pos.x,t.pos.z,dt,want);}
+    const rm=t.boss&&t.boss.room;// knocked toward the door? walk back into the arena like a player would, so the boss is not dragged out of its room
+    if(rm&&rm.cz!=null&&(Math.abs(P.pos.z-rm.cz)>rm.d/2-3||Math.abs(P.pos.x-(rm.cx||0))>rm.w/2-3))simMoveTo(rm.cx||0,rm.cz,dt,2);
+    else if(d>want+0.6)simMoveTo(t.pos.x,t.pos.z,dt,want);}
   if(t)P.rotY=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);
   if(T<SIMB.next)return;SIMB.next=T+0.25;
   const hpF=P.hp/S.maxHp;if(hpF<0.35&&P.stims>0&&(P.cds.stim||0)<=T){useStim();if(SIMST)SIMST.stims++;}
@@ -74,7 +76,7 @@ function simReset(){P.hp=S.maxHp;P.en=S.maxEn;P.cds={};P.dead=false;P.buffs=P.bu
 function simRunFight(o){const b=o.boss;SIMB.focus=b;SIMB.next=0;SIMST={pt:0,ph:0,ah:0,at:0,pd:0,ad:0,starve:0,casts:0,stims:0,moved:0};
   const t0=T,hp0=b.hp,dt=0.05,maxT=o.maxT||600;SIMP=true;let res='timeout',enT=0;const tr=[];const mxHp=b.maxHp;let minEnF=1,ens=0,enN=0;
   try{while(T-t0<maxT){simBot(dt);simStep(dt);if(P.en/S.maxEn<minEnF)minEnF=P.en/S.maxEn;ens+=P.en/S.maxEn;enN++;
-      if(o.trace&&((T-t0)%o.trace)<dt)tr.push([+(T-t0).toFixed(1),b.dead,b.hp|0,+(P.hp/S.maxHp).toFixed(2),b.foe===P?'onP':(b.foe?b.foe.name:'-'),SIMST.pt|0,+(b.hp/b.maxHp).toFixed(3),b.immune?String(b.immune).slice(0,20):0,b.boss&&b.boss.phase,P.target===b?'B':(P.target?P.target.T.name:'-'),Math.round(dist2D(P.pos,b.pos)),b.state||'',enemies.filter(e=>!e.dead).length]);if(b.dead){res='kill';break;}if(P.dead){res='death';break;}if(b.boss&&b.boss.he&&!enT)enT=T-t0;}}
+      if(o.trace&&((T-t0)%o.trace)<dt)tr.push([+(T-t0).toFixed(1),b.dead,b.hp|0,+(P.hp/S.maxHp).toFixed(2),b.foe===P?'onP':(b.foe?b.foe.name:'-'),SIMST.pt|0,+(b.hp/b.maxHp).toFixed(3),b.immune?String(b.immune).slice(0,20):0,b.boss&&b.boss.phase,P.target===b?'B':(P.target?P.target.T.name:'-'),Math.round(dist2D(P.pos,b.pos)),b.state||'',enemies.filter(e=>!e.dead).length,b.home?Math.round(dist2D(b.pos,b.home)):-1,Math.round(b.leash||0)]);if(b.dead){res='kill';break;}if(P.dead){res='death';break;}if(b.boss&&b.boss.he&&!enT)enT=T-t0;}}
   finally{SIMP=false;}
   const el=T-t0,lost=b.dead?hp0:hp0-b.hp;
   return {res,t:+el.toFixed(1),dps:Math.round(lost/el),hpLostF:+(lost/mxHp).toFixed(3),maxHp:Math.round(mxHp),taken:Math.round(SIMST.pt),takenPct:+(SIMST.pt/S.maxHp).toFixed(2),selfHeal:Math.round(SIMST.ph),allyHeal:Math.round(SIMST.ah),allyTaken:Math.round(SIMST.at),
@@ -84,14 +86,14 @@ function simStage(boss,keepAdds){const r=boss.boss&&boss.boss.room;for(const e o
   const cz=r?r.cz:boss.pos.z,dz=r?Math.min(10,r.d*0.3):9;P.pos.set(0,heightAt(0,cz+dz),cz+dz);P.rotY=Math.PI;
   for(const a of allies){a.pos.set((Math.random()*6-3),heightAt(0,cz+dz+1.5),cz+dz+1.5);a.target=null;if(a.hp!=null)a.hp=a.maxHp;}
   boss.pos.set(r?0:boss.pos.x,boss.pos.y,r?cz-2:boss.pos.z);simReset();}
-function simExports(){return {simStep,simChar,simRunFight,simStage,simBot,simReset,simWeaves,SIMB,reqMetBy,storyDunStep,storyRunMode,stepDone,inTown,get FLAT(){return FLAT;},get SIMP(){return SIMP;},set SIMP(v){SIMP=v;}};}
+function simExports(){return {simStep,simChar,simRunFight,simStage,simBot,simReset,simWeaves,SIMB,reqMetBy,storyDunStep,storyRunMode,stepDone,inTown,balOn,addHpK,dunBossK,profDmgK,get FLAT(){return FLAT;},get SIMP(){return SIMP;},set SIMP(v){SIMP=v;}};}
 /* ---------- Build O balance curves ----------
    eHpK(lv): enemy health multiplier by enemy level. Measured with the sim (sim_out/dummy.json): a typical player's sustained DPS grows ~40,000x from Lv 1 to 100
    while base enemy health grows ~39x, so everything above Lv ~15 died in a fraction of a second. The curve restores Lv 1's time-to-kill (~3s per same-level trash)
    at every level, ramping to ~4.5s at Lv 100. Log-linear interpolation; beyond 100 it keeps the last slope. (Function-local table: makeEnemy runs at load.) */
-var BAL_DEFAULT=false;// Build O balance retune ships OFF in the hotfix; the harness sets window.__BALON (or localStorage dustreach_bal_o=1) to measure it
-function balOn(){if(window.__BALOFF)return false;if(window.__BALON)return true;try{if(localStorage.getItem('dustreach_bal_o')==='1')return true;}catch(e){}return BAL_DEFAULT;}// the sim sets window.__BALOFF before load to measure the pre-Build-O game (before/after tables)
-function eHpK(lv){if(!balOn())return 1;const t=[[1,1],[5,2.2],[10,3.8],[15,7],[20,10.5],[25,16.5],[30,24],[40,44],[50,75],[60,130],[70,210],[80,360],[90,680],[100,1060]];
+var BAL_DEFAULT=true;// Build O balance retune: ON by default. Debug override: localStorage dustreach_bal_o='0' turns it off, '1' forces it on (reload after changing)
+function balOn(){if(window.__BALOFF)return false;if(window.__BALON)return true;try{const v=localStorage.getItem('dustreach_bal_o');if(v==='0')return false;if(v==='1')return true;}catch(e){}return BAL_DEFAULT;}// the sim sets window.__BALOFF before load to measure the pre-Build-O game (before/after tables)
+function eHpK(lv){if(!balOn())return 1;const t=[[1,1],[5,2.2],[10,3.8],[15,7],[20,10.5],[25,16.5],[30,24],[40,44],[50,75],[60,130],[70,210],[80,360],[90,620],[100,1060]];
   lv=Math.max(1,lv||1);let i=0;while(i<t.length-2&&lv>t[i+1][0])i++;const a=t[i],b=t[i+1];const f=(lv-a[0])/(b[0]-a[0]);const k=Math.pow(10,Math.log10(a[1])+f*(Math.log10(b[1])-Math.log10(a[1])));
   return k*(1+0.55*Math.min(1,(lv-1)/99));}
 // companions: same level x skill x power growth as a player's basic hit (they ignored skill and power before, so they fell ~1000x behind by Lv 100)
@@ -103,12 +105,17 @@ var PET_K=0.6;
 /* per-profession damage coefficient (player hits, their bots, and the same profession as a companion). From the sim dummy sweep (geo-mean Lv 20-100) so each
    profession lands on its role's target share of the dps-role median: dps 1.0, pet 0.95, control 0.85, tank 0.75, support 0.7, healer 0.6 (tanks/healers/supports
    bring survival and team value; the solo floor keeps every role able to clear solo dungeons). */
-var PROF_DMGK={vanguard:[0.89,0.68,0.66],siege:[0.61,0.55,0.49],mender:[1.28,1.7,2.43],weaver:[0.61,0.52,0.49],mind:[1.38,1.63,1.29],harm:[1.46,1.37,1.78],exact:[0.8,0.68,0.44],flux:[0.74,0.54,0.44],runner:[1.62,1.37,1.47],wild:[0.99,1.03,1.1],fist:[0.94,1.04,1.09],shade:[0.69,0.73,0.61],wright:[1.38,1.44,2.2],binder:[1.08,1.25,1.14]};// [Lv 10, Lv 40, Lv 85] anchors, linear between, flat outside
+var PROF_DMGK={vanguard:[0.78,0.74,0.84],siege:[0.56,0.51,0.72],mender:[1.55,2.06,3.44],weaver:[0.65,0.62,0.54],mind:[1.61,1.74,1.16],harm:[1.52,1.4,2.06],exact:[0.87,0.77,0.53],flux:[0.74,0.52,0.41],runner:[1.62,1.81,1.37],wild:[1.11,1.03,0.92],fist:[1.03,0.9,1.04],shade:[0.67,0.73,0.68],wright:[1.27,1.62,2.45],binder:[1.41,1.18,1.19]};// [Lv 10, Lv 40, Lv 85] anchors, linear between, flat outside
 function profDmgK(p,lv){if(!balOn())return 1;const k=PROF_DMGK&&PROF_DMGK[p];if(!k)return 1;lv=lv||P.level;return lv<=10?k[0]:lv<=40?k[0]+(k[1]-k[0])*(lv-10)/30:lv<=85?k[1]+(k[2]-k[1])*(lv-40)/45:k[2];}
 /* boss health per dungeon after eHpK, from the sim (simBossK.js): solo bosses target ~65s median kill time (45-90s band), team bosses ~100s (60-150s) */
-var SOLO_BK={"mine":0.766,"choir":0.36,"stillvault":0.143,"foundry":0.32,"heartforge":0.501,"oxidevault":0.395,"briarsepulchre":0.335,"galecrown":0.253,"sunossuary":0.112,"riftvestibule":0.048};
-var TEAM_BK={"vault":0.7,"choir":0.19,"stillvault":0.23,"foundry":0.1,"heartforge":0.26,"oxidevault":0.25,"briarsepulchre":0.15,"galecrown":0.128,"sunossuary":0.118};
-var RAID_K={sunless:[0.025,1]},RAID_BOSS_K={ozmarath:0.76};// [boss hp, boss dmg] on top of the raid mode (bosses only)
+var SOLO_BK={"mine":0.766,"choir":0.36,"stillvault":0.143,"foundry":0.45,"heartforge":0.501,"oxidevault":0.417,"briarsepulchre":0.37,"galecrown":0.316,"sunossuary":0.18,"riftvestibule":0.109};
+var TEAM_BK={"vault":0.7,"choir":0.19,"stillvault":0.23,"foundry":0.16,"heartforge":0.26,"oxidevault":0.25,"briarsepulchre":0.15,"galecrown":0.128,"sunossuary":0.118};
+var RAID_K={sunless:[0.025,1]},RAID_BOSS_K={ozmarath:0.68};// [boss hp, boss dmg] on top of the raid mode (bosses only)
+// Build O: adds a boss summons (and their splits) get the same solo/team HP factor as the boss. SOLO_BK shrinks bosses (e.g. Vael x0.048) but left
+// their Voidmaws/Ossuarchs at full eHpK health, so single-target professions spent 70 s on adds while AoE/pet ones cleaved the boss down in 15 s.
+// Build O: a dungeon boss only evades/resets when its target has left the boss room (8 m margin) AND it is past its leash, or it is dragged over 2x its leash; back-pedalling while casting inside the arena no longer resets the fight
+function bossLeashOut(e,dH,F){const L=e.leash||45;const r=e.boss&&e.boss.room;if(!r||r.cx==null||!balOn())return dH>L;const fp=F&&F.pos?F.pos:P.pos,m=8;const inR=Math.abs(fp.x-r.cx)<=r.w/2+m&&Math.abs(fp.z-r.cz)<=r.d/2+m;return (!inR&&dH>L)||dH>L*2;}
+function addHpK(){if(!balOn()||typeof DUN==='undefined'||!DUN||!DUN.D||DUN.D.raid||(typeof RAID_K!=='undefined'&&RAID_K[DUN.D.id]))return 1;return Math.min(1,dunBossK(DUN.D.id,DUN.mode));}
 function dunBossK(id,m,dmg){if(!balOn())return 1;if(RAID_K[id])return RAID_K[id][dmg?1:0];if(!DUNGEONS[id]||DUNGEONS[id].raid)return 1;const team=m&&m.team;return (dmg?(team?TEAM_BD:SOLO_BD)[id]:(team?TEAM_BK:SOLO_BK)[id])||1;}
 /* armour: damage taken = C/(C+armour). C was a flat 100, so gear armour (952 at Lv 100) cut boss hits to 9.5% while a Lv 6 took 62%: high-level bosses did nothing.
    C now grows with the attacker's level (100 + 9 per level), like the attacker-level armour constant in classic MMOs: ~50-70% gets through at every level. */
@@ -117,7 +124,7 @@ function armC(src){if(!balOn())return 100;const lv=(src&&src.lv)||P.level||1;ret
 function enRegenC(){return balOn()?6+S.maxEn*0.015:3.5+S.maxEn*0.012;}
 // boss damage per dungeon (after the armour fix): solo boss fights should cost ~1.2x your max health in total (heals/stims needed, deaths rare)
 var SOLO_BD={mine:0.58,choir:0.81,stillvault:0.89,foundry:1.41,heartforge:1.7,oxidevault:1.89,briarsepulchre:1.84,galecrown:1.63,sunossuary:1.26,riftvestibule:1.08};
-var TEAM_BD={"vault":0.45,"choir":0.6,"stillvault":0.6,"foundry":0.5,"heartforge":0.55,"oxidevault":0.55,"briarsepulchre":0.55,"galecrown":0.55,"sunossuary":0.5};
+var TEAM_BD={"vault":0.36,"choir":0.6,"stillvault":0.6,"foundry":0.3,"heartforge":0.55,"oxidevault":0.55,"briarsepulchre":0.45,"galecrown":0.55,"sunossuary":0.4};
 /* ---------- XP lock (per character): farm dungeons for sets without levelling ----------
    P.xpLock / sheet.xpLock: no XP from any source (gainXp for the active character, sheetGainXp for companion shares). Loot, credits, perk-point
    rewards and team XP gates are untouched. Saved per character (futureFields), default off (old saves: off). */
@@ -133,7 +140,7 @@ function xpLockExports(){return {setXpLock,xpLockHtml,toggleCompXpLock,sheetGain
    A story boss step (k:'boss') that is not done yet keeps its dungeon open over the level cap as a 'Story run': mobs and bosses are lifted to your level
    (Veteran-style level offset, so eHpK keeps it a real fight), the run can't be outgrown, loot is normal. */
 function storyDunStep(id){if(typeof STORY==='undefined')return null;for(const s of STORY){if(s.obj&&s.obj.k==='boss'&&s.obj.dungeon===id&&!stepDone(s.id))return s;}return null;}
-function storyRunMode(D,ck,mo){const base=mo||D.modes.solo||{hp:1,dmg:1,lvl:0};const lift=Math.max(0,(ck.lv||P.level)-D.lvl[1]);return Object.assign({},base,{lvl:(base.lvl||0)+lift,story:ck.story.id,storyLift:lift});}
+function storyRunMode(D,ck,mo){const base=mo||D.modes.solo||{hp:1,dmg:1,lvl:0};const lift=Math.max(0,(ck.lv||P.level)-D.lvl[1]);return Object.assign({},base,{lvl:(base.lvl||0)+lift,story:ck.story.id,storyLift:lift,storyBossHp:balOn()?1.3:1});}// Build O: story-run bosses x1.3 HP (balance on) so the run is a real fight at your level
 function storyRunBanner(D,m){const s=STEP[m.story];banner('📜 STORY RUN · '+D.name.toUpperCase(),'Over the level cap: enemies raised '+m.storyLift+' levels to match you · '+(s?s.obj.label:''));
   log('📜 <b>Story run</b> of <b>'+esc(D.name)+'</b>: you out-levelled it, so it is scaled to you (+'+m.storyLift+' levels) for the story step "'+esc(s?s.n:'')+'". Normal loot, no level-cap lockout.');}
 /* ---------- Mender team healing (Build O) ----------

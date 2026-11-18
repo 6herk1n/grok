@@ -287,7 +287,7 @@ function buildDungeonV1(d){const D=d.D,pal=D.pal,G=d.group;const L=[],Bx=[],Cn=[
       pk.forEach(([t,lv],k)=>{const a=k/pk.length*6.28;spawnDunMob(t,px+Math.cos(a)*2.4,pz+Math.sin(a)*2.4,lv,{pack:'p'+packN});});});
     if(r.boss){const B=BOSSES[r.boss];const e=spawnDunMob(B.etype,0,r.cz-hd*0.2,B.lvl,{boss:r.boss});e.boss={key:r.boss,def:B,room:r,final:!!r.final,engaged:false,done:{},next:{},enraged:false,baseT:e.T,baseDmg:e.dmg};e.leash=Math.max(r.w,r.d)*(balOn()?1.3:0.8);e.wr=0;d.bosses.push(e);}});
 }
-function spawnDunMob(t,x,z,lv,o){o=o||{};const m=DUN.mode;const e=makeEnemy(t,x,z,lv+(m.lvl||0),!!o.temp);e.dun=true;e.T=Object.assign({},e.T);const rk=typeof RAID_K!=='undefined'&&RAID_K[DUN.D.id]&&balOn();e.maxHp=e.hp=Math.round(e.maxHp*(m.hp||1)*(o.boss||rk?dunBossK(DUN.D.id,m):1));e.dmg*=(m.dmg||1)*(o.boss||rk?dunBossK(DUN.D.id,m,1):1);if(rk&&o.boss&&RAID_BOSS_K[o.boss])e.maxHp=e.hp=Math.round(e.maxHp*RAID_BOSS_K[o.boss]);e.leash=o.leash||38;e.wr=1.5;if(o.pack)e.pack=o.pack;return e;}
+function spawnDunMob(t,x,z,lv,o){o=o||{};const m=DUN.mode;const e=makeEnemy(t,x,z,lv+(m.lvl||0),!!o.temp);e.dun=true;e.T=Object.assign({},e.T);const rk=typeof RAID_K!=='undefined'&&RAID_K[DUN.D.id]&&balOn();e.maxHp=e.hp=Math.round(e.maxHp*(m.hp||1)*(o.boss||rk?dunBossK(DUN.D.id,m):1)*(o.boss&&m.storyBossHp?m.storyBossHp:1));e.dmg*=(m.dmg||1)*(o.boss||rk?dunBossK(DUN.D.id,m,1):1);if(rk&&o.boss&&RAID_BOSS_K[o.boss])e.maxHp=e.hp=Math.round(e.maxHp*RAID_BOSS_K[o.boss]);e.leash=o.leash||38;e.wr=1.5;if(o.pack)e.pack=o.pack;return e;}
 function addPortal(d,x,z,label){const g=new THREE.Group();g.position.set(x,d.hAt?d.hAt(x,z):0,z);part(g,geoBox,M(0x2a2a30),-1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),1.8,1.8,0,0.6,3.6,0.6);part(g,geoBox,M(0x2a2a30),0,3.8,0,4.2,0.5,0.7);
   const sw=part(g,new THREE.TorusGeometry(1.25,0.14,4,22),MB(0x6dff8a),0,1.8,0,1,1.25,1);const pl=part(g,new THREE.CircleGeometry(1.15,20),new THREE.MeshBasicMaterial({color:0x6dff8a,transparent:true,opacity:0.35,side:THREE.DoubleSide}),0,1.8,0,1,1.25,1);
   d.group.add(g);d.portals.push({x,z,label,sw,pl});}
@@ -334,7 +334,7 @@ function bossTick(e){const b=e.boss;if(e.dead)return;
       else{for(const tg of dunTargets()){telegraph(e,tg.pos.x,tg.pos.z,m.r,m.delay,dmg,m.name);for(let k=1;k<m.count;k++){const a=rand(0,6.28),rr=rand(m.r*1.2,m.r*2.4);telegraph(e,tg.pos.x+Math.cos(a)*rr,tg.pos.z+Math.sin(a)*rr,m.r,m.delay+k*0.15,dmg,m.name);}}toast('⚠ '+m.name+': move!');}
       tone(220,0.5,'sawtooth',0.05,300);}}
     else if(m.t==='adds'){m.at.forEach((th,j)=>{const k=i+'_'+j;if(!b.done[k]&&hpF<=th){b.done[k]=1;const r=b.room;
-      for(let n=0;n<m.n;n++){const side=n%2?1:-1;const a=spawnDunMob(m.etype,side*(r.w/2-2.5),r.cz+rand(-r.d/3,r.d/3),m.lvl,{temp:true});a.addOf=e;a.state='chase';a.nextAtk=T+1;ringFx(a.pos.x,a.pos.z,0xff3b2f,2.5,0.6);}
+      for(let n=0;n<m.n;n++){const side=n%2?1:-1;const a=spawnDunMob(m.etype,side*(r.w/2-2.5),r.cz+rand(-r.d/3,r.d/3),m.lvl,{temp:true});{const ak=addHpK();if(ak<1)a.maxHp=a.hp=Math.max(1,Math.round(a.maxHp*ak));}a.addOf=e;a.state='chase';a.nextAtk=T+1;ringFx(a.pos.x,a.pos.z,0xff3b2f,2.5,0.6);}
       toast('⚠ '+m.name+'!');}});}
     else if(MECH_EXT[m.t])MECH_EXT[m.t](e,b,m,i,hpF);
     else if(m.t==='enrage'){if(!b.enraged&&((m.at&&hpF<=m.at)||(m.time&&T-b.t0>=m.time))){b.enraged=true;e.enraged=true;e.T=Object.assign({},b.baseT,{atkCd:b.baseT.atkCd*m.cd,speed:b.baseT.speed*m.spd,scale:b.baseT.scale*1.1});e.dmg=b.baseDmg*m.dmg;

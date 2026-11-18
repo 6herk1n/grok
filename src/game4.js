@@ -118,7 +118,7 @@ function updEnemy(e,dt){
     let ar=e.T.aggro;if(P.level>e.lv+3)ar*=0.5;
     if(e.guard){if(fzGuardWants(e,dP))aggro(e);}else if(!P.dead&&!inTown(P.pos)&&dP<ar&&!stealthed())aggro(e);
   }else if(e.state==='chase'){const F=foeOf(e),fp=F.pos,dF=dist2D(e.pos,fp),fr=F===P?0:F.hitR*0.6;
-    if((F===P&&(P.dead||(inTown(P.pos)&&!e.guard)||(e.guard&&(!fzCanHit(e)||fzGuardFar(e)))))||dH>(e.leash||45)){e.state='return';e.foe=null;}
+    if((F===P&&(P.dead||(inTown(P.pos)&&!e.guard)||(e.guard&&(!fzCanHit(e)||fzGuardFar(e)))))||bossLeashOut(e,dH,F)){e.state='return';e.foe=null;}
     else{const ax=e.T.ai&&AIX[e.T.ai]?AIX[e.T.ai](e,dt,F,fp,dF,rooted,stunned,fr):null;
       if(ax&&ax.moved!=null)moving=ax.moved;else if(!rooted&&dF>e.T.range*0.85+fr)moving=moveToward(e,fp.x,fp.z,e.T.speed,dt,e.T.range*0.8+fr);else e.rotY=Math.atan2(fp.x-e.pos.x,fp.z-e.pos.z);
       if(!(ax&&ax.noAtk)&&!stunned&&dF<=e.T.range+0.6+fr&&T>=e.nextAtk){e.nextAtk=T+e.T.atkCd;e.atkT=0.35;

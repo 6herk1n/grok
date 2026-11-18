@@ -34,7 +34,7 @@ function addChill(n,src){if(P.dead)return;const c=P.chill=(P.chill&&T<P.chill.un
 // Glacier Shambler death: two Shardlings at one level lower
 function splitOnDeath(e){const sp=e.T.split;if(!sp)return;e.splits=(e.splits||0)+1;ringFx(e.pos.x,e.pos.z,0x9fe8ff,3,0.6);floatText(tmpV.set(e.pos.x,e.pos.y+e.h,e.pos.z),'Shatters!','info');
   for(let i=0;i<sp.n;i++){const a=rand(0,6.28),x=e.pos.x+Math.cos(a)*1.6,z=e.pos.z+Math.sin(a)*1.6;const lv=Math.max(1,e.lv-1);
-    const s=e.dun&&DUN?spawnDunMob(sp.t,x,z,lv-(DUN.mode.lvl||0),{temp:true}):makeEnemy(sp.t,x,z,lv,true);s.isShard=true;s.state='chase';s.nextAtk=T+0.9;if(e.addOf)s.addOf=e.addOf;if(e.mis)s.mis=null;}}
+    const s=e.dun&&DUN?spawnDunMob(sp.t,x,z,lv-(DUN.mode.lvl||0),{temp:true}):makeEnemy(sp.t,x,z,lv,true);s.isShard=true;s.state='chase';s.nextAtk=T+0.9;if(e.addOf){s.addOf=e.addOf;if(s.dun){const ak=addHpK();if(ak<1)s.maxHp=s.hp=Math.max(1,Math.round(s.maxHp*ak));}}if(e.mis)s.mis=null;}}
 const wardGeo=new THREE.IcosahedronGeometry(1,1);
 function wardOn(o,dur){o.wardUntil=T+dur;if(!o.wardFx){const m=new THREE.Mesh(wardGeo,new THREE.MeshBasicMaterial({color:0x6fe8ff,transparent:true,opacity:0.28,depthWrite:false}));const s=o.R.g.scale.x||1;m.position.y=o.h*0.5/s;m.scale.setScalar(Math.max(0.9,o.h*0.62)/s);o.R.g.add(m);o.wardFx=m;}}
 /* ---------- behaviours ---------- */
