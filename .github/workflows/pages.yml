@@ -25,6 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # Fails if index.html etc. don't match a fresh `node build.js` from src/ (catches hand edits to built files)
+      - name: Built files match src/
+        run: node tests/check_build.js
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

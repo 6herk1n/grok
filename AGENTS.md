@@ -35,6 +35,7 @@ Each build gets a stamp `<UTC yyyymmddThhmmss>-<sha1 of the game code, 8 hex>`. 
 
 ### Tests
 
+- `tests/check_build.js` (Node, no dependencies): also a deploy gate, run first by `pages.yml`. Rebuilds `src/` into a temp folder and fails if the committed root files differ (only the time part of the build stamp is ignored). If it fails, you edited a built file or forgot to rebuild: fix `src/`, run `node build.js`, commit both.
 - `tests/smoke_test.py` (Python Playwright): the deploy gate run by `pages.yml`. Run it before every push (see above).
 - `tests/smoke.js` (Node Playwright, `npm install` first): the builder's quick pre-publish check (iPad-sized touch viewport, save/reload).
 - `tests/ci_smoke.mjs` (Node Playwright): info only, not run by CI. `SMOKE_ONLY=desktop|ipad|phone` runs one pass. The phone pass (750x342) includes a strict HUD-overlap check that still reports some overlaps on that very short screen; treat its result as information, not a gate.
