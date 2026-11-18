@@ -1,0 +1,340 @@
+/* ================= STAGE 3: tradeskills, implant clusters, social clothing, apartment + shared locker ================= */
+/* ---------- crafting parts bag (stackable, doesn't use pack slots) ---------- */
+const MATS={scrap:{n:'Scrap Alloy',ic:'🔩'},shard:{n:'Vyre Shard',ic:'💎'},circuit:{n:'Circuit Parts',ic:'🔌'}};
+// cluster tiers: Keystone (major), Lattice (minor), Filament (trace)
+const CTIER={major:{n:'Keystone',ic:'🔷',mul:1.5,minq:0.85,col:'#ffc85a',d:'major'},minor:{n:'Lattice',ic:'🔹',mul:1.0,minq:0.7,col:'#9fd8ff',d:'minor'},trace:{n:'Filament',ic:'▫️',mul:0.6,minq:0.55,col:'#cfcfcf',d:'trace'}};
+const CTIERS=['major','minor','trace'];
+const CLUSTATS=['str','agi','sta','int','psy','sen','wpn','weave','treat','body','pool','run'];
+const TSMOD={reinf:'Reinforced',tune:'Tuned',infuse:'Vyre-infused'};
+const BAGK=['mat','clu','blank'];
+const bag=()=>P.bag||(P.bag=[]);
+const bagKey=o=>o.kind+'|'+(o.mt||'')+'|'+(o.tier||'')+'|'+(o.s||'')+'|'+o.ql;
+function bagAdd(o,n,to){to=to||bag();n=n||1;const k=bagKey(o);const ex=to.find(x=>bagKey(x)===k);if(ex){ex.n+=n;return ex;}
+  const c={id:uid(),kind:o.kind,ql:o.ql,n};if(o.mt)c.mt=o.mt;if(o.tier){c.tier=o.tier;c.s=o.s;}to.push(c);return c;}
+function bagTake(id,n,from){from=from||bag();const i=from.findIndex(x=>x.id===id);if(i<0||from[i].n<n)return false;from[i].n-=n;if(from[i].n<=0)from.splice(i,1);return true;}
+function bagName(o){return o.kind==='mat'?MATS[o.mt].n:o.kind==='clu'?CTIER[o.tier].n+' Cluster · '+STATN[o.s]:'Basic Implant';}
+function bagIco(o){return o.kind==='mat'?MATS[o.mt].ic:o.kind==='clu'?CTIER[o.tier].ic:'⚪';}
+function bagSort(L){const ko={mat:0,clu:1,blank:2};return L.slice().sort((a,b)=>ko[a.kind]-ko[b.kind]||(a.mt||a.tier||'').localeCompare(b.mt||b.tier||'')||(a.s||'').localeCompare(b.s||'')||a.ql-b.ql);}
+function normBag(b){return Array.isArray(b)?b.filter(o=>o&&BAGK.includes(o.kind)&&o.ql>0&&o.n>0&&(o.kind!=='mat'||MATS[o.mt])&&(o.kind!=='clu'||(CTIER[o.tier]&&CLUSTATS.includes(o.s)))).map(o=>Object.assign({},o,{id:o.id||uid(),ql:Math.round(o.ql),n:Math.round(o.n)})):[];}
+function bagRow(o,act,extra){return `<button class="item" data-act="${act||'noop'}" data-id="${o.id}"><span class="ico">${bagIco(o)}</span><span><div class="nm" style="color:${o.kind==='clu'?CTIER[o.tier].col:'#f3e6d3'}">${esc(bagName(o))}</div><div class="st">QL ${o.ql} · ×${o.n}${o.kind==='clu'?' · fits '+IMPSLOTS.filter(s=>IMPDEF[s].pool.includes(o.s)).map(s=>IMPDEF[s].n).join(', '):''}</div></span>${extra||''}</button>`;}
+
+/* ---------- drops ---------- */
+const MAT_BY={skitter:['scrap','shard','scrap'],mauler:['shard','shard','circuit'],raider:['scrap','circuit','circuit']};
+function stage3OnKill(e){if(!e||e.isCore)return;const q=clamp(e.lv*5+randi(-2,2),1,IMPQL_MAX());const got=[];
+  const mt=pick(MAT_BY[e.type]||['scrap','shard','circuit']);
+  if(Math.random()<(e.boss?1:0.4)){const n=e.boss?3:Math.random()<0.25?2:1;bagAdd({kind:'mat',mt,ql:q},n);got.push(n+'× '+MATS[mt].n);}
+  const cp=(e.boss?0.7:e.dun?0.12:0.07)*(e.night?1.5:1);
+  if(Math.random()<cp){const t=e.boss?pick(['major','minor']):Math.random()<0.15?'major':Math.random()<0.5?'minor':'trace';const c={kind:'clu',tier:t,s:pick(CLUSTATS),ql:q};bagAdd(c,1);got.push(bagName(c));}
+  if(Math.random()<(e.boss?0.3:0.03)){bagAdd({kind:'blank',ql:q},1);got.push('Basic Implant');}
+  if(got.length)log('🧰 Salvaged (QL '+q+'): '+got.join(', '));
+  if(Math.random()<0.006*(e.night?3:1)*(e.dun?2:1)+(e.boss?0.08:0)){const it=clothDrop();dropLoot(e.pos.x+0.8,e.pos.z-0.8,it);toast('👕 Rare clothing dropped: '+it.name+'!');}}
+
+/* ---------- Fabrication ---------- */
+const itemQL=it=>it.kind==='imp'?it.ql:(it.lvl||1)*5;
+const fabReq=q=>Math.round(4+q*0.9);
+const iaReq=q=>Math.round(3+q*0.9);
+const RECIPES=[
+  {id:'reinf',n:'Reinforce Armour',ic:'🛡️',desc:'+25% armour on one armour piece. Once per item.',tgt:it=>it.kind==='gear'&&it.slot!=='weapon',mats:[['scrap',2]]},
+  {id:'tune',n:'Tune Weapon',ic:'🎯',desc:'+12% weapon damage. Once per weapon.',tgt:it=>it.kind==='gear'&&it.slot==='weapon',mats:[['circuit',2]]},
+  {id:'infuse',n:'Vyre Infusion',ic:'💠',desc:'Add a bonus stat you choose and raise the rarity one step (up to Epic). Once per item.',tgt:it=>it.kind==='gear'&&!it.uniq&&!it.fac,mats:[['shard',1],['circuit',1]],plus:10},
+  {id:'blank',n:'Basic Implant',ic:'⚪',desc:'A blank implant for Implant Assembly. Its QL is the QL you pick (parts must be at least that QL).',mats:[['scrap',1],['circuit',1]],noTarget:true},
+  {id:'stimkit',n:'Med-stim Kit',ic:'💉',desc:'Turn salvage into 2 Med-stims.',mats:[['shard',1],['scrap',1]],noTarget:true,fixed:8}];
+const INFUSE_STATS=['hp','power','crit','str','agi','sta','int','psy','sen'];
+const CR={tab:'fab',rec:'reinf',tgt:null,stat:'hp',q:null,blank:null,slot:'head',sel:{major:null,minor:null,trace:null}};
+function findMat(mt,n,minq){return bag().filter(o=>o.kind==='mat'&&o.mt===mt&&o.ql>=minq&&o.n>=n).sort((a,b)=>a.ql-b.ql)[0]||null;}
+function fabTargets(r){return [...Object.values(P.eq).filter(Boolean),...P.inv].filter(it=>r.tgt(it));}
+function blankQLs(){const qs=[...new Set(bag().filter(o=>o.kind==='mat'&&(o.mt==='scrap'||o.mt==='circuit')).map(o=>o.ql))];return qs.filter(q=>findMat('scrap',1,q)&&findMat('circuit',1,q)).sort((a,b)=>a-b);}
+function fabCheck(){const r=RECIPES.find(x=>x.id===CR.rec)||RECIPES[0];const out={r,lines:[],use:[],ok:true};const line=(ok,t)=>{out.lines.push([ok,t]);if(!ok)out.ok=false;};let q;
+  if(!r.noTarget){const it=findItem(CR.tgt);if(!it||!r.tgt(it)){out.ok=false;out.pick=true;return out;}q=itemQL(it);out.it=it;line(!(it.ts&&it.ts[r.id]),'Not already '+TSMOD[r.id].toLowerCase());}
+  else if(r.id==='blank'){const qs=blankQLs();if(CR.q==null||!qs.includes(CR.q))CR.q=qs.length?qs[qs.length-1]:null;q=CR.q;if(q==null){line(false,'Needs 1 Scrap Alloy and 1 Circuit Parts');return out;}}
+  else q=1;
+  out.q=q;const R=r.fixed||fabReq(q)+(r.plus||0);out.R=R;const h=eff('fab');line(h>=R,'Fabrication '+R+' <span style="opacity:.75">(you have '+h+')</span>'+(h<R?' · <b>need '+(R-h)+' more</b>':''));
+  const minq=r.id==='blank'?q:r.noTarget?1:Math.round(q*0.8);
+  for(const [mt,n] of r.mats){const st=findMat(mt,n,minq);out.use.push({st,n});const have=bag().filter(o=>o.kind==='mat'&&o.mt===mt).map(o=>'QL '+o.ql+' ×'+o.n).join(', ')||'none';
+    line(!!st,n+'× '+MATS[mt].n+' QL '+minq+'+ <span style="opacity:.75">'+(st?'(using QL '+st.ql+')':'(you have: '+have+')')+'</span>');}
+  return out;}
+function doFab(){const c=fabCheck();if(!c.ok){warn(c.pick?'Pick an item first':'Requirements not met');return false;}const r=c.r,it=c.it;let msg='';
+  for(const u of c.use)bagTake(u.st.id,u.n);
+  if(r.id==='reinf'){const a=it.armor;it.armor=Math.round(it.armor*1.25)+1;msg='Armour '+a+' → '+it.armor;}
+  else if(r.id==='tune'){const a=it.dmg;it.dmg=Math.round(it.dmg*1.12)+1;msg='Damage '+a+' → '+it.dmg;}
+  else if(r.id==='infuse'){const s=CR.stat;const v=bonusVal(s,it.lvl,1.1);const ex=it.bonus.find(b=>b.s===s);if(ex)ex.v+=v;else it.bonus.push({s,v});const up=it.r<3;if(up)it.r++;msg=fmtBonus({s,v})+(up?' · now '+RAR[it.r].n:'');}
+  else if(r.id==='blank'){bagAdd({kind:'blank',ql:c.q},1);msg='Basic Implant QL '+c.q;}
+  else if(r.id==='stimkit'){P.stims+=2;msg='+2 Med-stims';}
+  if(it){it.ts=Object.assign({},it.ts,{[r.id]:1});it.value=Math.round(it.value*1.25);if(isEquipped(it)){calcStats();refreshGearVisual();}}
+  SFX.loot();toast('🔧 '+r.n+': '+msg);log('🔧 <b>'+r.n+'</b>'+(it?' on '+esc(it.name):'')+': '+msg);save();return true;}
+
+/* ---------- Implant Assembly ---------- */
+function iaChance(have,R){if(have>=R)return 100;if(have<Math.ceil(R*0.75))return 0;return Math.round(40+55*(have-R*0.75)/(R*0.25));}
+function cluBonus(s,q,t){const base=ATTRS.includes(s)?1+Math.floor(q/5):2+Math.floor(q/3);return Math.max(1,Math.round(base*CTIER[t].mul));}
+function iaCheck(){const out={lines:[],ok:true,bon:[],n:0};const line=(ok,t,cls)=>{out.lines.push([ok,t,cls]);if(!ok)out.ok=false;};
+  const b=bag().find(o=>o.id===CR.blank&&o.kind==='blank');if(!b){out.ok=false;out.none=true;return out;}const q=b.ql,slot=CR.slot,D=IMPDEF[slot];out.q=q;out.b=b;
+  const R=iaReq(q),have=eff('ia');out.R=R;out.chance=iaChance(have,R);
+  line(out.chance>0,'Implant Assembly '+R+' <span style="opacity:.75">(you have '+have+')</span>'+(have>=R?'':out.chance>0?' · <b>risky: '+out.chance+'% success</b>':' · <b>need at least '+Math.ceil(R*0.75)+' to try</b>'),have>=R?'up':out.chance>0?'warnc':'down');
+  const used=new Set();
+  for(const t of CTIERS){const id=CR.sel[t];if(!id)continue;const c=bag().find(o=>o.id===id&&o.kind==='clu'&&o.tier===t);if(!c||!D.pool.includes(c.s)){CR.sel[t]=null;continue;}
+    const mq=Math.ceil(q*CTIER[t].minq);line(c.ql>=mq,CTIER[t].n+' cluster ('+STATN[c.s]+') QL '+c.ql+' <span style="opacity:.75">(needs QL '+mq+'+ for a QL '+q+' implant)</span>');
+    if(used.has(c.s))line(false,'Each stat can only be added once');used.add(c.s);out.bon.push({s:c.s,v:cluBonus(c.s,q,t),t,c});out.n++;}
+  if(!out.n)line(false,'Insert at least one cluster');
+  line(P.inv.length<24,'Free pack slot for the finished implant');return out;}
+function doAssemble(roll){const c=iaCheck();if(!c.ok){warn(c.none?'Pick a Basic Implant first':'Requirements not met');return null;}
+  const r=roll!=null?roll:Math.random()*100;
+  if(r>=c.chance){const lost=pick(c.bon);bagTake(lost.c.id,1);SFX.err();banner('ASSEMBLY FAILED','The '+CTIER[lost.t].n+' '+STATN[lost.s]+' cluster burned out. The Basic Implant survived.');log('🧬 Assembly failed: lost a '+esc(bagName(lost.c)));save();return false;}
+  for(const b of c.bon)bagTake(b.c.id,1);bagTake(c.b.id,1);const slot=CR.slot,q=c.q;
+  const it={id:uid(),kind:'imp',slot,ql:q,r:[0,1,2,3][c.n],lvl:Math.max(1,Math.round(q/5)),bonus:c.bon.map(b=>({s:b.s,v:b.v})),name:'QL '+q+' Custom '+IMPDEF[slot].n+' Implant',req:impReq(q,slot),value:Math.round((5+q*3)*(1+0.3*c.n)),crafted:P.name};
+  P.inv.push(it);if(!bag().some(o=>o.id===CR.blank))CR.blank=null;SFX.level();banner('🧬 IMPLANT BUILT',it.name+' · '+it.bonus.map(fmtBonus).join(', '));log('🧬 Built <b style="color:'+RAR[it.r].c+'">'+esc(it.name)+'</b>');save();return it;}
+
+/* ---------- crafting UI ---------- */
+const rqLine=(ok,t,cls)=>`<div class="${cls||(ok?'up':'down')}">${ok?'✔':cls==='warnc'?'⚠':'✖'} ${t}</div>`;
+function openCraft(tab){if(tab)CR.tab=tab;const nb=bag().reduce((a,o)=>a+o.n,0);
+  const tabs=`<div class="tabs">${[['fab','🔧 Fabrication'],['ia','🧬 Implant Assembly'],['bag','🧰 Parts ('+nb+')']].map(([t,n])=>`<button data-act="ctab" data-t="${t}" class="${CR.tab===t?'on':''}">${n}</button>`).join('')}<span style="margin-left:auto;align-self:center;font-size:13px">FAB <b>${eff('fab')}</b> · IMA <b>${eff('ia')}</b></span></div>`;
+  const keep=panelOpen==='craft'&&CR.lastTab===CR.tab?pbody.scrollTop:0;CR.lastTab=CR.tab;
+  openPanel('🛠 TRADESKILLS',(CR.tab==='bag'?'':craftBar())+tabs+(CR.tab==='fab'?fabHtml():CR.tab==='ia'?iaHtml():partsHtml()),'craft');pbody.scrollTop=keep;}
+// sticky action bar: the selected recipe and its Craft / Build button stay pinned at the top of the panel, so no scrolling on iPad
+function craftBar(){let ic,nm,sub,act,ok,lbl;
+  if(CR.tab==='ia'){const c=iaCheck();const D=IMPDEF[CR.slot];ic='🧬';nm='Custom '+D.n+' Implant'+(c.q?' · QL '+c.q:'');sub=c.none?'Pick a Basic Implant':c.ok?c.n+' cluster'+(c.n===1?'':'s')+(c.chance<100?' · '+c.chance+'% success':''):'Requirements not met';
+    act='cbuild';ok=c.ok;lbl=c.ok?'Build implant'+(c.chance<100?' ('+c.chance+'%)':''):'Requirements not met';}
+  else{const r=RECIPES.find(x=>x.id===CR.rec)||RECIPES[0];const c=fabCheck();ic=r.ic;nm=r.n;const it=c.it;sub=it?esc(it.name):r.id==='blank'?'QL '+(CR.q||'?'):r.noTarget?'':c.pick?'Pick an item below':'';
+    act='cfab';ok=c.ok;lbl=c.ok?'Craft':c.pick?'Pick an item':'Requirements not met';}
+  return `<div class="craftbar" id="craftBar"><span class="cbi">${ic}</span><span class="cbn"><b>${nm}</b>${sub?`<small>${sub}</small>`:''}</span><button class="sbtn${ok?'':' locked'}" data-act="${act}" id="craftGo">${lbl}</button></div>`;}
+function fabHtml(){const r=RECIPES.find(x=>x.id===CR.rec)||RECIPES[0];const c=fabCheck();
+  const left=RECIPES.map(x=>`<button class="item${x.id===r.id?' sel':''}" data-act="crec" data-r="${x.id}"><span class="ico">${x.ic}</span><span><div class="nm">${x.n}</div><div class="st">${x.mats.map(([m,n])=>n+'× '+MATS[m].n).join(' + ')}</div></span></button>`).join('')+
+    `<div class="stats" style="opacity:.8;margin-top:6px">Requirements scale with the item's QL (level × 5). Buffs like the trader's 🛠️ Artisan Draught raise Fabrication, so you can twink harder recipes. Materials drop from enemies at QL ≈ enemy level × 5.</div>`;
+  let right=`<div class="mis"><b>${r.ic} ${r.n}</b><p>${r.desc}</p>`;
+  if(!r.noTarget){const L=fabTargets(r);right+=`<div class="h4">Choose an item</div>`+(L.map(it=>itemRow(it,`<span class="pr" style="color:#cfcfcf">QL ${itemQL(it)}${it.ts&&it.ts[r.id]?' · done':''}${isEquipped(it)?' · worn':''}</span>`,it.id===CR.tgt,'ctgt')).join('')||'<div style="opacity:.6">No suitable items.</div>');}
+  if(r.id==='blank'){const qs=blankQLs();right+=`<div class="h4">Implant QL</div><div class="chips">${qs.map(q=>`<button class="chip${q===CR.q?' on':''}" data-act="cq" data-q="${q}">QL ${q}</button>`).join('')||'<span style="opacity:.6">Collect Scrap Alloy and Circuit Parts.</span>'}</div>`;}
+  if(r.id==='infuse')right+=`<div class="h4">Bonus stat</div><div class="chips">${INFUSE_STATS.map(s=>`<button class="chip${s===CR.stat?' on':''}" data-act="cstat" data-s="${s}">${STATN[s]}</button>`).join('')}</div>`;
+  if(!c.pick){right+=`<div class="h4" style="margin-top:8px">Requirements</div>${c.lines.map(l=>rqLine(l[0],l[1])).join('')}`;
+    if(c.it){const it=c.it;let pv='';if(r.id==='reinf')pv='Armour '+it.armor+' → '+(Math.round(it.armor*1.25)+1);else if(r.id==='tune')pv='Damage '+it.dmg+' → '+(Math.round(it.dmg*1.12)+1);else pv='+'+STATN[CR.stat]+(it.r<3?' · '+RAR[it.r].n+' → '+RAR[it.r+1].n:'');right+=`<div style="margin-top:6px;color:#9fd8ff">Result: ${pv}</div>`;}}
+  right+=`</div>`;
+  return `<div class="cols"><div><div class="h4">Recipes</div>${left}</div><div>${right}</div></div>`;}
+function iaHtml(){const blanks=bagSort(bag().filter(o=>o.kind==='blank'));const c=iaCheck();const D=IMPDEF[CR.slot];
+  const left=`<div class="h4">1 · Basic Implant</div>`+(blanks.map(o=>bagRow(o,'cblank',`<span class="pr" style="color:#cfcfcf">needs IMA ${iaReq(o.ql)}</span>`).replace('class="item"','class="item'+(o.id===CR.blank?' sel':'')+'"')).join('')||'<div style="opacity:.6">No Basic Implants. Buy them from the trader, find them on enemies, or make them with 🔧 Fabrication.</div>')+
+    `<div class="h4" style="margin-top:8px">2 · Implant slot</div><div class="chips">${IMPSLOTS.map(s=>`<button class="chip${s===CR.slot?' on':''}" data-act="cslot" data-s="${s}">${IMPDEF[s].ic} ${IMPDEF[s].n}</button>`).join('')}</div>
+    <div class="stats" style="opacity:.8;margin-top:4px">${D.n} clusters: ${D.pool.map(s=>STATN[s]).join(', ')}. Install needs Treatment and ${STATN[D.req]} like any implant.</div>`;
+  let right=`<div class="h4">3 · Clusters</div>`;
+  for(const t of CTIERS){const T0=CTIER[t];const mq=c.q?Math.ceil(c.q*T0.minq):0;const cands=bagSort(bag().filter(o=>o.kind==='clu'&&o.tier===t&&D.pool.includes(o.s)));
+    right+=`<div style="margin:4px 0 2px"><b style="color:${T0.col}">${T0.ic} ${T0.n}</b> <span style="opacity:.75;font-size:12px">(${T0.d}, ×${T0.mul} bonus${c.q?', QL '+mq+'+':''})</span></div><div class="chips"><button class="chip${!CR.sel[t]?' on':''}" data-act="cclu" data-t="${t}" data-id="">Empty</button>${cands.map(o=>`<button class="chip${CR.sel[t]===o.id?' on':''}${c.q&&o.ql<mq?' bad':''}" data-act="cclu" data-t="${t}" data-id="${o.id}">${SHORT[o.s]} QL ${o.ql}${o.n>1?' ×'+o.n:''}</button>`).join('')}</div>`;}
+  if(!c.none){right+=`<div class="h4" style="margin-top:8px">Requirements</div>${c.lines.map(l=>rqLine(l[0],l[1],l[2])).join('')}`;
+    if(c.bon.length)right+=`<div style="margin-top:6px;color:#9fd8ff">Result: QL ${c.q} Custom ${D.n} Implant (${RAR[[0,1,2,3][c.n]].n}) · ${c.bon.map(fmtBonus).join(' · ')}<br><span style="opacity:.8">Install: ${impReq(c.q,CR.slot).map(r=>STATN[r.s]+' '+r.v).join(', ')}</span></div>`;
+    right+=`<div style="font-size:12px;opacity:.75;margin-top:4px">Below the requirement you can still try (down to 75% of it), but a failure burns out one cluster.</div>`;}
+
+  return `<div class="cols"><div>${left}</div><div>${right}</div></div>`;}
+function partsHtml(){const L=bagSort(bag());const grp=(k,t)=>{const x=L.filter(o=>o.kind===k);return x.length?`<div class="h4">${t}</div>`+x.map(o=>bagRow(o)).join(''):'';};
+  return `<div class="cols"><div>${grp('mat','Materials')||'<div style="opacity:.6">No materials yet. Enemies drop Scrap Alloy, Vyre Shards and Circuit Parts.</div>'}</div><div>${grp('clu','Implant clusters')}${grp('blank','Basic Implants')}<div class="stats" style="opacity:.8;margin-top:6px">Parts don't use pack slots. Store them in your apartment locker to pass them to your other characters.</div></div></div>`;}
+
+/* ---------- trader: tradeskill supplies ---------- */
+let tsStock=[],tsAt=-999,tsLvl=0;
+function tsVendorHtml(){const L=P.level;if(T-tsAt>120||tsLvl!==L||!tsStock.length){tsStock=[];
+    [Math.max(1,L*2),L*4,L*6].forEach(q=>tsStock.push({o:{kind:'blank',ql:q},pr:6+q*2}));
+    for(let i=0;i<3;i++){const q=L*3+2;tsStock.push({o:{kind:'clu',tier:'trace',s:pick(CLUSTATS),ql:q},pr:10+q*2});}
+    for(let i=0;i<2;i++){const q=L*3;tsStock.push({o:{kind:'clu',tier:'minor',s:pick(CLUSTATS),ql:q},pr:20+q*3});}
+    tsAt=T;tsLvl=L;}
+  return '<div class="h4" style="margin-top:10px">Tradeskill supplies (Keystone clusters only drop)</div>'+tsStock.map((x,i)=>`<button class="item" data-act="buyts" data-i="${i}"><span class="ico">${bagIco(x.o)}</span><span><div class="nm" style="color:${x.o.kind==='clu'?CTIER[x.o.tier].col:'#f3e6d3'}">${esc(bagName(x.o))}</div><div class="st">QL ${x.o.ql}${x.o.kind==='blank'?' · build with IMA '+iaReq(x.o.ql):''}</div></span><span class="pr">${x.pr}¢</span></button>`).join('');}
+function buyTs(i){const x=tsStock[i];if(!x)return false;if(P.credits<x.pr){warn('Not enough credits');return false;}P.credits-=x.pr;bagAdd(x.o,1);if(x.o.kind==='clu')tsStock.splice(i,1);SFX.coin();toast('Bought '+bagName(x.o)+' QL '+x.o.ql);save();return true;}
+
+/* ---------- social clothing ---------- */
+const CSLOTS=['shirt','jacket','hat','visor'];const CSLOTN={shirt:'Shirt',jacket:'Jacket',hat:'Hat',visor:'Visor'};
+const CLOTH={
+  tee:{n:'Work Tee',slot:'shirt',st:'tee',col:0xd8d2c4,price:30,ic:'👕',desc:'A plain colony work tee.'},
+  prospector:{n:'Prospector Shirt',slot:'shirt',st:'shirt',col:0x9c4a2a,price:60,ic:'👔',desc:'Rolled sleeves and far too many pockets.'},
+  glowthread:{n:'Glow-thread Shirt',slot:'shirt',st:'shirt',col:0x1f4f5a,glow:0x5ff2ff,rare:true,ic:'👕',desc:'Rare drop. Threads that shimmer with Vyre light.'},
+  rigger:{n:'Rigger Vest',slot:'jacket',st:'vest',col:0x5a6a32,price:90,ic:'🦺',desc:'Padded work vest from the mining rigs.'},
+  bomber:{n:'Bomber Jacket',slot:'jacket',st:'jacket',col:0x3a2a22,price:120,ic:'🧥',desc:'Short leather jacket with a fleece collar.'},
+  duster:{n:'Duster Coat',slot:'jacket',st:'long',col:0x8a6a48,price:160,ic:'🧥',desc:'Long sand-proof coat. Very Kessra.'},
+  nightglass:{n:'Nightglass Longcoat',slot:'jacket',st:'long',col:0x161a2c,glow:0xb46bff,rare:true,ic:'🧥',desc:'Rare drop. Woven from Gloam silk; glows violet at the seams.'},
+  brim:{n:'Wide-brim Hat',slot:'hat',st:'brim',col:0x7a5a3a,price:70,ic:'🤠',desc:'Keeps the twin suns off.'},
+  cap:{n:'Ash Cap',slot:'hat',st:'cap',col:0x555555,price:40,ic:'🧢',desc:'Peaked work cap.'},
+  beanie:{n:'Signal Beanie',slot:'hat',st:'beanie',col:0x9a1f2a,price:35,ic:'🧶',desc:'Knitted, with a tiny antenna.'},
+  halo:{n:'Halo Crown',slot:'hat',st:'halo',col:0xffd25a,glow:0xffd25a,rare:true,ic:'👑',desc:'Rare drop. A floating ring of light.'},
+  shade:{n:'Shade Strip',slot:'visor',st:'strip',col:0x151515,price:45,ic:'🕶️',desc:'Wrap-around dark lens.'},
+  goggles:{n:'Ember Goggles',slot:'visor',st:'goggles',col:0xffa040,price:75,ic:'🥽',desc:'Round brass dust goggles.'},
+  prism:{n:'Prism Visor',slot:'visor',st:'strip',col:0x5ff2ff,lit:1,price:110,ic:'🕶️',desc:'Glowing holo-lens.'},
+  starlight:{n:'Starlight Visor',slot:'visor',st:'strip',col:0xf0f4ff,lit:1,rare:true,ic:'✨',desc:'Rare drop. Bright as the night sky over the Reach.'}};
+const DYES={sand:{n:'Sand',c:0xc9a46a,pr:25},rust:{n:'Rust',c:0x9c4a2a,pr:25},bone:{n:'Bone',c:0xe6dcc6,pr:30},ash:{n:'Ash',c:0x4a4a4a,pr:30},moss:{n:'Moss',c:0x5a6a32,pr:40},teal:{n:'Teal',c:0x2f8f8a,pr:40},
+  midnight:{n:'Midnight',c:0x232a4a,pr:50},crimson:{n:'Crimson',c:0x9a1f2a,pr:50},violet:{n:'Violet',c:0x6a3a8a,pr:60},gold:{n:'Gold',c:0xd4a020,pr:90},vyre:{n:'Vyre Glow',c:0x5ff2ff,glow:true,pr:300}};
+const HAIR={none:'Shaved',crop:'Crop',ridge:'Ridge',long:'Long',knot:'Topknot'};
+function normCloth(c){c=c&&typeof c==='object'?c:{};const o={own:(Array.isArray(c.own)?c.own:[]).filter(k=>CLOTH[k]),dyes:(Array.isArray(c.dyes)?c.dyes:[]).filter(k=>DYES[k]),wear:{},dye:{},over:c.over!==false,hair:HAIR[c.hair]?c.hair:'crop',hairc:DYES[c.hairc]||HAIRC[c.hairc]?c.hairc:null,face:faceKey(c.face)};
+  CSLOTS.forEach(s=>{const w=c.wear&&c.wear[s];o.wear[s]=w&&CLOTH[w]&&CLOTH[w].slot===s&&o.own.includes(w)?w:null;const d=c.dye&&c.dye[s];o.dye[s]=d&&o.dyes.includes(d)?d:null;});return o;}
+const cl=()=>P.clothing&&P.clothing.wear?P.clothing:(P.clothing=normCloth(P.clothing));
+function clothHides(slot){const C=P.clothing;if(!C||!C.wear||!C.over)return false;return slot==='head'?!!C.wear.hat:!!(C.wear.shirt||C.wear.jacket);}
+function clothDrop(){const k=pick(Object.keys(CLOTH).filter(k=>CLOTH[k].rare));return {id:uid(),kind:'cloth',cid:k,r:3,name:CLOTH[k].n,value:60,bonus:[],req:[]};}
+function clothVisual_v1(){if(!PM)return;if(PM.cloth)PM.cloth.forEach(m=>m.parent&&m.parent.remove(m));PM.cloth=[];const C=P.clothing;if(!C||!C.wear)return;const eq=P.eq||{};const g=PM.g;
+  const bodyOn=C.over||!eq.armor,headOn=C.over||!eq.head;
+  const mat=s=>{const c=CLOTH[C.wear[s]],d=DYES[C.dye[s]];const col=d?d.c:c.col;return (d&&d.glow)||c.lit?MB(col):M(col);};
+  const P_=(par,geo,m,x,y,z,sx,sy,sz)=>{const o=part(par,geo,m,x,y,z,sx,sy,sz);PM.cloth.push(o);return o;};
+  const sleeves=(m,len)=>{for(const a of [PM.armL,PM.armR])P_(a,geoBox,m,0,-len/2+0.02,0,0.235,len,0.27);};
+  const hatOn=C.wear.hat&&headOn;
+  if(C.hair&&C.hair!=='none'&&!hatOn){const hm=M(C.hairc&&DYES[C.hairc]?DYES[C.hairc].c:0x2a1d14);
+    if(C.hair==='ridge')P_(g,geoBox,hm,0,2.09,-0.02,0.1,0.2,0.4);else{P_(g,geoBox,hm,0,2.04,-0.02,0.44,0.09,0.44);if(C.hair==='long')P_(g,geoBox,hm,0,1.8,-0.22,0.44,0.44,0.08);if(C.hair==='knot')P_(g,geoSphere,hm,0,2.16,-0.1,0.11,0.11,0.11);}}
+  if(bodyOn&&C.wear.shirt){const c=CLOTH[C.wear.shirt],m=mat('shirt');P_(g,geoBox,m,0,1.21,0,0.75,0.8,0.45);sleeves(m,c.st==='tee'?0.26:0.48);if(c.st==='shirt')P_(g,geoBox,m,0,1.62,0.02,0.5,0.08,0.47);
+    if(c.glow){P_(g,geoBox,MB(c.glow),0,1.08,0,0.76,0.04,0.46);P_(g,geoBox,MB(c.glow),0,1.32,0,0.76,0.04,0.46);}}
+  if(bodyOn&&C.wear.jacket){const c=CLOTH[C.wear.jacket],m=mat('jacket');
+    if(c.st==='vest'){P_(g,geoBox,m,0,1.27,0,0.82,0.72,0.5);P_(g,geoBox,M(0x2a2a2a),0.2,1.1,0.26,0.18,0.14,0.02);P_(g,geoBox,M(0x2a2a2a),-0.2,1.1,0.26,0.18,0.14,0.02);}
+    else{P_(g,geoBox,m,0,1.22,0,0.83,0.84,0.51);sleeves(m,0.64);P_(g,geoBox,c.st==='jacket'?M(0xe6dcc6):m,0,1.62,-0.02,0.66,0.12,0.52);
+      if(c.st==='long'){P_(g,geoBox,m,0,0.6,0,0.85,0.62,0.53);if(c.glow){P_(g,geoBox,MB(c.glow),0,0.95,0.27,0.05,1.3,0.02);P_(g,geoBox,MB(c.glow),0,0.3,0,0.86,0.04,0.54);}}}}
+  if(hatOn){const c=CLOTH[C.wear.hat],m=mat('hat');
+    if(c.st==='brim'){P_(g,geoBox,m,0,2.03,0,0.86,0.05,0.86);P_(g,geoBox,m,0,2.14,0,0.46,0.22,0.46);}
+    else if(c.st==='cap'){P_(g,geoBox,m,0,2.06,0,0.46,0.14,0.46);P_(g,geoBox,m,0,2.0,0.3,0.4,0.04,0.24);}
+    else if(c.st==='beanie'){P_(g,geoSphere,m,0,2.02,0,0.25,0.2,0.25);P_(g,geoBox,MB(0xffc85a),0.1,2.28,0,0.02,0.16,0.02);}
+    else if(c.st==='halo'){const h=P_(g,new THREE.TorusGeometry(0.24,0.03,4,18),MB(c.glow),0,2.32,0,1,1,1);h.rotation.x=Math.PI/2;}}
+  if(C.wear.visor&&headOn){const c=CLOTH[C.wear.visor],m=mat('visor');
+    if(c.st==='goggles'){P_(g,geoBox,m,0.1,1.85,0.22,0.15,0.13,0.08);P_(g,geoBox,m,-0.1,1.85,0.22,0.15,0.13,0.08);P_(g,geoBox,M(0x3a2a1a),0,1.86,0,0.44,0.05,0.44);}
+    else P_(g,geoBox,m,0,1.84,0.215,0.44,0.12,0.06);}}
+function buyCloth(k){const c=CLOTH[k];const C=cl();if(!c||c.rare){warn('Not sold here');return false;}if(C.own.includes(k)){warn('Already owned');return false;}if(P.credits<c.price){warn('Not enough credits');return false;}
+  P.credits-=c.price;C.own.push(k);C.wear[c.slot]=k;SFX.coin();toast('Bought '+c.n+' (wearing it)');clothVisual();save();return true;}
+function buyDye(k){const d=DYES[k];const C=cl();if(!d){return false;}if(C.dyes.includes(k)){warn('Already owned');return false;}if(P.credits<d.pr){warn('Not enough credits');return false;}P.credits-=d.pr;C.dyes.push(k);SFX.coin();toast('Bought '+d.n+' dye');save();return true;}
+function wearCloth(slot,k){const C=cl();if(k&&(!CLOTH[k]||!C.own.includes(k)||CLOTH[k].slot!==slot))return false;C.wear[slot]=k||null;clothVisual();refreshGearVisual();save();return true;}
+function setDye(slot,k){const C=cl();if(k&&!C.dyes.includes(k))return false;C.dye[slot]=k||null;clothVisual();save();return true;}
+function setHair(h,c){const C=cl();if(h&&HAIR[h])C.hair=h;if(c!==undefined)C.hairc=c&&(C.dyes.includes(c)||HAIRC[c])?c:null;clothVisual();save();}
+function toggleOver(){const C=cl();C.over=!C.over;refreshGearVisual();save();return C.over;}
+function addToWardrobe(id){const i=P.inv.findIndex(x=>x.id===id&&x.kind==='cloth');if(i<0)return false;const it=P.inv[i];const C=cl();if(C.own.includes(it.cid)){warn('You already own that; it stays in your pack');return false;}
+  P.inv.splice(i,1);C.own.push(it.cid);C.wear[CLOTH[it.cid].slot]=it.cid;clothVisual();refreshGearVisual();SFX.loot();toast('Added '+it.name+' to your wardrobe');save();return true;}
+function packCloth(k){const C=cl();if(!C.own.includes(k))return false;if(P.inv.length>=24){warn('Pack full');return false;}C.own=C.own.filter(x=>x!==k);CSLOTS.forEach(s=>{if(C.wear[s]===k)C.wear[s]=null;});
+  P.inv.push({id:uid(),kind:'cloth',cid:k,r:CLOTH[k].rare?3:1,name:CLOTH[k].n,value:CLOTH[k].rare?60:Math.round((CLOTH[k].price||40)/2),bonus:[],req:[]});clothVisual();refreshGearVisual();toast('Packed '+CLOTH[k].n+' (store it in your locker for an alt)');save();return true;}
+const dyeChip=(d,on,act,extra)=>{const D=DYES[d];const col=D?'#'+D.c.toString(16).padStart(6,'0'):'transparent';return `<button class="chip${on?' on':''}" data-act="${act}" data-d="${d||''}" ${extra||''}><span class="sw" style="background:${col};${D?'':'border:1px dashed #888'}"></span>${D?D.n:'Default'}</button>`;};
+function openTailor(tab){const C=cl();tab=tab||'buy';let h=`<div class="tabs"><button data-act="ttab" data-t="buy" class="${tab==='buy'?'on':''}">👕 Clothes</button><button data-act="ttab" data-t="dye" class="${tab==='dye'?'on':''}">🎨 Dyes</button><button data-act="ward">🪞 Wardrobe</button><span style="margin-left:auto;color:#ffc85a;font-weight:800;align-self:center">${P.credits}¢</span></div>`;
+  if(tab==='buy'){h+='<div class="stats" style="opacity:.85">Social clothing is purely cosmetic: it never changes your stats. Wear it over your armour or on its own.</div>';
+    for(const s of CSLOTS){h+=`<div class="h4" style="margin-top:8px">${CSLOTN[s]}</div>`+Object.keys(CLOTH).filter(k=>CLOTH[k].slot===s&&!CLOTH[k].rare).map(k=>{const c=CLOTH[k],own=C.own.includes(k);return `<button class="item" data-act="${own?'noop':'cbuy'}" data-c="${k}"><span class="ico">${c.ic}</span><span><div class="nm">${c.n}</div><div class="st">${c.desc}</div></span><span class="pr">${own?'Owned':c.price+'¢'}</span></button>`;}).join('');}
+    h+=`<div class="h4" style="margin-top:8px">Rare finds (enemy drops only)</div><div class="stats">${Object.keys(CLOTH).filter(k=>CLOTH[k].rare).map(k=>CLOTH[k].ic+' <b>'+CLOTH[k].n+'</b>'+(C.own.includes(k)?' ✔':'')).join(' · ')}<br><span style="opacity:.75">About 1 in 170 kills; three times better at night, better in dungeons and from bosses.</span></div>`;}
+  else{h+='<div class="stats" style="opacity:.85">Buy a dye once and use it on any clothing piece (and your hair) as often as you like.</div><div class="chips" style="margin-top:8px">'+Object.keys(DYES).map(k=>{const own=C.dyes.includes(k);return dyeChip(k,own,own?'noop':'dbuy',`data-k="${k}"`).replace('</button>',` · ${own?'owned':DYES[k].pr+'¢'}</button>`);}).join('')+'</div>';}
+  openPanel('👕 OSSORY THREADS',h,'tailor');}
+let wardMirror=false;
+function openWardrobe(mirror){if(mirror!=null)wardMirror=mirror;const C=cl();const eq=P.eq||{};
+  let h=`<div class="stats">${wardMirror?'🪞 The mirror shows your look. Change clothes, dyes, hair and face here.':'Your wardrobe. Hair and face changes need the mirror in your apartment.'}</div>
+  <div style="margin:8px 0"><button class="sbtn${C.over?'':' alt'}" data-act="cover">${C.over?'✔':'✖'} Show clothing over armour</button> <span style="font-size:12px;opacity:.75">${C.over?'Clothing replaces the look of your armour (stats unchanged).':'Armour pieces hide clothing in the same place.'}</span></div><div class="cols"><div>`;
+  for(const s of CSLOTS){const own=C.own.filter(k=>CLOTH[k].slot===s);const hid=C.wear[s]&&!C.over&&((s==='shirt'||s==='jacket')?eq.armor:eq.head);
+    h+=`<div class="h4" style="margin-top:6px">${CSLOTN[s]}${hid?' <span style="color:#ff9a8a;text-transform:none">(hidden by armour)</span>':''}</div><div class="chips"><button class="chip${!C.wear[s]?' on':''}" data-act="cwear" data-s="${s}" data-c="">None</button>${own.map(k=>`<button class="chip${C.wear[s]===k?' on':''}" data-act="cwear" data-s="${s}" data-c="${k}">${CLOTH[k].ic} ${CLOTH[k].n}</button>`).join('')}</div>`;
+    if(C.wear[s])h+=`<div class="chips">${dyeChip(null,!C.dye[s],'cdye',`data-s="${s}"`)}${C.dyes.map(d=>dyeChip(d,C.dye[s]===d,'cdye',`data-s="${s}"`)).join('')}</div>`;}
+  h+='</div><div>';
+  if(wardMirror){h+=`<div class="h4">Hair</div><div class="chips">${Object.keys(HAIR).map(k=>`<button class="chip${C.hair===k?' on':''}" data-act="chair" data-h="${k}">${HAIR[k]}</button>`).join('')}</div><div class="h4">Hair colour</div><div class="chips">${dyeChip(null,!C.hairc,'chairc')}${Object.keys(HAIRC).map(k=>`<button class="chip${C.hairc===k?' on':''}" data-act="chairc" data-d="${k}"><span class="sw" style="background:#${HAIRC[k].c.toString(16).padStart(6,'0')}"></span>${HAIRC[k].n}</button>`).join('')}${C.dyes.map(d=>dyeChip(d,C.hairc===d,'chairc')).join('')}</div><div class="h4">Face</div><div class="chips" id="faceChips">${Object.entries(faceDefs()).map(([k,F])=>`<button class="chip${C.face===k?' on':''}" data-act="cface" data-f="${k}">${F.icon} ${F.n}</button>`).join('')}</div>`;}
+  const packs=P.inv.filter(x=>x.kind==='cloth');if(packs.length)h+=`<div class="h4">In your pack</div>`+packs.map(it=>itemRow(it,'<span class="pr">Add</span>',false,'cadd')).join('');
+  if(C.own.length)h+=`<div class="h4" style="margin-top:8px">Pack a piece up (to give it to an alt via the locker)</div><div class="chips">${C.own.map(k=>`<button class="chip" data-act="cpack" data-c="${k}">📦 ${CLOTH[k].n}</button>`).join('')}</div>`;
+  else h+='<div style="opacity:.6;margin-top:8px">No clothes yet. Visit Ossory Threads in Halden\'s Rest.</div>';
+  h+='</div></div>';openPanel(wardMirror?'🪞 MIRROR':'👕 WARDROBE',h,'wardrobe');}
+
+/* ---------- town: tailor stall + apartment door ---------- */
+const TAILOR={x:-10.5,z:16.6};const APT_DOOR={x:-19,z:13.9};
+(function(){const y=heightAt(TAILOR.x,TAILOR.z);const g=new THREE.Group();g.position.set(TAILOR.x,y,TAILOR.z+1.6);
+  part(g,geoBox,M(0x6a4a32),0,0.55,0,3.2,1.1,0.9);part(g,geoBox,M(0x9c4a2a),0,2.9,-0.2,3.8,0.15,2.4);
+  for(const x of [-1.7,1.7])part(g,geoBox,M(0x3a2c24),x,1.5,-0.9,0.12,3,0.12);
+  const cols=[0xd8d2c4,0x9c4a2a,0x2f8f8a,0x6a3a8a,0xd4a020];cols.forEach((c,i)=>part(g,geoBox,M(c),-1.2+i*0.6,1.6,-0.95,0.42,0.7,0.06));scene.add(g);
+  boxes.push({x0:TAILOR.x-1.6,x1:TAILOR.x+1.6,z0:TAILOR.z+1.15,z1:TAILOR.z+2.05,y0:y,y1:y+1.1});
+  const n={id:'tailor',name:'Wren Ossory',k:'tailor',x:TAILOR.x,z:TAILOR.z,body:0x6a3a8a,acc:0xd4a020,vis:0xffc85a,mark:0xd46bff};
+  n.R=buildHumanoid(n.body,n.acc,n.vis,0x8a6a52,{npc:1,brim:0x2a1d14});n.R.g.position.set(n.x,y,n.z);n.mk=part(n.R.g,new THREE.OctahedronGeometry(1,0),MB(n.mark),0,2.65,0,0.2,0.32,0.2);
+  scene.add(n.R.g);circles.push({x:n.x,z:n.z,r:0.6});NPCS.push(n);
+  const d=APT_DOOR,dy=heightAt(d.x,d.z-1);const dg=new THREE.Group();dg.position.set(d.x,dy,d.z);
+  part(dg,geoBox,M(0x2b3742),0,1.5,-0.02,2.0,3.0,0.14);part(dg,geoBox,M(0x4f6b80),0,3.1,0,2.5,0.25,0.3);part(dg,geoBox,M(0x4f6b80),-1.1,1.5,0,0.25,3.0,0.3);part(dg,geoBox,M(0x4f6b80),1.1,1.5,0,0.25,3.0,0.3);
+  part(dg,geoBox,MB(0xffc85a),0,3.45,0.02,0.9,0.28,0.06);part(dg,geoBox,MB(0x6dff8a),0.65,1.4,0.07,0.1,0.18,0.04);part(dg,geoBox,M(0x5a4636),0,0.06,-0.9,2.6,0.12,1.6);scene.add(dg);})();
+
+/* ---------- apartment instance ---------- */
+const DECOR={
+  fern:{n:'Dune Fern',ic:'🪴',pr:60,b:g=>{part(g,geoBox,M(0x8a5238),0,0.3,0,0.5,0.6,0.5);for(let i=0;i<5;i++){const c=part(g,geoCone,M(0x5a7a32),Math.cos(i*1.3)*0.12,0.9,Math.sin(i*1.3)*0.12,0.12,0.8,0.12);c.rotation.z=Math.cos(i*1.3)*0.4;c.rotation.x=Math.sin(i*1.3)*0.4;}}},
+  lamp:{n:'Glow Lamp',ic:'💡',pr:80,b:g=>{part(g,geoBox,M(0x3a3a3a),0,0.8,0,0.08,1.6,0.08);part(g,geoBox,M(0x2a2a2a),0,0.04,0,0.5,0.08,0.5);part(g,geoSphere,MB(0xffd9a0),0,1.7,0,0.24,0.24,0.24);}},
+  crates:{n:'Salvage Crates',ic:'📦',pr:30,b:g=>{part(g,geoBox,M(0x7a5a3a),0,0.4,0,0.8,0.8,0.8);part(g,geoBox,M(0x6a4a2a),0.55,0.3,0.3,0.6,0.6,0.6);part(g,geoBox,M(0x8a6a48),0.1,1.05,0.05,0.5,0.5,0.5);}},
+  rug:{n:'Woven Rug',ic:'🟥',pr:50,b:g=>{part(g,geoBox,M(0x9c4a2a),0,0.02,0,2.6,0.03,1.8);part(g,geoBox,M(0xd4a020),0,0.035,0,2.2,0.03,0.25);part(g,geoBox,M(0xe6dcc6),0,0.035,0,0.25,0.03,1.4);}},
+  geode:{n:'Vyre Geode',ic:'💎',pr:150,b:g=>{part(g,geoIco,M(0x5a4a40),0,0.3,0,0.5,0.35,0.45);for(let i=0;i<4;i++)part(g,geoCone,MB(i%2?0x5ff2ff:0xb46bff),srand(-0.2,0.2),0.7,srand(-0.2,0.2),0.1,srand(0.5,0.9),0.1);}},
+  sofa:{n:'Salvage Sofa',ic:'🛋️',pr:140,b:g=>{part(g,geoBox,M(0x4f6b80),0,0.3,0,2.2,0.5,0.9);part(g,geoBox,M(0x3f5b70),0,0.8,-0.38,2.2,0.7,0.18);part(g,geoBox,M(0x3f5b70),-1.05,0.55,0,0.18,0.5,0.9);part(g,geoBox,M(0x3f5b70),1.05,0.55,0,0.18,0.5,0.9);}},
+  bot:{n:'Scrapper Bot Statue',ic:'🤖',pr:120,b:g=>{part(g,geoBox,M(0x6d6f72),0,0.15,0,0.7,0.3,0.7);part(g,geoBox,M(0x8a7432),0,0.65,0,0.5,0.6,0.4);part(g,geoBox,M(0x8a7432),0,1.1,0,0.34,0.3,0.34);part(g,geoBox,MB(0xffa040),0,1.12,0.18,0.24,0.08,0.02);}},
+  banner:{n:'Faction Banner',ic:'🚩',pr:100,b:g=>{const f=P.faction&&P.faction.side;const col=f==='combine'?0x3f6fb0:f==='ashborn'?0x8a3a22:0x8a8a8a;part(g,geoBox,M(0x3a3a3a),0,1.2,0,0.08,2.4,0.08);part(g,geoBox,M(col),0.45,1.8,0,0.8,1.1,0.04);part(g,geoBox,MB(0xffc85a),0.45,1.9,0.03,0.3,0.3,0.02);}}};
+const DECO_MAX=16;
+const APT={locker:{x:-5,z:-4.9},mirror:{x:4.6,z:-5.0},bench:{x:-5.6,z:0.6},decor:{x:5.6,z:0.4}};
+function enterApartment(){if(DUN||P.dead)return false;if(inCombat()){warn('You can\'t go home in combat');return false;}
+  if(P.mount)dismount();cancelCast();P.target=null;P.autoAtk=false;for(const p of projs)scene.remove(p.m);projs.length=0;for(const r of rings)scene.remove(r.m);rings.length=0;clearFx();
+  const hidden=[];const keep=new Set([PM.g,pShadow]);for(const a of allies){keep.add(a.R.g);keep.add(a.shadow);}for(const o of scene.children)if(o.visible&&!keep.has(o)){o.visible=false;hidden.push(o);}
+  const d=DUN={id:'apt',apt:true,D:{name:'Your Apartment',sub:'Halden\'s Rest'},mode:{},party:[],ret:{x:APT_DOOR.x,z:APT_DOOR.z-2.2},hidden,worldEnemies:enemies.splice(0),worldLoots:loots.splice(0),
+    saved:{c:circles.splice(0),b:boxes.splice(0),o:camOcc.splice(0)},fog0:scene.fog,bg0:scene.background,group:new THREE.Group(),rects:[[-7,-6,14,12]],portals:[],bosses:[],tele:[],cleared:false,t0:T,boxesAdd:[]};
+  FLAT=true;scene.add(d.group);buildApartment(d);scene.fog=new THREE.Fog(0x1a1410,30,90);scene.background=new THREE.Color(0x1a1410);
+  d.entry={x:0,z:3.8};P.pos.set(0,0,3.8);P.rotY=Math.PI;camS.yaw=0;camS.pitch=0.8;camS.dist=10;camS.cur=null;for(const a of allies){a.pos.set(1.6,0,4.2);a.target=null;}
+  banner('🏠 HOME','Your apartment · locker, mirror, workbench and decor');log('Home sweet home. The <b>locker</b> is shared by all your characters.');SFX.quest();save();return true;}
+function buildApartment(d){const G=d.group;const L=[];const wall=(x,z,sx,sz,h,col)=>{L.push([x,h/2,z,sx,h,sz,col||0x8a7a68]);d.boxesAdd.push({x0:x-sx/2,x1:x+sx/2,z0:z-sz/2,z1:z+sz/2,y0:0,y1:Math.min(h,2.2)});};
+  L.push([0,-0.25,0,16,0.5,14,0x6a5040]);for(let i=-6;i<=6;i+=2)L.push([0,0.005,i,14,0.01,0.06,0x5a4232]);
+  wall(0,-6.5,16,1,3.2);wall(-7.5,0,1,14,3.2);wall(7.5,0,1,14,3.2);wall(-4.6,6.5,6.2,1,1.2,0x7a6a58);wall(4.6,6.5,6.2,1,1.2,0x7a6a58);
+  L.push([0,3.25,-6.5,16.2,0.2,1.2,0x4f6b80]);
+  // furniture: bed, locker, mirror frame, workbench, decor console, table
+  const box=(x,y,z,sx,sy,sz,col,coll)=>{L.push([x,y,z,sx,sy,sz,col]);if(coll)d.boxesAdd.push({x0:x-sx/2,x1:x+sx/2,z0:z-sz/2,z1:z+sz/2,y0:0,y1:y+sy/2});};
+  box(-5.4,0.3,4,2.2,0.6,3.2,0x4a3a30,true);box(-5.4,0.68,4,2.0,0.18,3.0,0xd8d2c4);box(-5.4,0.85,5.1,1.4,0.18,0.6,0xe6dcc6);box(-5.4,0.8,3.6,2.05,0.12,1.6,0x2f8f8a);
+  box(-5,1.3,-5.75,1.8,2.6,0.8,0x5a6470,true);box(-5,1.3,-5.33,0.05,2.3,0.05,0x2a2a30);
+  box(4.6,1.4,-5.92,1.5,2.5,0.16,0x3a2c24,true);box(-5.95,0.5,0.6,1.1,1.0,2.6,0x6a4a32,true);box(-5.95,1.03,0.6,1.2,0.08,2.8,0x8a6a48);
+  box(6.5,0.6,0.4,0.9,1.2,1.4,0x2b3742,true);box(0,0.38,-1.2,1.6,0.08,1.0,0x8a6a48);box(0,0.18,-1.2,0.12,0.36,0.12,0x3a2c24);
+  const im=new THREE.InstancedMesh(geoBox,new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true}),L.length);const m4=new THREE.Matrix4(),c=new THREE.Color();
+  L.forEach((b,i)=>{m4.makeScale(b[3],b[4],b[5]);m4.setPosition(b[0],b[1],b[2]);im.setMatrixAt(i,m4);im.setColorAt(i,c.set(b[6]));});im.frustumCulled=false;G.add(im);
+  // glow: windows (dusk over the Reach), locker strip, mirror glass, console screens, bench lamp
+  for(const x of [-3,0,3])part(G,geoBox,MB(0xffa860),x,1.9,-5.98,1.8,1.0,0.04);for(const x of [-3,0,3])part(G,geoBox,MB(0xff7a50),x,1.5,-5.97,1.8,0.18,0.04);
+  part(G,geoBox,MB(0x5ff2ff),-5,2.45,-5.34,1.5,0.08,0.02);part(G,geoBox,MB(0xb8d8e8),4.6,1.45,-5.83,1.2,2.1,0.02);part(G,geoBox,MB(0x5ff2ff),6.04,0.95,0.4,0.04,0.5,1.0);part(G,geoBox,MB(0xffd9a0),-5.95,1.3,-0.4,0.25,0.25,0.25);
+  G.add(new THREE.HemisphereLight(0xffe2c0,0x40302a,0.85));const pl=new THREE.PointLight(0xffc890,1.1,26,1.4);pl.position.set(0,4.5,0);G.add(pl);d.plight=new THREE.PointLight(0xffd9a0,0.5,12,1.6);G.add(d.plight);
+  addPortal(d,0,5.6,'Leave');d.portals[0].sw.material=MB(0xffc85a);d.portals[0].pl.material.color.set(0xffc85a);
+  boxes.push(...d.boxesAdd);d.decoG=new THREE.Group();G.add(d.decoG);drawDecor();}
+function drawDecor(){const d=DUN;if(!d||!d.apt)return;while(d.decoG.children.length)d.decoG.remove(d.decoG.children[0]);const B=loadBank();
+  for(const x of B.deco){const g=new THREE.Group();g.position.set(x.x,0,x.z);g.rotation.y=x.r||0;DECOR[x.d].b(g);d.decoG.add(g);}}
+function aptInteract(p){const d=DUN;for(const q of d.portals)if(Math.hypot(p.x-q.x,p.z-q.z)<2.6)return {k:'dexit',label:'🚪 Leave apartment'};
+  if(Math.hypot(p.x-APT.locker.x,p.z-APT.locker.z)<2.4)return {k:'locker',label:'🗄 Locker'};if(Math.hypot(p.x-APT.mirror.x,p.z-APT.mirror.z)<2.4)return {k:'mirror',label:'🪞 Mirror'};
+  if(Math.hypot(p.x-APT.bench.x,p.z-APT.bench.z)<2.4)return {k:'bench',label:'🛠 Workbench'};if(Math.hypot(p.x-APT.decor.x,p.z-APT.decor.z)<2.4)return {k:'decor',label:'🪴 Decor'};return null;}
+
+/* ---------- shared locker (bank across all characters) ---------- */
+const BANK_KEY='dustreach_bank_v1',BANK_CAP=120;
+function loadBank(){let b=null;try{b=JSON.parse(localStorage.getItem(BANK_KEY)||'null');}catch(e){}if(!b||typeof b!=='object')b={};
+  return {v:1,items:(Array.isArray(b.items)?b.items:[]).map(migrateItem).filter(Boolean),bag:normBag(b.bag),credits:Math.max(0,Math.floor(+b.credits||0)),deco:(Array.isArray(b.deco)?b.deco:[]).filter(x=>x&&DECOR[x.d]),decoStore:(Array.isArray(b.decoStore)?b.decoStore:[]).filter(k=>DECOR[k])};}
+function writeBank(b){lsSet(BANK_KEY,JSON.stringify(b));}
+function inLocker(){return !!(DUN&&DUN.apt);}
+function bankDeposit(id){const B=loadBank();const i=P.inv.findIndex(x=>x.id===id);if(i<0)return false;if(B.items.length>=BANK_CAP){warn('Bank full ('+BANK_CAP+' items)');return false;}B.items.push(P.inv.splice(i,1)[0]);writeBank(B);save();return true;}
+function bankWithdraw(id){const B=loadBank();const i=B.items.findIndex(x=>x.id===id);if(i<0)return false;if(P.inv.length>=24){warn('Pack full');return false;}P.inv.push(B.items.splice(i,1)[0]);writeBank(B);save();return true;}
+function bankDepositStack(id){const B=loadBank();const o=bag().find(x=>x.id===id);if(!o)return false;bagAdd(o,o.n,B.bag);bagTake(id,o.n);writeBank(B);save();return true;}
+function bankWithdrawStack(id){const B=loadBank();const o=B.bag.find(x=>x.id===id);if(!o)return false;bagAdd(o,o.n);bagTake(id,o.n,B.bag);writeBank(B);save();return true;}
+function bankCredits(n){const B=loadBank();if(n>0){n=Math.min(n,P.credits);P.credits-=n;B.credits+=n;}else{n=Math.min(-n,B.credits);B.credits-=n;P.credits+=n;}writeBank(B);save();SFX.coin();return true;}
+let lockTab='items';
+function openLocker(tab){openBank(tab);}// the apartment locker is a Bank terminal
+function placeDecor(k,fromStore){const B=loadBank();if(!DECOR[k]||!inLocker())return false;if(B.deco.length>=DECO_MAX){warn('Room is full ('+DECO_MAX+' pieces)');return false;}
+  if(fromStore){const i=B.decoStore.indexOf(k);if(i<0)return false;B.decoStore.splice(i,1);}else{if(P.credits<DECOR[k].pr){warn('Not enough credits');return false;}P.credits-=DECOR[k].pr;}
+  const x=clamp(P.pos.x+Math.sin(P.rotY)*1.6,-6.3,6.3),z=clamp(P.pos.z+Math.cos(P.rotY)*1.6,-5.5,5.5);B.deco.push({d:k,x:+x.toFixed(2),z:+z.toFixed(2),r:+P.rotY.toFixed(2)});writeBank(B);drawDecor();SFX.loot();toast('Placed '+DECOR[k].n);save();return true;}
+function pickupDecor(i){const B=loadBank();const x=B.deco[i];if(!x)return false;B.deco.splice(i,1);B.decoStore.push(x.d);writeBank(B);drawDecor();toast('Picked up '+DECOR[x.d].n);return true;}
+function openDecor(){const B=loadBank();let h=`<div class="stats">Decor is placed 1.6 m in front of you, facing the way you face. ${B.deco.length}/${DECO_MAX} placed. Picked-up pieces go to storage and can be placed again for free. Shared by all your characters.</div><div class="cols"><div><div class="h4">Buy &amp; place</div>`+
+  Object.keys(DECOR).map(k=>`<button class="item" data-act="dplace" data-k="${k}"><span class="ico">${DECOR[k].ic}</span><span><div class="nm">${DECOR[k].n}</div></span><span class="pr">${DECOR[k].pr}¢</span></button>`).join('')+`</div><div>`+
+  (B.decoStore.length?`<div class="h4">Storage (free)</div>`+B.decoStore.map(k=>`<button class="item" data-act="dstore" data-k="${k}"><span class="ico">${DECOR[k].ic}</span><span><div class="nm">${DECOR[k].n}</div></span><span class="pr">Place</span></button>`).join(''):'')+
+  `<div class="h4">Placed</div>`+(B.deco.map((x,i)=>`<button class="item" data-act="dpick" data-i="${i}"><span class="ico">${DECOR[x.d].ic}</span><span><div class="nm">${DECOR[x.d].n}</div><div class="st">at ${x.x}, ${x.z}</div></span><span class="pr">Pick up</span></button>`).join('')||'<div style="opacity:.6">Nothing placed yet.</div>')+`</div></div>`;
+  openPanel('🪴 DECOR',h,'decor');}
+
+/* ---------- How to play ---------- */
+function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''}><summary>${t}</summary><div>${b}</div></details>`;
+  openPanel('📘 HOW TO PLAY',
+  S_('🎮 Basics &amp; controls','Left thumb moves, drag the right side to turn the camera, pinch with two fingers to zoom, tap an enemy to target it. The camera swings in behind you as you run (turn it off in ☰ Menu → Graphics). ⚔ starts auto-attack; the round buttons are your slotted Weaves (add more in 📖). The small ⋯ button by the Weaves opens 💉 stim, 🛵 vehicle and ◎ next target. The ⋯ at the top holds 📈 Skills, 📜 Journal and 👥 Team. Walk up to people and objects and tap the action button that appears.<br>Keyboard: WASD · Space attack · 1-6 Weaves · Q stim · F interact · Tab target · I inventory · K skills · B Weave Book · J tradeskills · L journal · H help · R vehicle · Z/X/C pet attack/follow/stay · Esc menu.',true)+
+  S_('📈 Skills, levels &amp; twinking','Levels give skill points (📈). Attributes feed skills. Gear, implants and Weave Disks have skill requirements. Buffs (self-buff Weaves, trader stims, other implants) raise your skills for a while, so you can equip things early. Once equipped they stay on: that is <b>twinking</b>.')+
+  S_('🧠 Implants','Seven implant slots (Cortex, Ocular, Thoracic, Brachial, Digital, Femoral, Plantar). Installing needs Treatment plus one attribute, both rising with Quality Level (QL). Install in the right order: one implant\'s bonus can unlock the next.')+
+  S_('📀 Weaves','Your profession\'s powers. Learn new ones from Weave Disks (drops, trader, dungeons). The Weave Book sets your six slots. Rare Shimmerveil disks give huge evasion.')+
+  S_('📟 Missions, 🚪 dungeons &amp; 💾 saving','Take missions at the terminal in Halden\'s Rest. The slider sets difficulty and reward. Dungeon doors in the desert lead to solo instances with bosses and exclusive loot. Save Points (💾) protect your XP; dying loses part of the XP earned since your last save. 🔷 Conduit nodes are fast travel. Nights bring Gloam Stalkers and better loot.')+
+  S_('🧬 Breeds','Settler (balanced), Dunebred (strong, tough, poor minds), Vyrekin (brilliant casters, frail) and Glassborn (agile and sharp). Breed changes starting stats, training caps, costs, health and energy.')+
+  S_('⚑ Factions &amp; towers','Join the Solace Combine or the Ashborn Free Clans (Registrar Hale in town; switching costs credits and half your rep). Faction contracts, kills and towers earn reputation, which unlocks faction vendor gear tiers. Three desert towers can be captured: kill the guards, destroy the core, then plant your own. Each tower your side holds gives +4% power and +2% damage reduction, and the other side will come to take it back.')+
+  S_('🏴 Faction zones','Four zones are held by a faction: <b>Ironward Reach</b> (Combine) and <b>Emberhollow</b> (Ashborn) in the Duskcrown Highlands (Lv 14–17), <b>Coldspire Directive</b> (Combine) and <b>Frostforge Wilds</b> (Ashborn) in the Rimefall Expanse (Lv 24–27). They show as coloured circles on the map and minimap. <b>Members of the holding faction</b> get a quartermaster, a commander with a repeatable patrol contract (rep, credits, XP and a Rare or Epic item), a Save Point and a Conduit. <b>Members of the other faction</b> are attacked on sight by Sentinels as soon as they cross the border: Sentinels hit for about a third of your health, chase you a short way and cannot be killed, and the outpost refuses you. <b>Unaligned</b> players are tolerated: Sentinels ignore you and you can rest at the Save Point, but there is no trade or contract work.')+
+  S_('🛵 Vehicles','Buy a Dust Skiff from the trader (or earn faction skiffs from your first tower capture). Summon it with 🛵 or R: a short cast, out of combat, not in dungeons or your apartment. Attacking or getting hit knocks you off.')+
+  S_('🤖 Dronewright pets','Dronewrights assemble a combat bot that follows you, attacks your target and has its own health. Patch Drone heals it, Overcharge buffs it, Taunt Protocol pulls enemies to it, and Weave Disks unlock bigger frames. Use the pet bar (or Z/X/C) for attack/follow/stay.')+
+  S_('⛺ Wild packs','Camps of <b>4–8 enemies</b> sit around the open world (orange ⛺ triangles on the minimap and the Conduit map), from <b>Skitter Hollow</b> (Lv 1–2) near Halden\'s Rest out to the <b>Ember Wastes</b> (Lv 8–10). Camps by Cinderwell Post and Glassreach Camp appear once those areas are unlocked in the story.<br><br>Pull one and <b>the whole pack follows</b>. Pack enemies run a little slower than you on foot, so you can <b>kite</b> them with ranged attacks and AoE: watch for <b>Dune Maulers</b> (Crippled) and <b>Glass Spitters</b> (Glassed), whose hits slow you. Drag them more than ~55 m from camp and they give up, run home and heal.<br><br>Each kill gives <b>+6% XP for every other enemy fighting you</b> (up to +30%), and wiping a whole camp gives a <b>Pack cleared</b> bonus of 25% of that pack\'s XP. Cleared camps respawn after <b>60–120 s</b> (higher-level camps take longer) once you step away.')+
+  S_('🏃 Run Speed','<b>Run Speed</b> is a skill like the others: train it with skill points in 📈 Skills. It is fed by Agility (60%) and Stamina (40%), and is cheapest and trains highest for <b>Glintrunners</b> and <b>Wildshifters</b> (1 SP/point, 150% cap). Vyreweavers, Menders and Fluxwrights pay 2 SP with the normal cap; <b>Vanguards</b> and <b>Dronewrights</b> pay 3 SP and cap at 70%. Glassborn (+5, cheaper) and Dunebred (+3) are naturally quick; Vyrekin are slower (−2).<br><br>Run Speed turns into a % bonus to on-foot speed on a diminishing curve (roughly +25% at 70 points over the baseline, +40% at 170), hard-capped at <b>+'+RUN_CAP+'%</b> so touch steering and collisions stay sane. The 📈 Skills sheet shows your actual %.<br><br>Sources: boots and leg armour can roll Run Speed, Femoral/Plantar implants and Run Speed clusters add it, Veinrunner Treads, Strider Gel (trader consumable), Sprint Weave, Slipstream, Pathfinder\'s Instinct and the Dune Wolf morph. All of them add Run Speed points, so they stack on the same curve and can be used to twink gear. <b>Vehicles</b> use their own speed and ignore it. Some enemies (Dune Maulers, Vein Skitters) <b>slow</b> you (🐌 on the HUD), which multiplies your speed down, never below 45%.')+S_('🎭 Professions &amp; teams','There are seven professions: '+Object.keys(PROFS).map(k=>'<b>'+PROFS[k].name+'</b> ('+PROFS[k].role+')').join(', ')+'. Each has its own armour families, weapon types and Weave disks. Team missions take at most <b>6</b> characters (you plus 5 alts), so with seven professions you always leave one at home: pick the mix that suits the job.')+
+  S_('🐺 Wildshifter morphs','Wildshifters fight with a bow or rifle in light or medium armour, heal themselves (Mossmend) and learn temporary <b>Morphs</b> from Weave Disks. New Wildshifters start with the <b>Dune Wolf</b> disk. <b>Glass Lizard</b> drops from level 5 and the <b>Sand Drake</b> disk comes only from Warden-Prime Ixo in Vault Theta-9.<br><br>🐺 <b>Dune Wolf</b> (60s, 90s cooldown): +85 Run Speed and big melee damage. Rending Bite, Pounce and Pack Howl.<br>🦎 <b>Glass Lizard</b> (75s, 120s cooldown): huge Evasion, damage reduction and 3% health regeneration per second. Tail Lash, Glass Spit and Shed Skin.<br>🐉 <b>Sand Drake</b> (60s, 180s cooldown): massive health and 20% damage reduction. Cinder Breath (AoE cone), Wing Buffet and Scale Ward.<br><br>While morphed, the Weave bar swaps to the form\'s abilities (green rim) plus ↩️ Revert. You can\'t cast your normal Weaves or swap weapons. A morph is a buff, so its stat bonuses count for twinking like any other buff: gear you equip with its help stays on afterwards. Morphs end early if you die or mount a vehicle, and never carry over when you log out.')+S_('📜 Story missions &amp; locked areas','The <b>story</b> is the main thread. Archivist Sela Marr (gold marker, just west of the terminal in Halden\'s Rest) gives each step. Talk to her, accept, then follow the gold <b>📜 STORY</b> line on the HUD and its waypoint. Open the <b>📜 Journal</b> (top bar or <b>L</b>, or tap the story line) to see the whole chain, what each step unlocks, and to switch tracking on or off.<br><br><b>Story steps unlock:</b> Cinderwell Post (step 2), Hollowvein Mine (step 4), factions, towers and vehicle permits (step 5), Glassreach Camp (step 6) and Vault Theta-9 (step 9). Each step also has a level requirement. Locked outposts have a red barrier; locked Conduit nodes, teleporter pads and dungeon doors tell you which step you need. Story gates combine with dungeon level caps, so you need the story step <i>and</i> a level inside the dungeon\'s range.<br><br>Contracts from the 📟 terminal are <b>optional</b>: XP, credits and loot only, and they never lock anything.<br><br><b>Alts:</b> story progress is per character, but dialogue you have already read on any character can be skipped.<br><b>Older characters:</b> characters made before story missions were added are grandfathered. Every step up to their level counts as done, and any area they had already visited (Conduit node linked, dungeon cleared, Save Point bound, faction joined, skiff owned) stays open.')+S_('🎯 Dungeon level caps &amp; twinking','Every dungeon has an entry range: a minimum level and a <b>level cap</b>. '+Object.values(DUNGEONS).map(D=>'<b>'+D.name+'</b> '+dunRange(D.id)).join(', ')+'. Above the cap the door, the Conduit and the mission terminal tell you you are too experienced, and you can\'t enter. If you level past the cap during a run you can finish it, but you can\'t go back in. Groups (coming with team missions) are judged by their highest-level member. The point is <b>twinking</b>: stay at or just under the cap, use buffs (self-buff Weaves, stims, implants, the Artisan Draught for tradeskills) to wear gear and implants far above your level, then clear the dungeon. Clearing at the cap or one level under gives bosses +25% extra-drop chance and ×1.5 Relic chance. Dungeon items show their dungeon\'s range and cap.')+
+  S_('🔧 Tradeskills: Fabrication','Two tradeskills sit in 📈 Skills: <b>Fabrication</b> and <b>Implant Assembly</b>. Enemies drop Scrap Alloy, Vyre Shards and Circuit Parts at QL ≈ enemy level × 5; they go into your 🧰 Parts bag (no pack slots used). Open 🛠 Tradeskills (J, the menu, or the apartment workbench). Recipes: Reinforce Armour (+25% armour), Tune Weapon (+12% damage), Vyre Infusion (add a stat, +1 rarity), Basic Implant (blank) and Med-stim Kit. Requirements scale with the item\'s QL and show green or red. The 🛠️ Artisan Draught from the trader twinks your tradeskills.')+
+  S_('🧬 Implant clusters','Build your own implant: take a Basic Implant of some QL, pick a slot, then insert up to three clusters. <b>Keystone</b> (major, ×1.5), <b>Lattice</b> (minor, ×1) and <b>Filament</b> (trace, ×0.6). Each adds the stat you chose, scaled by the implant QL. Cluster QL must be close to the implant QL. Implant Assembly must reach the requirement for a sure build; down to 75% of it you can gamble, but failure burns a cluster. The trader sells blanks plus Lattice and Filament clusters at low QL; Keystones only drop.')+
+  S_('👕 Social clothing','Ossory Threads (Wren Ossory, north-west of the town pylon) sells shirts, jackets, hats, visors and dyes. Clothing is cosmetic only. "Show clothing over armour" (wardrobe or mirror) decides whether it covers your armour. Rare pieces (Glow-thread Shirt, Nightglass Longcoat, Halo Crown, Starlight Visor) only drop from enemies.')+
+  S_('🗺 World map, regions &amp; waypoints','The Reach is now about three times bigger. The old desert (<b>Kessra Dunes</b>, around Halden\'s Rest) is ringed by six regions, each with its own ground, props, light and wild packs: <b>Mirewell Oasis</b> (west, Lv 3–6, palms and springs), <b>Whitepan Salt Flats</b> (north-east, Lv 4–7, after Cinderwell), <b>Redspire Canyons</b> (north-west, Lv 5–8, after Hollowvein Mine), <b>Rustmaw Scrapyard</b> (south-west, Lv 6–9, after the Factions story step), <b>Shimmerfield</b> (east, Lv 7–10, after Glassreach) and <b>Cinderveil Badlands</b> (south-east, Lv 8–10, after Vault Theta-9). Past level 10 the <b>Duskcrown Highlands</b> ring the whole world on the far edge (Lv 11–20, rising the further you go round from Farwatch Station). Story chapter 2 opens <b>Farwatch Station</b> (bank, quartermaster, contract terminal) and later <b>The Choir Below</b> dungeon (Lv 14–18). Past level 20 the frozen <b>Rimefall Expanse</b> rings everything (Lv 21–30, rising the further you go round from Hoarlight Hold): story chapter 3 opens <b>Hoarlight Hold</b> and later <b>The Stillvault</b> dungeon (Lv 24–28). Its enemies burrow under the ice, chill you until you freeze, shatter into Shardlings and ward each other: kill the Frostward Sentinels first. A banner shows each region\'s name as you cross into it, and its name sits under the clock. Until the story unlocks a region, its land is open to explore but its wild packs stay asleep.<br><br>Open the <b>map</b> with 🗺 or <b>M</b>. Drag to pan, pinch (or the − / + buttons) to zoom. New regions stay dark until you explore them. Tap anywhere to drop your own <b>📍 waypoint</b>: a blue beam marks it in the world, a blue arrow on screen shows its distance and direction, and it shows on the minimap. Tap it again or press <b>Clear waypoint</b> to remove it; it also clears when you arrive. Your waypoint is saved with your character.')+
+  S_('👥 Team mode (play as a team anywhere)','Tap <b>👥</b> (or press <b>T</b>) to bring up to 5 of your alts along as AI companions in the open world and in normal dungeons. They use their own saved level, gear and role: menders heal, tanks hold threat, and everyone steps out of red telegraph circles. Turn on <b>Mercenary fill</b> to top the team up to 6. Stances: <b>Follow</b> (they only fight what attacks you or them), <b>Assist</b> (they join your fights), <b>Passive</b> (they never attack). Commands: <b>⚔ Attack</b> my target (G) and <b>↩ Regroup</b> (Y), also on the team panel under your health bars. Only the character you are playing gains XP, loot, credits, tokens and mission progress; your alts\' sheets never change. Dungeon level caps use the highest team member, and the dungeon scales up for the team. A downed companion gets back up 10s after the fight ends. Raids keep their own team.')+
+  S_('📋 Missions (log, side quests, chains)','Hold up to <b>6</b> missions at once next to the story: terminal contracts plus side quests from 10 quest givers across every region (gold ❗ = new quest, green ✔ = ready to claim, blue 💬 = talk to them). Types: retrieve items, loot drops (not every kill drops one), deliver, talk, escort, defend waves, activate terminals (stand 2s), hunt a named elite or dyna, explore sites, kill, and timed runs. Some are multi-stage chains, and a few make you choose a branch. Open 📜 Journal → <b>📋 Missions</b> to track/untrack, set the 📍 waypoint mission, turn on auto-waypoint, retry a failed one, or abandon. Rewards scale with your level (cap 10).')+
+  S_('💀 Dynas (named elite camps)','Every region has 1–2 <b>dynas</b>: named elite bosses at fixed camps, with adds, lots of health and a signature move (slams, spit pools, shields, summons, enrage). They always drop good loot and sometimes a rare named item you can only get from them. After a kill a dyna stays down for 10–20 real minutes, even across reloads, and sometimes a lesser placeholder spawns in its spot first. Discovered dynas show on the map and minimap as 💀: red when up, grey when down. Hunt quests send you after some of them.')+
+  S_('⚔ Raids (team instances, 3 runs a week)','A <b>raid</b> is a big instance built for a full team of <b>6</b>: you plus up to 5 of your own alts, who fight as AI team members with their own level and gear (tanks hold threat, menders heal, everyone dodges). Empty seats are filled by contract mercenaries at your level. The first raid is <b>The Cinderdeep Bastion</b>: its portal stands in the <b>Cinderveil Badlands</b> (south-east, ⚔ on the map). Level <b>9–10</b> (cap 10, judged by the highest team member) after the Vault Theta-9 story step. Three bosses with telegraphed attacks: <b>Slagwarden Torvek</b> (spread out for Scorch Brand), <b>Vessa, the Ember Queen</b> (break her Ember Pylons to drop her shield) and <b>The Ashen Colossus</b> (when Inferno Nova glows, run IN to the green safe ring).<br><br><b>Lockout:</b> each raid can be run <b>3 times per week</b>. The week resets every <b>Monday 00:00</b> (your local time). A run is used the first time a boss dies in it, so wiping before any kill costs nothing. Lockouts are per character: the 📜 Journal → ⚔ Raids tab shows runs left and the reset timer. Bosses drop raid-only gear (the Cinderborn set and Bastion weapons, plus a rare Relic) and <b>Raid Sigils ◈</b> (2 / 3 / 5), which buy raid gear from the Sigil tab at the portal.')+
+  S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every item tagged <b>Junk</b> (Common gear and implants, plus anything you tag) from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
+  S_('🏠 Apartment &amp; locker','The green-lit door on the north-west building in Halden\'s Rest is your apartment. Inside: a <b>locker</b> that opens your 🏦 Bank, a <b>mirror</b> for clothes, dyes and hair, a <b>workbench</b> for tradeskills and a <b>decor</b> console to buy and place furniture.'),'help');}
+
+/* ---------- hooks ---------- */
+function stage3Interact(p){const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};const rk=raidNear(p);if(rk)return {k:'raid',id:rk,label:'⚔ '+RAIDS[rk].name};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
+function stage3Do(n){const k=n.k;if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
+function stage3Act(a,b){const D=b.dataset;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
+  if(a==='ctab')openCraft(D.t);else if(a==='crec'){CR.rec=D.r;CR.tgt=null;openCraft();}else if(a==='ctgt'){CR.tgt=D.id;openCraft();}else if(a==='cq'){CR.q=+D.q;openCraft();}else if(a==='cstat'){CR.stat=D.s;openCraft();}
+  else if(a==='cfab'){doFab();openCraft();}else if(a==='cblank'){CR.blank=D.id;openCraft();}else if(a==='cslot'){CR.slot=D.s;openCraft();}else if(a==='cclu'){CR.sel[D.t]=D.id||null;openCraft();}else if(a==='cbuild'){doAssemble();openCraft();}
+  else if(a==='buyts'){buyTs(+D.i);openVendor();}
+  else if(a==='ttab')openTailor(D.t);else if(a==='cbuy'){buyCloth(D.c);openTailor('buy');}else if(a==='dbuy'){buyDye(D.k);openTailor('dye');}else if(a==='ward')openWardrobe(false);
+  else if(a==='cwear'){wearCloth(D.s,D.c||null);openWardrobe();}else if(a==='cdye'){setDye(D.s,D.d||null);openWardrobe();}else if(a==='cover'){toggleOver();openWardrobe();}
+  else if(a==='chair'){setHair(D.h);openWardrobe();}else if(a==='chairc'){setHair(null,D.d||null);openWardrobe();}else if(a==='cface'){setFace(D.f);openWardrobe();}else if(a==='cadd'){addToWardrobe(D.id);if(panelOpen==='inv')openInventory();else openWardrobe();}else if(a==='cpack'){packCloth(D.c);openWardrobe();}
+  else if(a==='ltab')openLocker(D.t);else if(a==='bdep'){bankDeposit(D.id);openLocker();}else if(a==='bwd'){bankWithdraw(D.id);openLocker();}else if(a==='bdepm'){bankDepositStack(D.id);openLocker();}else if(a==='bwdm'){bankWithdrawStack(D.id);openLocker();}else if(a==='bcr'){bankCredits(+D.n);openLocker();}
+  else if(a==='dplace'){placeDecor(D.k,false);openDecor();}else if(a==='dstore'){placeDecor(D.k,true);openDecor();}else if(a==='dpick'){pickupDecor(+D.i);openDecor();}
+  else if(a==='help')openHelp();else if(a==='craft')openCraft();else if(a==='noop'){}
+  else return false;return true;}
+function stage3Start(){P.bag=normBag(P.bag);P.clothing=normCloth(P.clothing);if(!P.tsBonus){P.tsBonus=true;P.sp+=TS_SP;}CR.tgt=null;CR.blank=null;CR.sel={major:null,minor:null,trace:null};clothVisual();}
+function s3Exports(){return {dunEntryCheck,capBonus,rollBossLoot,validateDungeons,dunRange,capMsg,partyTopLevel,dunOnKill,updDungeon,RAR,fmtBonus,itemLines,openMenu,toTitle,save,MATS,CTIER,CTIERS,CLUSTATS,RECIPES,CR,bag,bagAdd,bagTake,stage3OnKill,itemQL,fabReq,iaReq,fabCheck,doFab,iaCheck,iaChance,doAssemble,openCraft,tsVendorHtml,buyTs,get tsStock(){return tsStock;},
+  CLOTH,DYES,HAIR,buyCloth,buyDye,wearCloth,setDye,setHair,toggleOver,addToWardrobe,packCloth,clothDrop,clothHides,openTailor,openWardrobe,get PM(){return PM;},TAILOR,APT_DOOR,APT,
+  enterApartment,openLocker,loadBank,writeBank,bankDeposit,bankWithdraw,bankDepositStack,bankWithdrawStack,bankCredits,DECOR,placeDecor,pickupDecor,openDecor,openHelp,stage3Interact,get DUN(){return DUN;},findInteract,interact,get nearI(){return nearI;},spTotal,TS_SP};}

@@ -1,0 +1,13 @@
+{
+  "name": "dustreach",
+  "private": true,
+  "description": "DUSTREACH: build with `node build.js` (no dependencies). Playwright is only needed for the Node smoke tests.",
+  "scripts": {
+    "build": "node build.js",
+    "smoke": "node tests/smoke.js",
+    "ci-smoke": "node tests/ci_smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.48.2"
+  }
+}
