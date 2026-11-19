@@ -6,7 +6,7 @@
    P.rmis {v:1, writs, day, dayDone, wk, wkN, wkClaimed, total, offers:[…]} : old saves load with an empty board state.
    Writs ✦ come from every finished mission (classic contracts too); the first mission of the day pays a bonus and
    10 missions a week complete the weekly contract. Rewards stay at Rare at most, below raid and dungeon loot. */
-const RM={tab:'board',remote:false,_rem:false,acc:0};
+const RM={tab:'board',remote:false,_rem:false};
 const RM_N=3,RM_WEEK=10,RM_VER=1;
 const RM_KINDS=new Set(['hunt','kill','fetch','scan','escort','defend','gather']);
 const RM_FOCUS={bal:{n:'⚖ Balanced',cr:1,xp:1,item:0.5,rar:0},cr:{n:'¢ Credits',cr:1.6,xp:0.7,item:0,rar:0},xp:{n:'✨ XP',cr:0.7,xp:1.5,item:0,rar:0},gear:{n:'🎁 Gear',cr:0.7,xp:0.7,item:1,rar:10}};
@@ -123,7 +123,9 @@ function rmMatTake(mt,ql,n){const L=bag().filter(x=>x.kind==='mat'&&x.mt===mt&&x
 function rmStepText(q,st,s){if(st.k==='gather')return 'Gather '+MATS[st.mt].n+' QL '+st.ql+'+ '+Math.min(st.n,rmMatCount(st.mt,st.ql))+'/'+st.n+' (🧰 parts bag)';return '';}
 function rmStepTarget(q,st){if(st.k!=='gather')return null;let b=null,bd=1e18;for(const n of (typeof QN!=='undefined'?QN.list:[])){const N=QNODE[n.t];if(!N||!N.mt.includes(st.mt))continue;const d=(n.x-P.pos.x)**2+(n.z-P.pos.z)**2;if(d<bd){bd=d;b=n;}}
   return b?{x:b.x,z:b.z,label:QNODE[b.t].n}:null;}
-function updRm(dt){if(state!=='play')return;RM.acc+=dt;if(RM.acc<0.5)return;RM.acc=0;
+function updRm(){if(state!=='play')return;
+  // Check every frame. The sim clamps each frame to 0.05s, so a half-second timer needs ten frames;
+  // a slow browser can show 5/5 in the objective and still not have banked that time.
   for(const q of rmList()){if(q.stage!=='active')continue;const st=curStep(q);if(!st||st.k!=='gather')continue;
     if(rmMatCount(st.mt,st.ql)>=st.n&&rmMatTake(st.mt,st.ql,st.n)){toast('📦 Packed '+st.n+'× '+MATS[st.mt].n+' for delivery');qAdvance(q,'deliver to a terminal');}}}
 /* ---------- UI ---------- */
