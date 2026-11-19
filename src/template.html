@@ -300,7 +300,7 @@ html.notouch #joy{display:none}
 #b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
 #b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
-#bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
+#bUse{right:calc(210px + var(--sr));bottom:calc(60px + var(--sb));padding:9px 16px;font-size:14px}/* Build Q: left of the ability cluster, clear of the minimap column (gathering shows it often) */#castbar{bottom:calc(120px + var(--sb))}
 #joy{width:100px;height:100px;margin:-50px 0 0 -50px;left:calc(80px + var(--sl));top:calc(100% - 85px - var(--sb))}#joyKnob{width:44px;height:44px;margin:-22px}
 /* Build P: centre column stack under the top band (tracker ends ~120px): region banner at 122px, tip toast under it.
    Both stay between the left frames/log (<=212px) and the right-hand tracker/buttons, so the tip never sits over the Story tracker. */
@@ -331,6 +331,9 @@ html.notouch #joy{display:none}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 }
+/* Build Q: Tradeskills tabs wrap on narrow screens; rank bars */
+.tabs.ctabs{flex-wrap:wrap;align-items:center}.ctabr{margin-left:auto;align-self:center;font-size:13px}
+.qrk{display:flex;align-items:center;gap:8px;margin:2px 0 6px;font-size:13px}.qrk span:first-child{min-width:150px}.qbar{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}.qbar i{display:block;height:100%;background:linear-gradient(90deg,#ffb35a,#ffd25a)}
 </style>
 <meta name="dr-build" content="__BUILD__">
 <script>
@@ -362,7 +365,7 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <div id="tframe" class="hidden"><div id="tname"></div><div class="bar thp"><i></i><span></span></div><div id="tstate"></div></div>
   <div id="topright"><canvas id="mini" width="300" height="300"></canvas><div id="credits"></div><div id="clock"></div><div id="region"></div><div id="mtrack"></div></div>
   <div id="topbtns"><button class="tb" id="bBook" title="Weave Book (B)">📖</button><button class="tb" id="bInv" title="Inventory (I)">🎒</button><button class="tb" id="bMap" title="Map (M)">🗺</button><button class="tb" id="bMore" title="Skills, Journal, Team">⋯<span id="moreBadge"></span></button><button class="tb" id="bMenu" title="Menu (Esc)">☰</button>
-    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button></div></div>
+    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button><button class="mdi" id="bCraft" title="Tradeskills (J)">🛠 Tradeskills<kbd>J</kbd></button></div></div>
   <div id="dmgLayer"></div>
   <div id="wp" class="hidden"><div class="arr">▼</div><span></span></div>
   <div id="joy"><div id="joyKnob"></div></div>

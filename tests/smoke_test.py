@@ -123,6 +123,31 @@ async def main():
             await page.keyboard.press("KeyM"); await page.wait_for_timeout(300); await page.keyboard.press("KeyM")
             print(f"  ok  {k}")
 
+        # Build Q crafting: gather a world node, then craft Field Stims through the Tradeskills panel's own buttons
+        where[0] = "crafting"
+        got = await page.evaluate("""() => { const d = window.__dr, P = d.P; let n = null;
+            for (let r = 1; r < 14 && !n; r++) for (let ix = -r; ix <= r && !n; ix++) for (let iz = -r; iz <= r; iz++) { const m = d.nodeAt(ix, iz); if (m) { n = m; break; } }
+            if (!n) return 'no node';
+            const before = d.bag().reduce((a, o) => a + o.n, 0); P.pos.set(n.x + 1.6, 0, n.z); d.qRefresh();
+            const g = d.gatherInteract(P.pos); if (!g) return 'no gather prompt';
+            d.gatherNode(g.n); const after = d.bag().reduce((a, o) => a + o.n, 0);
+            d.bagAdd({kind: 'mat', mt: 'bloom', ql: 5}, 2); return after > before ? 'ok' : 'gather gave nothing'; }""")
+        if got != "ok":
+            problems.append(f"[crafting] gathering failed: {got}")
+        await page.keyboard.press("KeyJ"); await page.wait_for_timeout(300)
+        stims0 = await page.evaluate("window.__dr.P.stims")
+        try:
+            await page.click('#pbody [data-act="ctab"][data-t="rec"]'); await page.wait_for_timeout(200)
+            await page.click('#pbody [data-act="qrec"][data-r="d_stims"]'); await page.wait_for_timeout(200)
+            await page.click("#craftGo"); await page.wait_for_timeout(300)
+            stims1 = await page.evaluate("window.__dr.P.stims")
+            if stims1 != stims0 + 2:
+                problems.append(f"[crafting] Field Stims craft didn't add 2 stims ({stims0} -> {stims1})")
+        except Exception as e:
+            problems.append(f"[crafting] Tradeskills panel buttons missing: {str(e)[:200]}")
+        await page.keyboard.press("Escape"); await page.wait_for_timeout(150)
+        print("  ok  crafting" if not any(x.startswith("[crafting]") for x in problems) else "  FAIL crafting")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)

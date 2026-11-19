@@ -300,7 +300,7 @@ html.notouch #joy{display:none}
 #b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
 #b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
-#bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
+#bUse{right:calc(210px + var(--sr));bottom:calc(60px + var(--sb));padding:9px 16px;font-size:14px}/* Build Q: left of the ability cluster, clear of the minimap column (gathering shows it often) */#castbar{bottom:calc(120px + var(--sb))}
 #joy{width:100px;height:100px;margin:-50px 0 0 -50px;left:calc(80px + var(--sl));top:calc(100% - 85px - var(--sb))}#joyKnob{width:44px;height:44px;margin:-22px}
 /* Build P: centre column stack under the top band (tracker ends ~120px): region banner at 122px, tip toast under it.
    Both stay between the left frames/log (<=212px) and the right-hand tracker/buttons, so the tip never sits over the Story tracker. */
@@ -331,11 +331,14 @@ html.notouch #joy{display:none}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 }
+/* Build Q: Tradeskills tabs wrap on narrow screens; rank bars */
+.tabs.ctabs{flex-wrap:wrap;align-items:center}.ctabr{margin-left:auto;align-self:center;font-size:13px}
+.qrk{display:flex;align-items:center;gap:8px;margin:2px 0 6px;font-size:13px}.qrk span:first-child{min-width:150px}.qbar{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}.qbar i{display:block;height:100%;background:linear-gradient(90deg,#ffb35a,#ffd25a)}
 </style>
-<meta name="dr-build" content="20261118T225032-4175d06c">
+<meta name="dr-build" content="20261119T143210-fc2ad1f7">
 <script>
 (function(){
-var BUILD='20261118T225032-4175d06c';window.DR_BUILD=BUILD;
+var BUILD='20261119T143210-fc2ad1f7';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -362,7 +365,7 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <div id="tframe" class="hidden"><div id="tname"></div><div class="bar thp"><i></i><span></span></div><div id="tstate"></div></div>
   <div id="topright"><canvas id="mini" width="300" height="300"></canvas><div id="credits"></div><div id="clock"></div><div id="region"></div><div id="mtrack"></div></div>
   <div id="topbtns"><button class="tb" id="bBook" title="Weave Book (B)">📖</button><button class="tb" id="bInv" title="Inventory (I)">🎒</button><button class="tb" id="bMap" title="Map (M)">🗺</button><button class="tb" id="bMore" title="Skills, Journal, Team">⋯<span id="moreBadge"></span></button><button class="tb" id="bMenu" title="Menu (Esc)">☰</button>
-    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button></div></div>
+    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button><button class="mdi" id="bCraft" title="Tradeskills (J)">🛠 Tradeskills<kbd>J</kbd></button></div></div>
   <div id="dmgLayer"></div>
   <div id="wp" class="hidden"><div class="arr">▼</div><span></span></div>
   <div id="joy"><div id="joyKnob"></div></div>
@@ -1916,7 +1919,7 @@ function openInventory(){stackInv();
   if(invTab==='bag'){html=tabs+partsHtml()+'<div style="display:flex;gap:8px;margin-top:8px"><button class="sbtn" data-act="craft">🛠 Open Tradeskills</button></div>';}
   else if(invTab==='items'){
     let rows=`<div class="slot"><span class="ico">💉</span><span><div class="nm">Med-stim ×${P.stims}</div><div class="st">Heals 40% health. Use with the 💉 button or Q.</div></span></div>`;
-    for(const k in CONSUM){const c=CONSUM[k],n=P.consum[k]||0;const m=c.mods(P.level);rows+=`<div class="slot"><span class="ico">${c.icon}</span><span style="flex:1"><div class="nm">${c.name} ×${n}</div><div class="st">${Object.keys(m).map(x=>'+'+m[x]+' '+STATN[x]).join(' · ')} · 3 min</div></span><button class="sbtn" data-act="usec" data-k="${k}" ${n>0?'':'disabled'}>Use</button></div>`;}
+    for(const k in CONSUM){const c=CONSUM[k],n=P.consum[k]||0;if(c.craftOnly&&!n)continue;const m=c.mods(P.level);rows+=`<div class="slot"><span class="ico">${c.icon}</span><span style="flex:1"><div class="nm">${c.name} ×${n}</div><div class="st">${Object.keys(m).map(x=>'+'+m[x]+' '+(x==='dr'?'% damage reduction':STATN[x])).join(' · ')} · ${Math.round((c.dur||180)/60)} min</div></span><button class="sbtn" data-act="usec" data-k="${k}" ${n>0?'':'disabled'}>Use</button></div>`;}
     rows+=vehInvHtml();{const cs=P.inv.filter(x=>x.kind==='cloth');if(cs.length)rows+='<div class="h4" style="margin-top:10px">Social clothing</div>'+cs.map(it=>itemRow(it,'<span class="pr">Add to wardrobe</span>',false,'cadd')).join('');}
     const disks=P.inv.filter(isDisk);if(disks.length)rows+='<div class="h4" style="margin-top:10px">Weave Disks</div>'+disks.map(d=>itemRow(d,'',false,'book')).join('')+'<button class="sbtn" data-act="book">📖 Open Weave Book to learn</button>';
     html=tabs+`<div class="cols"><div><div class="h4">Consumables</div>${rows}</div><div><div class="h4">Active buffs</div>${buffList()}<div class="h4" style="margin-top:12px">Twinking</div><div class="stats">Buffs raise your skills for a while. Use them, then install gear or implants you normally couldn't. Once installed they stay on after the buffs wear off.</div></div></div>`;
@@ -1978,7 +1981,7 @@ function openVendor(){
   let h=`<div class="tabs"><button data-act="tab" data-t="buy" class="${vendTab==='buy'?'on':''}">Buy</button><button data-act="tab" data-t="sell" class="${vendTab==='sell'?'on':''}">Sell</button><span style="margin-left:auto;display:flex;gap:8px;align-items:center">${sellJunkBtn()}<span style="color:#ffc85a;font-weight:800">${P.credits}¢</span></span></div>`;
   if(vendTab==='buy'){const sp=10+L*2;
     h+=`<div class="h4">Supplies & buff stims</div><button class="item" data-act="buystim"><span class="ico">💉</span><span><div class="nm">Med-stim</div><div class="st">Heals 40% health. You have ${P.stims}.</div></span><span class="pr">${sp}¢</span></button>`;
-    for(const k in CONSUM){const c=CONSUM[k];const m=c.mods(L);h+=`<button class="item" data-act="buyc" data-k="${k}"><span class="ico">${c.icon}</span><span><div class="nm">${c.name}</div><div class="st">${Object.keys(m).map(x=>'+'+m[x]+' '+SHORT[x]).join(' · ')} for 3 min. You have ${P.consum[k]||0}.</div></span><span class="pr">${c.price(L)}¢</span></button>`;}
+    for(const k in CONSUM){const c=CONSUM[k];if(c.craftOnly)continue;const m=c.mods(L);h+=`<button class="item" data-act="buyc" data-k="${k}"><span class="ico">${c.icon}</span><span><div class="nm">${c.name}</div><div class="st">${Object.keys(m).map(x=>'+'+m[x]+' '+SHORT[x]).join(' · ')} for 3 min. You have ${P.consum[k]||0}.</div></span><span class="pr">${c.price(L)}¢</span></button>`;}
     h+=vehVendorHtml();h+=tsVendorHtml();
     h+='<div class="h4" style="margin-top:10px">Weave Disks (learn new Weaves)</div>'+(vendorStock.filter(isDisk).map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')).join('')||'<div style="opacity:.6">No disks you need right now.</div>');
     h+='<div class="h4" style="margin-top:10px">Implants (several QLs: the high ones need twinking)</div>'+vendorStock.filter(isImp).map(it=>itemRow(it,`<span class="pr">${price(it)}¢</span>`,false,'buy')).join('');
@@ -2572,7 +2575,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s)};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -2861,7 +2864,7 @@ function updPetHud(){const a=activePet();const el=$('#petf');fitLog();if(!a){el.
   setBar(petBarEl,a.hp,a.maxHp,Math.max(0,Math.ceil(a.hp))+' / '+a.maxHp);['attack','follow','stay'].forEach(c=>$('#pc_'+c).classList.toggle('on',a.cmd===c));}
 
 /* ---------- hooks used by the core files ---------- */
-function stage2OnKill(e){stage3OnKill(e);storyOnKill(e);if(e.isCore&&e.site)coreDestroyed(SITES[e.site],e);const ef=FAC_OF[e.type];const me=fac().side;if(ef&&isMember(me)&&ef!==me)gainRep(me,e.isCore?20:3,true);}
+function stage2OnKill(e){stage3OnKill(e);qOnKill(e);storyOnKill(e);if(e.isCore&&e.site)coreDestroyed(SITES[e.site],e);const ef=FAC_OF[e.type];const me=fac().side;if(ef&&isMember(me)&&ef!==me)gainRep(me,e.isCore?20:3,true);}
 function stage2Interact(p){const sI=storyInteract(p);if(sI)return sI;const s3=stage3Interact(p);if(s3)return s3;for(const n of NPCS)if(Math.hypot(p.x-n.x,p.z-n.z)<3.2)return n.k==='registrar'?{k:'registrar',label:'⚑ Factions'}:{k:'facvend',side:n.side,label:n.side==='combine'?'🎖 Quartermaster':'🔥 Clan Broker'};
   for(const k in SITES){const S=SITES[k];if(Math.hypot(p.x-S.x,p.z-S.z)<6.5){const o=TW[k].owner,me=fac().side;if(!o&&isMember(me))return {k:'plant',id:k,label:'⚑ Plant '+FACTIONS[me].short+' tower'};return {k:'tower',id:k,label:'⚑ '+S.name};}}return null;}
 function stage2Do(n){if(storyDo(n))return true;if(stage3Do(n))return true;if(n.k==='registrar')openRegistrar();else if(n.k==='facvend')openFacVendor(n.side);else if(n.k==='plant')startPlant(n.id);else if(n.k==='tower')openTowerInfo();else return false;return true;}
@@ -2932,7 +2935,7 @@ const RECIPES=[
   {id:'blank',n:'Basic Implant',ic:'⚪',desc:'A blank implant for Implant Assembly. Its QL is the QL you pick (parts must be at least that QL).',mats:[['scrap',1],['circuit',1]],noTarget:true},
   {id:'stimkit',n:'Med-stim Kit',ic:'💉',desc:'Turn salvage into 2 Med-stims.',mats:[['shard',1],['scrap',1]],noTarget:true,fixed:8}];
 const INFUSE_STATS=['hp','power','crit','str','agi','sta','int','psy','sen'];
-const CR={tab:'fab',rec:'reinf',tgt:null,stat:'hp',q:null,blank:null,slot:'head',sel:{major:null,minor:null,trace:null}};
+const CR={tab:'rec',rec:'reinf',tgt:null,stat:'hp',q:null,blank:null,slot:'head',sel:{major:null,minor:null,trace:null}};
 function findMat(mt,n,minq){return bag().filter(o=>o.kind==='mat'&&o.mt===mt&&o.ql>=minq&&o.n>=n).sort((a,b)=>a.ql-b.ql)[0]||null;}
 function fabTargets(r){return [...Object.values(P.eq).filter(Boolean),...P.inv].filter(it=>r.tgt(it));}
 function blankQLs(){const qs=[...new Set(bag().filter(o=>o.kind==='mat'&&(o.mt==='scrap'||o.mt==='circuit')).map(o=>o.ql))];return qs.filter(q=>findMat('scrap',1,q)&&findMat('circuit',1,q)).sort((a,b)=>a-b);}
@@ -2978,11 +2981,11 @@ function doAssemble(roll){const c=iaCheck();if(!c.ok){warn(c.none?'Pick a Basic 
 /* ---------- crafting UI ---------- */
 const rqLine=(ok,t,cls)=>`<div class="${cls||(ok?'up':'down')}">${ok?'✔':cls==='warnc'?'⚠':'✖'} ${t}</div>`;
 function openCraft(tab){if(tab)CR.tab=tab;const nb=bag().reduce((a,o)=>a+o.n,0);
-  const tabs=`<div class="tabs">${[['fab','🔧 Fabrication'],['ia','🧬 Implant Assembly'],['bag','🧰 Parts ('+nb+')']].map(([t,n])=>`<button data-act="ctab" data-t="${t}" class="${CR.tab===t?'on':''}">${n}</button>`).join('')}<span style="margin-left:auto;align-self:center;font-size:13px">FAB <b>${eff('fab')}</b> · IMA <b>${eff('ia')}</b></span></div>`;
+  const tabs=`<div class="tabs ctabs">${[['rec','📜 Recipes'],['salv','♻️ Salvage'],['fab','🔧 Fabrication'],['ia','🧬 Implants'],['bag','🧰 Parts ('+nb+')']].map(([t,n])=>`<button data-act="ctab" data-t="${t}" class="${CR.tab===t?'on':''}">${n}</button>`).join('')}<span class="ctabr">⛏ <b>${qRank('field')}</b> · ⚗️ <b>${qRank('distill')}</b> · 🔨 <b>${qRank('forge')}</b> · FAB <b>${eff('fab')}</b> · IMA <b>${eff('ia')}</b></span></div>`;
   const keep=panelOpen==='craft'&&CR.lastTab===CR.tab?pbody.scrollTop:0;CR.lastTab=CR.tab;
-  openPanel('🛠 TRADESKILLS',(CR.tab==='bag'?'':craftBar())+tabs+(CR.tab==='fab'?fabHtml():CR.tab==='ia'?iaHtml():partsHtml()),'craft');pbody.scrollTop=keep;}
+  openPanel('🛠 TRADESKILLS',(CR.tab==='bag'?'':craftBar())+tabs+(CR.tab==='rec'?qRecHtml():CR.tab==='salv'?qSalvHtml():CR.tab==='fab'?fabHtml():CR.tab==='ia'?iaHtml():partsHtml()),'craft');pbody.scrollTop=keep;}
 // sticky action bar: the selected recipe and its Craft / Build button stay pinned at the top of the panel, so no scrolling on iPad
-function craftBar(){let ic,nm,sub,act,ok,lbl;
+function craftBar(){if(CR.tab==='rec'||CR.tab==='salv')return qBar();let ic,nm,sub,act,ok,lbl;
   if(CR.tab==='ia'){const c=iaCheck();const D=IMPDEF[CR.slot];ic='🧬';nm='Custom '+D.n+' Implant'+(c.q?' · QL '+c.q:'');sub=c.none?'Pick a Basic Implant':c.ok?c.n+' cluster'+(c.n===1?'':'s')+(c.chance<100?' · '+c.chance+'% success':''):'Requirements not met';
     act='cbuild';ok=c.ok;lbl=c.ok?'Build implant'+(c.chance<100?' ('+c.chance+'%)':''):'Requirements not met';}
   else{const r=RECIPES.find(x=>x.id===CR.rec)||RECIPES[0];const c=fabCheck();ic=r.ic;nm=r.n;const it=c.it;sub=it?esc(it.name):r.id==='blank'?'QL '+(CR.q||'?'):r.noTarget?'':c.pick?'Pick an item below':'';
@@ -3209,13 +3212,14 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('📋 Missions (log, side quests, chains)','Hold up to <b>6</b> missions at once next to the story: terminal contracts plus side quests from 10 quest givers across every region (gold ❗ = new quest, green ✔ = ready to claim, blue 💬 = talk to them). Types: retrieve items, loot drops (not every kill drops one), deliver, talk, escort, defend waves, activate terminals (stand 2s), hunt a named elite or dyna, explore sites, kill, and timed runs. Some are multi-stage chains, and a few make you choose a branch. Open 📜 Journal → <b>📋 Missions</b> to track/untrack, set the 📍 waypoint mission, turn on auto-waypoint, retry a failed one, or abandon. Rewards scale with your level (cap 10).')+
   S_('💀 Dynas (named elite camps)','Every region has 1–2 <b>dynas</b>: named elite bosses at fixed camps, with adds, lots of health and a signature move (slams, spit pools, shields, summons, enrage). They always drop good loot and sometimes a rare named item you can only get from them. After a kill a dyna stays down for 10–20 real minutes, even across reloads, and sometimes a lesser placeholder spawns in its spot first. Discovered dynas show on the map and minimap as 💀: red when up, grey when down. Hunt quests send you after some of them.')+
   S_('⚔ Raids (team instances, 3 runs a week)','A <b>raid</b> is a big instance built for a full team of <b>6</b>: you plus up to 5 of your own alts, who fight as AI team members with their own level and gear (tanks hold threat, menders heal, everyone dodges). Empty seats are filled by contract mercenaries at your level. The first raid is <b>The Cinderdeep Bastion</b>: its portal stands in the <b>Cinderveil Badlands</b> (south-east, ⚔ on the map). Level <b>9–10</b> (cap 10, judged by the highest team member) after the Vault Theta-9 story step. Three bosses with telegraphed attacks: <b>Slagwarden Torvek</b> (spread out for Scorch Brand), <b>Vessa, the Ember Queen</b> (break her Ember Pylons to drop her shield) and <b>The Ashen Colossus</b> (when Inferno Nova glows, run IN to the green safe ring).<br><br><b>Lockout:</b> each raid can be run <b>3 times per week</b>. The week resets every <b>Monday 00:00</b> (your local time). A run is used the first time a boss dies in it, so wiping before any kill costs nothing. Lockouts are per character: the 📜 Journal → ⚔ Raids tab shows runs left and the reset timer. Bosses drop raid-only gear (the Cinderborn set and Bastion weapons, plus a rare Relic) and <b>Raid Sigils ◈</b> (2 / 3 / 5), which buy raid gear from the Sigil tab at the portal.')+
+  S_('⛏ Gathering &amp; crafting','Glowing <b>ore veins</b> 🪨, <b>duskpetal blooms</b> 🌺 and <b>salvage heaps</b> 🔩 grow in the wilds. Walk up and tap ⛏ (or press F/E) to gather; a node regrows about 8 minutes later. Materials go into your 🧰 parts bag, not your pack.<br><br>Open 🛠 Tradeskills (<b>J</b>, or ⋯ → Tradeskills) and use <b>📜 Recipes</b>: <b>⚗️ Distilling</b> makes stims, gels and 10-minute elixirs; <b>🔨 Forging</b> makes Uncommon gear at up to your level (Rare with an 🔥 Emberheart Core from bosses). <b>♻️ Salvage</b> breaks spare pack gear into parts. Each tradeskill has a rank (1-100) that rises as you use it; recipe colours show your chance to rank up. More schematics are sold in Halden\'s Rest and the outposts, and bosses drop rare ones.')+
   S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every item tagged <b>Junk</b> (Common gear and implants, plus anything you tag) from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
   S_('🏠 Apartment &amp; locker','The green-lit door on the north-west building in Halden\'s Rest is your apartment. Inside: a <b>locker</b> that opens your 🏦 Bank, a <b>mirror</b> for clothes, dyes and hair, a <b>workbench</b> for tradeskills and a <b>decor</b> console to buy and place furniture.'),'help');}
 
 /* ---------- hooks ---------- */
 function stage3Interact(p){const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};const rk=raidNear(p);if(rk)return {k:'raid',id:rk,label:'⚔ '+RAIDS[rk].name};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
 function stage3Do(n){const k=n.k;if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
-function stage3Act(a,b){const D=b.dataset;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
+function stage3Act(a,b){const D=b.dataset;if(qAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
   if(a==='ctab')openCraft(D.t);else if(a==='crec'){CR.rec=D.r;CR.tgt=null;openCraft();}else if(a==='ctgt'){CR.tgt=D.id;openCraft();}else if(a==='cq'){CR.q=+D.q;openCraft();}else if(a==='cstat'){CR.stat=D.s;openCraft();}
   else if(a==='cfab'){doFab();openCraft();}else if(a==='cblank'){CR.blank=D.id;openCraft();}else if(a==='cslot'){CR.slot=D.s;openCraft();}else if(a==='cclu'){CR.sel[D.t]=D.id||null;openCraft();}else if(a==='cbuild'){doAssemble();openCraft();}
   else if(a==='buyts'){buyTs(+D.i);openVendor();}
@@ -7647,6 +7651,177 @@ function healPool(){const L=[{e:P,f:P.dead?1:P.hp/S.maxHp}];for(const a of allie
 function menderAllyLow(th){return menderSmart()&&healPool().some(x=>x.e!==P&&x.f<th);}
 function storyNotTaken(st){const c=sto().cur;return !c||c.id!==st.id;}
 
+/* ================= BUILD Q: GATHERING + TRADESKILL RANKS (Fieldcraft · Distilling · Forging) =================
+   Builds on the Stage 3 parts bag and Tradeskills panel (game8): new materials stack in the same bag (no pack slots).
+   - Fieldcraft ⛏: gather ore veins, duskpetal blooms and salvage heaps in the wilds; salvage pack loot into parts.
+   - Distilling ⚗️: tonics and stims (the trader's 3-min buffs, plus three crafted-only 10-min elixirs).
+   - Forging 🔨: Uncommon gear at up to your level (Rare with an Emberheart Core). Never Epic: dungeon, team and raid
+     rewards stay the best gear. Ranks 1-100, colour-coded skill-up chance (orange / yellow / green / grey).
+   Recipes: starters known, the rest learned at a hub (Halden's Rest / outposts) for credits or as boss drops.
+   Nodes: one possible node per 48 m world cell (hashed, so the world is the same every session), built only within
+   ~75 m of you, regrowing 8 minutes after you gather it. Saved per character in P.craft (old saves: rank 1, no materials). */
+Object.assign(MATS,{ore:{n:'Rustvein Ore',ic:'🪨'},bloom:{n:'Duskpetal',ic:'🌺'},core:{n:'Emberheart Core',ic:'🔥'}});
+Object.assign(CONSUM,{
+  vigor:{name:'Vigor Elixir',icon:'❤️‍🔥',dur:600,craftOnly:true,mods:L=>({hp:20+L*6,sta:2+Math.floor(L/2)}),price:L=>0,desc:'+Max health and +Stamina for 10 min (crafted)'},
+  keen:{name:'Keen Elixir',icon:'🎯',dur:600,craftOnly:true,mods:L=>({crit:3,power:5}),price:L=>0,desc:'+3% crit and +5% power for 10 min (crafted)'},
+  ward:{name:'Wardskin Elixir',icon:'🛡️',dur:600,craftOnly:true,mods:L=>({dr:5,body:10+L}),price:L=>0,desc:'5% less damage taken and +Body Dev for 10 min (crafted)'}});
+const QTS={field:{n:'Fieldcraft',ic:'⛏',d:'Gathering and salvage'},distill:{n:'Distilling',ic:'⚗️',d:'Tonics, gels and elixirs'},forge:{n:'Forging',ic:'🔨',d:'Weapons and armour'}};
+const QMAX=100,QREGROW=8*60*1000,QCELL=48,QVIEW=75;
+const QREC=[
+  {id:'d_stims',ts:'distill',n:'Field Stims',ic:'💉',rk:1,mats:[['bloom',2]],out:{stims:2},src:'start'},
+  {id:'d_brew',ts:'distill',n:'Iron Brew',ic:'🍺',rk:5,mats:[['bloom',2],['ore',1]],out:{c:'brew',n:2},src:'start'},
+  {id:'d_grip',ts:'distill',n:'Grip Gel',ic:'🖐️',rk:10,mats:[['bloom',2],['scrap',1]],out:{c:'grip',n:2},src:'vendor'},
+  {id:'d_focus',ts:'distill',n:'Focus Stim',ic:'🧪',rk:15,mats:[['bloom',2],['shard',1]],out:{c:'focus',n:2},src:'vendor'},
+  {id:'d_tonic',ts:'distill',n:'Neuro Tonic',ic:'🧠',rk:20,mats:[['bloom',2],['shard',1]],out:{c:'tonic',n:2},src:'vendor'},
+  {id:'d_stride',ts:'distill',n:'Strider Gel',ic:'🏃',rk:25,mats:[['bloom',2],['circuit',1]],out:{c:'stride',n:2},src:'vendor'},
+  {id:'d_artisan',ts:'distill',n:'Artisan Draught',ic:'🛠️',rk:30,mats:[['bloom',3],['shard',1]],out:{c:'artisan',n:2},src:'vendor'},
+  {id:'d_vigor',ts:'distill',n:'Vigor Elixir',ic:'❤️‍🔥',rk:40,mats:[['bloom',3],['ore',2]],out:{c:'vigor',n:2},src:'drop'},
+  {id:'d_keen',ts:'distill',n:'Keen Elixir',ic:'🎯',rk:60,mats:[['bloom',3],['core',1]],out:{c:'keen',n:2},src:'drop'},
+  {id:'d_ward',ts:'distill',n:'Wardskin Elixir',ic:'🛡️',rk:75,mats:[['bloom',3],['ore',2],['core',1]],out:{c:'ward',n:2},src:'drop'},
+  {id:'f_wpn',ts:'forge',n:'Forged Weapon',ic:'⚔️',rk:1,mats:[['ore',3],['circuit',1]],out:{gear:'weapon',r:1},src:'start'},
+  {id:'f_arm',ts:'forge',n:'Forged Armour',ic:'🥋',rk:1,mats:[['ore',3],['scrap',1]],out:{gear:'armour',r:1},src:'start'},
+  {id:'f_wpn2',ts:'forge',n:'Masterwork Weapon',ic:'🗡️',rk:40,mats:[['ore',4],['shard',2],['core',1]],out:{gear:'weapon',r:2},src:'drop'},
+  {id:'f_arm2',ts:'forge',n:'Masterwork Armour',ic:'🛡',rk:40,mats:[['ore',4],['shard',2],['core',1]],out:{gear:'armour',r:2},src:'drop'}];
+const QSTART=QREC.filter(r=>r.src==='start').map(r=>r.id);
+const qPrice=r=>30+r.rk*10;
+const QARM=['head','armor','hands','legs','feet'];
+const CRQ={rec:'d_stims',slot:'armor',sel:null};
+
+/* ---------- save data ---------- */
+function normCraft(c){c=c&&typeof c==='object'?c:{};const rk={};for(const k in QTS)rk[k]=clamp(Math.floor(+((c.rk||{})[k])||1),1,QMAX);
+  const known=[...new Set([...QSTART,...(Array.isArray(c.known)?c.known:[]).filter(id=>QREC.some(r=>r.id===id))])];
+  const gt={};const now=Date.now();if(c.gt&&typeof c.gt==='object')for(const k in c.gt){const t=+c.gt[k];if(t>0&&now-t<QREGROW&&t<=now+60000)gt[k]=t;}
+  return {v:1,rk,known,gt,n:Math.max(0,c.n|0)};}
+function craftFields(s){return {craft:normCraft(s.craft)};}
+const qc=()=>P.craft||(P.craft=normCraft(null));
+const qRank=ts=>qc().rk[ts]||1;
+const qKnows=id=>qc().known.includes(id);
+// skill-up: d = rank - difficulty. Below the difficulty (gathering/forging above your rank) always counts double.
+function qColor(rank,req){const d=rank-req;return d<0?'red':d<5?'orange':d<15?'yellow':d<25?'green':'grey';}
+const QCOL={red:'#ff6b5a',orange:'#ff9a3c',yellow:'#ffd25a',green:'#6dff8a',grey:'#8a8a8a'};
+const QCH={red:1,orange:1,yellow:0.6,green:0.25,grey:0};
+function qSkillUp(ts,req,roll){const c=qc();const r=c.rk[ts];if(r>=QMAX)return 0;const col=qColor(r,req);const ch=QCH[col];const x=roll!=null?roll:Math.random();if(x>=ch)return 0;
+  const g=Math.min(QMAX-r,col==='red'?2:1);c.rk[ts]=r+g;toast(QTS[ts].ic+' '+QTS[ts].n+' rank '+c.rk[ts]+'!');log(QTS[ts].ic+' <b>'+QTS[ts].n+'</b> rose to rank <b>'+c.rk[ts]+'</b>');return g;}
+
+/* ---------- materials ---------- */
+function qHave(mt,minq){return bag().filter(o=>o.kind==='mat'&&o.mt===mt&&o.ql>=(minq||1)).reduce((a,o)=>a+o.n,0);}
+function qTake(mt,n,minq){const L=bag().filter(o=>o.kind==='mat'&&o.mt===mt&&o.ql>=(minq||1)).sort((a,b)=>a.ql-b.ql);let need=n;const qs=[];
+  for(const o of L){if(need<=0)break;const k=Math.min(need,o.n);qs.push(o.ql);bagTake(o.id,k);need-=k;}return qs.length?Math.min(...qs):0;}
+function qBestQL(mt){return bag().filter(o=>o.kind==='mat'&&o.mt===mt).reduce((a,o)=>Math.max(a,o.ql),0);}
+
+/* ---------- recipes ---------- */
+const qRec=id=>QREC.find(r=>r.id===id)||QREC[0];
+function qForgeLvl(r){const ore=qBestQL('ore');return clamp(Math.min(P.level,qRank('forge')+5,Math.floor(ore/4)),0,100);}
+function qCheck(id){const r=qRec(id);const out={r,lines:[],ok:true,known:qKnows(r.id)};const line=(ok,t)=>{out.lines.push([ok,t]);if(!ok)out.ok=false;};
+  if(!out.known){out.ok=false;out.learn=r.src==='vendor';out.price=qPrice(r);out.hub=qInHub();return out;}
+  const rank=qRank(r.ts);line(rank>=r.rk,QTS[r.ts].n+' rank '+r.rk+' <span style="opacity:.75">(you have '+rank+')</span>');
+  let minq=1;if(r.out.gear){const L=qForgeLvl(r);out.lvl=L;minq=Math.max(1,Math.round(L*5*0.8));out.req=Math.max(r.rk,L-5);
+    line(L>=1,'Item level '+(L||'–')+' <span style="opacity:.75">(your level, Forging rank + 5 and your best ore QL ÷ 4 decide it)</span>');
+    line(P.inv.length<24,'Free pack slot for the finished item');}
+  else out.req=r.rk;
+  out.minq=minq;
+  for(const [mt,n] of r.mats){const q=r.out.gear&&mt==='ore'?minq:1;const h=qHave(mt,q);line(h>=n,n+'× '+MATS[mt].ic+' '+MATS[mt].n+(q>1?' QL '+q+'+':'')+' <span style="opacity:.75">(you have '+h+')</span>');}
+  out.col=qColor(rank,out.req);return out;}
+function qCraft(id,roll){const c=qCheck(id);const r=c.r;if(!c.ok){warn(c.known?'Requirements not met':'You have not learned this recipe');return null;}
+  for(const [mt,n] of r.mats)qTake(mt,n,mt==='ore'&&r.out.gear?c.minq:1);
+  let msg='',res=null;
+  if(r.out.stims){P.stims+=r.out.stims;msg='+'+r.out.stims+' Med-stims';res={stims:r.out.stims};}
+  else if(r.out.c){P.consum[r.out.c]=(P.consum[r.out.c]||0)+r.out.n;msg='+'+r.out.n+' '+CONSUM[r.out.c].name;res={c:r.out.c,n:r.out.n};}
+  else if(r.out.gear){const slot=r.out.gear==='weapon'?'weapon':(QARM.includes(CRQ.slot)?CRQ.slot:'armor');const it=genItem(c.lvl,slot,r.out.r);
+    it.crafted=P.name;it.value=Math.max(1,Math.round(it.value*0.4));P.inv.push(it);msg=it.name+' ('+RAR[it.r].n+', Lv '+it.lvl+')';res=it;}
+  qc().n++;qSkillUp(r.ts,c.req,roll);SFX.loot();toast(r.ic+' '+r.n+': '+msg);log(r.ic+' Crafted <b>'+esc(r.n)+'</b>: '+esc(msg));save();return res;}
+function qInHub(){if(DUN||FLAT)return false;const g=regionAt(P.pos.x,P.pos.z);return g.id==='town'||OUTPOSTS.some(o=>o.id===g.id);}
+function qLearn(id,free){const r=qRec(id);if(qKnows(r.id))return false;if(!free){if(r.src!=='vendor'){warn('Found on dungeon bosses');return false;}if(!qInHub()){warn('Schematics are sold in Halden\'s Rest and the outposts');return false;}
+    const pr=qPrice(r);if(P.credits<pr){warn('Not enough credits');return false;}P.credits-=pr;}
+  qc().known.push(r.id);SFX.quest();toast('📜 Learned: '+r.n);log('📜 Learned the <b>'+esc(r.n)+'</b> schematic ('+QTS[r.ts].n+')');save();return true;}
+
+/* ---------- salvage (pack loot -> parts) ---------- */
+const qSalvOk=it=>!!it&&(it.kind==='gear'||it.kind==='imp')&&!it.uniq&&!it.set&&!it.fac&&!isEquipped(it)&&P.inv.includes(it);
+function qSalvYield(it){const q=clamp(itemQL(it),1,IMPQL_MAX());const r=Math.min(it.r||0,3);const main=it.kind==='imp'||it.slot==='weapon'?'circuit':'scrap';
+  const L=[[main,1+r]];if(r>=2)L.push(['shard',1]);return {q,L,core:r>=3?0.35:0};}
+function qSalvage(id,roll){const it=P.inv.find(x=>x.id===id);if(!qSalvOk(it)){warn('That item cannot be salvaged');return null;}const y=qSalvYield(it);
+  P.inv.splice(P.inv.indexOf(it),1);const got=[];for(const [mt,n] of y.L){bagAdd({kind:'mat',mt,ql:y.q},n);got.push(n+'× '+MATS[mt].n);}
+  if((roll!=null?roll:Math.random())<y.core){bagAdd({kind:'mat',mt:'core',ql:y.q},1);got.push('1× '+MATS.core.n);}
+  qSkillUp('field',Math.round(y.q/5)-5);CRQ.sel=null;SFX.loot();toast('♻️ Salvaged: '+got.join(', '));log('♻️ Salvaged <b>'+esc(it.name)+'</b> (QL '+y.q+'): '+got.join(', '));save();return got;}
+
+/* ---------- boss drops: Emberheart Cores and drop-only schematics ---------- */
+function qOnKill(e){if(SIMP||!e||!(e.boss||e.dyna)||e.isCore)return;
+  if(Math.random()<0.5){const q=clamp(e.lv*5,1,IMPQL_MAX());bagAdd({kind:'mat',mt:'core',ql:q},1);log('🔥 Salvaged an <b>Emberheart Core</b> (QL '+q+')');}
+  const un=QREC.filter(r=>r.src==='drop'&&!qKnows(r.id)&&r.rk<=Math.max(40,(e.lv||1)+10));if(un.length&&Math.random()<0.2){const r=pick(un);qLearn(r.id,true);banner('📜 SCHEMATIC FOUND',r.n+' · '+QTS[r.ts].n+' rank '+r.rk);}}
+
+/* ---------- gathering nodes ---------- */
+const QNODE={ore:{n:'Rustvein Ore',sh:'Ore',verb:'Mine',ic:'🪨',mt:['ore']},bloom:{n:'Duskpetal',sh:'Bloom',verb:'Pick',ic:'🌺',mt:['bloom']},heap:{n:'Salvage Heap',sh:'Heap',verb:'Search',ic:'🔩',mt:['scrap','circuit']}};
+function qHash(a,b){let h=Math.imul(a|0,374761393)^Math.imul(b|0,668265263);h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296;}
+function qNodeLv(b,x,z,h){if(b.outer&&b.lvAt)return clamp(b.lvAt(x,z),1,100);const lo=b.lv[0],hi=b.lv[1];return clamp(lo+Math.floor(h*(hi-lo+1)),1,100);}
+function nodeAt(ix,iz){const h0=qHash(ix,iz);if(h0>0.55)return null;const x=(ix+0.2+0.6*qHash(ix+911,iz))*QCELL,z=(iz+0.2+0.6*qHash(ix,iz+577))*QCELL;
+  if(Math.abs(x)>HALF-30||Math.abs(z)>HALF-30)return null;const p={x,z};if(inTown(p))return null;if(heightAt(x,z)<WATER_Y+0.4)return null;
+  const q=new V3(x,0,z);collide(q,1.2);if(Math.hypot(q.x-x,q.z-z)>0.05)return null;
+  const bi=biomeIdx(x,z),b=BIOMES[bi];const h1=qHash(ix+31,iz+17);const wet=/oasis|fen/.test(b.id),junk=/scrap/.test(b.id);
+  const t=junk?(h1<0.5?'heap':h1<0.8?'ore':'bloom'):wet?(h1<0.55?'bloom':h1<0.85?'ore':'heap'):(h1<0.45?'ore':h1<0.8?'bloom':'heap');
+  return {key:ix+':'+iz,t,x,z,lv:qNodeLv(b,x,z,qHash(ix+5,iz+3)),b:b.id};}
+const QN={list:[],g:null,acc:0,px:1e9,pz:1e9,who:null};
+function qNodeUp(n){const t=qc().gt[n.key];return !(t&&Date.now()-t<QREGROW);}
+function qBuildMesh(n){const g=new THREE.Group();const y=heightAt(n.x,n.z);g.position.set(n.x,y,n.z);const k=qHash(n.x|0,n.z|0)*6.28;g.rotation.y=k;
+  const glow=n.lv>=60?0xff7a3a:n.lv>=30?0x59c8ff:0x8dff8a;
+  if(n.t==='ore'){part(g,geoIco,M(0x5a5048),0,0.55,0,1.1,0.8,1.0);part(g,geoIco,MB(glow),0.45,0.95,0.2,0.28,0.45,0.28);part(g,geoIco,MB(glow),-0.35,0.85,-0.3,0.22,0.38,0.22);}
+  else if(n.t==='bloom'){part(g,geoCone,M(0x3c6a2c),0,0.45,0,0.35,0.9,0.35);part(g,geoSphere,MB(0xff7ad0),0,1.05,0,0.32,0.26,0.32);part(g,geoSphere,MB(0xffb0e8),0.35,0.8,0.1,0.2,0.16,0.2);part(g,geoSphere,MB(0xff7ad0),-0.3,0.75,-0.15,0.2,0.16,0.2);}
+  else{part(g,geoBox,M(0x6a6a70),0,0.3,0,1.4,0.6,1.0);const b2=part(g,geoBox,M(0x7c6a58),0.3,0.75,-0.1,0.8,0.4,0.6);b2.rotation.y=0.6;part(g,geoBox,MB(0x59c8ff),-0.35,0.7,0.25,0.25,0.25,0.25);}
+  g.userData.qn=n.key;return g;}
+function qClear(){for(const n of QN.list)if(n.m&&QN.g)QN.g.remove(n.m);QN.list=[];QN.px=QN.pz=1e9;}
+function qRefresh(){if(!QN.g){QN.g=new THREE.Group();scene.add(QN.g);}const px=P.pos.x,pz=P.pos.z;QN.px=px;QN.pz=pz;
+  const want=new Map();const r=Math.ceil(QVIEW/QCELL);const cx=Math.floor(px/QCELL),cz=Math.floor(pz/QCELL);
+  for(let ix=cx-r;ix<=cx+r;ix++)for(let iz=cz-r;iz<=cz+r;iz++){const n=nodeAt(ix,iz);if(n&&Math.hypot(n.x-px,n.z-pz)<QVIEW&&qNodeUp(n))want.set(n.key,n);}
+  QN.list=QN.list.filter(o=>{if(want.has(o.key)){want.delete(o.key);return true;}QN.g.remove(o.m);return false;});
+  for(const n of want.values()){n.m=qBuildMesh(n);QN.g.add(n.m);QN.list.push(n);}}
+function updCraftQ(dt){if(SIMP)return;QN.acc+=dt;if(QN.acc<0.5)return;QN.acc=0;const hide=state!=='play'||!!DUN||FLAT;
+  if(QN.g)QN.g.visible=!hide;if(hide)return;if(QN.who!==activeId){QN.who=activeId;qClear();}
+  if(Math.hypot(P.pos.x-QN.px,P.pos.z-QN.pz)>6)qRefresh();
+  for(const n of QN.list)if(n.m){const s=1+0.06*Math.sin(T*3+n.x);n.m.children[1].scale.y=(n.t==='ore'?0.45:n.t==='bloom'?0.26:0.25)*s;}}
+const QMC={ore:'#9dffb0',bloom:'#ff8ad8',heap:'#7fd0ff'};
+function qMini(c,tf){for(const n of QN.list){const q=tf(n.x,n.z);c.fillStyle=QMC[n.t];c.strokeStyle='#000';c.lineWidth=1.5;c.beginPath();c.moveTo(q[0],q[1]-5);c.lineTo(q[0]+5,q[1]);c.lineTo(q[0],q[1]+5);c.lineTo(q[0]-5,q[1]);c.closePath();c.fill();c.stroke();}}
+function gatherInteract(p){if(DUN||FLAT)return null;let best=null,bd=3.2;for(const n of QN.list){const d=Math.hypot(p.x-n.x,p.z-n.z);if(d<bd){bd=d;best=n;}}
+  if(!best)return null;const N=QNODE[best.t];return {k:'gather',n:best,label:'⛏ '+N.verb+' '+N.sh+' · Lv '+best.lv};}
+function gatherNode(n,roll){if(!n||!qNodeUp(n))return null;const N=QNODE[n.t];const req=Math.max(1,n.lv-5);const rank=qRank('field');
+  const q=clamp(n.lv*5+randi(-2,2),1,IMPQL_MAX());let cnt=rank<req?1:1+(Math.random()<0.5?1:0)+(rank>=req+25?1:0);const got=[];
+  const mt=N.mt.length>1?(Math.random()<0.6?N.mt[0]:N.mt[1]):N.mt[0];bagAdd({kind:'mat',mt,ql:q},cnt);got.push(cnt+'× '+MATS[mt].n);
+  if(n.t!=='heap'&&Math.random()<0.08){bagAdd({kind:'mat',mt:'shard',ql:q},1);got.push('1× '+MATS.shard.n);}
+  qc().gt[n.key]=Date.now();if(n.m&&QN.g)QN.g.remove(n.m);QN.list=QN.list.filter(o=>o!==n);
+  qSkillUp('field',req,roll);SFX.loot();floatText(new V3(n.x,heightAt(n.x,n.z)+1.6,n.z),'+'+got.join(', '),'info');log(N.ic+' Gathered (QL '+q+'): '+got.join(', '));save();return got;}
+function gatherDo(n){if(n.k!=='gather')return false;if(inCombat&&inCombat()){warn('Too dangerous: finish the fight first');return true;}gatherNode(n.n);return true;}
+
+/* ---------- Tradeskills panel: 📜 Recipes and ♻️ Salvage tabs ---------- */
+function qRankBar(ts){const r=qRank(ts);return `<div class="qrk"><span>${QTS[ts].ic} <b>${QTS[ts].n}</b> ${r}/${QMAX}</span><span class="qbar"><i style="width:${r}%"></i></span></div>`;}
+function qRecRow(r){const k=qKnows(r.id);const rank=qRank(r.ts);const col=k?qColor(rank,r.rk):'grey';const sub=k?(rank<r.rk?'Needs rank '+r.rk:'Rank '+r.rk+' · '+r.mats.map(([m,n])=>n+'× '+MATS[m].n).join(' + ')):(r.src==='vendor'?'🔒 Learn at a hub · '+qPrice(r)+'¢':'🔒 Dungeon boss drop');
+  return `<button class="item${r.id===CRQ.rec?' sel':''}" data-act="qrec" data-r="${r.id}"><span class="ico">${r.ic}</span><span><div class="nm" style="color:${k?QCOL[col]:'#9a8f84'}">${esc(r.n)}</div><div class="st">${sub}</div></span></button>`;}
+function qOutText(r){if(r.out.stims)return r.out.stims+' Med-stims (heal in a fight: 🧪 quick button or Q)';if(r.out.c){const C=CONSUM[r.out.c];const m=C.mods(P.level);return r.out.n+'× '+C.icon+' '+C.name+': '+Object.keys(m).map(x=>'+'+m[x]+(x==='crit'||x==='power'||x==='dr'?'%':'')+' '+(x==='dr'?'damage reduction':STATN[x]||x)).join(' · ')+' for '+Math.round(C.dur/60)+' min';}
+  return (r.out.r===2?'Rare':'Uncommon')+' '+(r.out.gear==='weapon'?'weapon for your profession':'armour piece')+' at up to your level. Crafted gear never beats dungeon, team or raid rewards.';}
+function qRecHtml(){const r=qRec(CRQ.rec);const c=qCheck(r.id);
+  let left=qRankBar('field')+qRankBar('distill')+qRankBar('forge');
+  for(const ts of ['distill','forge'])left+=`<div class="h4">${QTS[ts].ic} ${QTS[ts].n}</div>`+QREC.filter(x=>x.ts===ts).map(qRecRow).join('');
+  left+=`<div class="stats" style="opacity:.8;margin-top:6px">Name colour = chance to gain a rank: <b style="color:${QCOL.orange}">orange</b> always, <b style="color:${QCOL.yellow}">yellow</b> often, <b style="color:${QCOL.green}">green</b> sometimes, <b style="color:${QCOL.grey}">grey</b> never.</div>`;
+  let right=`<div class="mis"><b>${r.ic} ${esc(r.n)}</b> <span style="opacity:.75">· ${QTS[r.ts].n}</span><p>${qOutText(r)}</p>`;
+  if(r.out.gear==='armour')right+=`<div class="h4">Armour slot</div><div class="chips">${QARM.map(s=>`<button class="chip${s===CRQ.slot?' on':''}" data-act="qslot" data-s="${s}">${SLOTN[s]}</button>`).join('')}</div>`;
+  if(!c.known)right+=`<div style="margin-top:6px">${r.src==='vendor'?(c.hub?'Sold here for <b>'+c.price+'¢</b> (you have '+P.credits+'¢).':'Schematic sold in Halden\'s Rest and the outposts for <b>'+c.price+'¢</b>.'):'Drop-only schematic: dungeon and named bosses sometimes carry it.'}</div>`;
+  else right+=`<div class="h4" style="margin-top:8px">Requirements</div>${c.lines.map(l=>rqLine(l[0],l[1])).join('')}`;
+  right+=`</div>`;
+  return `<div class="cols"><div>${left}</div><div>${right}</div></div>`;}
+function qSalvHtml(){const L=P.inv.filter(qSalvOk);const sel=L.find(x=>x.id===CRQ.sel);
+  let left=qRankBar('field')+`<div class="h4">♻️ Salvage pack items into parts</div>`+(L.map(it=>{const y=qSalvYield(it);return itemRow(it,`<span class="pr" style="color:#cfcfcf">${y.L.map(([m,n])=>n+MATS[m].ic).join(' ')} QL ${y.q}</span>`,it.id===CRQ.sel,'qsel');}).join('')||'<div style="opacity:.6">Nothing to salvage. Unequipped weapons, armour and implants in your pack can be broken down (not dungeon uniques, sets or faction gear).</div>');
+  const right=`<div class="mis"><b>⛏ Gathering</b><p>Glowing <b>ore veins</b> 🪨, <b>duskpetal blooms</b> 🌺 and <b>salvage heaps</b> 🔩 grow all over the wilds (not in towns or dungeons). Walk up and tap <b>⛏ Mine / Pick / Search</b> (or press F/E). A node regrows about 8 minutes after you gather it.</p><p>Material QL ≈ node level × 5. Nodes above your Fieldcraft rank still give 1 material and teach you faster.</p>${sel?`<p>Selected: <b>${esc(sel.name)}</b></p>`:''}</div>`;
+  return `<div class="cols"><div>${left}</div><div>${right}</div></div>`;}
+function qBar(){let ic,nm,sub,act,ok,lbl;
+  if(CR.tab==='salv'){const it=P.inv.find(x=>x.id===CRQ.sel&&qSalvOk(x));ic='♻️';nm=it?esc(it.name):'Salvage';sub=it?qSalvYield(it).L.map(([m,n])=>n+'× '+MATS[m].n).join(' + '):'Pick an item below';act='qsalv';ok=!!it;lbl=it?'Salvage':'Pick an item';}
+  else{const c=qCheck(CRQ.rec);const r=c.r;ic=r.ic;nm=esc(r.n);sub=c.known?(c.lvl?'Item level '+c.lvl:''):r.src==='vendor'?'Schematic · '+c.price+'¢':'Dungeon boss drop';
+    if(!c.known&&c.learn&&c.hub){act='qlearn';ok=P.credits>=c.price;lbl=ok?'Learn ('+c.price+'¢)':'Need '+c.price+'¢';}
+    else if(!c.known){act='noop';ok=false;lbl=c.learn?'Learn at a hub':'Not learned';}
+    else{act='qcraft';ok=c.ok;lbl=c.ok?'Craft':'Requirements not met';}}
+  return `<div class="craftbar" id="craftBar"><span class="cbi">${ic}</span><span class="cbn"><b>${nm}</b>${sub?`<small>${sub}</small>`:''}</span><button class="sbtn${ok?'':' locked'}" data-act="${act}" id="craftGo">${lbl}</button></div>`;}
+function qAct(a,b){const D=b.dataset;
+  if(a==='qrec'){CRQ.rec=D.r;openCraft();}else if(a==='qslot'){CRQ.slot=D.s;openCraft();}else if(a==='qcraft'){qCraft(CRQ.rec);openCraft();}
+  else if(a==='qlearn'){qLearn(CRQ.rec);openCraft();}else if(a==='qsel'){CRQ.sel=D.id;openCraft();}else if(a==='qsalv'){qSalvage(CRQ.sel);openCraft();}
+  else return false;return true;}
+function craftQExports(){return {QTS,QREC,QNODE,CRQ,normCraft,craftFields,qc,qRank,qKnows,qColor,qSkillUp,qHave,qCheck,qCraft,qLearn,qInHub,qForgeLvl,qSalvOk,qSalvYield,qSalvage,qOnKill,nodeAt,qRefresh,get QN(){return QN;},gatherInteract,gatherNode,gatherDo,updCraftQ,qRecHtml,qSalvHtml,qBar,QREGROW,QCELL};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -7686,7 +7861,7 @@ function tapPick(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFrom
 function btn(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();el.classList.add('press');fn();});
   const up=()=>el.classList.remove('press');el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up);}
 btn('#bAtk',pressAttack);[0,1,2,3,4,5].forEach(i=>btn('#b'+i,()=>{if(!barIds()[i]){if(!P.morph)openBook();return;}useAbility(i);}));btn('#bBook',()=>{if(panelOpen==='book')closePanel();else{bookSel=null;openBook();}});btn('#bStim',useStim);btn('#bSk',()=>{if(panelOpen==='skills')closePanel();else openSkills();});
-hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bTgt',cycleTarget);btn('#bUse',interact);
+hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bCraft',()=>{if(panelOpen==='craft')closePanel();else openCraft();});btn('#bTgt',cycleTarget);btn('#bUse',interact);
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;audioInit();inp.keys[e.code]=true;
   if(state!=='play')return;
   if(e.code==='Escape'){if(panelOpen)closePanel();else openMenu();return;}
@@ -7711,10 +7886,11 @@ let nearI=null;
 function findInteract(){if(P.dead)return null;const p=P.pos;const dk=dunInteract(p);if(dk)return dk;if(DUN)return lootInteract(p);const fk=fzInteract(p);if(fk)return fk;const qk=questInteract(p);if(qk)return qk;const sk=stage2Interact(p);if(sk)return sk;const wk=worldInteract(p);if(wk)return wk;const hk=hubInteract(p);if(hk)return hk;
   if(Math.hypot(p.x-TERMINAL.x,p.z-TERMINAL.z)<3.4)return {k:'term',label:'📟 Missions'};
   if(Math.hypot(p.x-VENDOR.x,p.z-VENDOR.z)<3.4)return {k:'vend',label:'🛒 Trade'};
-  return lootInteract(p);}
+  return lootInteract(p)||gatherInteract(p);}
 function interact(){if(!nearI||panelOpen)return;SFX.ui();
   if(nearI.k==='loot'){openLoot(nearI.l);return;}
   if(nearI.k==='fz'||nearI.k==='fzdeny'){fzDo(nearI);return;}
+  if(gatherDo(nearI))return;
   if(nearI.k==='term')openTerminal();else if(nearI.k==='vend'){vendTab='buy';VEND.ctx='town';openVendor();}
   else if(hubDo(nearI)){}
   else if(questDo(nearI)){}
@@ -7852,7 +8028,7 @@ function drawMini(dt){miniAcc+=dt;if(miniAcc<0.08)return;miniAcc=0;const W=300,R
   for(const l of loots)dot(l.x,l.z,RAR[l.item.r].c,4);
   for(const a of allies)dot(a.pos.x,a.pos.z,'#ffa040',4.5);
   for(const e of enemies)if(!e.dead&&Math.abs(e.pos.x-P.pos.x)<95&&Math.abs(e.pos.z-P.pos.z)<95)dot(e.pos.x,e.pos.z,e===P.target?'#fff':e.guard?fzDotCol(e):e.boss?'#ff9a2a':e.state==='chase'?'#ff3b2f':'#e0603a',e.boss?8:e.type==='mauler'?6:4.5);
-  if(!DUN){fzMini(c,tf,sc);campMini(c,tf);bankMini(c,tf);raidMini(c,tf);questMini(c,tf);dynaMini(c,tf);uwpMini(c,tf,R);}
+  if(!DUN){fzMini(c,tf,sc);campMini(c,tf);bankMini(c,tf);raidMini(c,tf);questMini(c,tf);dynaMini(c,tf);qMini(c,tf);uwpMini(c,tf,R);}
   c.restore();
   const wp=DUN?dunWaypoint():(assaultWaypoint()||storyWaypoint()||missionWaypoint());if(wp){let q=tf(wp.x,wp.z);const dx=q[0]-R,dy=q[1]-R,d=Math.hypot(dx,dy);if(d>R-12){q=[R+dx/d*(R-12),R+dy/d*(R-12)];}c.fillStyle='#ffc85a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-11);c.lineTo(q[0]+9,q[1]);c.lineTo(q[0],q[1]+11);c.lineTo(q[0]-9,q[1]);c.closePath();c.fill();c.stroke();}
   // north marker
@@ -7964,7 +8140,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updSun(dt);updEnv(dt);updDeclutter(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updSun(dt);updEnv(dt);updDeclutter(dt);updCraftQ(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -7978,7 +8154,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

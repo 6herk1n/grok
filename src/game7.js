@@ -285,7 +285,7 @@ function updPetHud(){const a=activePet();const el=$('#petf');fitLog();if(!a){el.
   setBar(petBarEl,a.hp,a.maxHp,Math.max(0,Math.ceil(a.hp))+' / '+a.maxHp);['attack','follow','stay'].forEach(c=>$('#pc_'+c).classList.toggle('on',a.cmd===c));}
 
 /* ---------- hooks used by the core files ---------- */
-function stage2OnKill(e){stage3OnKill(e);storyOnKill(e);if(e.isCore&&e.site)coreDestroyed(SITES[e.site],e);const ef=FAC_OF[e.type];const me=fac().side;if(ef&&isMember(me)&&ef!==me)gainRep(me,e.isCore?20:3,true);}
+function stage2OnKill(e){stage3OnKill(e);qOnKill(e);storyOnKill(e);if(e.isCore&&e.site)coreDestroyed(SITES[e.site],e);const ef=FAC_OF[e.type];const me=fac().side;if(ef&&isMember(me)&&ef!==me)gainRep(me,e.isCore?20:3,true);}
 function stage2Interact(p){const sI=storyInteract(p);if(sI)return sI;const s3=stage3Interact(p);if(s3)return s3;for(const n of NPCS)if(Math.hypot(p.x-n.x,p.z-n.z)<3.2)return n.k==='registrar'?{k:'registrar',label:'⚑ Factions'}:{k:'facvend',side:n.side,label:n.side==='combine'?'🎖 Quartermaster':'🔥 Clan Broker'};
   for(const k in SITES){const S=SITES[k];if(Math.hypot(p.x-S.x,p.z-S.z)<6.5){const o=TW[k].owner,me=fac().side;if(!o&&isMember(me))return {k:'plant',id:k,label:'⚑ Plant '+FACTIONS[me].short+' tower'};return {k:'tower',id:k,label:'⚑ '+S.name};}}return null;}
 function stage2Do(n){if(storyDo(n))return true;if(stage3Do(n))return true;if(n.k==='registrar')openRegistrar();else if(n.k==='facvend')openFacVendor(n.side);else if(n.k==='plant')startPlant(n.id);else if(n.k==='tower')openTowerInfo();else return false;return true;}
