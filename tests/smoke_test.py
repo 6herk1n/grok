@@ -170,6 +170,27 @@ async def main():
             problems.append(f"[missions] mission board buttons missing: {str(e)[:200]}")
         print("  ok  missions" if not any(x.startswith("[missions]") for x in problems) else "  FAIL missions")
 
+        # Build S hard modes: after one Normal clear, pick Hard on the Hollowvein Mine door with its own button, enter with the
+        # door's Enter button, check the run is scaled, has a timer and shows in the tracker, then leave. Polls (slow CI: dt capped).
+        where[0] = "hard modes"
+        try:
+            await page.evaluate("""() => { const d = window.__dr, P = d.P; P.level = Math.max(P.level, 6);
+                P.story.done = [...new Set([...(P.story.done || []), 's1', 's2', 's3', 's4'])]; P.dunClears.mine = 1; d.closePanel(); d.openDoor('mine'); }""")
+            await page.click('#pbody [data-act="hmsel"][data-k="d:mine"][data-t="1"]', timeout=8000)
+            await page.wait_for_function("() => { const h = window.__dr.P.hm; return !!h && h.sel['d:mine'] === 1; }", timeout=8000)
+            await page.click('#pbody [data-act="denter"][data-id="mine"]', timeout=8000)
+            await page.wait_for_function("""() => { const d = window.__dr; return !!(d.DUN && d.DUN.mode.hm && d.DUN.mode.hm.tier === 1
+                && document.querySelector('#hmTrack')); }""", timeout=20000)
+            res = await page.evaluate("""() => { const d = window.__dr, D = d.DUN, h = D.mode.hm;
+                if (!(h.par > 0)) return 'no timer'; if (!(D.mode.hp > 1.2 && D.mode.dmg > 1.05)) return 'enemies not scaled';
+                d.exitDungeon(true); return d.DUN ? 'could not leave' : 'ok'; }""")
+            if res != "ok":
+                problems.append(f"[hard modes] {res}")
+        except Exception as e:
+            problems.append(f"[hard modes] difficulty picker / hard run failed: {str(e)[:200]}")
+        await page.evaluate("() => { const d = window.__dr; if (d.DUN) d.exitDungeon(true); d.closePanel(); }")
+        print("  ok  hard modes" if not any(x.startswith("[hard modes]") for x in problems) else "  FAIL hard modes")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)
