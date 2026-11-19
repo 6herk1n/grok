@@ -334,11 +334,14 @@ html.notouch #joy{display:none}
 /* Build Q: Tradeskills tabs wrap on narrow screens; rank bars */
 .tabs.ctabs{flex-wrap:wrap;align-items:center}.ctabr{margin-left:auto;align-self:center;font-size:13px}
 .qrk{display:flex;align-items:center;gap:8px;margin:2px 0 6px;font-size:13px}.qrk span:first-child{min-width:150px}.qbar{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}.qbar i{display:block;height:100%;background:linear-gradient(90deg,#ffb35a,#ffd25a)}
+.tabs.rmtabs{flex-wrap:wrap;align-items:center}.rmw{margin-left:auto;color:#7ff6ff;font-weight:800;padding:0 6px}
+.rmstat{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;margin:0 0 8px}
+.rmrr{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}.obadge.rmb{background:#1f5a66}
 </style>
-<meta name="dr-build" content="20261119T143210-fc2ad1f7">
+<meta name="dr-build" content="20261119T210941-dcab6a9e">
 <script>
 (function(){
-var BUILD='20261119T143210-fc2ad1f7';window.DR_BUILD=BUILD;
+var BUILD='20261119T210941-dcab6a9e';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -365,7 +368,7 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <div id="tframe" class="hidden"><div id="tname"></div><div class="bar thp"><i></i><span></span></div><div id="tstate"></div></div>
   <div id="topright"><canvas id="mini" width="300" height="300"></canvas><div id="credits"></div><div id="clock"></div><div id="region"></div><div id="mtrack"></div></div>
   <div id="topbtns"><button class="tb" id="bBook" title="Weave Book (B)">📖</button><button class="tb" id="bInv" title="Inventory (I)">🎒</button><button class="tb" id="bMap" title="Map (M)">🗺</button><button class="tb" id="bMore" title="Skills, Journal, Team">⋯<span id="moreBadge"></span></button><button class="tb" id="bMenu" title="Menu (Esc)">☰</button>
-    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button><button class="mdi" id="bCraft" title="Tradeskills (J)">🛠 Tradeskills<kbd>J</kbd></button></div></div>
+    <div id="moreDrop" class="hidden"><button class="mdi" id="bSk" title="Skills (K)">📈 Skills<span id="spBadge"></span><kbd>K</kbd></button><button class="mdi" id="bPerks" title="Perks (P)">⭐ Perks<span id="ppBadge"></span><kbd>P</kbd></button><button class="mdi" id="bJournal" title="Journal (L)">📜 Journal<kbd>L</kbd></button><button class="mdi" id="bTeam" title="Team (T)">👥 Team<kbd>T</kbd></button><button class="mdi" id="bMis" title="Mission board (N)">🎲 Missions<kbd>N</kbd></button><button class="mdi" id="bCraft" title="Tradeskills (J)">🛠 Tradeskills<kbd>J</kbd></button></div></div>
   <div id="dmgLayer"></div>
   <div id="wp" class="hidden"><div class="arr">▼</div><span></span></div>
   <div id="joy"><div id="joyKnob"></div></div>
@@ -1871,6 +1874,7 @@ function turnIn(id){const L=contracts().filter(m=>m.stage==='return'&&(!id||m.id
   if(m.fac&&m.rep){gainRep(m.fac,m.rep);txt+='  +'+m.rep+' '+FACTIONS[m.fac].short+' rep';}
   if((m.diff|0)>=3&&!(P.vehicles||[]).includes('skiff')&&Math.random()<0.25){grantVehicle('skiff','Contract bonus');txt+='  +Dust Skiff';}
   if(m.item){const it=missionReward(m);if(P.inv.length<24){P.inv.push(it);txt+='  +'+it.name;}}
+  txt+=rmClassicDone(m);
   P.quests.splice(P.quests.indexOf(m),1);if(P.qfocus===m.id)P.qfocus=null;banner('MISSION COMPLETE',txt);log('Reward: '+esc(txt));}offersAt=-999;SFX.quest();save();openTerminal();}
 
 /* ---------------- panels ---------------- */
@@ -1958,17 +1962,20 @@ function tierBar(){const t=pTier(),d=TIERS[t],nx=TIERS[t+1];return `<div class="
 function respec(){const price=20*P.level;if(P.credits<price){warn('Not enough credits');return;}P.credits-=price;P.ab={};P.sb={};P.sp=spTotal(P.level);calcStats();save();toast('Points refunded. Equipped items stay on.');}
 function openTerminal(){
   if(T-offersAt>90||missionOffers.length===0){missionOffers=[genMission(),genMission(),genMission()];offersAt=T;}
-  let h=terminalStoryCard();const m=P.mission;const mp=mprefs();const D=MDIFF[mp.diff|0];
-  h+=`<div class="mis msl"><div class="h4" style="margin:0 0 4px">Contract difficulty: <b style="color:${D.c}">${D.n}</b> · enemies Lv ${clamp(P.level+D.lv,1,12)} · ×${D.cnt} enemies · ×${D.rew} XP/credits${D.rar?' · better loot':''}</div>
+  RM.remote=RM._rem||(panelOpen==='term'&&RM.remote);RM._rem=false;const ttl=RM.remote?'🎲 MISSION BOARD':'COMBINE CONTRACT TERMINAL';
+  if(RM.tab==='writs'){openPanel(ttl,rmWritHtml(),'term');return;}
+  let h=rmHead()+(RM.remote?'<div class="stats">Remote view: accept and reroll here; claim rewards at any 📟 terminal (Halden\'s Rest or an outpost).</div>':'')+rmBoardHtml()+terminalStoryCard();const m=P.mission;const mp=mprefs();const D=MDIFF[mp.diff|0];
+  h+=`<div class="mis msl" id="rmset"><div class="h4" style="margin:0 0 4px">Mission difficulty: <b style="color:${D.c}">${D.n}</b> · enemies Lv ${clamp(P.level+D.lv,1,MAXLVL)} · ×${D.cnt} enemies · ×${D.rew} XP/credits${D.rar?' · better loot':''}</div>
     <div style="display:flex;align-items:center;gap:10px"><button class="sbtn alt" data-act="mdiff" data-d="-1">−</button><input type="range" id="mdiff" min="0" max="4" step="1" value="${mp.diff|0}" style="flex:1"><button class="sbtn alt" data-act="mdiff" data-d="1">+</button></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;opacity:.75;padding:0 52px">${MDIFF.map(d=>`<span style="color:${d.c}">${d.n}</span>`).join('')}</div>
     <div class="h4" style="margin:8px 0 4px">Preferred reward</div><div class="tabs" style="margin:0">${Object.keys(MPREF).map(k=>`<button data-act="mpref" data-p="${k}" class="${mp.pref===k?'on':''}">${MPREF[k]}</button>`).join('')}</div></div>`;
+  h+=rmFocusHtml();
   const CL=contracts();if(CL.length){h+=`<div class="h4">Active contracts (${CL.length}) · mission log ${(P.quests||[]).length}/${MAXQ}</div>`;
-    h+=CL.map(m=>`<div class="mis"><span class="obadge">Optional</span> <b>${esc(m.title)}</b><p>${esc(m.desc)}</p>${m.kind==='kill'?`<div>Progress: ${m.have}/${m.need}</div>`:''}<div>Reward: ${m.cr}¢ · ${m.xp} XP${m.item?' · bonus implant or gear':''}</div><div class="btns" style="margin-top:8px;display:flex;gap:8px">${m.stage==='return'?`<button class="sbtn" data-act="turnin" data-id="${m.id}">Claim reward</button>`:`<button class="sbtn alt" data-act="abandon" data-id="${m.id}">Abandon</button>`}</div></div>`).join('');}
-  h+=`<div class="h4">Optional contracts: XP, credits &amp; loot${qFull()?' (mission log full: '+MAXQ+')':' · take several at once'}</div>`;
+    h+=CL.map(m=>`<div class="mis"><span class="obadge">Optional</span> <b>${esc(m.title)}</b><p>${esc(m.desc)}</p>${m.kind==='kill'?`<div>Progress: ${m.have}/${m.need}</div>`:''}<div>Reward: ${m.cr}¢ · ${m.xp} XP${m.item?' · bonus implant or gear':''}</div><div class="btns" style="margin-top:8px;display:flex;gap:8px">${m.stage==='return'?(RM.remote?'<span class="down">Claim at any 📟 terminal</span>':`<button class="sbtn" data-act="turnin" data-id="${m.id}">Claim reward</button>`):`<button class="sbtn alt" data-act="abandon" data-id="${m.id}">Abandon</button>`}</div></div>`).join('');}
+  h+=`<div class="h4">📋 Quick contracts: cull &amp; recover, XP, credits &amp; loot${qFull()?' (mission log full: '+MAXQ+')':' · take several at once'}</div>`;
   missionOffers.forEach((o,i)=>{h+=`<div class="mis"><span class="obadge">Optional</span> <b>${esc(o.title)}</b><p>${esc(o.desc)}</p><div>Reward: ${o.cr}¢ · ${o.xp} XP${o.rep?` · <b style="color:${FACTIONS[o.fac].col}">+${o.rep} ${FACTIONS[o.fac].short} rep</b>`:''}${o.item?' · bonus '+(o.pref&&o.pref!=='any'?MPREF[o.pref].replace(/^\S+ /,'').toLowerCase()+' (likely)':'item'):''}</div>${qFull()?'':`<button class="sbtn" style="margin-top:8px" data-act="accept" data-i="${i}">Accept</button>`}</div>`;});
   h+=`<div class="mis" style="border-color:rgba(255,154,42,.4)"><b>🚪 Capped dungeons</b><p>${Object.values(DUNGEONS).map(D=>`<b style="color:#f3e6d3">${esc(D.name)}</b> ${dunRange(D.id)}${D.gate&&!gateOpen(D.gate)?' <span class="down">· 🔒 story step '+(STEP[GATES[D.gate].step].i+1)+'</span>':P.level>D.cap?' <span class="down">· too experienced</span>':P.level<D.minLvl?' <span style="opacity:.7">· not yet</span>':' <span class="up">· open to you</span>'}`).join('<br>')}<br>Over the cap you can't enter, so twink: buff up, wear gear and implants above your level, and clear at the cap for a better boss loot bonus.</p></div>`;
-  openPanel('COMBINE CONTRACT TERMINAL',h,'term');
+  openPanel(ttl,h,'term');
 }
 let vendTab='buy';
 let vendConfirm=null;
@@ -2575,7 +2582,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s)};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -3195,7 +3202,7 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('📈 Skills, levels &amp; twinking','Levels give skill points (📈). Attributes feed skills. Gear, implants and Weave Disks have skill requirements. Buffs (self-buff Weaves, trader stims, other implants) raise your skills for a while, so you can equip things early. Once equipped they stay on: that is <b>twinking</b>.')+
   S_('🧠 Implants','Seven implant slots (Cortex, Ocular, Thoracic, Brachial, Digital, Femoral, Plantar). Installing needs Treatment plus one attribute, both rising with Quality Level (QL). Install in the right order: one implant\'s bonus can unlock the next.')+
   S_('📀 Weaves','Your profession\'s powers. Learn new ones from Weave Disks (drops, trader, dungeons). The Weave Book sets your six slots. Rare Shimmerveil disks give huge evasion.')+
-  S_('📟 Missions, 🚪 dungeons &amp; 💾 saving','Take missions at the terminal in Halden\'s Rest. The slider sets difficulty and reward. Dungeon doors in the desert lead to solo instances with bosses and exclusive loot. Save Points (💾) protect your XP; dying loses part of the XP earned since your last save. 🔷 Conduit nodes are fast travel. Nights bring Gloam Stalkers and better loot.')+
+  S_('📟 Missions, 🚪 dungeons &amp; 💾 saving','Take missions at any 📟 terminal (Halden\'s Rest and the outposts) or open the 🎲 board anywhere with <b>N</b> (or ⋯ → Missions). The slider sets difficulty and reward. Dungeon doors in the desert lead to solo instances with bosses and exclusive loot. Save Points (💾) protect your XP; dying loses part of the XP earned since your last save. 🔷 Conduit nodes are fast travel. Nights bring Gloam Stalkers and better loot.')+
   S_('🧬 Breeds','Settler (balanced), Dunebred (strong, tough, poor minds), Vyrekin (brilliant casters, frail) and Glassborn (agile and sharp). Breed changes starting stats, training caps, costs, health and energy.')+
   S_('⚑ Factions &amp; towers','Join the Solace Combine or the Ashborn Free Clans (Registrar Hale in town; switching costs credits and half your rep). Faction contracts, kills and towers earn reputation, which unlocks faction vendor gear tiers. Three desert towers can be captured: kill the guards, destroy the core, then plant your own. Each tower your side holds gives +4% power and +2% damage reduction, and the other side will come to take it back.')+
   S_('🏴 Faction zones','Four zones are held by a faction: <b>Ironward Reach</b> (Combine) and <b>Emberhollow</b> (Ashborn) in the Duskcrown Highlands (Lv 14–17), <b>Coldspire Directive</b> (Combine) and <b>Frostforge Wilds</b> (Ashborn) in the Rimefall Expanse (Lv 24–27). They show as coloured circles on the map and minimap. <b>Members of the holding faction</b> get a quartermaster, a commander with a repeatable patrol contract (rep, credits, XP and a Rare or Epic item), a Save Point and a Conduit. <b>Members of the other faction</b> are attacked on sight by Sentinels as soon as they cross the border: Sentinels hit for about a third of your health, chase you a short way and cannot be killed, and the outpost refuses you. <b>Unaligned</b> players are tolerated: Sentinels ignore you and you can rest at the Save Point, but there is no trade or contract work.')+
@@ -3213,13 +3220,14 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('💀 Dynas (named elite camps)','Every region has 1–2 <b>dynas</b>: named elite bosses at fixed camps, with adds, lots of health and a signature move (slams, spit pools, shields, summons, enrage). They always drop good loot and sometimes a rare named item you can only get from them. After a kill a dyna stays down for 10–20 real minutes, even across reloads, and sometimes a lesser placeholder spawns in its spot first. Discovered dynas show on the map and minimap as 💀: red when up, grey when down. Hunt quests send you after some of them.')+
   S_('⚔ Raids (team instances, 3 runs a week)','A <b>raid</b> is a big instance built for a full team of <b>6</b>: you plus up to 5 of your own alts, who fight as AI team members with their own level and gear (tanks hold threat, menders heal, everyone dodges). Empty seats are filled by contract mercenaries at your level. The first raid is <b>The Cinderdeep Bastion</b>: its portal stands in the <b>Cinderveil Badlands</b> (south-east, ⚔ on the map). Level <b>9–10</b> (cap 10, judged by the highest team member) after the Vault Theta-9 story step. Three bosses with telegraphed attacks: <b>Slagwarden Torvek</b> (spread out for Scorch Brand), <b>Vessa, the Ember Queen</b> (break her Ember Pylons to drop her shield) and <b>The Ashen Colossus</b> (when Inferno Nova glows, run IN to the green safe ring).<br><br><b>Lockout:</b> each raid can be run <b>3 times per week</b>. The week resets every <b>Monday 00:00</b> (your local time). A run is used the first time a boss dies in it, so wiping before any kill costs nothing. Lockouts are per character: the 📜 Journal → ⚔ Raids tab shows runs left and the reset timer. Bosses drop raid-only gear (the Cinderborn set and Bastion weapons, plus a rare Relic) and <b>Raid Sigils ◈</b> (2 / 3 / 5), which buy raid gear from the Sigil tab at the portal.')+
   S_('⛏ Gathering &amp; crafting','Glowing <b>ore veins</b> 🪨, <b>duskpetal blooms</b> 🌺 and <b>salvage heaps</b> 🔩 grow in the wilds. Walk up and tap ⛏ (or press F/E) to gather; a node regrows about 8 minutes later. Materials go into your 🧰 parts bag, not your pack.<br><br>Open 🛠 Tradeskills (<b>J</b>, or ⋯ → Tradeskills) and use <b>📜 Recipes</b>: <b>⚗️ Distilling</b> makes stims, gels and 10-minute elixirs; <b>🔨 Forging</b> makes Uncommon gear at up to your level (Rare with an 🔥 Emberheart Core from bosses). <b>♻️ Salvage</b> breaks spare pack gear into parts. Each tradeskill has a rank (1-100) that rises as you use it; recipe colours show your chance to rank up. More schematics are sold in Halden\'s Rest and the outposts, and bosses drop rare ones.')+
+  S_('🎲 Random missions, writs, daily &amp; weekly','Every 📟 terminal shows a <b>mission board</b> with 3 generated missions at your level (the difficulty slider moves it up or down): <b>Eliminate</b> a named elite, <b>Clear</b> a site and its boss, <b>Retrieve</b> a guarded item, <b>Survey</b> three posts, <b>Escort</b> someone through ambushes, <b>Hold the line</b> against waves, or a <b>Supply run</b> that takes gathered materials from your 🧰 parts bag. Pick a <b>reward focus</b> (balanced, credits, XP or gear) and switch on <b>⏱ Timed</b> for +25%. Objectives show on the map and as cyan diamonds on the minimap; finished missions are claimed at any terminal.<br><br>Every finished mission or contract pays <b>✦ writs</b>. Your <b>first mission each day</b> pays +50% and +3 ✦, and <b>10 missions a week</b> complete the weekly contract (Rare gear, credits, XP and 15 ✦; resets Monday 00:00). Spend writs in the <b>✦ Writ exchange</b> tab or to reroll the board (rerolling also works for credits). Abandoning a mission costs a small fee.')+
   S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every item tagged <b>Junk</b> (Common gear and implants, plus anything you tag) from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
   S_('🏠 Apartment &amp; locker','The green-lit door on the north-west building in Halden\'s Rest is your apartment. Inside: a <b>locker</b> that opens your 🏦 Bank, a <b>mirror</b> for clothes, dyes and hair, a <b>workbench</b> for tradeskills and a <b>decor</b> console to buy and place furniture.'),'help');}
 
 /* ---------- hooks ---------- */
 function stage3Interact(p){const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};const rk=raidNear(p);if(rk)return {k:'raid',id:rk,label:'⚔ '+RAIDS[rk].name};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
 function stage3Do(n){const k=n.k;if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
-function stage3Act(a,b){const D=b.dataset;if(qAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
+function stage3Act(a,b){const D=b.dataset;if(qAct(a,b))return true;if(rmAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
   if(a==='ctab')openCraft(D.t);else if(a==='crec'){CR.rec=D.r;CR.tgt=null;openCraft();}else if(a==='ctgt'){CR.tgt=D.id;openCraft();}else if(a==='cq'){CR.q=+D.q;openCraft();}else if(a==='cstat'){CR.stat=D.s;openCraft();}
   else if(a==='cfab'){doFab();openCraft();}else if(a==='cblank'){CR.blank=D.id;openCraft();}else if(a==='cslot'){CR.slot=D.s;openCraft();}else if(a==='cclu'){CR.sel[D.t]=D.id||null;openCraft();}else if(a==='cbuild'){doAssemble();openCraft();}
   else if(a==='buyts'){buyTs(+D.i);openVendor();}
@@ -4313,7 +4321,7 @@ const SQ=[
 ];
 const SQD={};SQ.forEach(d=>{d.gate=d.gate||GV[d.g].gate||null;SQD[d.id]=d;});
 /* ---------- state ---------- */
-function normQuests(qs,old){let L=[];if(Array.isArray(qs))L=qs.filter(q=>q&&typeof q==='object'&&((q.src==='side'&&SQD[q.qid])||(q.src==='contract'&&(q.kind==='kill'||q.kind==='fetch'))));
+function normQuests(qs,old){let L=[];if(Array.isArray(qs))L=qs.filter(q=>q&&typeof q==='object'&&((q.src==='side'&&(SQD[q.qid]||rmReg(q)))||(q.src==='contract'&&(q.kind==='kill'||q.kind==='fetch'))));
   else if(old&&typeof old==='object'&&(old.kind==='kill'||old.kind==='fetch'))L=[Object.assign({},old,{src:'contract',track:true})];
   return L.slice(0,MAXQ).map(q=>Object.assign({},q,{id:q.id||'q'+uid(),track:q.track!==false}));}
 const contracts=()=>(P.quests||[]).filter(q=>q.src==='contract');
@@ -4336,7 +4344,7 @@ function qAdvance(q,txt){qClearRT(q);q.step++;const st=curStep(q);if(!st){q.stag
   else{qStartStep(q);SFX.quest();banner(st.k==='choice'?'A CHOICE':'NEXT STEP',q.title+' · '+objText(q));if(st.k==='choice'&&!panelOpen)setTimeout(()=>{if(!panelOpen)openChoice(q.id);},700);}save();}
 function qFail(q,why){qClearRT(q);q.stage='failed';SFX.err();banner('MISSION FAILED',q.title+' · '+why+' · retry from the 📋 log');save();}
 function qRetry(id){const q=(P.quests||[]).find(x=>x.id===id);if(!q||q.stage!=='failed')return false;q.stage='active';qStartStep(q);toast('Retrying: '+objText(q));save();return true;}
-function abandonQuest(id){const q=(P.quests||[]).find(x=>x.id===id);if(!q)return false;if(q.src==='contract'){abandonMission(id);return true;}qClearRT(q);P.quests.splice(P.quests.indexOf(q),1);if(P.qfocus===id)P.qfocus=null;save();return true;}
+function abandonQuest(id){const q=(P.quests||[]).find(x=>x.id===id);if(!q)return false;if(q.src==='contract'){abandonMission(id);return true;}if(q.rm)rmAbandon(q);qClearRT(q);P.quests.splice(P.quests.indexOf(q),1);if(P.qfocus===id)P.qfocus=null;save();return true;}
 function claimQuest(id){const q=(P.quests||[]).find(x=>x.id===id&&x.src==='side');if(!q||q.stage!=='return')return false;const d=SQD[q.qid];let x=d.rew.x||0.3,c=d.rew.c||1,item=!!d.rew.item;let out='';
   stepsOf(q).forEach(()=>{});const ch=d.steps.filter(s=>s.k==='choice');ch.forEach((s,i)=>{const o=s.opts[(q.path||[])[i]];if(o){x+=o.rew.x||0;c*=o.rew.c||1;item=item||!!o.rew.item;out=o.out;}});
   const L=clamp(P.level,1,MAXLVL);const xp=Math.round(xpNeed(L)*x);const cr=Math.round((20+L*14)*c);P.credits+=cr;gainXp(xp);let t='+'+cr+'¢  +'+xp+' XP';
@@ -4357,19 +4365,20 @@ function objText(q){if(q.src==='contract'){const m=q;return m.stage==='return'?'
     case 'scan':t=`Activate ${st.obj}s ${(s.done||[]).filter(Boolean).length}/${st.pts.length}`;break;
     case 'hunt':t=st.dyna?`Hunt ${DYNAS[st.dyna].name} (dyna)`:`Hunt ${st.name} (elite)`;break;
     case 'explore':{const i=(s.done||[]).findIndex(v=>!v);t=`Discover ${(s.done||[]).filter(Boolean).length}/${st.pts.length}`+(i>=0?': '+st.pts[i][2]:'');break;}
-    case 'kill':t=`${eName(st.t)}s ${s.have|0}/${st.n}`;break;case 'choice':t='Decide: open the 📋 log';break;}
+    case 'kill':t=`${Array.isArray(st.t)?'Hostiles':eName(st.t)+'s'} ${s.have|0}/${st.n}`;break;case 'choice':t='Decide: open the 📋 log';break;default:t=rmStepText(q,st,s);}
   if(s.left!=null)t+=' · ⏱ '+fmtClock(s.left);return t;}
 function qTarget(q){if(q.src==='contract'){const m=q;if(m.stage==='return')return {x:TERMINAL.x,z:TERMINAL.z,label:'Terminal'};if(m.kind==='fetch')return {x:m.x,z:m.z,label:m.obj};
     if(m.x!=null&&enemies.some(e=>e.mis===m.id&&!e.dead))return {x:m.x,z:m.z,label:'Camp'};let best=null,bd=1e9;for(const e of enemies)if(e.type===m.etype&&!e.dead){const d=dist2D(e.home,P.pos);if(d<bd){bd=d;best=e;}}return best?{x:best.home.x,z:best.home.z,label:eName(m.etype)}:null;}
   const g=GV[q.giver];if(q.stage==='return')return {x:g.x,z:g.z,label:g.name};if(q.stage==='failed')return null;const st=curStep(q),s=q.s||{};if(!st)return null;const r=QRT[q.id];
   switch(st.k){case 'fetch':{const o=r&&r.objs&&r.objs.find(o=>!o.taken);return o?{x:o.x,z:o.z,label:st.obj}:{x:st.at[0],z:st.at[1],label:st.obj};}
-    case 'loot':case 'kill':return st.at?{x:st.at[0],z:st.at[1],label:st.item||eName(st.t)}:null;
+    case 'loot':case 'kill':return st.at?{x:st.at[0],z:st.at[1],label:st.item||(Array.isArray(st.t)?'Hostiles':eName(st.t))}:null;
     case 'deliver':case 'talk':return {x:GV[st.to].x,z:GV[st.to].z,label:GV[st.to].name};
     case 'escort':{const a=r&&r.ally;return a&&!a.dead?{x:a.pos.x,z:a.pos.z,label:st.who}:{x:st.from[0],z:st.from[1],label:st.who};}
     case 'defend':return {x:st.at[0],z:st.at[1],label:st.obj};
     case 'scan':{const i=s.done?s.done.findIndex(v=>!v):0;const p=st.pts[Math.max(0,i)];return {x:p[0],z:p[1],label:st.obj};}
     case 'hunt':if(st.dyna){const D=DYNAS[st.dyna];return {x:D.x,z:D.z,label:D.name};}{const e=r&&r.mobs&&r.mobs.find(e=>!e.dead);return e?{x:e.pos.x,z:e.pos.z,label:st.name}:{x:st.at[0],z:st.at[1],label:st.name};}
-    case 'explore':{let best=null,bd=1e9;st.pts.forEach((p,i)=>{if(s.done&&s.done[i])return;const d=Math.hypot(p[0]-P.pos.x,p[1]-P.pos.z);if(d<bd){bd=d;best={x:p[0],z:p[1],label:p[2]};}});return best;}}
+    case 'explore':{let best=null,bd=1e9;st.pts.forEach((p,i)=>{if(s.done&&s.done[i])return;const d=Math.hypot(p[0]-P.pos.x,p[1]-P.pos.z);if(d<bd){bd=d;best={x:p[0],z:p[1],label:p[2]};}});return best;}
+    default:return rmStepTarget(q,st);}
   return null;}
 function focusQuest(){const L=(P.quests||[]).filter(q=>q.track&&q.stage!=='failed');return L.find(q=>q.id===P.qfocus)||L[0]||null;}
 function missionWaypoint(){const q=focusQuest();return q?qTarget(q):null;}
@@ -4469,15 +4478,15 @@ function openChoice(id){const q=(P.quests||[]).find(x=>x.id===id);const st=q&&cu
   openPanel('⑂ '+q.title.toUpperCase(),`<div class="mis story"><p>${esc(st.text)}</p></div>`+st.opts.map((o,i)=>`<button class="sbtn" style="display:block;width:100%;margin:8px 0;text-align:left" data-act="qch" data-q="${q.id}" data-o="${i}">${esc(o.label)}<br><small style="opacity:.75">${o.rew.item?'item reward · ':''}${o.rew.c?'×'+o.rew.c+' credits · ':''}${o.rew.x?'+XP · ':''}${o.steps.length} more step${o.steps.length>1?'s':''}</small></button>`).join(''),'choice');}
 function questLogHtml(){const L=P.quests||[];const st=sto();let h=`<div class="stats">Active missions <b>${L.length}/${MAXQ}</b> (plus the story). Track up to all of them; the HUD shows the tracked ones and the 📍 focus gets the waypoint arrow. <button class="chip" data-act="qauto">${P.qAutoWp?'✔':'＋'} Auto map waypoint</button></div>`;
   if(st.cur){const s=STEP[st.cur.id];h+=`<div class="mis story"><span class="sbadge">STORY</span> <b>${esc(s.n)}</b><p>${esc(s.obj.label)}</p></div>`;}
-  if(!L.length)h+='<div style="opacity:.7">No optional missions. Contracts: the 📟 terminal in Halden\'s Rest. Side quests: people with a ❗ over their head, all over the Reach.</div>';
+  if(!L.length)h+='<div style="opacity:.7">No optional missions. Missions &amp; contracts: any 📟 terminal (Halden\'s Rest, outposts) or the 🎲 board (N). Side quests: people with a ❗ over their head, all over the Reach.</div>';
   for(const q of L){const side=q.src==='side';const d=side&&SQD[q.qid];const foc=focusQuest()===q;
     let steps='';if(side&&(d.chain||stepsOf(q).length>1)){const S=stepsOf(q);steps='<div class="qsteps">'+S.map((s,i)=>`<span class="${i<q.step||q.stage==='return'?'done':i===q.step?'cur':''}">${i<q.step||q.stage==='return'?'✔':i===q.step?'▶':'○'} ${KIND_ICON[s.k]}</span>`).join('')+(S[S.length-1].k==='choice'?'<span>… ⑂</span>':'')+'</div>';}
-    h+=`<div class="mis${foc?' cur':''}"><span class="obadge">${side?(d.chain?'Chain':'Side quest'):'Contract'}</span>${q.stage==='failed'?' <span class="obadge" style="background:#7a2a20">Failed</span>':''} <b>${esc(q.title)}</b> <span style="opacity:.7">· ${side?esc(GV[q.giver].name):'📟 terminal'}</span>
+    h+=`<div class="mis${foc?' cur':''}"><span class="obadge">${q.rm?'🎲 Mission':side?(d.chain?'Chain':'Side quest'):'Contract'}</span>${q.stage==='failed'?' <span class="obadge" style="background:#7a2a20">Failed</span>':''} <b>${esc(q.title)}</b> <span style="opacity:.7">· ${side?esc(GV[q.giver].name):'📟 terminal'}</span>
       <p>${foc?'📍 ':''}${esc(objText(q))}</p>${steps}<div class="qbtns"><button class="chip${q.track?' on':''}" data-act="qtrk" data-q="${q.id}">${q.track?'✔ Tracked':'Track'}</button><button class="chip" data-act="qfoc" data-q="${q.id}">📍 Focus</button>
       ${q.stage==='failed'?`<button class="chip" data-act="qretry" data-q="${q.id}">↻ Retry</button>`:''}${side&&curStep(q)&&curStep(q).k==='choice'&&q.stage==='active'?`<button class="chip" data-act="qchoose" data-q="${q.id}">⑂ Decide</button>`:''}<button class="chip" data-act="qab" data-q="${q.id}">Abandon</button></div></div>`;}
   const done=Object.keys(P.qdone||{}).length;h+=`<div style="opacity:.7;font-size:12px;margin-top:6px">Side quests completed: ${done}/${SQ.length}</div>`;return h;}
 function questTrackHtml(){const L=(P.quests||[]).filter(q=>q.track);if(!L.length)return '';const f=focusQuest();
-  return L.slice(0,3).map(q=>`<div class="qtrk" data-q="${q.id}"><b>${q===f?'📍 ':''}${esc(q.title)}</b> <span class="opt">${q.src==='side'?'side':'contract'}</span><br>${esc(objText(q))}</div>`).join('')+(L.length>3?`<div class="qtrk" style="opacity:.7">+${L.length-3} more tracked</div>`:'');}
+  return L.slice(0,3).map(q=>`<div class="qtrk" data-q="${q.id}"><b>${q===f?'📍 ':''}${esc(q.title)}</b> <span class="opt">${q.rm?'mission':q.src==='side'?'side':'contract'}</span><br>${esc(objText(q))}</div>`).join('')+(L.length>3?`<div class="qtrk" style="opacity:.7">+${L.length-3} more tracked</div>`:'');}
 function questAct(a,b){const D=b.dataset;if(a==='qacc'){if(acceptQuest(D.q))closePanel();}else if(a==='qfull')warn('Mission log full ('+MAXQ+')');else if(a==='qclaim'){claimQuest(D.q);openGiver(D.g);}
   else if(a==='qch'){if(chooseQuest(D.q,+D.o))closePanel();}else if(a==='qchoose')openChoice(D.q);else if(a==='qtrk'){const q=P.quests.find(x=>x.id===D.q);if(q){q.track=!q.track;save();openJournal('missions');}}
   else if(a==='qfoc'){const q=P.quests.find(x=>x.id===D.q);if(q){q.track=true;P.qfocus=q.id;save();toast('📍 Waypoint: '+q.title);openJournal('missions');}}else if(a==='qab'){abandonQuest(D.q);openJournal('missions');}
@@ -7822,6 +7831,175 @@ function qAct(a,b){const D=b.dataset;
   else return false;return true;}
 function craftQExports(){return {QTS,QREC,QNODE,CRQ,normCraft,craftFields,qc,qRank,qKnows,qColor,qSkillUp,qHave,qCheck,qCraft,qLearn,qInHub,qForgeLvl,qSalvOk,qSalvYield,qSalvage,qOnKill,nodeAt,qRefresh,get QN(){return QN;},gatherInteract,gatherNode,gatherDo,updCraftQ,qRecHtml,qSalvHtml,qBar,QREGROW,QCELL};}
 
+/* ================= RANDOM MISSIONS (Build R): the mission board at every 📟 terminal =================
+   Generated missions run on the side-quest engine in game16 (src:'side', qid 'rm:…'). Each mission carries its own
+   definition (q.rdef), which is registered into SQD when it is accepted and again when a save loads (rmReg via normQuests).
+   Types: eliminate (named elite), clear a site (packs + leader), retrieve, survey, escort, hold the line (waves),
+   supply run (gather Build Q materials into the parts bag, then hand them in).
+   P.rmis {v:1, writs, day, dayDone, wk, wkN, wkClaimed, total, offers:[…]} : old saves load with an empty board state.
+   Writs ✦ come from every finished mission (classic contracts too); the first mission of the day pays a bonus and
+   10 missions a week complete the weekly contract. Rewards stay at Rare at most, below raid and dungeon loot. */
+const RM={tab:'board',remote:false,_rem:false,acc:0};
+const RM_N=3,RM_WEEK=10,RM_VER=1;
+const RM_KINDS=new Set(['hunt','kill','fetch','scan','escort','defend','gather']);
+const RM_FOCUS={bal:{n:'⚖ Balanced',cr:1,xp:1,item:0.5,rar:0},cr:{n:'¢ Credits',cr:1.6,xp:0.7,item:0,rar:0},xp:{n:'✨ XP',cr:0.7,xp:1.5,item:0,rar:0},gear:{n:'🎁 Gear',cr:0.7,xp:0.7,item:1,rar:10}};
+const RM_TYPES={hunt:{n:'Eliminate',ic:'💀',x:0.35,c:1,min:1},clear:{n:'Clear the site',ic:'⚔',x:0.5,c:1.25,min:2},fetch:{n:'Retrieve',ic:'📦',x:0.35,c:1,min:1},
+  survey:{n:'Survey',ic:'🖐',x:0.3,c:1,min:1},escort:{n:'Escort',ic:'🛡',x:0.4,c:1.1,min:3},defend:{n:'Hold the line',ic:'🏰',x:0.45,c:1.15,min:4},gather:{n:'Supply run',ic:'⛏',x:0.25,c:1.5,min:1}};
+const RM_NM={who:['Skarn Velloway','Mags Tessit','Orrin Quorl','Dray Holloway','Ysolde Brack','Nerro Pike','Hollis Crane','Vett Marrow','Juno Seck','Callo Dunmere'],
+  ep:['the Gutter-King','Rustjaw','Two-Knives','the Pale','Saltmouth','Cinderhand','the Quiet','Blackwick','Gravelvoice','the Tallyman'],
+  site:['Dry Gulch Camp','Rustwater Pumphouse','Old Relay Seven','Saltburn Depot','Coyle\'s Dig','Hollow Silo','Shatterline Yard','Gantry Nine','Brannock Wells','the Tinroof Cut'],
+  obj:['Sealed data core','Signal beacon part','Coolant canister','Survey cache','Medical crate','Prototype coil','Water purifier','Black-box recorder'],
+  scan:['Relay mast','Sensor spike','Seismic post','Weather station'],
+  def:['Water pump','Signal relay','Supply cache','Drill rig'],
+  esc:['Surveyor Anneke Roe','Medic Tobin Hale','Courier Jessa Marr','Engineer Dov Krane','Archivist Lio Penn','Prospector Wren Adder'],
+  cl:['A Combine office','The Water Guild','A caravan syndicate','Halden\'s Rest council','An independent surveyor','The Prospectors\' Union']};
+/* ---------- state ---------- */
+function normRmis(o){o=o&&typeof o==='object'?o:{};const n=v=>Math.max(0,Math.floor(+v||0));
+  const offers=Array.isArray(o.offers)?o.offers.filter(x=>x&&RM_TYPES[x.type]&&typeof x.oid==='string').slice(0,RM_N):[];
+  return {v:RM_VER,writs:n(o.writs),day:n(o.day),dayDone:o.dayDone?1:0,wk:n(o.wk),wkN:Math.min(RM_WEEK,n(o.wkN)),wkClaimed:o.wkClaimed?1:0,total:n(o.total),offers,timed:!!o.timed,focus:RM_FOCUS[o.focus]?o.focus:'bal'};}
+function rmFields(s){return {rmis:normRmis(s.rmis)};}
+const rmi=()=>P.rmis||(P.rmis=normRmis(null));
+function rmTick(){const r=rmi(),now=Date.now();const d=periodStart(now,'day').getTime(),w=periodStart(now,'week').getTime();
+  if(r.day!==d){r.day=d;r.dayDone=0;}if(r.wk!==w){r.wk=w;r.wkN=0;r.wkClaimed=0;}return r;}
+// re-register a saved random mission's definition (called from normQuests); false = drop it
+function rmReg(q){try{if(!q||!q.rm||!q.rdef||typeof q.qid!=='string'||q.qid.slice(0,3)!=='rm:')return false;const d=q.rdef;
+    if(!Array.isArray(d.steps)||!d.steps.length||!d.steps.every(s=>s&&RM_KINDS.has(s.k)))return false;
+    d.id=q.qid;d.g='mterm';d.gate=null;d.lv=d.lv|0||1;d.rew=d.rew||{x:0.3,c:1};d.rm=d.rm||{};SQD[q.qid]=d;q.giver='mterm';return true;}catch(e){return false;}}
+const isRm=q=>!!(q&&q.rm&&q.src==='side');
+const rmList=()=>(P.quests||[]).filter(isRm);
+/* ---------- terminals: Halden's Rest + every open hub outpost ---------- */
+function rmTerms(){const L=[{x:TERMINAL.x,z:TERMINAL.z,n:'Halden\'s Rest'}];for(const H of HUBS)if(H.term&&gateOpen(H.id))L.push({x:H.term.x,z:H.term.z,n:(H.o&&H.o.name)||H.tn});return L;}
+function rmNearTerm(){let b=null,bd=1e18;const p=P.pos||{x:0,z:0};for(const t of rmTerms()){const d=(t.x-p.x)**2+(t.z-p.z)**2;if(d<bd){bd=d;b=t;}}return b;}
+GV.mterm={id:'mterm',name:'a mission terminal',role:'📟 any terminal',get x(){return rmNearTerm().x;},get z(){return rmNearTerm().z;}};
+KIND_ICON.gather='⛏';
+/* ---------- generation ---------- */
+function rmTypesAt(x,z){const d=Math.hypot(x,z);if(xmBand0(x,z)>=0)return xrTypes(xmLv(x,z)).slice(0,4);if(d>870&&Math.max(Math.abs(x),Math.abs(z))>560)return xrTypes(x>0?41:31).slice(0,4);
+  return d>620?['burrower','shambler','frostcaller']:d>400?['stalker','brute']:d>160?['mauler','raider']:d>105?['raider']:['skitter'];}
+function rmSpot(eLv){const xr=eLv>=31,rim=!xr&&eLv>=21&&gateOpen('hoarlight'),hi=!rim&&!xr&&eLv>=11&&gateOpen('farwatch');
+  let p;if(xr)p=xrSpot(eLv);else if(rim)p=rimeSpot(eLv);else if(hi)p=gloamSpot(eLv);else{const r=clamp(55+eLv*13,55,195)+rand(-10,15),a=rand(0,Math.PI*2);p={x:Math.cos(a)*r,z:Math.sin(a)*r};}
+  const s=freeSpot(p.x,p.z,1.5);return {x:s[0],z:s[1],reg:xr?xrRegionName(eLv):rim?'the Rimefall Expanse':hi?'the Duskcrown Highlands':'the Reach'};}
+function rmTypeOk(t){return P.level>=RM_TYPES[t].min;}
+function rmGenOffer(){const ks=Object.keys(RM_TYPES).filter(rmTypeOk);const type=pick(ks);
+  const o={oid:'o'+uid(),type,who:pick(RM_NM.who),ep:pick(RM_NM.ep),site:pick(RM_NM.site),obj:pick(RM_NM.obj),scan:pick(RM_NM.scan),def:pick(RM_NM.def),esc:pick(RM_NM.esc),cl:pick(RM_NM.cl),mt:pick(['ore','bloom','scrap'])};return o;}
+function rmFill(){const r=rmTick();while(r.offers.length<RM_N)r.offers.push(rmGenOffer());return r.offers;}
+function rmLv(){const D=MDIFF[clamp(mprefs().diff|0,0,4)];return clamp(P.level+D.lv,1,MAXLVL);}
+function rmTitle(o){const T=RM_TYPES[o.type];return T.ic+' '+(o.type==='hunt'?'Eliminate: '+o.who:o.type==='clear'?'Clear: '+o.site:o.type==='fetch'?'Retrieve: '+o.obj:o.type==='survey'?'Survey: '+o.site:o.type==='escort'?'Escort: '+o.esc:o.type==='defend'?'Hold: the '+o.def+' at '+o.site:'Supply run: '+MATS[o.mt].n);}
+function rmDesc(o,eLv){const D=MDIFF[clamp(mprefs().diff|0,0,4)];const n=Math.max(2,Math.round(4*D.cnt));
+  switch(o.type){case 'hunt':return o.cl+' wants '+o.who+', called "'+o.ep+'", dead. A named elite with bodyguards, Lv '+(eLv+1)+'.';
+    case 'clear':return 'Hostiles have dug in at '+o.site+'. Clear '+Math.max(3,Math.round(5*D.cnt))+' of them, then their leader. Lv '+eLv+'.';
+    case 'fetch':return o.cl+' lost a '+o.obj.toLowerCase()+' near '+o.site+'. Guarded, Lv '+eLv+'.';
+    case 'survey':return 'Activate three '+o.scan.toLowerCase()+'s around '+o.site+' (stand close for 2 s each). Lv '+eLv+' area.';
+    case 'escort':return 'Walk '+o.esc+' out to '+o.site+'. Expect two ambushes, Lv '+eLv+'.';
+    case 'defend':return 'Hold the '+o.def.toLowerCase()+' at '+o.site+' against '+(2+((mprefs().diff|0)>=3?1:0))+' waves, Lv '+eLv+'.';
+    case 'gather':return 'Bring '+rmGatherN(o)+'× '+MATS[o.mt].n+' (QL '+rmGatherQ(eLv)+'+) from your 🧰 parts bag. Gather it from glowing nodes in the wilds.';}return '';}
+function rmGatherN(o){const D=MDIFF[clamp(mprefs().diff|0,0,4)];return Math.max(3,Math.round(5*D.cnt));}
+function rmGatherQ(eLv){return Math.max(1,(eLv-5)*5);}
+function rmReward(o,eLv){const mp=mprefs(),D=MDIFF[clamp(mp.diff|0,0,4)],F=RM_FOCUS[rmi().focus]||RM_FOCUS.bal,T=RM_TYPES[o.type];const tm=rmi().timed?1.25:1;
+  const L=clamp(P.level,1,MAXLVL);const cr=Math.round((20+eLv*14)*T.c*D.rew*F.cr*tm),xp=Math.round(xpNeed(L)*T.x*D.rew*F.xp*tm);
+  const item=F.item>=1||(F.item>0&&((mp.diff|0)>=2||(o.oid.charCodeAt(o.oid.length-1)%2===0)));
+  return {cr,xp,item,rar:D.rar+F.rar,writs:1+Math.floor((mp.diff|0)/2)+(rmi().timed?1:0),pref:mp.pref,diff:mp.diff|0,focus:rmi().focus,timed:rmi().timed};}
+function rmBuild(o){const eLv=rmLv(),mp=mprefs(),D=MDIFF[clamp(mp.diff|0,0,4)];const sp=rmSpot(eLv),at=[sp.x,sp.z];const ty=rmTypesAt(sp.x,sp.z);const n=k=>Math.max(k,Math.round(k*D.cnt));
+  const dist=Math.hypot(sp.x-P.pos.x,sp.z-P.pos.z);const travel=Math.round(clamp(dist/5*1.5+90,120,540));const timed=rmi().timed;let steps;
+  switch(o.type){
+    case 'hunt':steps=[Hu(o.who,pick(ty),at)];break;
+    case 'clear':steps=[Ki(ty,Math.max(3,Math.round(5*D.cnt)),at),Hu(o.site+' boss',pick(ty),at)];break;
+    case 'fetch':steps=[F(o.obj,at,1+((mp.diff|0)>=3?1:0),{t:pick(ty),n:n(2)})];break;
+    case 'survey':{const a0=rand(0,6.28);const pts=[0,1,2].map(i=>freeSpot(sp.x+Math.cos(a0+i*2.1)*14,sp.z+Math.sin(a0+i*2.1)*14,1.2,true));steps=[Sc(o.scan,pts)];break;}
+    case 'escort':{const fr=freeSpot(P.pos.x+rand(-6,6),P.pos.z+rand(-6,6),1.6,true);steps=[Es(o.esc,fr,at,{t:pick(ty),n:n(2)})];break;}
+    case 'defend':steps=[Df(o.def,at,2+((mp.diff|0)>=3?1:0),ty,n(2))];break;
+    case 'gather':steps=[{k:'gather',mt:o.mt,n:rmGatherN(o),ql:rmGatherQ(eLv)}];break;}
+  if(timed)steps.forEach((s,i)=>{s.time=i===0?(o.type==='gather'?600:travel+(o.type==='defend'?120:o.type==='escort'?150:60)):180;});
+  const R=rmReward(o,eLv);const qid='rm:'+uid();
+  return {id:qid,t:rmTitle(o).replace(/^\S+ /,''),lv:eLv,g:'mterm',txt:rmDesc(o,eLv),steps,rew:{x:0.3,c:1},rm:Object.assign({type:o.type,reg:sp.reg},R)};}
+/* ---------- accept / claim / abandon / reroll ---------- */
+function rmAccept(oid){const r=rmTick();const i=r.offers.findIndex(o=>o.oid===oid);if(i<0)return null;if(DUN){warn('Not inside an instance');return null;}
+  if(qFull()){warn('Mission log full ('+MAXQ+'). Finish or abandon one first.');return null;}
+  const o=r.offers[i];const d=rmBuild(o);const q={id:'q'+uid(),src:'side',rm:1,qid:d.id,rdef:d,title:d.t,giver:'mterm',lv:d.lv,step:0,stage:'active',track:true,path:[],t0:Date.now()};
+  if(!rmReg(q))return null;P.quests.push(q);qStartStep(q);P.qfocus=q.id;r.offers.splice(i,1,rmGenOffer());
+  SFX.quest();banner('MISSION ACCEPTED',d.t+' · '+d.rm.reg);log('🎲 <b>'+esc(d.t)+'</b>: '+esc(objText(q)));MAP.dirty=true;save();return q;}
+function rmPackFull(){return P.inv.length>=24;}
+function rmClaim(id){const q=rmList().find(x=>x.id===id);if(!q||q.stage!=='return')return false;if(RM.remote){warn('Claim at any 📟 mission terminal');return false;}
+  const m=q.rdef.rm||{};if(m.item&&rmPackFull()){warn('Pack full: free a slot for the reward item first');return false;}
+  let cr=m.cr|0,xp=m.xp|0;let t='';const it=m.item?missionReward({pref:m.pref||'any',diff:m.diff|0,rar:m.rar|0}):null;
+  const bon=rmComplete();cr+=Math.round(cr*bon.mul);xp+=Math.round(xp*bon.mul);
+  P.credits+=cr;gainXp(xp);rmi().writs+=(m.writs|0)+bon.writs;t='+'+cr+'¢  +'+xp+' XP  +'+((m.writs|0)+bon.writs)+' ✦';
+  if(it){P.inv.push(it);t+='  +'+it.name;}
+  qClearRT(q);P.quests.splice(P.quests.indexOf(q),1);delete SQD[q.qid];if(P.qfocus===id)P.qfocus=null;
+  SFX.quest();banner('MISSION COMPLETE',q.title+(bon.txt?' · '+bon.txt:''));log('🎲 <b>'+esc(q.title)+'</b> complete. '+esc(t)+(bon.txt?' · '+esc(bon.txt):''));save();return true;}
+// shared by random missions and classic contracts: daily first-completion bonus + weekly contract progress
+function rmComplete(){const r=rmTick();r.total++;const out={mul:0,writs:0,txt:''};
+  if(!r.dayDone){r.dayDone=1;out.mul=0.5;out.writs=3;out.txt='☀ Daily bonus: +50%, +3 ✦';}
+  if(r.wkN<RM_WEEK){r.wkN++;if(r.wkN===RM_WEEK&&!r.wkClaimed){out.txt+=(out.txt?' · ':'')+'📅 Weekly contract done: claim it at a terminal';toast('📅 Weekly contract complete! Claim it at any 📟 terminal');}}
+  return out;}
+function rmClassicDone(m){const bon=rmComplete();const cr=Math.round((m.cr|0)*bon.mul),xp=Math.round((m.xp|0)*bon.mul);if(cr)P.credits+=cr;if(xp)gainXp(xp);const w=1+bon.writs;rmi().writs+=w;
+  return '  +'+w+' ✦'+(bon.txt?'  '+bon.txt+(cr?' (+'+cr+'¢ +'+xp+' XP)':''):'');}
+function rmWeekReward(){const L=clamp(P.level,1,MAXLVL);return {cr:Math.round((20+L*14)*6),xp:Math.round(xpNeed(L)*0.6),writs:15};}
+function rmWeekClaim(){const r=rmTick();if(r.wkN<RM_WEEK||r.wkClaimed)return false;if(RM.remote){warn('Claim at any 📟 mission terminal');return false;}if(rmPackFull()){warn('Pack full: free a slot for the reward item first');return false;}
+  const w=rmWeekReward();const it=genItem(clamp(P.level,1,MAXLVL),Math.random()<0.5?'weapon':pick(ASLOTS),2);r.wkClaimed=1;P.credits+=w.cr;gainXp(w.xp);r.writs+=w.writs;P.inv.push(it);
+  SFX.quest();banner('WEEKLY CONTRACT','+'+w.cr+'¢  +'+w.xp+' XP  +'+w.writs+' ✦  +'+it.name);log('📅 Weekly contract paid: '+esc(it.name));save();return true;}
+function rmAbandonFee(){return 5+P.level*2;}
+function rmAbandon(q){const fee=Math.min(P.credits,rmAbandonFee());P.credits-=fee;delete SQD[q.qid];if(fee)toast('Mission abandoned · −'+fee+'¢ cancellation fee');return true;}
+function rmRerollCost(){return 10+P.level*4;}
+function rmReroll(writ){const r=rmTick();if(writ){if(r.writs<1){warn('No ✦ writs');return false;}r.writs--;}else{const c=rmRerollCost();if(P.credits<c){warn('Not enough credits ('+c+'¢)');return false;}P.credits-=c;}
+  r.offers=[];rmFill();SFX.ui();toast('🎲 New missions on the board');save();return true;}
+/* ---------- writ exchange ---------- */
+const RM_SHOP=[{id:'elix',n:'Elixir crate',d:'2 crafted elixirs (Vigor, Keen or Wardskin, 10 min)',ic:'⚗️',w:5},{id:'core',n:'Emberheart Core',d:'Rare forging material (Build Q tradeskills)',ic:'🔥',w:6},
+  {id:'mats',n:'Material bundle',d:'6 ore + 6 duskpetal at your level QL',ic:'🧰',w:4},{id:'gear',n:'Requisition: Rare gear',d:'A Rare weapon or armour piece at your level',ic:'🎁',w:20}];
+function rmBuy(id){const s=RM_SHOP.find(x=>x.id===id);const r=rmi();if(!s)return false;if(r.writs<s.w){warn('Need '+s.w+' ✦ writs');return false;}const L=clamp(P.level,1,MAXLVL),ql=clamp(L*5,1,IMPQL_MAX());
+  if(s.id==='gear'){if(rmPackFull()){warn('Pack full');return false;}P.inv.push(genItem(L,Math.random()<0.5?'weapon':pick(ASLOTS),2));}
+  else if(s.id==='elix'){for(let i=0;i<2;i++){const k=pick(['vigor','keen','ward']);P.consum[k]=(P.consum[k]||0)+1;}}
+  else if(s.id==='core')bagAdd({kind:'mat',mt:'core',ql},1);else{bagAdd({kind:'mat',mt:'ore',ql},6);bagAdd({kind:'mat',mt:'bloom',ql},6);}
+  r.writs-=s.w;SFX.loot();toast('✦ '+s.n+' acquired');save();return true;}
+/* ---------- gather steps (Build Q materials) ---------- */
+function rmMatCount(mt,ql){return bag().filter(x=>x.kind==='mat'&&x.mt===mt&&x.ql>=ql).reduce((a,x)=>a+x.n,0);}
+function rmMatTake(mt,ql,n){const L=bag().filter(x=>x.kind==='mat'&&x.mt===mt&&x.ql>=ql).sort((a,b)=>a.ql-b.ql);for(const x of L){if(n<=0)break;const k=Math.min(n,x.n);bagTake(x.id,k);n-=k;}return n<=0;}
+function rmStepText(q,st,s){if(st.k==='gather')return 'Gather '+MATS[st.mt].n+' QL '+st.ql+'+ '+Math.min(st.n,rmMatCount(st.mt,st.ql))+'/'+st.n+' (🧰 parts bag)';return '';}
+function rmStepTarget(q,st){if(st.k!=='gather')return null;let b=null,bd=1e18;for(const n of (typeof QN!=='undefined'?QN.list:[])){const N=QNODE[n.t];if(!N||!N.mt.includes(st.mt))continue;const d=(n.x-P.pos.x)**2+(n.z-P.pos.z)**2;if(d<bd){bd=d;b=n;}}
+  return b?{x:b.x,z:b.z,label:QNODE[b.t].n}:null;}
+function updRm(dt){if(state!=='play')return;RM.acc+=dt;if(RM.acc<0.5)return;RM.acc=0;
+  for(const q of rmList()){if(q.stage!=='active')continue;const st=curStep(q);if(!st||st.k!=='gather')continue;
+    if(rmMatCount(st.mt,st.ql)>=st.n&&rmMatTake(st.mt,st.ql,st.n)){toast('📦 Packed '+st.n+'× '+MATS[st.mt].n+' for delivery');qAdvance(q,'deliver to a terminal');}}}
+/* ---------- UI ---------- */
+function rmOpenBoard(){if(panelOpen==='term'){closePanel();return;}RM._rem=true;openTerminal();}
+function rmChip(on,act,extra,label){return `<button class="${on?'on':''}" data-act="${act}" ${extra}>${label}</button>`;}
+function rmHead(){const r=rmTick();const w=rmWeekReward();
+  return `<div class="tabs rmtabs">${rmChip(RM.tab==='board','rmtab','data-t="board"','🎲 Mission board')}${rmChip(RM.tab==='writs','rmtab','data-t="writs"','✦ Writ exchange')}<span class="rmw">✦ <b>${r.writs}</b></span></div>
+  <div class="rmstat"><span class="${r.dayDone?'done':'up'}">☀ Daily bonus ${r.dayDone?'✔ claimed today':'ready: first mission today +50% & +3 ✦'}</span>
+  <span>📅 Weekly contract <b>${r.wkN}/${RM_WEEK}</b>${r.wkClaimed?' ✔ paid':r.wkN>=RM_WEEK?' · <b class="up">ready!</b>':''} <small style="opacity:.7">(+${w.writs} ✦, Rare gear, ${w.cr}¢)</small></span></div>`;}
+function rmOfferHtml(o){const eLv=rmLv();const R=rmReward(o,eLv);const full=qFull();
+  return `<div class="mis rmo"><span class="obadge rmb">🎲 Mission</span> <b>${esc(rmTitle(o))}</b><p>${esc(rmDesc(o,eLv))}</p>
+  <div>Reward: <b>${R.cr}¢</b> · <b>${R.xp} XP</b> · <b>${R.writs} ✦</b>${R.item?' · '+(R.pref&&R.pref!=='any'?MPREF[R.pref].replace(/^\S+ /,'').toLowerCase()+' (likely)':'gear or implant'):''}${R.timed?' · ⏱ timed':''}</div>
+  <button class="sbtn" style="margin-top:8px" data-act="${full?'qfull':'rmacc'}" data-o="${o.oid}">${full?'Mission log full ('+MAXQ+')':'Accept'}</button></div>`;}
+function rmFocusHtml(){const r=rmTick();return `<div class="mis msl"><div class="h4" style="margin:0 0 4px">Reward focus</div><div class="tabs" style="margin:0">${Object.keys(RM_FOCUS).map(k=>rmChip(r.focus===k,'rmfoc','data-f="'+k+'"',RM_FOCUS[k].n)).join('')}${rmChip(r.timed,'rmtime','','⏱ Timed '+(r.timed?'ON':'off'))}</div>
+    <div style="font-size:12px;opacity:.75;margin-top:4px">Timed missions pay +25% and +1 ✦; the clock pauses while a panel is open. Difficulty, preferred reward and focus apply to the missions on the board.</div></div>`;}
+function rmBoardHtml(){const r=rmTick();rmFill();let h='';
+  const ready=rmList().filter(q=>q.stage==='return');
+  if(ready.length||(r.wkN>=RM_WEEK&&!r.wkClaimed)){h+=`<div class="h4">Ready to claim</div>`;
+    if(r.wkN>=RM_WEEK&&!r.wkClaimed)h+=`<div class="mis rmo"><b>📅 Weekly contract complete</b><p>${RM_WEEK} missions this week.</p>${RM.remote?'<div class="down">Claim at any 📟 terminal</div>':'<button class="sbtn" data-act="rmweek">Claim weekly reward</button>'}</div>`;
+    h+=ready.map(q=>{const m=q.rdef.rm||{};return `<div class="mis rmo"><span class="obadge rmb">Done</span> <b>${esc(q.title)}</b><p>${m.cr}¢ · ${m.xp} XP · ${m.writs} ✦${m.item?' · item':''}${r.dayDone?'':' · ☀ +50% daily bonus'}</p>${RM.remote?'<div class="down">Claim at any 📟 terminal</div>':`<button class="sbtn" data-act="rmclaim" data-q="${q.id}">Claim reward</button>`}</div>`;}).join('');}
+  const act=rmList().filter(q=>q.stage!=='return');if(act.length)h+=`<div style="font-size:13px;opacity:.8;margin:4px 0">Active: ${act.map(q=>esc(q.title)+' · '+esc(objText(q))).join('<br>')}</div>`;
+  h+=`<div class="h4">Missions for you · Lv ${rmLv()}${qFull()?' (mission log full: '+MAXQ+')':''}</div>`+rmRef().offers.map(rmOfferHtml).join('');
+  h+=`<div class="rmrr"><button class="sbtn alt" data-act="rmrr">🎲 Reroll board · ${rmRerollCost()}¢</button><button class="sbtn alt" data-act="rmrrw" ${r.writs<1?'disabled':''}>🎲 Reroll · 1 ✦</button><button class="sbtn alt" data-act="rmjump">⚙ Difficulty &amp; reward ↓</button></div>`;
+  return h;}
+const rmRef=()=>rmi();
+function rmWritHtml(){const r=rmi();return rmHead()+`<div class="stats">Earn ✦ writs from every finished mission (classic contracts too), the daily bonus and the weekly contract.</div>`+
+  RM_SHOP.map(s=>`<div class="mis rmo"><b>${s.ic} ${s.n}</b> <span style="opacity:.75">· ${s.w} ✦</span><p>${s.d}</p><button class="sbtn" data-act="rmbuy" data-s="${s.id}" ${r.writs<s.w?'disabled':''}>Buy · ${s.w} ✦</button></div>`).join('');}
+function rmAct(a,b){const D=b.dataset;
+  if(a==='rmtab'){RM.tab=D.t;RM._rem=RM.remote;openTerminal();return true;}
+  if(a==='rmacc'){if(rmAccept(D.o))closePanel();else{RM._rem=RM.remote;openTerminal();}return true;}
+  if(a==='rmclaim'){rmClaim(D.q);RM._rem=RM.remote;openTerminal();return true;}
+  if(a==='rmweek'){rmWeekClaim();RM._rem=RM.remote;openTerminal();return true;}
+  if(a==='rmrr'||a==='rmrrw'){rmReroll(a==='rmrrw');RM._rem=RM.remote;openTerminal();return true;}
+  if(a==='rmfoc'){rmi().focus=RM_FOCUS[D.f]?D.f:'bal';save();RM._rem=RM.remote;openTerminal();return true;}
+  if(a==='rmtime'){rmi().timed=!rmi().timed;save();RM._rem=RM.remote;openTerminal();return true;}
+  if(a==='rmjump'){const e=document.querySelector('#rmset');if(e)e.scrollIntoView({block:'start'});return true;}
+  if(a==='rmbuy'){rmBuy(D.s);RM._rem=RM.remote;openTerminal();return true;}
+  return false;}
+// minimap: random-mission objectives get a cyan diamond (the tracked ring from game16 still applies)
+function rmMini(c,tf){if(DUN||FLAT)return;for(const q of rmList()){if(q.stage==='failed')continue;const t=qTarget(q);if(!t)continue;const s=tf(t.x,t.z);c.fillStyle=q.stage==='return'?'#6dff8a':'#59f0ff';c.strokeStyle='#000';c.lineWidth=1.5;
+  c.beginPath();c.moveTo(s[0],s[1]-5);c.lineTo(s[0]+4,s[1]);c.lineTo(s[0],s[1]+5);c.lineTo(s[0]-4,s[1]);c.closePath();c.fill();c.stroke();}}
+function rmExports(){return {RM,RM_TYPES,RM_FOCUS,RM_SHOP,RM_WEEK,normRmis,rmFields,rmi,rmTick,rmReg,rmList,rmTerms,rmNearTerm,rmGenOffer,rmFill,rmBuild,rmAccept,rmClaim,rmComplete,rmWeekClaim,rmReroll,rmRerollCost,rmAbandonFee,rmBuy,rmMatCount,rmOpenBoard,rmBoardHtml,rmTypesAt,rmSpot,updRm,rmLv};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -7861,7 +8039,7 @@ function tapPick(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFrom
 function btn(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();el.classList.add('press');fn();});
   const up=()=>el.classList.remove('press');el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up);}
 btn('#bAtk',pressAttack);[0,1,2,3,4,5].forEach(i=>btn('#b'+i,()=>{if(!barIds()[i]){if(!P.morph)openBook();return;}useAbility(i);}));btn('#bBook',()=>{if(panelOpen==='book')closePanel();else{bookSel=null;openBook();}});btn('#bStim',useStim);btn('#bSk',()=>{if(panelOpen==='skills')closePanel();else openSkills();});
-hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bCraft',()=>{if(panelOpen==='craft')closePanel();else openCraft();});btn('#bTgt',cycleTarget);btn('#bUse',interact);
+hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bMis',()=>rmOpenBoard());btn('#bCraft',()=>{if(panelOpen==='craft')closePanel();else openCraft();});btn('#bTgt',cycleTarget);btn('#bUse',interact);
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;audioInit();inp.keys[e.code]=true;
   if(state!=='play')return;
   if(e.code==='Escape'){if(panelOpen)closePanel();else openMenu();return;}
@@ -7870,6 +8048,7 @@ addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;au
   if(e.code==='KeyK'){if(panelOpen==='skills')closePanel();else openSkills();return;}
   if(e.code==='KeyP'&&state==='play'){if(panelOpen==='perks')closePanel();else openPerks();return;}
   if(e.code==='KeyJ'){if(panelOpen==='craft')closePanel();else openCraft();return;}
+  if(e.code==='KeyN'&&state==='play'){rmOpenBoard();return;}
   if(e.code==='KeyL'){if(panelOpen==='journal')closePanel();else openJournal();return;}
   if(e.code==='KeyH'){if(panelOpen==='help')closePanel();else openHelp();return;}
   if(e.code==='KeyI'){if(panelOpen==='inv')closePanel();else{invSel=null;openInventory();}return;}
@@ -8028,7 +8207,7 @@ function drawMini(dt){miniAcc+=dt;if(miniAcc<0.08)return;miniAcc=0;const W=300,R
   for(const l of loots)dot(l.x,l.z,RAR[l.item.r].c,4);
   for(const a of allies)dot(a.pos.x,a.pos.z,'#ffa040',4.5);
   for(const e of enemies)if(!e.dead&&Math.abs(e.pos.x-P.pos.x)<95&&Math.abs(e.pos.z-P.pos.z)<95)dot(e.pos.x,e.pos.z,e===P.target?'#fff':e.guard?fzDotCol(e):e.boss?'#ff9a2a':e.state==='chase'?'#ff3b2f':'#e0603a',e.boss?8:e.type==='mauler'?6:4.5);
-  if(!DUN){fzMini(c,tf,sc);campMini(c,tf);bankMini(c,tf);raidMini(c,tf);questMini(c,tf);dynaMini(c,tf);qMini(c,tf);uwpMini(c,tf,R);}
+  if(!DUN){fzMini(c,tf,sc);campMini(c,tf);bankMini(c,tf);raidMini(c,tf);questMini(c,tf);rmMini(c,tf);dynaMini(c,tf);qMini(c,tf);uwpMini(c,tf,R);}
   c.restore();
   const wp=DUN?dunWaypoint():(assaultWaypoint()||storyWaypoint()||missionWaypoint());if(wp){let q=tf(wp.x,wp.z);const dx=q[0]-R,dy=q[1]-R,d=Math.hypot(dx,dy);if(d>R-12){q=[R+dx/d*(R-12),R+dy/d*(R-12)];}c.fillStyle='#ffc85a';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(q[0],q[1]-11);c.lineTo(q[0]+9,q[1]);c.lineTo(q[0],q[1]+11);c.lineTo(q[0]-9,q[1]);c.closePath();c.fill();c.stroke();}
   // north marker
@@ -8065,7 +8244,7 @@ function loadRoster(){let r=null;try{r=JSON.parse(localStorage.getItem(ROSTER_KE
   {const seen={};for(const c of r.chars){if(c.name!=='Contractor'){seen[c.name.toLowerCase()]=1;continue;}let n=c.name,k=2;while(seen[n.toLowerCase()])n='Contractor '+(k++);c.name=n;seen[n.toLowerCase()]=1;}}return r;}
 function writeRoster(r){const j=JSON.stringify(r);const ok=lsSet(ROSTER_KEY,j);if(ok&&r.chars&&r.chars.length)rosterBackup(j);return ok;}
 let roster=loadRoster();let activeId=null;
-function sheetFromPlayer(){return {v:2,id:activeId,created:(roster.chars.find(c=>c.id===activeId)||{}).created||Date.now(),updated:Date.now(),name:P.name,prof:P.prof,level:P.level,xp:P.xp,credits:P.credits,inv:P.inv,eq:P.eq,imps:P.imps,savePoint:P.savePoint,nodes:P.nodes,mprefs:P.mprefs,...futureFields(P),perks:P.perks,pp:P.pp,dunClears:P.dunClears,known:P.known,slots:P.slots,ab:P.ab,sb:P.sb,sp:P.sp,consum:P.consum,
+function sheetFromPlayer(){return {v:3,id:activeId,created:(roster.chars.find(c=>c.id===activeId)||{}).created||Date.now(),updated:Date.now(),name:P.name,prof:P.prof,level:P.level,xp:P.xp,credits:P.credits,inv:P.inv,eq:P.eq,imps:P.imps,savePoint:P.savePoint,nodes:P.nodes,mprefs:P.mprefs,...futureFields(P),perks:P.perks,pp:P.pp,dunClears:P.dunClears,known:P.known,slots:P.slots,ab:P.ab,sb:P.sb,sp:P.sp,consum:P.consum,
   buffs:P.buffs.map(b=>({id:b.id,name:b.name,icon:b.icon,rem:Math.max(0,b.until-T),mods:b.mods})),stims:P.stims,mission:P.mission,kills:P.kills,pos:DUN?[DUN.ret.x,DUN.ret.z]:[P.pos.x,P.pos.z],hp:P.hp,en:P.en,dead:P.dead,
   party:(roster.chars.find(c=>c.id===activeId)||{}).party||{ai:'default',role:ROLE[P.prof]}};}
 function save(){if(state!=='play'||!activeId)return;const sh=sheetFromPlayer();const i=roster.chars.findIndex(c=>c.id===activeId);if(i>=0)roster.chars[i]=sh;else roster.chars.push(sh);roster.active=activeId;writeRoster(roster);}
@@ -8140,7 +8319,7 @@ let last=performance.now(),fpsAcc=0,fpsN=0,slowT=0;
 function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GFXC.fps30&&now-last<30)return;let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;if(dt<=0)return;T+=dt;
   updStage1(dt);pylon.rotation.y+=dt*0.8;for(const f of doorFx)f.rotation.z+=dt;pylonRing.rotation.z+=dt*0.5;termScreen.material.color.setHSL(0.51,0.9,0.55+Math.sin(T*3)*0.08);
   if(state==='play'){
-    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updSun(dt);updEnv(dt);updDeclutter(dt);updCraftQ(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
+    updPlayer(dt);updStage2(dt);updCamps(dt);updBanks();updWorld2(dt);updRaidPortals(dt);updTeam(dt);updProfK(dt);updQuests(dt);updDyna(dt);updBuildC(dt);for(let i=enemies.length-1;i>=0;i--)updEnemy(enemies[i],dt);updProjs(dt);dieStep(dt);updRings(dt);updSched(dt);updLoot(dt);if(DUN)updDungeon(dt);if(P.transit)P.moving=0;updCamera(dt);updGfxL(dt);updXmGate(dt);updSun(dt);updEnv(dt);updDeclutter(dt);updCraftQ(dt);updRm(dt);fzUpdate(dt);tdUpdate(dt);xrCull(dt);updFloats(dt);updHUD(dt);drawMini(dt);
   }else{
     // title flyover
     const a=T*0.05;camera.position.set(Math.sin(a)*72,24+Math.sin(T*0.2)*2,Math.cos(a)*72);camera.lookAt(0,2,0);window.__sky.position.copy(camera.position);
@@ -8154,7 +8333,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

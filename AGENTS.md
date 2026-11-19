@@ -4,7 +4,7 @@ More than one agent works on this repo (Grok via Cursor, and Claude Code). Read 
 
 ## Every push is tested before it goes live
 
-`.github/workflows/pages.yml` runs `tests/smoke_test.py` on every push to `main`, and only deploys to GitHub Pages if it passes. For every profession, the test starts a fresh game, makes a character, plays a few seconds and opens each panel (pack, skills, journal, weave book, craft, help, map). It then gathers a world node and crafts Field Stims through the Tradeskills panel (Build Q), and checks that a save survives a reload. Finally a **phone pass** at short landscape sizes (750x342 and iPhone SE 667x375, touch) creates a character by tapping, shows a region banner and a tip, and fails if HUD elements overlap: tracker, minimap, banner or tip against the action buttons; banner against tip; tip/banner against the tracker, top buttons or frames. **Any page error or console error fails it.**
+`.github/workflows/pages.yml` runs `tests/smoke_test.py` on every push to `main`, and only deploys to GitHub Pages if it passes. For every profession, the test starts a fresh game, makes a character, plays a few seconds and opens each panel (pack, skills, journal, weave book, craft, help, map). It then gathers a world node and crafts Field Stims through the Tradeskills panel (Build Q), opens the 🎲 mission board with N, accepts and delivers a supply run and claims it at the terminal (Build R), and checks that a save survives a reload. Finally a **phone pass** at short landscape sizes (750x342 and iPhone SE 667x375, touch) creates a character by tapping, shows a region banner and a tip, and fails if HUD elements overlap: tracker, minimap, banner or tip against the action buttons; banner against tip; tip/banner against the tracker, top buttons or frames. **Any page error or console error fails it.**
 
 - After you push, check that the Actions run is green. If it's red, the live game is still on the previous build. Fix it and push again.
 - Run it locally before pushing: `pip install playwright && python -m playwright install chromium && python tests/smoke_test.py`.
@@ -13,6 +13,7 @@ More than one agent works on this repo (Grok via Cursor, and Claude Code). Read 
   - phone pass: `#banner`, `#toast`, `#log`, `#mtrack`, `#topright`, `#topbtns`, `#pframe`, `#tframe`, `#bAtk`, `#b0`-`#b5`, `#bQuick`, `#quick`, `#bMount`
   - `window.__dr.PROFS`, `window.__drSave`, `window.DR_BUILD`
   - crafting (Build Q): `window.__dr.nodeAt`, `qRefresh`, `gatherInteract`, `gatherNode`, `bag`, `bagAdd`, `P`; panel buttons `#pbody [data-act="ctab"][data-t="rec"]`, `#pbody [data-act="qrec"][data-r="d_stims"]`, `#craftGo`; ⋯ menu entry `#bCraft`
+  - missions (Build R): key `N` (remote 🎲 board, `#bMis` in the ⋯ menu); `window.__dr.rmFill`, `rmi`, `rmList`, `curStep`, `objText`, `bagAdd`, `openTerminal`, `closePanel`, `P`; board buttons `#pbody [data-act="rmacc"][data-o=…]` (Accept) and `#pbody [data-act="rmclaim"]` (Claim, only at a terminal)
   - keys I K L B J H M, Tab, Space, W
 - Don't delete or weaken the test to get a build out. If it's failing for a reason that isn't a game bug (for example a new harmless console message from headless Chrome), add that message to `IGNORE` in the test and say why in the commit.
 
@@ -20,7 +21,7 @@ More than one agent works on this repo (Grok via Cursor, and Claude Code). Read 
 
 The six files at the repo root (`index.html`, `three.min.js`, `sw.js`, `manifest.webmanifest`, `icon-180.png`, `icon-512.png`) are **build output**. GitHub Pages serves them, but they are generated from `src/`, and the next build overwrites any hand edit. Make every change in `src/` and rebuild.
 
-- `src/game1.js` … `src/game36.js`: the game code (`game36.js` = Build Q gathering nodes + tradeskill ranks/recipes; character data in `P.craft`, saved through `craftFields()` in `futureFields`). `build.js` joins these into one `<script>` **in a fixed order** (see `ORDER` in `build.js`; later files patch earlier ones and `game4.js` boots the game last). If you add a file, add it to `ORDER`.
+- `src/game1.js` … `src/game37.js`: the game code (`game36.js` = Build Q gathering nodes + tradeskill ranks/recipes; character data in `P.craft`, saved through `craftFields()` in `futureFields`. `game37.js` = Build R random missions on the side-quest engine of `game16.js`; each mission keeps its generated definition in `q.rdef` and is re-registered by `rmReg()` on load; board/writs/daily/weekly state in `P.rmis`, saved through `rmFields()`; character sheets are `v:3`). `build.js` joins these into one `<script>` **in a fixed order** (see `ORDER` in `build.js`; later files patch earlier ones and `game4.js` boots the game last). If you add a file, add it to `ORDER`.
 - `src/template.html`: the page shell and all CSS. Placeholders: `__BUILD__`, `__ICON__`, `<script>__THREE__</script>`, `__GAME__`.
 - `src/sw.js`: the service worker template (`__BUILD__`, `__THREE_URL__`).
 - `src/icon.b64` (becomes `icon-180.png`) and `src/icon-512.png`.

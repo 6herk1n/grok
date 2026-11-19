@@ -149,7 +149,7 @@ const SQ=[
 ];
 const SQD={};SQ.forEach(d=>{d.gate=d.gate||GV[d.g].gate||null;SQD[d.id]=d;});
 /* ---------- state ---------- */
-function normQuests(qs,old){let L=[];if(Array.isArray(qs))L=qs.filter(q=>q&&typeof q==='object'&&((q.src==='side'&&SQD[q.qid])||(q.src==='contract'&&(q.kind==='kill'||q.kind==='fetch'))));
+function normQuests(qs,old){let L=[];if(Array.isArray(qs))L=qs.filter(q=>q&&typeof q==='object'&&((q.src==='side'&&(SQD[q.qid]||rmReg(q)))||(q.src==='contract'&&(q.kind==='kill'||q.kind==='fetch'))));
   else if(old&&typeof old==='object'&&(old.kind==='kill'||old.kind==='fetch'))L=[Object.assign({},old,{src:'contract',track:true})];
   return L.slice(0,MAXQ).map(q=>Object.assign({},q,{id:q.id||'q'+uid(),track:q.track!==false}));}
 const contracts=()=>(P.quests||[]).filter(q=>q.src==='contract');
@@ -172,7 +172,7 @@ function qAdvance(q,txt){qClearRT(q);q.step++;const st=curStep(q);if(!st){q.stag
   else{qStartStep(q);SFX.quest();banner(st.k==='choice'?'A CHOICE':'NEXT STEP',q.title+' · '+objText(q));if(st.k==='choice'&&!panelOpen)setTimeout(()=>{if(!panelOpen)openChoice(q.id);},700);}save();}
 function qFail(q,why){qClearRT(q);q.stage='failed';SFX.err();banner('MISSION FAILED',q.title+' · '+why+' · retry from the 📋 log');save();}
 function qRetry(id){const q=(P.quests||[]).find(x=>x.id===id);if(!q||q.stage!=='failed')return false;q.stage='active';qStartStep(q);toast('Retrying: '+objText(q));save();return true;}
-function abandonQuest(id){const q=(P.quests||[]).find(x=>x.id===id);if(!q)return false;if(q.src==='contract'){abandonMission(id);return true;}qClearRT(q);P.quests.splice(P.quests.indexOf(q),1);if(P.qfocus===id)P.qfocus=null;save();return true;}
+function abandonQuest(id){const q=(P.quests||[]).find(x=>x.id===id);if(!q)return false;if(q.src==='contract'){abandonMission(id);return true;}if(q.rm)rmAbandon(q);qClearRT(q);P.quests.splice(P.quests.indexOf(q),1);if(P.qfocus===id)P.qfocus=null;save();return true;}
 function claimQuest(id){const q=(P.quests||[]).find(x=>x.id===id&&x.src==='side');if(!q||q.stage!=='return')return false;const d=SQD[q.qid];let x=d.rew.x||0.3,c=d.rew.c||1,item=!!d.rew.item;let out='';
   stepsOf(q).forEach(()=>{});const ch=d.steps.filter(s=>s.k==='choice');ch.forEach((s,i)=>{const o=s.opts[(q.path||[])[i]];if(o){x+=o.rew.x||0;c*=o.rew.c||1;item=item||!!o.rew.item;out=o.out;}});
   const L=clamp(P.level,1,MAXLVL);const xp=Math.round(xpNeed(L)*x);const cr=Math.round((20+L*14)*c);P.credits+=cr;gainXp(xp);let t='+'+cr+'¢  +'+xp+' XP';
@@ -193,19 +193,20 @@ function objText(q){if(q.src==='contract'){const m=q;return m.stage==='return'?'
     case 'scan':t=`Activate ${st.obj}s ${(s.done||[]).filter(Boolean).length}/${st.pts.length}`;break;
     case 'hunt':t=st.dyna?`Hunt ${DYNAS[st.dyna].name} (dyna)`:`Hunt ${st.name} (elite)`;break;
     case 'explore':{const i=(s.done||[]).findIndex(v=>!v);t=`Discover ${(s.done||[]).filter(Boolean).length}/${st.pts.length}`+(i>=0?': '+st.pts[i][2]:'');break;}
-    case 'kill':t=`${eName(st.t)}s ${s.have|0}/${st.n}`;break;case 'choice':t='Decide: open the 📋 log';break;}
+    case 'kill':t=`${Array.isArray(st.t)?'Hostiles':eName(st.t)+'s'} ${s.have|0}/${st.n}`;break;case 'choice':t='Decide: open the 📋 log';break;default:t=rmStepText(q,st,s);}
   if(s.left!=null)t+=' · ⏱ '+fmtClock(s.left);return t;}
 function qTarget(q){if(q.src==='contract'){const m=q;if(m.stage==='return')return {x:TERMINAL.x,z:TERMINAL.z,label:'Terminal'};if(m.kind==='fetch')return {x:m.x,z:m.z,label:m.obj};
     if(m.x!=null&&enemies.some(e=>e.mis===m.id&&!e.dead))return {x:m.x,z:m.z,label:'Camp'};let best=null,bd=1e9;for(const e of enemies)if(e.type===m.etype&&!e.dead){const d=dist2D(e.home,P.pos);if(d<bd){bd=d;best=e;}}return best?{x:best.home.x,z:best.home.z,label:eName(m.etype)}:null;}
   const g=GV[q.giver];if(q.stage==='return')return {x:g.x,z:g.z,label:g.name};if(q.stage==='failed')return null;const st=curStep(q),s=q.s||{};if(!st)return null;const r=QRT[q.id];
   switch(st.k){case 'fetch':{const o=r&&r.objs&&r.objs.find(o=>!o.taken);return o?{x:o.x,z:o.z,label:st.obj}:{x:st.at[0],z:st.at[1],label:st.obj};}
-    case 'loot':case 'kill':return st.at?{x:st.at[0],z:st.at[1],label:st.item||eName(st.t)}:null;
+    case 'loot':case 'kill':return st.at?{x:st.at[0],z:st.at[1],label:st.item||(Array.isArray(st.t)?'Hostiles':eName(st.t))}:null;
     case 'deliver':case 'talk':return {x:GV[st.to].x,z:GV[st.to].z,label:GV[st.to].name};
     case 'escort':{const a=r&&r.ally;return a&&!a.dead?{x:a.pos.x,z:a.pos.z,label:st.who}:{x:st.from[0],z:st.from[1],label:st.who};}
     case 'defend':return {x:st.at[0],z:st.at[1],label:st.obj};
     case 'scan':{const i=s.done?s.done.findIndex(v=>!v):0;const p=st.pts[Math.max(0,i)];return {x:p[0],z:p[1],label:st.obj};}
     case 'hunt':if(st.dyna){const D=DYNAS[st.dyna];return {x:D.x,z:D.z,label:D.name};}{const e=r&&r.mobs&&r.mobs.find(e=>!e.dead);return e?{x:e.pos.x,z:e.pos.z,label:st.name}:{x:st.at[0],z:st.at[1],label:st.name};}
-    case 'explore':{let best=null,bd=1e9;st.pts.forEach((p,i)=>{if(s.done&&s.done[i])return;const d=Math.hypot(p[0]-P.pos.x,p[1]-P.pos.z);if(d<bd){bd=d;best={x:p[0],z:p[1],label:p[2]};}});return best;}}
+    case 'explore':{let best=null,bd=1e9;st.pts.forEach((p,i)=>{if(s.done&&s.done[i])return;const d=Math.hypot(p[0]-P.pos.x,p[1]-P.pos.z);if(d<bd){bd=d;best={x:p[0],z:p[1],label:p[2]};}});return best;}
+    default:return rmStepTarget(q,st);}
   return null;}
 function focusQuest(){const L=(P.quests||[]).filter(q=>q.track&&q.stage!=='failed');return L.find(q=>q.id===P.qfocus)||L[0]||null;}
 function missionWaypoint(){const q=focusQuest();return q?qTarget(q):null;}
@@ -305,15 +306,15 @@ function openChoice(id){const q=(P.quests||[]).find(x=>x.id===id);const st=q&&cu
   openPanel('⑂ '+q.title.toUpperCase(),`<div class="mis story"><p>${esc(st.text)}</p></div>`+st.opts.map((o,i)=>`<button class="sbtn" style="display:block;width:100%;margin:8px 0;text-align:left" data-act="qch" data-q="${q.id}" data-o="${i}">${esc(o.label)}<br><small style="opacity:.75">${o.rew.item?'item reward · ':''}${o.rew.c?'×'+o.rew.c+' credits · ':''}${o.rew.x?'+XP · ':''}${o.steps.length} more step${o.steps.length>1?'s':''}</small></button>`).join(''),'choice');}
 function questLogHtml(){const L=P.quests||[];const st=sto();let h=`<div class="stats">Active missions <b>${L.length}/${MAXQ}</b> (plus the story). Track up to all of them; the HUD shows the tracked ones and the 📍 focus gets the waypoint arrow. <button class="chip" data-act="qauto">${P.qAutoWp?'✔':'＋'} Auto map waypoint</button></div>`;
   if(st.cur){const s=STEP[st.cur.id];h+=`<div class="mis story"><span class="sbadge">STORY</span> <b>${esc(s.n)}</b><p>${esc(s.obj.label)}</p></div>`;}
-  if(!L.length)h+='<div style="opacity:.7">No optional missions. Contracts: the 📟 terminal in Halden\'s Rest. Side quests: people with a ❗ over their head, all over the Reach.</div>';
+  if(!L.length)h+='<div style="opacity:.7">No optional missions. Missions &amp; contracts: any 📟 terminal (Halden\'s Rest, outposts) or the 🎲 board (N). Side quests: people with a ❗ over their head, all over the Reach.</div>';
   for(const q of L){const side=q.src==='side';const d=side&&SQD[q.qid];const foc=focusQuest()===q;
     let steps='';if(side&&(d.chain||stepsOf(q).length>1)){const S=stepsOf(q);steps='<div class="qsteps">'+S.map((s,i)=>`<span class="${i<q.step||q.stage==='return'?'done':i===q.step?'cur':''}">${i<q.step||q.stage==='return'?'✔':i===q.step?'▶':'○'} ${KIND_ICON[s.k]}</span>`).join('')+(S[S.length-1].k==='choice'?'<span>… ⑂</span>':'')+'</div>';}
-    h+=`<div class="mis${foc?' cur':''}"><span class="obadge">${side?(d.chain?'Chain':'Side quest'):'Contract'}</span>${q.stage==='failed'?' <span class="obadge" style="background:#7a2a20">Failed</span>':''} <b>${esc(q.title)}</b> <span style="opacity:.7">· ${side?esc(GV[q.giver].name):'📟 terminal'}</span>
+    h+=`<div class="mis${foc?' cur':''}"><span class="obadge">${q.rm?'🎲 Mission':side?(d.chain?'Chain':'Side quest'):'Contract'}</span>${q.stage==='failed'?' <span class="obadge" style="background:#7a2a20">Failed</span>':''} <b>${esc(q.title)}</b> <span style="opacity:.7">· ${side?esc(GV[q.giver].name):'📟 terminal'}</span>
       <p>${foc?'📍 ':''}${esc(objText(q))}</p>${steps}<div class="qbtns"><button class="chip${q.track?' on':''}" data-act="qtrk" data-q="${q.id}">${q.track?'✔ Tracked':'Track'}</button><button class="chip" data-act="qfoc" data-q="${q.id}">📍 Focus</button>
       ${q.stage==='failed'?`<button class="chip" data-act="qretry" data-q="${q.id}">↻ Retry</button>`:''}${side&&curStep(q)&&curStep(q).k==='choice'&&q.stage==='active'?`<button class="chip" data-act="qchoose" data-q="${q.id}">⑂ Decide</button>`:''}<button class="chip" data-act="qab" data-q="${q.id}">Abandon</button></div></div>`;}
   const done=Object.keys(P.qdone||{}).length;h+=`<div style="opacity:.7;font-size:12px;margin-top:6px">Side quests completed: ${done}/${SQ.length}</div>`;return h;}
 function questTrackHtml(){const L=(P.quests||[]).filter(q=>q.track);if(!L.length)return '';const f=focusQuest();
-  return L.slice(0,3).map(q=>`<div class="qtrk" data-q="${q.id}"><b>${q===f?'📍 ':''}${esc(q.title)}</b> <span class="opt">${q.src==='side'?'side':'contract'}</span><br>${esc(objText(q))}</div>`).join('')+(L.length>3?`<div class="qtrk" style="opacity:.7">+${L.length-3} more tracked</div>`:'');}
+  return L.slice(0,3).map(q=>`<div class="qtrk" data-q="${q.id}"><b>${q===f?'📍 ':''}${esc(q.title)}</b> <span class="opt">${q.rm?'mission':q.src==='side'?'side':'contract'}</span><br>${esc(objText(q))}</div>`).join('')+(L.length>3?`<div class="qtrk" style="opacity:.7">+${L.length-3} more tracked</div>`:'');}
 function questAct(a,b){const D=b.dataset;if(a==='qacc'){if(acceptQuest(D.q))closePanel();}else if(a==='qfull')warn('Mission log full ('+MAXQ+')');else if(a==='qclaim'){claimQuest(D.q);openGiver(D.g);}
   else if(a==='qch'){if(chooseQuest(D.q,+D.o))closePanel();}else if(a==='qchoose')openChoice(D.q);else if(a==='qtrk'){const q=P.quests.find(x=>x.id===D.q);if(q){q.track=!q.track;save();openJournal('missions');}}
   else if(a==='qfoc'){const q=P.quests.find(x=>x.id===D.q);if(q){q.track=true;P.qfocus=q.id;save();toast('📍 Waypoint: '+q.title);openJournal('missions');}}else if(a==='qab'){abandonQuest(D.q);openJournal('missions');}

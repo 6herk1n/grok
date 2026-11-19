@@ -148,6 +148,28 @@ async def main():
         await page.keyboard.press("Escape"); await page.wait_for_timeout(150)
         print("  ok  crafting" if not any(x.startswith("[crafting]") for x in problems) else "  FAIL crafting")
 
+        # Build R random missions: open the 🎲 board (N), accept a supply run with its own button, deliver, claim at the terminal
+        where[0] = "missions"
+        try:
+            await page.evaluate("() => { const d = window.__dr; d.rmFill(); const o = d.rmi().offers[0]; o.type = 'gather'; o.mt = 'ore'; }")
+            await page.keyboard.press("KeyN"); await page.wait_for_timeout(300)
+            oid = await page.evaluate("window.__dr.rmi().offers[0].oid")
+            await page.click(f'#pbody [data-act="rmacc"][data-o="{oid}"]'); await page.wait_for_timeout(300)
+            st = await page.evaluate("""() => { const d = window.__dr; const q = d.rmList()[0]; if (!q) return 'not accepted';
+                const s = d.curStep(q); d.bagAdd({kind: 'mat', mt: 'ore', ql: 500}, s.n); return 'ok'; }""")
+            if st != "ok":
+                problems.append(f"[missions] {st}")
+            await page.wait_for_timeout(1200)
+            res = await page.evaluate("""() => { const d = window.__dr, q = d.rmList()[0]; if (!q || q.stage !== 'return') return 'supply run did not complete: ' + (q && d.objText(q));
+                d.P.pos.set(-7, 0, -7); d.closePanel(); d.openTerminal(); const w0 = d.rmi().writs;
+                const b = document.querySelector('#pbody [data-act="rmclaim"]'); if (!b) return 'no Claim button at the terminal'; b.click(); d.closePanel();
+                return d.rmList().length === 0 && d.rmi().writs > w0 ? 'ok' : 'claim paid no writs'; }""")
+            if res != "ok":
+                problems.append(f"[missions] {res}")
+        except Exception as e:
+            problems.append(f"[missions] mission board buttons missing: {str(e)[:200]}")
+        print("  ok  missions" if not any(x.startswith("[missions]") for x in problems) else "  FAIL missions")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)

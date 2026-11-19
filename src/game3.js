@@ -190,6 +190,7 @@ function turnIn(id){const L=contracts().filter(m=>m.stage==='return'&&(!id||m.id
   if(m.fac&&m.rep){gainRep(m.fac,m.rep);txt+='  +'+m.rep+' '+FACTIONS[m.fac].short+' rep';}
   if((m.diff|0)>=3&&!(P.vehicles||[]).includes('skiff')&&Math.random()<0.25){grantVehicle('skiff','Contract bonus');txt+='  +Dust Skiff';}
   if(m.item){const it=missionReward(m);if(P.inv.length<24){P.inv.push(it);txt+='  +'+it.name;}}
+  txt+=rmClassicDone(m);
   P.quests.splice(P.quests.indexOf(m),1);if(P.qfocus===m.id)P.qfocus=null;banner('MISSION COMPLETE',txt);log('Reward: '+esc(txt));}offersAt=-999;SFX.quest();save();openTerminal();}
 
 /* ---------------- panels ---------------- */
@@ -277,17 +278,20 @@ function tierBar(){const t=pTier(),d=TIERS[t],nx=TIERS[t+1];return `<div class="
 function respec(){const price=20*P.level;if(P.credits<price){warn('Not enough credits');return;}P.credits-=price;P.ab={};P.sb={};P.sp=spTotal(P.level);calcStats();save();toast('Points refunded. Equipped items stay on.');}
 function openTerminal(){
   if(T-offersAt>90||missionOffers.length===0){missionOffers=[genMission(),genMission(),genMission()];offersAt=T;}
-  let h=terminalStoryCard();const m=P.mission;const mp=mprefs();const D=MDIFF[mp.diff|0];
-  h+=`<div class="mis msl"><div class="h4" style="margin:0 0 4px">Contract difficulty: <b style="color:${D.c}">${D.n}</b> · enemies Lv ${clamp(P.level+D.lv,1,12)} · ×${D.cnt} enemies · ×${D.rew} XP/credits${D.rar?' · better loot':''}</div>
+  RM.remote=RM._rem||(panelOpen==='term'&&RM.remote);RM._rem=false;const ttl=RM.remote?'🎲 MISSION BOARD':'COMBINE CONTRACT TERMINAL';
+  if(RM.tab==='writs'){openPanel(ttl,rmWritHtml(),'term');return;}
+  let h=rmHead()+(RM.remote?'<div class="stats">Remote view: accept and reroll here; claim rewards at any 📟 terminal (Halden\'s Rest or an outpost).</div>':'')+rmBoardHtml()+terminalStoryCard();const m=P.mission;const mp=mprefs();const D=MDIFF[mp.diff|0];
+  h+=`<div class="mis msl" id="rmset"><div class="h4" style="margin:0 0 4px">Mission difficulty: <b style="color:${D.c}">${D.n}</b> · enemies Lv ${clamp(P.level+D.lv,1,MAXLVL)} · ×${D.cnt} enemies · ×${D.rew} XP/credits${D.rar?' · better loot':''}</div>
     <div style="display:flex;align-items:center;gap:10px"><button class="sbtn alt" data-act="mdiff" data-d="-1">−</button><input type="range" id="mdiff" min="0" max="4" step="1" value="${mp.diff|0}" style="flex:1"><button class="sbtn alt" data-act="mdiff" data-d="1">+</button></div>
     <div style="display:flex;justify-content:space-between;font-size:11px;opacity:.75;padding:0 52px">${MDIFF.map(d=>`<span style="color:${d.c}">${d.n}</span>`).join('')}</div>
     <div class="h4" style="margin:8px 0 4px">Preferred reward</div><div class="tabs" style="margin:0">${Object.keys(MPREF).map(k=>`<button data-act="mpref" data-p="${k}" class="${mp.pref===k?'on':''}">${MPREF[k]}</button>`).join('')}</div></div>`;
+  h+=rmFocusHtml();
   const CL=contracts();if(CL.length){h+=`<div class="h4">Active contracts (${CL.length}) · mission log ${(P.quests||[]).length}/${MAXQ}</div>`;
-    h+=CL.map(m=>`<div class="mis"><span class="obadge">Optional</span> <b>${esc(m.title)}</b><p>${esc(m.desc)}</p>${m.kind==='kill'?`<div>Progress: ${m.have}/${m.need}</div>`:''}<div>Reward: ${m.cr}¢ · ${m.xp} XP${m.item?' · bonus implant or gear':''}</div><div class="btns" style="margin-top:8px;display:flex;gap:8px">${m.stage==='return'?`<button class="sbtn" data-act="turnin" data-id="${m.id}">Claim reward</button>`:`<button class="sbtn alt" data-act="abandon" data-id="${m.id}">Abandon</button>`}</div></div>`).join('');}
-  h+=`<div class="h4">Optional contracts: XP, credits &amp; loot${qFull()?' (mission log full: '+MAXQ+')':' · take several at once'}</div>`;
+    h+=CL.map(m=>`<div class="mis"><span class="obadge">Optional</span> <b>${esc(m.title)}</b><p>${esc(m.desc)}</p>${m.kind==='kill'?`<div>Progress: ${m.have}/${m.need}</div>`:''}<div>Reward: ${m.cr}¢ · ${m.xp} XP${m.item?' · bonus implant or gear':''}</div><div class="btns" style="margin-top:8px;display:flex;gap:8px">${m.stage==='return'?(RM.remote?'<span class="down">Claim at any 📟 terminal</span>':`<button class="sbtn" data-act="turnin" data-id="${m.id}">Claim reward</button>`):`<button class="sbtn alt" data-act="abandon" data-id="${m.id}">Abandon</button>`}</div></div>`).join('');}
+  h+=`<div class="h4">📋 Quick contracts: cull &amp; recover, XP, credits &amp; loot${qFull()?' (mission log full: '+MAXQ+')':' · take several at once'}</div>`;
   missionOffers.forEach((o,i)=>{h+=`<div class="mis"><span class="obadge">Optional</span> <b>${esc(o.title)}</b><p>${esc(o.desc)}</p><div>Reward: ${o.cr}¢ · ${o.xp} XP${o.rep?` · <b style="color:${FACTIONS[o.fac].col}">+${o.rep} ${FACTIONS[o.fac].short} rep</b>`:''}${o.item?' · bonus '+(o.pref&&o.pref!=='any'?MPREF[o.pref].replace(/^\S+ /,'').toLowerCase()+' (likely)':'item'):''}</div>${qFull()?'':`<button class="sbtn" style="margin-top:8px" data-act="accept" data-i="${i}">Accept</button>`}</div>`;});
   h+=`<div class="mis" style="border-color:rgba(255,154,42,.4)"><b>🚪 Capped dungeons</b><p>${Object.values(DUNGEONS).map(D=>`<b style="color:#f3e6d3">${esc(D.name)}</b> ${dunRange(D.id)}${D.gate&&!gateOpen(D.gate)?' <span class="down">· 🔒 story step '+(STEP[GATES[D.gate].step].i+1)+'</span>':P.level>D.cap?' <span class="down">· too experienced</span>':P.level<D.minLvl?' <span style="opacity:.7">· not yet</span>':' <span class="up">· open to you</span>'}`).join('<br>')}<br>Over the cap you can't enter, so twink: buff up, wear gear and implants above your level, and clear at the cap for a better boss loot bonus.</p></div>`;
-  openPanel('COMBINE CONTRACT TERMINAL',h,'term');
+  openPanel(ttl,h,'term');
 }
 let vendTab='buy';
 let vendConfirm=null;
