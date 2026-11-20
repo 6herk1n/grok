@@ -172,6 +172,15 @@ html.notouch #joy{display:none}
 #b3{right:calc(222px + var(--sr));bottom:calc(16px + var(--sb))}
 #b4{right:calc(212px + var(--sr));bottom:calc(100px + var(--sb))}
 #b5{right:calc(130px + var(--sr));bottom:calc(184px + var(--sb))}
+#bPg{right:calc(226px + var(--sr));bottom:calc(186px + var(--sb));width:46px;height:46px}#bPg .ic{font-size:20px;font-weight:900;color:#ffd9a0}#bPg.p2{border-color:#5ff2ff;box-shadow:0 0 12px rgba(95,242,255,.5)}#bPg.p2 .ic{color:#5ff2ff}
+#bLo{right:calc(366px + var(--sr));bottom:calc(22px + var(--sb))}
+#loPop{position:absolute;right:calc(366px + var(--sr));bottom:calc(86px + var(--sb));display:flex;flex-direction:column-reverse;gap:6px;z-index:6}#loPop.hidden{display:none}
+.lochip{min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid rgba(255,190,110,.5);background:rgba(25,14,8,.88);color:#f3e6d0;font:inherit;font-size:14px;text-align:left;white-space:nowrap;display:inline-flex;gap:6px;align-items:center;cursor:pointer}.lochip.on{border-color:#5ff2ff;box-shadow:0 0 10px rgba(95,242,255,.45);color:#fff}.lochip.alt{opacity:.85;font-size:13px}
+.ab.wlock{filter:grayscale(1) brightness(.6)}.ab.wlock::after{content:'🔒';position:absolute;top:2px;right:6px;font-size:12px}.wslot.wlock{opacity:.6}
+.wvmx{display:flex;align-items:center;gap:8px;font-size:13px}.wvmxb{flex:1;height:10px;border-radius:5px;background:#2a2218;overflow:hidden;max-width:260px}.wvmxb i{display:block;height:100%}
+.wvlos{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.wvlo{display:inline-flex;gap:2px;align-items:center}.lomini{min-width:44px;min-height:44px;border-radius:10px;border:1px solid rgba(255,190,110,.3);background:rgba(25,14,8,.6);color:#f3e6d0;font:inherit;cursor:pointer}
+.wvfams{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.wvfam{min-height:44px;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,190,110,.35);background:rgba(25,14,8,.6);color:#f3e6d0;font:inherit;font-size:13px;cursor:pointer}.wvfam.on{border-color:#5ff2ff;color:#fff;background:rgba(40,80,90,.6)}
+.tag.wf{background:rgba(255,255,255,.12);color:#e8dcc8}.tag.wb{background:rgba(255,211,74,.3);color:#ffe9a0}.item.wbest{border-color:rgba(255,211,74,.75)}.item.wlock{opacity:.7}.wvtc{display:inline-block;margin-top:4px;padding:4px 10px;font-size:12px}.wvwh{opacity:.75;font-size:12px}.bf.wvmxc{color:#5ff2ff}
 .ab.empty{opacity:.45;border-style:dashed}.ab.empty .ic{font-size:24px}
 #bStim{right:calc(300px + var(--sr));bottom:calc(22px + var(--sb))}
 .ab.buff{border-color:rgba(200,107,255,.85)}
@@ -299,6 +308,7 @@ html.notouch #joy{display:none}
 #bAtk{right:calc(15px + var(--sr));bottom:calc(15px + var(--sb))}
 #b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
 #b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
+#bPg{right:calc(156px + var(--sr));bottom:calc(128px + var(--sb));width:38px;height:38px}#bPg .ic{font-size:16px}#bLo{right:calc(258px + var(--sr));bottom:calc(15px + var(--sb))}#loPop{right:calc(258px + var(--sr));bottom:calc(62px + var(--sb));gap:4px;display:grid;grid-template-columns:auto auto;direction:rtl}#loPop .lochip{direction:ltr}#loPop.hidden{display:none}.lochip{min-height:40px;padding:4px 10px;font-size:13px}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{right:calc(210px + var(--sr));bottom:calc(60px + var(--sb));padding:9px 16px;font-size:14px}/* Build Q: left of the ability cluster, clear of the minimap column (gathering shows it often) */#castbar{bottom:calc(120px + var(--sb))}
 #joy{width:100px;height:100px;margin:-50px 0 0 -50px;left:calc(80px + var(--sl));top:calc(100% - 85px - var(--sb))}#joyKnob{width:44px;height:44px;margin:-22px}
@@ -328,6 +338,7 @@ html.notouch #joy{display:none}
 #bAtk{right:calc(15px + var(--sr));bottom:calc(15px + var(--sb))}
 #b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
 #b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
+#bPg{right:calc(156px + var(--sr));bottom:calc(128px + var(--sb));width:38px;height:38px}#bPg .ic{font-size:16px}#bLo{right:calc(258px + var(--sr));bottom:calc(15px + var(--sb))}#loPop{right:calc(258px + var(--sr));bottom:calc(62px + var(--sb));gap:4px;display:grid;grid-template-columns:auto auto;direction:rtl}#loPop .lochip{direction:ltr}#loPop.hidden{display:none}.lochip{min-height:40px;padding:4px 10px;font-size:13px}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 }
@@ -381,6 +392,8 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <button class="ab" id="b3"><span class="ic"></span><span class="cd"></span><span class="ct"></span><span class="cost"></span></button>
   <button class="ab" id="b4"><span class="ic"></span><span class="cd"></span><span class="ct"></span><span class="cost"></span></button>
   <button class="ab" id="b5"><span class="ic"></span><span class="cd"></span><span class="ct"></span><span class="cost"></span></button>
+  <button class="ab small" id="bPg" title="Action bar page: tap or swipe (`)"><span class="ic">1</span></button>
+  <button class="ab small" id="bLo" title="Loadouts (V)"><span class="ic">🗂</span></button><div id="loPop" class="hidden"></div>
   <button class="ab small" id="bQuick" title="Stim, vehicle, next target"><span class="ic">⋯</span><span class="cnt" id="qStims"></span></button>
   <div id="quick"><button class="ab small" id="bStim" title="Stim (Q)"><span class="ic">💉</span><span class="cd"></span><span class="ct"></span><span class="cnt"></span></button><button class="ab small hidden" id="bMount" title="Hover vehicle (R)"><span class="ic">🛵</span><span class="cd"></span><span class="ct"></span></button><button class="ab small" id="bTgt" title="Next target (Tab)"><span class="ic">◎</span></button></div>
   <div id="castbar" class="hidden"><i></i><span></span></div>

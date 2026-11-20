@@ -260,6 +260,30 @@ async def main():
         await page.evaluate("() => { const d = window.__dr; d.closePanel(); if (d.vgRun) d.vgLeave(false); else if (d.DUN) d.exitDungeon(true); }")
         print("  ok  vigil stair" if not any(x.startswith("[vigil stair]") for x in problems) else "  FAIL vigil stair")
 
+        # Build W1 Weave loadouts: open the HUD loadout list, switch to Attack with one tap, flip the bar to page 2 and back
+        # with the page chip, and open the Weave Book with B and filter it by family.
+        where[0] = "weave loadouts"
+        try:
+            await page.evaluate("() => { const d = window.__dr; if (d.DUN) d.exitDungeon(true); d.closePanel(); }")
+            await page.click("#bLo", timeout=8000)
+            await page.click('#loPop [data-lo="1"]', timeout=8000)
+            await page.wait_for_function("() => { const d = window.__dr; return d.P.wv.cur === 1 && d.P.slots.some(Boolean); }", timeout=8000)
+            await page.click("#bPg", timeout=8000)
+            await page.wait_for_function("() => window.__dr.P.wv.pg === 1", timeout=5000)
+            await page.click("#bPg", timeout=8000)
+            await page.wait_for_function("() => window.__dr.P.wv.pg === 0", timeout=5000)
+            await page.keyboard.press("b")
+            await page.click('#pbody [data-act="wvfam"][data-f="nuke"]', timeout=8000)
+            res = await page.evaluate("""() => { const d = window.__dr; const rows = [...document.querySelectorAll('#pbody [data-act="bsel"]')];
+                if (!rows.length) return 'no nukes listed'; if (!rows.every(e => d.wvFam(d.WEAVES[e.dataset.w]) === 'nuke')) return 'filter shows other families';
+                if (!document.querySelector('#pbody .wvmx')) return 'no Matrix bar'; return 'ok'; }""")
+            if res != "ok":
+                problems.append(f"[weave loadouts] {res}")
+        except Exception as e:
+            problems.append(f"[weave loadouts] failed: {str(e)[:200]}")
+        await page.evaluate("() => { const d = window.__dr; d.closePanel(); d.wvFilt = 'all'; }")
+        print("  ok  weave loadouts" if not any(x.startswith("[weave loadouts]") for x in problems) else "  FAIL weave loadouts")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)

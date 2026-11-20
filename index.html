@@ -172,6 +172,15 @@ html.notouch #joy{display:none}
 #b3{right:calc(222px + var(--sr));bottom:calc(16px + var(--sb))}
 #b4{right:calc(212px + var(--sr));bottom:calc(100px + var(--sb))}
 #b5{right:calc(130px + var(--sr));bottom:calc(184px + var(--sb))}
+#bPg{right:calc(226px + var(--sr));bottom:calc(186px + var(--sb));width:46px;height:46px}#bPg .ic{font-size:20px;font-weight:900;color:#ffd9a0}#bPg.p2{border-color:#5ff2ff;box-shadow:0 0 12px rgba(95,242,255,.5)}#bPg.p2 .ic{color:#5ff2ff}
+#bLo{right:calc(366px + var(--sr));bottom:calc(22px + var(--sb))}
+#loPop{position:absolute;right:calc(366px + var(--sr));bottom:calc(86px + var(--sb));display:flex;flex-direction:column-reverse;gap:6px;z-index:6}#loPop.hidden{display:none}
+.lochip{min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid rgba(255,190,110,.5);background:rgba(25,14,8,.88);color:#f3e6d0;font:inherit;font-size:14px;text-align:left;white-space:nowrap;display:inline-flex;gap:6px;align-items:center;cursor:pointer}.lochip.on{border-color:#5ff2ff;box-shadow:0 0 10px rgba(95,242,255,.45);color:#fff}.lochip.alt{opacity:.85;font-size:13px}
+.ab.wlock{filter:grayscale(1) brightness(.6)}.ab.wlock::after{content:'🔒';position:absolute;top:2px;right:6px;font-size:12px}.wslot.wlock{opacity:.6}
+.wvmx{display:flex;align-items:center;gap:8px;font-size:13px}.wvmxb{flex:1;height:10px;border-radius:5px;background:#2a2218;overflow:hidden;max-width:260px}.wvmxb i{display:block;height:100%}
+.wvlos{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.wvlo{display:inline-flex;gap:2px;align-items:center}.lomini{min-width:44px;min-height:44px;border-radius:10px;border:1px solid rgba(255,190,110,.3);background:rgba(25,14,8,.6);color:#f3e6d0;font:inherit;cursor:pointer}
+.wvfams{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.wvfam{min-height:44px;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,190,110,.35);background:rgba(25,14,8,.6);color:#f3e6d0;font:inherit;font-size:13px;cursor:pointer}.wvfam.on{border-color:#5ff2ff;color:#fff;background:rgba(40,80,90,.6)}
+.tag.wf{background:rgba(255,255,255,.12);color:#e8dcc8}.tag.wb{background:rgba(255,211,74,.3);color:#ffe9a0}.item.wbest{border-color:rgba(255,211,74,.75)}.item.wlock{opacity:.7}.wvtc{display:inline-block;margin-top:4px;padding:4px 10px;font-size:12px}.wvwh{opacity:.75;font-size:12px}.bf.wvmxc{color:#5ff2ff}
 .ab.empty{opacity:.45;border-style:dashed}.ab.empty .ic{font-size:24px}
 #bStim{right:calc(300px + var(--sr));bottom:calc(22px + var(--sb))}
 .ab.buff{border-color:rgba(200,107,255,.85)}
@@ -299,6 +308,7 @@ html.notouch #joy{display:none}
 #bAtk{right:calc(15px + var(--sr));bottom:calc(15px + var(--sb))}
 #b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
 #b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
+#bPg{right:calc(156px + var(--sr));bottom:calc(128px + var(--sb));width:38px;height:38px}#bPg .ic{font-size:16px}#bLo{right:calc(258px + var(--sr));bottom:calc(15px + var(--sb))}#loPop{right:calc(258px + var(--sr));bottom:calc(62px + var(--sb));gap:4px;display:grid;grid-template-columns:auto auto;direction:rtl}#loPop .lochip{direction:ltr}#loPop.hidden{display:none}.lochip{min-height:40px;padding:4px 10px;font-size:13px}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{right:calc(210px + var(--sr));bottom:calc(60px + var(--sb));padding:9px 16px;font-size:14px}/* Build Q: left of the ability cluster, clear of the minimap column (gathering shows it often) */#castbar{bottom:calc(120px + var(--sb))}
 #joy{width:100px;height:100px;margin:-50px 0 0 -50px;left:calc(80px + var(--sl));top:calc(100% - 85px - var(--sb))}#joyKnob{width:44px;height:44px;margin:-22px}
@@ -328,6 +338,7 @@ html.notouch #joy{display:none}
 #bAtk{right:calc(15px + var(--sr));bottom:calc(15px + var(--sb))}
 #b0{right:calc(97px + var(--sr));bottom:calc(11px + var(--sb))}#b1{right:calc(90px + var(--sr));bottom:calc(70px + var(--sb))}#b2{right:calc(36px + var(--sr));bottom:calc(98px + var(--sb))}
 #b3{right:calc(155px + var(--sr));bottom:calc(11px + var(--sb))}#b4{right:calc(148px + var(--sr));bottom:calc(70px + var(--sb))}#b5{right:calc(91px + var(--sr));bottom:calc(129px + var(--sb))}
+#bPg{right:calc(156px + var(--sr));bottom:calc(128px + var(--sb));width:38px;height:38px}#bPg .ic{font-size:16px}#bLo{right:calc(258px + var(--sr));bottom:calc(15px + var(--sb))}#loPop{right:calc(258px + var(--sr));bottom:calc(62px + var(--sb));gap:4px;display:grid;grid-template-columns:auto auto;direction:rtl}#loPop .lochip{direction:ltr}#loPop.hidden{display:none}.lochip{min-height:40px;padding:4px 10px;font-size:13px}
 #bQuick{right:calc(210px + var(--sr));bottom:calc(15px + var(--sb))}#quick{right:calc(210px + var(--sr));bottom:calc(62px + var(--sb));gap:7px}#bMount{right:calc(210px + var(--sr));bottom:calc(64px + var(--sb))}
 #bUse{bottom:calc(188px + var(--sb));padding:9px 16px;font-size:14px}#castbar{bottom:calc(120px + var(--sb))}
 }
@@ -340,10 +351,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261120T123735-f01fc14f">
+<meta name="dr-build" content="20261120T161456-0ddf8473">
 <script>
 (function(){
-var BUILD='20261120T123735-f01fc14f';window.DR_BUILD=BUILD;
+var BUILD='20261120T161456-0ddf8473';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -381,6 +392,8 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <button class="ab" id="b3"><span class="ic"></span><span class="cd"></span><span class="ct"></span><span class="cost"></span></button>
   <button class="ab" id="b4"><span class="ic"></span><span class="cd"></span><span class="ct"></span><span class="cost"></span></button>
   <button class="ab" id="b5"><span class="ic"></span><span class="cd"></span><span class="ct"></span><span class="cost"></span></button>
+  <button class="ab small" id="bPg" title="Action bar page: tap or swipe (`)"><span class="ic">1</span></button>
+  <button class="ab small" id="bLo" title="Loadouts (V)"><span class="ic">🗂</span></button><div id="loPop" class="hidden"></div>
   <button class="ab small" id="bQuick" title="Stim, vehicle, next target"><span class="ic">⋯</span><span class="cnt" id="qStims"></span></button>
   <div id="quick"><button class="ab small" id="bStim" title="Stim (Q)"><span class="ic">💉</span><span class="cd"></span><span class="ct"></span><span class="cnt"></span></button><button class="ab small hidden" id="bMount" title="Hover vehicle (R)"><span class="ic">🛵</span><span class="cd"></span><span class="ct"></span></button><button class="ab small" id="bTgt" title="Next target (Tab)"><span class="ic">◎</span></button></div>
   <div id="castbar" class="hidden"><i></i><span></span></div>
@@ -2028,7 +2041,7 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='learn'){learnDisk(b.dataset.id);openBook();}
   else if(a==='bsel'){bookSel=b.dataset.w===bookSel?null:b.dataset.w;openBook();}
   else if(a==='slot'){const i=+b.dataset.i;if(bookSel){assignSlot(i,bookSel);bookSel=null;}openBook();}
-  else if(a==='clrslot'){P.slots[+b.dataset.i]=null;setupHud();save();openBook();}
+  else if(a==='clrslot'){wvClrSlot(+b.dataset.i);openBook();}
   else if(a==='mdiff'){const mp=mprefs();mp.diff=clamp((mp.diff|0)+(+b.dataset.d),0,4);missionOffers=[];save();openTerminal();}
   else if(a==='mpref'){mprefs().pref=b.dataset.p;missionOffers=[];save();openTerminal();}
   else if(a==='travel'){closePanel();conduitTravel(b.dataset.id);}
@@ -2584,7 +2597,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s),...hmFields(s),...homeFields(s),...achFields(s),...vgFields(s)};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s),...hmFields(s),...homeFields(s),...achFields(s),...vgFields(s),...wvFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -3204,6 +3217,7 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('📈 Skills, levels &amp; twinking','Levels give skill points (📈). Attributes feed skills. Gear, implants and Weave Disks have skill requirements. Buffs (self-buff Weaves, trader stims, other implants) raise your skills for a while, so you can equip things early. Once equipped they stay on: that is <b>twinking</b>.')+
   S_('🧠 Implants','Seven implant slots (Cortex, Ocular, Thoracic, Brachial, Digital, Femoral, Plantar). Installing needs Treatment plus one attribute, both rising with Quality Level (QL). Install in the right order: one implant\'s bonus can unlock the next.')+
   S_('📀 Weaves','Your profession\'s powers. Learn new ones from Weave Disks (drops, trader, dungeons). The Weave Book sets your six slots. Rare Shimmerveil disks give huge evasion.')+
+  S_('🗂 Weave loadouts, page 2, Matrix &amp; requirements','<b>Two bar pages:</b> your action bar has a second page of six slots. Tap the round <b>1/2 chip</b> above the buttons, swipe sideways beside the buttons, or press <b>`</b> to flip. Fill page 2 in the 📖 Weave Book (slots marked ²). <b>Loadouts:</b> tap <b>🗂</b> next to the ⋯ button (or press <b>V</b> to cycle) to swap both pages in one tap. You start with <b>Main</b> (your old bar) plus <b>Attack</b>, <b>Buff</b> and <b>Debuff</b>, which fill themselves from your best Weaves until you save over them; in the Weave Book 💾 saves your current bars into a loadout, ✎ renames, ✕ deletes and ＋ makes a new one (up to 8). <b>Requirements:</b> a Weave needs its skills (shown on the disc, e.g. Weave Craft + Intelligence) to be <b>cast</b>, not only learned. Buffs, implants and gear count, so buffing up can open better Weaves; a 🔒 on a button means you are short. Weaves you knew before this update stay castable. <b>Matrix ◇:</b> running buff Weaves occupy your Matrix (shown next to your buffs and in the Weave Book). It grows with level, installed implants and headgear. If a new buff does not fit you get the ◇ Matrix panel to drop one, then it is cast. A higher rank of a buff replaces the lower one. <b>Weave Book filters:</b> pick a family (Nukes, Area, Damage over time, Debuffs, Self-buffs, Team buffs, Heals, Control, Utility, Pets). ★ marks the best rank you can cast now, and each missing Weave shows where its disc comes from. <b>Teammates:</b> with AI teammates nearby, buff Weaves in the book get a 👥 <b>Cast on teammates</b> button (more damage, and less damage taken for warding buffs; it does not use your Matrix).')+
   S_('📟 Missions, 🚪 dungeons &amp; 💾 saving','Take missions at any 📟 terminal (Halden\'s Rest and the outposts) or open the 🎲 board anywhere with <b>N</b> (or ⋯ → Missions). The slider sets difficulty and reward. Dungeon doors in the desert lead to solo instances with bosses and exclusive loot. Save Points (💾) protect your XP; dying loses part of the XP earned since your last save. 🔷 Conduit nodes are fast travel. Nights bring Gloam Stalkers and better loot.')+
   S_('🧬 Breeds','Settler (balanced), Dunebred (strong, tough, poor minds), Vyrekin (brilliant casters, frail) and Glassborn (agile and sharp). Breed changes starting stats, training caps, costs, health and energy.')+
   S_('⚑ Factions &amp; towers','Join the Solace Combine or the Ashborn Free Clans (Registrar Hale in town; switching costs credits and half your rep). Faction contracts, kills and towers earn reputation, which unlocks faction vendor gear tiers. Three desert towers can be captured: kill the guards, destroy the core, then plant your own. Each tower your side holds gives +4% power and +2% damage reduction, and the other side will come to take it back.')+
@@ -3233,7 +3247,7 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
 /* ---------- hooks ---------- */
 function stage3Interact(p){const vk=vgWorldInteract(p);if(vk)return vk;const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};const rk=raidNear(p);if(rk)return {k:'raid',id:rk,label:'⚔ '+RAIDS[rk].name};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
 function stage3Do(n){if(vgDo(n))return true;const k=n.k;if(k==='home'||k==='trophy'){openHome(k==='trophy'?'trophies':null);return;}if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
-function stage3Act(a,b){const D=b.dataset;if(hmAct(a,b))return true;if(homeAct(a,b))return true;if(achAct(a,b))return true;if(vgAct(a,b))return true;if(qAct(a,b))return true;if(rmAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
+function stage3Act(a,b){const D=b.dataset;if(hmAct(a,b))return true;if(homeAct(a,b))return true;if(achAct(a,b))return true;if(vgAct(a,b))return true;if(wvAct(a,b))return true;if(qAct(a,b))return true;if(rmAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
   if(a==='ctab')openCraft(D.t);else if(a==='crec'){CR.rec=D.r;CR.tgt=null;openCraft();}else if(a==='ctgt'){CR.tgt=D.id;openCraft();}else if(a==='cq'){CR.q=+D.q;openCraft();}else if(a==='cstat'){CR.stat=D.s;openCraft();}
   else if(a==='cfab'){doFab();openCraft();}else if(a==='cblank'){CR.blank=D.id;openCraft();}else if(a==='cslot'){CR.slot=D.s;openCraft();}else if(a==='cclu'){CR.sel[D.t]=D.id||null;openCraft();}else if(a==='cbuild'){doAssemble();openCraft();}
   else if(a==='buyts'){buyTs(+D.i);openVendor();}
@@ -3535,7 +3549,7 @@ const MORPH_AB={
   m_revert:{name:'Revert',icon:'↩️',cost:0,cd:0,range:0,needTarget:false,kind:'unmorph',desc:'Return to your normal form (normal Weaves and weapon swaps come back).'}};
 for(const k in MORPH_AB){const a=MORPH_AB[k];a.id=k;a.mab=true;a.prof='wild';}
 const abDef=id=>id?(WEAVES[id]||MORPH_AB[id]||PERK_AB[id]||null):null;
-function barIds(){if(P.morph&&MORPHS[P.morph.id]){const a=MORPHS[P.morph.id].abs.concat(['m_revert']);while(a.length<NSLOTS)a.push(null);return a;}return P.slots||[];}
+function barIds(){if(P.morph&&MORPHS[P.morph.id]){const a=MORPHS[P.morph.id].abs.concat(['m_revert']);while(a.length<NSLOTS)a.push(null);return a;}return (P.wv&&P.wv.pg===1&&P.wv.s2?P.wv.s2:P.slots)||[];}
 KIND.morph=(t,a)=>startMorph(a.morph,a);
 KIND.unmorph=()=>endMorph();
 KIND.mbite=(t,a)=>{faceTarget(t);P.atkAnim=0.35;dmgEnemy(t,a.mult);if(!t.dead){t.dot={until:T+a.dur,next:T+1,mult:a.dot,en:0};floatText(entChest(t,tmpV),'Bleeding','info');}ringFx(t.pos.x,t.pos.z,0xff5a4a,1.4,0.3);nz(0.1,0.08,2500);};
@@ -7545,6 +7559,8 @@ function simChar(prof,lv,rar,id,name){const c={v:2,id:id||('sim_'+prof),name:nam
   const raise=(s,to)=>{const o=ATTRS.includes(s)?c.ab:c.sb;while(pts>=costOf(s)&&(base(s)+(o[s]||0))<Math.min(to,cap(s))){o[s]=(o[s]||0)+1;pts-=costOf(s);}};
   const pri=[[pr.dmgSkill,0.6],['body',0.25],['evade',0.15]];
   for(const s in need)raise(s,Math.round(need[s]*0.85));
+  // Build W1: Weaves need their requirements to be CAST, so top up whatever gear/implants/attributes don't cover
+  c.wv={v:1,gf:[],pg:0,s2:[],lo:[],cur:0};for(let it=0;it<3;it++){const E=statsFor(c).E;let any=false;for(const s in need){const d=need[s]-(E[s]||0);if(d>0){const o=ATTRS.includes(s)?c.ab:c.sb;let k=0;while(k<d&&pts>=costOf(s)&&(o[s]||0)<cap(s)){o[s]=(o[s]||0)+1;pts-=costOf(s);k++;}if(k)any=true;}}if(!any)break;}
   let guard=0;while(pts>0&&guard++<4000){let did=false;for(const [s,w] of pri){const o=c.sb;const before=pts;raise(s,base(s)+(o[s]||0)+Math.max(1,Math.round(8*w)));if(pts<before)did=true;}if(!did)break;}
   P.level=lvSave;P.prof=profSave;
   c.known=ws.map(w=>w.id);c.slots=simBar(ws,prof);while(c.slots.length<NSLOTS)c.slots.push(null);
@@ -8845,6 +8861,153 @@ function vgSimClimb(start,maxF,maxT){if(!vgEnter(start||1))return {err:'enter fa
   const out={res,reached:R.f,cleared:res==='max'?R.f-1:R.f-1,boons:Object.assign({},R.boons),marks:R.marks,rows,simT:Math.round(T-R.t0)};vgLeave(P.dead);return out;}
 function vgExports(){return {VG_POS,VG_USE,VG_BANDS,VG_GUARD,VG_BOONS,VG_SHOP,VG_WEEKLY,normVg,vgFields,vgi,vgAffixes,vgHpK,vgDmgK,vgMarks,vgEnter,vgLeave,vgPick,vgRoll,vgApply,vgClear,vgBuy,openVg,vgToggle,vgCanEnter,vgWeekBest,vgWeekMask,vgSimClimb,vgOut,vgIn,vgDo,vgInteract,get vgRun(){return vgRun();}};}
 
+/* ---------------- Build W1: Weave framework (loadouts, second bar page, Matrix, cast requirements, book filters, team casting) ----------------
+   - Families: wvFam(w) sorts every Weave into nuke/aoe/dot/debuff/self/team/heal/cc/util/pet (w.fam overrides). WV_FAMS = labels for the book filter.
+   - Cast requirements: a Weave's req (skills/attributes, e.g. Weave Craft + INT) must be met to CAST it, not only to learn it (eff() includes buffs,
+     gear and implants, so buffing up unlocks better Weaves). Weaves already known when an older save is first loaded are grandfathered (P.wv.gf).
+     Starters, perk and morph abilities have no requirements. wvReqMiss(w) -> first unmet req or null.
+   - Matrix: buff Weaves (w.buff or kind 'teambuff') occupy Matrix while running (wvMx(w), w.mx overrides). Cap S.mxCap = level + implants + headgear
+     + 'mx' gear/buff bonus (mxCapFor). Casting over cap refuses and (for the player) opens the Matrix panel to drop a running buff, then casts.
+     A higher rank of a running buff line supersedes the lower one. Teammate casts don't use your Matrix.
+   - Action bar page 2: P.wv.s2 (6 slots). P.wv.pg = shown page. barIds() returns the shown page; the page chip #bPg (tap or swipe), a swipe
+     beside the buttons, or the Backquote key flips pages. Book slot indices 6-11 = page 2.
+   - Loadouts: P.wv.lo = [{n,ic,s1,s2,auto}] (max 8), P.wv.cur. #bLo opens #loPop (one tap switches), key V cycles; the Weave Book saves/switches/
+     renames/deletes. 'auto' presets (Attack/Buff/Debuff) are filled from your best known Weaves on first use until you save over them.
+   - Team casting: buff Weaves can be cast on nearby AI teammates from the book (wvTeamCast): they get a damage / damage-reduction boost (tbSet).
+   - Save: P.wv={v:1,gf,pg,s2,lo,cur} via futureFields (wvFields); older saves get Main = current bar + presets, gf = known Weaves. */
+const WV_FAMS=[['all','All','📚'],['nuke','Nukes','💥'],['aoe','Area','🌋'],['dot','Damage over time','🔥'],['debuff','Debuffs','☠️'],['self','Self-buffs','✨'],['team','Team buffs','👥'],['heal','Heals','💚'],['cc','Control','🌀'],['util','Utility','🧰'],['pet','Pets','🤖']];
+const WV_FAMN=Object.fromEntries(WV_FAMS.map(f=>[f[0],f]));
+const WV_KF={nuke:'nuke',strike:'nuke',flurry:'nuke',lunge:'nuke',rattle:'nuke',drain:'nuke',aoeT:'aoe',cone:'aoe',barrage:'aoe',aoeSelf:'aoe',field:'aoe',stealAoe:'debuff',dot:'dot',hex:'debuff',steal:'debuff',
+  heal:'heal',hot:'heal',teamheal:'heal',mez:'cc',mezAoe:'cc',fear:'cc',summon:'pet',pet:'pet',petheal:'pet',petbuff:'pet',battery:'util',stealth:'util',reflect:'util',dr:'util',morph:'util',taunt:'util'};
+const WV_LO_MAX=8,WV_PRESETS=[['Attack','⚔️','atk'],['Buff','✨','buf'],['Debuff','☠️','deb']];
+function wvIsBuff(w){return !!(w&&(w.buff||w.kind==='teambuff'));}
+function wvFam(w){if(!w)return 'util';if(w.fam)return w.fam;if(w.kind==='teambuff')return (w.ally||w.allyDr)?'team':'self';if(w.buff)return 'self';if(w.kind&&WV_KF[w.kind])return WV_KF[w.kind];
+  const d=w.desc||'';if(/AoE|every enemy|everything/i.test(d))return 'aoe';if(/less damage|taunt/i.test(d))return 'util';if(/heal/i.test(d))return 'heal';return 'nuke';}
+function wvMx(w){if(!wvIsBuff(w))return 0;if(w.mx!=null)return w.mx;return Math.max(2,Math.round(3+(w.lvl||1)*0.55+((w.ally||w.allyDr)?2:0)));}
+function mxCapFor(c,st){const L=(st&&st.syncLv)||c.level||1;let m=10+1.6*L;const imps=c.imps||{};for(const k in imps){const it=imps[k];if(it)m+=1+Math.floor((it.ql||1)/60);}
+  const h=c.eq&&c.eq.head;if(h)m+=Math.floor((h.ql?h.ql/4.5:(h.lvl||1))/5);m+=(st&&st.bon&&st.bon.mx)||0;return Math.round(m);}
+{const _sf=statsFor;statsFor=function(c){const r=_sf(c);r.mxCap=mxCapFor(c,r);return r;};}
+STATN.mx='Matrix';SHORT.mx='MTX';STATDESC.mx='Matrix capacity: running buff Weaves occupy Matrix. Rises with level, implants and headgear.';
+function wvOfBuff(b){if(!b)return null;const w=WEAVES[b.id];if(w&&w.buff)return w;for(const id in WEAVES){const x=WEAVES[id];if(x.kind==='teambuff'&&x.line===b.id&&x.name===b.name)return x;}return null;}
+function mxUsed(skip){let u=0;for(const b of (P.buffs||[])){if(b.until<=T)continue;const w=wvOfBuff(b);if(!w)continue;if(skip&&w.line===skip.line)continue;u+=wvMx(w);}return u;}
+function mxCap(){return (S&&S.mxCap)||mxCapFor(P,S);}
+function mxNeed(w){const c=wvMx(w);if(!c)return 0;return Math.max(0,mxUsed(w)+c-mxCap());}
+/* ---- save state ---- */
+function normWv(o,s){const known=s?weaveState(s).known:(P.known||[]);const okId=id=>typeof id==='string'&&!!abDef(id)&&(known.includes(id)||(s?perkAbOk(s,id):perkAbOk(P,id)));
+  const fresh=!(o&&typeof o==='object'&&o.v===1);o=fresh?{}:o;const six=a=>{const r=(Array.isArray(a)?a:[]).slice(0,NSLOTS).map(id=>okId(id)?id:null);while(r.length<NSLOTS)r.push(null);return r;};
+  const gf=fresh?known.filter(id=>WEAVES[id]&&!WEAVES[id].starter&&(WEAVES[id].req||[]).length):(Array.isArray(o.gf)?o.gf.filter(id=>typeof id==='string'&&WEAVES[id]):[]);
+  let lo=Array.isArray(o.lo)?o.lo.filter(x=>x&&typeof x==='object').slice(0,WV_LO_MAX).map(x=>({n:String(x.n||'Loadout').replace(/[<>]/g,'').slice(0,18)||'Loadout',ic:typeof x.ic==='string'?x.ic.slice(0,4):'🗂',s1:x.s1==null?null:six(x.s1),s2:x.s2==null?null:six(x.s2),auto:['atk','buf','deb'].includes(x.auto)?x.auto:null})):null;
+  if(!lo||!lo.length){const s1=s?(Array.isArray(s.slots)?six(s.slots):null):six(P.slots);lo=[{n:'Main',ic:'⭐',s1:s1||null,s2:six(o.s2),auto:null}].concat(WV_PRESETS.map(p=>({n:p[0],ic:p[1],s1:null,s2:null,auto:p[2]})));}
+  const cur=Number.isInteger(o.cur)&&o.cur>=0&&o.cur<lo.length?o.cur:0;
+  return {v:1,gf,pg:o.pg===1?1:0,s2:six(o.s2),lo,cur};}
+function wvFields(s){return {wv:normWv(s.wv,s)};}
+const wvi=()=>(P.wv&&P.wv.v===1)?P.wv:(P.wv=normWv(P.wv,null));
+/* ---- requirements ---- */
+function wvReqMiss(w){if(!w||!WEAVES[w.id]||w.starter||w.mab||w.perk||!(w.req||[]).length)return null;if(P.wv&&(P.wv.gf||[]).includes(w.id))return null;return w.req.find(r=>eff(r.s)<r.v)||null;}
+function wvMissTxt(m){return 'need '+(m.v-eff(m.s))+' more '+STATN[m.s];}
+/* ---- slots (0-5 page 1, 6-11 page 2) ---- */
+function wvSlotGet(i){return i<NSLOTS?P.slots[i]:wvi().s2[i-NSLOTS];}
+function wvSlotSet(i,id){if(i<NSLOTS)P.slots[i]=id;else wvi().s2[i-NSLOTS]=id;}
+function wvSlotIdx(id){const a=P.slots.indexOf(id);if(a>=0)return a;const b=wvi().s2.indexOf(id);return b>=0?b+NSLOTS:-1;}
+assignSlot=function(i,wid){if(!P.known.includes(wid)&&!abDef(wid))return;i=Math.max(0,Math.min(NSLOTS*2-1,i|0));const j=wvSlotIdx(wid);if(j>=0)wvSlotSet(j,wvSlotGet(i)||null);wvSlotSet(i,wid);setupHud();save();const w=abDef(wid);toast((w?w.name:wid)+' → '+(i<NSLOTS?'slot '+(i+1):'page 2 slot '+(i-NSLOTS+1)));};
+function wvClrSlot(i){wvSlotSet(i,null);setupHud();save();}
+function wvPage(p){const v=wvi();const n=p==null?(v.pg?0:1):(p?1:0);if(P.morph){warn('Morphed: your form has its own bar');return;}v.pg=n;setupHud();wvHudPage();SFX.ui();}
+/* ---- loadouts ---- */
+function wvAutoBar(kind){const ws=P.known.map(id=>WEAVES[id]).filter(Boolean);const best={};for(const w of ws){if(wvReqMiss(w))continue;const k=w.line||w.id;if(!best[k]||w.tier>best[k].tier)best[k]=w;}
+  const L=Object.values(best);const sc=w=>(w.mult||0)*(w.radius?1.3:1)+(w.lvl||1)*0.01;const by=f=>L.filter(w=>f.includes(wvFam(w))).sort((a,b)=>sc(b)-sc(a)||b.lvl-a.lvl);
+  const order=kind==='atk'?by(['nuke','aoe','dot']).concat(by(['debuff','cc','heal'])):kind==='buf'?by(['self','team']).concat(by(['heal','pet','util'])):by(['debuff','cc','dot']).concat(by(['nuke','aoe']));
+  const ids=[...new Set(order.map(w=>w.id))];const s1=ids.slice(0,NSLOTS),s2=ids.slice(NSLOTS,NSLOTS*2);while(s1.length<NSLOTS)s1.push(null);while(s2.length<NSLOTS)s2.push(null);return {s1,s2};}
+function wvLoSwitch(i){const v=wvi(),lo=v.lo[i];if(!lo)return false;if(P.morph){warn('Can\'t swap loadouts while morphed');return false;}
+  if(lo.s1==null||lo.auto&&!lo.s1.some(Boolean)){const a=wvAutoBar(lo.auto||'atk');lo.s1=a.s1;lo.s2=a.s2;}
+  const ok=id=>id&&(P.known.includes(id)||perkAbOk(P,id))?id:null;P.slots=lo.s1.slice(0,NSLOTS).map(ok);while(P.slots.length<NSLOTS)P.slots.push(null);v.s2=(lo.s2||[]).slice(0,NSLOTS).map(ok);while(v.s2.length<NSLOTS)v.s2.push(null);
+  v.cur=i;v.pg=0;setupHud();wvHudPage();save();toast(lo.ic+' Loadout: '+lo.n);SFX.ui();if(panelOpen==='book')openBook();return true;}
+function wvLoSave(i){const v=wvi(),lo=v.lo[i];if(!lo)return false;lo.s1=P.slots.slice(0,NSLOTS);lo.s2=v.s2.slice();lo.auto=null;v.cur=i;save();toast('💾 Saved your bars to '+lo.n);return true;}
+function wvLoNew(name){const v=wvi();if(v.lo.length>=WV_LO_MAX){warn('Up to '+WV_LO_MAX+' loadouts');return false;}const n=String(name||'Custom '+(v.lo.length+1)).replace(/[<>]/g,'').trim().slice(0,18)||'Custom';
+  v.lo.push({n,ic:'🗂',s1:P.slots.slice(0,NSLOTS),s2:v.s2.slice(),auto:null});v.cur=v.lo.length-1;save();toast('🗂 New loadout: '+n);return true;}
+function wvLoDel(i){const v=wvi();if(v.lo.length<=1){warn('Keep at least one loadout');return false;}v.lo.splice(i,1);if(v.cur>=v.lo.length||v.cur===i)v.cur=0;else if(v.cur>i)v.cur--;save();return true;}
+function wvLoRen(i,name){const lo=wvi().lo[i];if(!lo)return false;const n=String(name||'').replace(/[<>]/g,'').trim().slice(0,18);if(!n)return false;lo.n=n;save();return true;}
+function wvLoCycle(){const v=wvi();return wvLoSwitch((v.cur+1)%v.lo.length);}
+/* ---- casting hooks ---- */
+let wvPend=null;
+{const _ua=useAbility;useAbility=function(idx){let ab=null;
+  if(idx>=0&&!P.dead&&state==='play'){ab=abDef(barIds()[idx]);const synced=!!ab&&!ab.starter&&effLvP()<P.level&&abLv(ab)>effLvP();if(ab&&WEAVES[ab.id]&&!synced){const m=wvReqMiss(ab);if(m){warn('🔒 '+ab.name+': '+wvMissTxt(m)+' to cast');return false;}
+    if(wvIsBuff(ab)&&(P.cds[ab.id]||0)<=T&&P.en>=ab.cost){const need=mxNeed(ab);if(need>0){if(!SIMP){warn('◇ Matrix full: '+ab.name+' needs '+wvMx(ab)+' (free '+Math.max(0,mxCap()-mxUsed(ab))+')');wvPend={idx,pg:wvi().pg,id:ab.id};openMatrix();}return false;}}}}
+  const r=_ua(idx);if(r&&ab&&wvIsBuff(ab))wvSupersede(ab);return r;};}
+function wvSupersede(w){const before=P.buffs.length;P.buffs=P.buffs.filter(b=>{const x=wvOfBuff(b);return !x||x.line!==w.line||x.id===w.id||(b.id===w.line&&x.name===w.name);});if(P.buffs.length!==before)calcStats();}
+function wvDropBuff(id){const i=P.buffs.findIndex(b=>b.id===id);if(i<0)return false;const b=P.buffs[i];P.buffs.splice(i,1);calcStats();log('<span style="opacity:.8">'+b.icon+' '+esc(b.name)+' dropped from your Matrix</span>');save();return true;}
+function openMatrix(){const used=mxUsed(),cap=mxCap();const rows=P.buffs.filter(b=>b.until>T&&wvOfBuff(b)).map(b=>{const w=wvOfBuff(b);return `<div class="slot"><span class="ico">${b.icon}</span><span style="flex:1"><div class="nm">${esc(b.name)}</div><div class="st">◇ ${wvMx(w)} Matrix · ${fmtT(b.until-T)} left</div></span><button class="sbtn alt" data-act="wvdrop" data-b="${esc(b.id)}">Drop</button></div>`;}).join('');
+  const pw=wvPend&&WEAVES[wvPend.id];
+  openPanel('◇ MATRIX',`${wvMxBar()}${pw?`<div class="capmsg">To run <b>${esc(pw.name)}</b> (◇ ${wvMx(pw)}) drop a running buff below; it is cast straight after.</div>`:''}<div class="h4" style="margin-top:8px">Running buffs</div>${rows||'<div style="opacity:.6">No buff Weaves running.</div>'}<div class="st" style="opacity:.7;margin-top:8px">Your Matrix holds running buff Weaves. It grows with your level, installed implants (higher QL holds more), headgear and gear with a Matrix bonus. A higher rank of a buff replaces the lower one.</div>`,'matrix');}
+function wvMxBar(){const u=mxUsed(),c=mxCap();const f=Math.min(1,c?u/c:0);return `<div class="wvmx" title="Matrix: running buff Weaves"><span>◇ Matrix</span><span class="wvmxb"><i style="width:${Math.round(f*100)}%;background:${f>0.9?'#ff8a5a':'#5ff2ff'}"></i></span><b>${u} / ${c}</b></div>`;}
+/* ---- team casting (AI teammates) ---- */
+function wvAllyBoost(w){const m=w.kind==='teambuff'?tmodsAt(w.tmods,P.level,1):(w.buff?w.buff.mods(P.level):{});let s=0;for(const k in m)if(m[k]>0&&k!=='hp'&&k!=='dr'&&k!=='run'&&k!=='spd')s+=m[k];
+  const mul=w.ally!=null?w.ally:Math.min(0.25,Math.round((0.04+s/(60+6*P.level))*100)/100);const dr=w.allyDr!=null?w.allyDr:Math.min(0.2,(m.dr||0)/100);return {mul,dr};}
+function wvTeamCast(wid){const w=WEAVES[wid];if(!w||!P.known.includes(wid)||!wvIsBuff(w))return 0;if(P.dead||state!=='play')return 0;const m=wvReqMiss(w);if(m){warn('🔒 '+w.name+': '+wvMissTxt(m)+' to cast');return 0;}
+  const L=comps().filter(a=>!a.dead&&dist2D(a.pos,P.pos)<=30);if(!L.length){warn('No AI teammates nearby (within 30m)');return 0;}
+  if((P.cds[w.id]||0)>T){warn(w.name+' is recharging');return 0;}if(P.en<w.cost){warn('Not enough Vyre energy');return 0;}
+  P.en-=w.cost;P.cds[w.id]=T+w.cd;const B=wvAllyBoost(w),dur=w.kind==='teambuff'?w.dur:w.buff.dur;
+  for(const a of L){tbSet(a,'wv_'+w.line,T+dur,1+B.mul,B.dr);ringFx(a.pos.x,a.pos.z,0xffd76a,1.4,0.5);}
+  SFX.heal();toast(w.icon+' '+w.name+' on '+L.length+' teammate'+(L.length>1?'s':'')+': +'+Math.round(B.mul*100)+'% damage'+(B.dr?' · '+Math.round(B.dr*100)+'% less damage taken':''));return L.length;}
+/* ---- where to get a disc (W1: existing sources; W3 adds the full source table) ---- */
+function wvWhere(w){if(w.src)return w.src;if(w.excl)return 'Only from '+dunName(w.excl);if(w.rare)return 'Ultra-rare drop from tough enemies';if(w.starter)return 'Known from the start';
+  const a=Math.max(1,w.lvl-4),b=w.lvl+2;return 'Drops from enemies level '+a+'-'+b+' (tougher foes more often), trader stock and mission rewards';}
+/* ---- HUD: page chip, loadout button + popover ---- */
+function wvHudPage(){const b=$('#bPg');if(!b)return;const v=P.wv;const pg=v&&v.pg?2:1;b.querySelector('.ic').textContent=pg;b.classList.toggle('p2',pg===2);b.classList.toggle('hidden',!!P.morph||state!=='play');
+  const l=$('#bLo');if(l){const lo=v&&v.lo&&v.lo[v.cur];l.querySelector('.ic').textContent=lo?lo.ic:'🗂';l.title='Loadout: '+(lo?lo.n:'')+' (V)';l.classList.toggle('hidden',!!P.morph||state!=='play');}}
+function wvLoPop(open){const p=$('#loPop');if(!p)return;const on=open==null?p.classList.contains('hidden'):open;if(!on){p.classList.add('hidden');return;}const v=wvi();
+  p.innerHTML=v.lo.map((lo,i)=>`<button class="lochip${i===v.cur?' on':''}" data-lo="${i}"><span>${lo.ic}</span>${esc(lo.n)}</button>`).join('')+'<button class="lochip alt" data-lo="book">📖 Edit</button>';p.classList.remove('hidden');}
+function wvHudInit(){const pg=$('#bPg'),lo=$('#bLo'),pop=$('#loPop');if(!pg||pg.dataset.init)return;pg.dataset.init=1;
+  let sx=null;pg.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();sx=e.clientX;pg.classList.add('press');});
+  pg.addEventListener('pointerup',e=>{pg.classList.remove('press');if(sx==null)return;sx=null;wvPage();});pg.addEventListener('pointercancel',()=>{sx=null;pg.classList.remove('press');});
+  lo.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();wvLoPop();});
+  pop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const b=e.target.closest('[data-lo]');if(!b)return;wvLoPop(false);if(b.dataset.lo==='book'){bookSel=null;openBook();}else wvLoSwitch(+b.dataset.lo);});
+  // swipe beside the action buttons (starts in the button zone but not on a button) or on the page chip flips pages
+  let sw=null;addEventListener('pointerdown',e=>{if(state!=='play'||panelOpen||e.pointerType==='mouse')return;const t=e.target;if(t.closest&&t.closest('#b0,#b1,#b2,#b3,#b4,#b5,#bAtk,#quick,#bQuick,#topbtns,#loPop,#bLo'))return;if(t.closest&&t.closest('#bPg')||inAbZone(e.clientX,e.clientY))sw={x:e.clientX,y:e.clientY,t:performance.now()};},{capture:true,passive:true});
+  addEventListener('pointerup',e=>{if(!sw)return;const dx=e.clientX-sw.x,dy=e.clientY-sw.y,dt=performance.now()-sw.t;sw=null;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.5&&dt<700){wvPage(dx<0?1:0);}},{capture:true,passive:true});
+  addEventListener('pointerdown',e=>{const p=$('#loPop');if(p&&!p.classList.contains('hidden')&&!(e.target.closest&&e.target.closest('#loPop,#bLo')))p.classList.add('hidden');},{capture:true,passive:true});}
+function wvHudLock(el,w){const m=w&&WEAVES[w.id]?wvReqMiss(w):null;el.classList.toggle('wlock',!!m);}
+/* ---- Weave Book ---- */
+let wvFilt='all';
+openBook=function(){const pr=PROFS[P.prof],v=wvi();
+  const slotBtn=i=>{const id=wvSlotGet(i),w=abDef(id);const m=w&&WEAVES[w.id]?wvReqMiss(w):null;return `<button class="wslot${bookSel?' pick':''}${m?' wlock':''}" data-act="slot" data-i="${i}"><span class="n">${i<NSLOTS?i+1:'²'+(i-NSLOTS+1)}</span><span class="ic">${w?w.icon:'＋'}</span><span class="wn">${w?esc(w.name):'Empty'}</span>${w?`<span class="x" data-act="clrslot" data-i="${i}">✕</span>`:''}</button>`;};
+  const p1=[0,1,2,3,4,5].map(slotBtn).join(''),p2=[6,7,8,9,10,11].map(slotBtn).join('');
+  const los=v.lo.map((lo,i)=>`<span class="wvlo${i===v.cur?' on':''}"><button class="lochip${i===v.cur?' on':''}" data-act="wvlo" data-i="${i}">${lo.ic} ${esc(lo.n)}${lo.auto&&!(lo.s1||[]).some(Boolean)?' <i style="opacity:.6">auto</i>':''}</button><button class="lomini" data-act="wvlosave" data-i="${i}" title="Save your current bars to ${esc(lo.n)}">💾</button><button class="lomini" data-act="wvloren" data-i="${i}" title="Rename">✎</button>${v.lo.length>1?`<button class="lomini" data-act="wvlodel" data-i="${i}" title="Delete">✕</button>`:''}</span>`).join('')+(v.lo.length<WV_LO_MAX?'<button class="lochip alt" data-act="wvlonew">＋ New from current bars</button>':'');
+  const mine=Object.values(WEAVES).filter(w=>w.prof===P.prof||w.prof==='any');const famsHere=new Set(mine.map(wvFam).concat(P.known.map(id=>WEAVES[id]).filter(Boolean).map(wvFam)));
+  const chips=WV_FAMS.filter(f=>f[0]==='all'||famsHere.has(f[0])).map(f=>`<button class="wvfam${wvFilt===f[0]?' on':''}" data-act="wvfam" data-f="${f[0]}">${f[2]} ${f[1]}</button>`).join('');
+  const inF=w=>wvFilt==='all'||wvFam(w)===wvFilt;
+  const known=P.known.map(id=>WEAVES[id]).filter(Boolean).sort((a,b)=>a.line<b.line?-1:a.line>b.line?1:a.tier-b.tier);
+  const bestU={};for(const w of known){if(wvReqMiss(w))continue;const k=w.line||w.id;if(!bestU[k]||w.tier>bestU[k].tier)bestU[k]=w;}
+  const tm=comps().filter(a=>!a.dead).length;
+  const krow=w=>{const best=knownBest(w.line);const sup=best&&best.tier>w.tier;const sl=wvSlotIdx(w.id);const m=wvReqMiss(w);const isBest=bestU[w.line||w.id]===w&&!m;const f=WV_FAMN[wvFam(w)];
+    return `<button class="item${bookSel===w.id?' sel':''}${sup?' sup':''}${isBest?' wbest':''}${m?' wlock':''}" data-act="bsel" data-w="${w.id}"><span class="ico">${w.icon}</span><span style="min-width:0;flex:1"><div class="nm">${esc(w.name)} <span class="tag wf">${f[2]} ${f[1]}</span>${isBest?'<span class="tag wb">★ best usable</span>':''}${wvIsBuff(w)?`<span class="tag b">◇ ${wvMx(w)}</span>`:''}${w.prof==='any'?'<span class="tag g">GENERIC</span>':''}</div><div class="st">${esc(w.desc)}</div><div class="st" style="opacity:.6">${weaveStats(w)}${sup?' · superseded by '+esc(best.name):''}</div>${m?`<div class="st down">🔒 Can't cast: ${wvMissTxt(m)}</div>`:''}${wvIsBuff(w)&&tm?`<div class="st"><span class="sbtn alt wvtc" data-act="wvteam" data-w="${w.id}">👥 Cast on teammates</span></div>`:''}</span><span class="pr">${sl>=0?(sl<NSLOTS?'Slot '+(sl+1):'Page 2 · '+(sl-NSLOTS+1)):''}</span></button>`;};
+  const disks=P.inv.filter(isDisk);
+  const drow=d=>{const w=WEAVES[d.wid];const known=P.known.includes(w.id);const ok=reqMet(d)&&!known;const miss=!profOk(d)?profName(d.prof)+' only':known?'Already known':!tierOk(d)?tierMiss(d):(()=>{const m=(d.req||[]).find(r=>eff(r.s)<r.v);return m?'Need '+(m.v-eff(m.s))+' more '+STATN[m.s]:'';})();
+    return `<div class="mis" style="border-color:${RAR[d.r].c}"><div style="display:flex;gap:10px;align-items:center"><span class="ico" style="font-size:24px">📀</span><div style="flex:1"><b style="color:${RAR[d.r].c}">${esc(w.name)}</b> <span style="opacity:.7;font-size:12px">${profName(w.prof)} · tier level ${w.lvl} · ${WV_FAMN[wvFam(w)][1]}</span><div class="st" style="font-size:13px">${esc(w.desc)} <span style="opacity:.6">(${weaveStats(w)})</span></div></div></div>
+      <div class="h4" style="margin:6px 0 2px">Requirements to learn and cast (your current skills, including buffs)</div>${reqHtml(d)}
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="sbtn${ok?'':' locked'}" data-act="learn" data-id="${d.id}">Learn</button>${ok?'<span class="up">Ready to learn</span>':`<span class="down"><b>${miss}</b></span>`}</div></div>`;};
+  const inBank=new Set(((typeof loadBank==='function'?loadBank():null)||{items:[]}).items.filter(x=>x&&x.kind==='disk').map(x=>x.wid));const inPack=new Set(disks.map(x=>x.wid));
+  const toFind=mine.filter(w=>!w.starter&&!P.known.includes(w.id)&&inF(w)).sort((a,b)=>((inBank.has(b.id)||inPack.has(b.id))-(inBank.has(a.id)||inPack.has(a.id)))||a.lvl-b.lvl);
+  const nBank=toFind.filter(w=>inBank.has(w.id)).length;const kF=known.filter(inF);
+  const html=`${wvMxBar()}<div class="h4" style="margin-top:6px">🗂 Loadouts <span style="opacity:.6;font-weight:400">· tap to switch (or 🗂 on the HUD, key V) · 💾 saves your current bars into it</span></div><div class="wvlos">${los}</div>
+  <div class="h4">Action bar ${bookSel?'· <span style="color:#5ff2ff">tap a slot to place '+esc((abDef(bookSel)||{}).name||'')+'</span>':'· tap a Weave below, then a slot'}</div><div class="wslots">${p1}</div><div class="h4" style="margin-top:4px">Page 2 <span style="opacity:.6;font-weight:400">· swipe beside the buttons, tap the page chip or press \` to flip</span></div><div class="wslots">${p2}</div>
+  <div class="wvfams">${chips}</div>
+  <div class="cols" style="margin-top:8px"><div><div class="h4">Known Weaves (${kF.length}${wvFilt==='all'?'':' of '+known.length})</div>${kF.map(krow).join('')||'<div style="opacity:.6">None in this family yet.</div>'}</div>
+  <div><div class="h4">Weave Disks in your pack (${disks.length})</div>${disks.map(drow).join('')||'<div style="opacity:.6;margin-bottom:8px">No disks. Enemies (tougher ones drop better), the trader and mission rewards have them.</div>'}
+  <div class="h4" style="margin-top:12px">Still to find (${pr.name} + generic)${nBank?` · <span style="color:#ffd34a">${nBank} disc${nBank>1?'s':''} waiting in your bank</span>`:''}</div>${toFind.map(w=>`<div class="slot${inBank.has(w.id)?' inbank':''}" data-wid="${w.id}"${inBank.has(w.id)?' data-bank="1"':''} style="opacity:${inBank.has(w.id)||inPack.has(w.id)?1:.75}${inBank.has(w.id)?';border-color:#ffd34a':''}"><span class="ico">${w.icon}</span><span style="flex:1"><div class="nm">${esc(w.name)} <span style="opacity:.6;font-size:11px">· level ${diskLvlReq(w)}+ · ${WV_FAMN[wvFam(w)][2]} ${WV_FAMN[wvFam(w)][1]}</span>${inBank.has(w.id)?' <span class="tag bankd" style="background:#ffd34a;color:#2a1a00">📦 Disc in bank - collect to learn</span>':inPack.has(w.id)?' <span class="tag bankd" style="background:#6dff8a;color:#062a10">📀 Disc in your pack - learn it above</span>':''}${w.excl?' <span class="tag l">'+esc(dunName(w.excl))+' only</span>':''}${w.rare?' <span class="tag m">ULTRA-RARE DROP</span>':''}</div><div class="st">${esc(w.desc)}</div><div class="st wvwh">📍 ${esc(wvWhere(w))}</div><div class="rqs">${w.req.map(r=>`<span class="rq ${eff(r.s)>=r.v?'ok':'no'}">${SHORT[r.s]} ${r.v}</span>`).join('')}</div></span></div>`).join('')}</div></div>`;
+  openPanel('📖 WEAVE BOOK · '+pr.name.toUpperCase(),html,'book');};
+function wvAct(a,b){const D=b.dataset;
+  if(a==='wvfam'){wvFilt=WV_FAMN[D.f]?D.f:'all';openBook();return true;}
+  if(a==='wvlo'){wvLoSwitch(+D.i);openBook();return true;}
+  if(a==='wvlosave'){wvLoSave(+D.i);openBook();return true;}
+  if(a==='wvlonew'){let n=null;try{n=prompt('Name the new loadout','Custom '+(wvi().lo.length+1));}catch(e){}if(n===null)n='';wvLoNew(n);openBook();return true;}
+  if(a==='wvloren'){const lo=wvi().lo[+D.i];let n=null;try{n=prompt('Rename loadout',lo?lo.n:'');}catch(e){}if(n)wvLoRen(+D.i,n);openBook();return true;}
+  if(a==='wvlodel'){const lo=wvi().lo[+D.i];let ok=true;try{ok=confirm('Delete loadout '+(lo?lo.n:'')+'?');}catch(e){}if(ok)wvLoDel(+D.i);openBook();return true;}
+  if(a==='wvteam'){wvTeamCast(D.w);openBook();return true;}
+  if(a==='wvdrop'){wvDropBuff(D.b);const p=wvPend;wvPend=null;if(p&&WEAVES[p.id]){const v=wvi(),pg=v.pg;v.pg=p.pg;const ids=barIds();const i=ids.indexOf(p.id);if(i>=0&&mxNeed(WEAVES[p.id])<=0){closePanel();useAbility(i);}v.pg=pg;setupHud();if(panelOpen==='matrix')openMatrix();}else openMatrix();return true;}
+  if(a==='matrix'){openMatrix();return true;}
+  return false;}
+function wvExports(){return {WV_FAMS,wvFam,wvMx,mxCapFor,mxUsed,mxCap,mxNeed,normWv,wvFields,wvi,wvReqMiss,wvSlotGet,wvSlotSet,wvSlotIdx,wvPage,wvAutoBar,wvLoSwitch,wvLoSave,wvLoNew,wvLoDel,wvLoRen,wvLoCycle,wvSupersede,wvDropBuff,openMatrix,wvTeamCast,wvAllyBoost,wvWhere,wvOfBuff,wvLoPop,get wvFilt(){return wvFilt;},set wvFilt(v){wvFilt=v;},get wvPend(){return wvPend;}};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -8884,7 +9047,7 @@ function tapPick(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFrom
 function btn(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();audioInit();el.classList.add('press');fn();});
   const up=()=>el.classList.remove('press');el.addEventListener('pointerup',up);el.addEventListener('pointerleave',up);el.addEventListener('pointercancel',up);}
 btn('#bAtk',pressAttack);[0,1,2,3,4,5].forEach(i=>btn('#b'+i,()=>{if(!barIds()[i]){if(!P.morph)openBook();return;}useAbility(i);}));btn('#bBook',()=>{if(panelOpen==='book')closePanel();else{bookSel=null;openBook();}});btn('#bStim',useStim);btn('#bSk',()=>{if(panelOpen==='skills')closePanel();else openSkills();});
-hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bMis',()=>rmOpenBoard());btn('#bAch',()=>{if(panelOpen==='ach')closePanel();else openAch();});btn('#bVigil',()=>vgToggle());btn('#bCraft',()=>{if(panelOpen==='craft')closePanel();else openCraft();});btn('#bTgt',cycleTarget);btn('#bUse',interact);
+hudDeclutterInit();perksInit();lootInit();fzInit();btn('#bInv',()=>{invSel=null;openInventory();});btn('#bJournal',()=>openJournal());$('#mtrack').addEventListener('pointerup',e=>{if(e.target.closest('.strk')&&state==='play'){SFX.ui();openJournal('story');}});btn('#bMenu',openMenu);btn('#bMap',toggleMap);btn('#bTeam',openTeam);btn('#bMis',()=>rmOpenBoard());btn('#bAch',()=>{if(panelOpen==='ach')closePanel();else openAch();});btn('#bVigil',()=>vgToggle());wvHudInit();btn('#bCraft',()=>{if(panelOpen==='craft')closePanel();else openCraft();});btn('#bTgt',cycleTarget);btn('#bUse',interact);
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;audioInit();inp.keys[e.code]=true;
   if(state!=='play')return;
   if(e.code==='Escape'){if(panelOpen)closePanel();else openMenu();return;}
@@ -8902,7 +9065,7 @@ addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;au
   if(panelOpen)return;
   if(e.code==='Tab'){e.preventDefault();cycleTarget();}
   else if(e.code==='Space'){e.preventDefault();pressAttack();}
-  else if(e.code==='Digit1')useAbility(0);else if(e.code==='Digit2')useAbility(1);else if(e.code==='Digit3')useAbility(2);else if(e.code==='Digit4')useAbility(3);else if(e.code==='Digit5')useAbility(4);else if(e.code==='Digit6')useAbility(5);else if(e.code==='KeyB'){bookSel=null;openBook();}
+  else if(e.code==='Digit1')useAbility(0);else if(e.code==='Digit2')useAbility(1);else if(e.code==='Digit3')useAbility(2);else if(e.code==='Digit4')useAbility(3);else if(e.code==='Digit5')useAbility(4);else if(e.code==='Digit6')useAbility(5);else if(e.code==='KeyB'){bookSel=null;openBook();}else if(e.code==='Backquote'){wvPage();}else if(e.code==='KeyV'){wvLoCycle();}
   else if(e.code==='KeyQ')useStim();else if(e.code==='KeyF'||e.code==='KeyE')interact();else if(e.code==='KeyR')toggleMount();else if(e.code==='KeyZ')petCmd('attack');else if(e.code==='KeyX')petCmd('follow');else if(e.code==='KeyC')petCmd('stay');});
 addEventListener('keyup',e=>{inp.keys[e.code]=false;});
 addEventListener('blur',()=>{inp.keys={};});
@@ -9006,14 +9169,14 @@ function setBar(b,v,m,txt){b.firstChild.style.transform=`scaleX(${clamp(m?v/m:0,
 const abBtns=[0,1,2,3,4,5].map(i=>$('#b'+i)),atkBtn=$('#bAtk'),stimBtn=$('#bStim');
 function setupHudForProf(){setupHud();}
 function setupHud(){atkBtn.querySelector('.ic').textContent='⚔️';
-  const bi=barIds();abBtns.forEach((el,i)=>{const w=abDef(bi[i]);el.classList.toggle('empty',!w);el.classList.toggle('hidden',!w);el.classList.toggle('buff',!!(w&&w.buff));el.querySelector('.ic').textContent=w?w.icon:(P.morph?'':'＋');el.querySelector('.cost').textContent=w?w.cost:'';el.title=w?w.name+': '+w.desc:(P.morph?'':'Empty slot: open the Weave Book');el.classList.toggle('mab',!!(w&&w.mab));});}
+  const bi=barIds();abBtns.forEach((el,i)=>{const w=abDef(bi[i]);el.classList.toggle('empty',!w);el.classList.toggle('hidden',!w&&!(P.wv&&P.wv.pg===1&&!P.morph));el.classList.toggle('buff',!!(w&&w.buff));el.querySelector('.ic').textContent=w?w.icon:(P.morph?'':'＋');el.querySelector('.cost').textContent=w?w.cost:'';el.title=w?w.name+': '+w.desc:(P.morph?'':'Empty slot: open the Weave Book');el.classList.toggle('mab',!!(w&&w.mab));wvHudLock(el,w);});wvHudPage();}
 function cdUI(el,id,cd,cost){const left=(P.cds[id]||0)-T;el.querySelector('.cd').style.height=left>0?clamp(left/cd*100,0,100)+'%':'0';el.querySelector('.ct').textContent=left>0.05?(left<10?left.toFixed(1):Math.ceil(left)):'';if(cost!=null)el.classList.toggle('nores',P.en<cost);}
 let hudAcc=0;const wpEl=H.wp,wpArr=wpEl.querySelector('.arr'),wpTxt=wpEl.querySelector('span');
 function updHUD(dt){
   hudAcc+=dt;achFrame(dt);
   setBar(bars.hp,P.hp,S.maxHp,Math.ceil(P.hp)+' / '+S.maxHp);setBar(bars.en,P.en,S.maxEn,Math.floor(P.en)+' / '+S.maxEn);
   setBar(bars.xp,P.level>=MAXLVL?1:P.xp,P.level>=MAXLVL?1:xpNeed(P.level));restBar();
-  const pr=PROFS[P.prof];{const bi=barIds();abBtns.forEach((el,i)=>{const w=abDef(bi[i]);if(w)cdUI(el,w.id,w.cd||0.01,w.cost);else{el.querySelector('.ct').textContent='';el.querySelector('.cd').style.height='0';}});}cdUI(stimBtn,'stim',15);
+  const pr=PROFS[P.prof];{const bi=barIds();abBtns.forEach((el,i)=>{const w=abDef(bi[i]);if(w){cdUI(el,w.id,w.cd||0.01,w.cost);if(hudAcc>0.19)wvHudLock(el,w);}else{el.querySelector('.ct').textContent='';el.querySelector('.cd').style.height='0';}});if(hudAcc>0.19)wvHudPage();}cdUI(stimBtn,'stim',15);
   stimBtn.querySelector('.cnt').textContent=P.stims;atkBtn.classList.toggle('on',P.autoAtk);
   const t=validTarget();
   if(t){H.tframe.classList.remove('hidden');const col=t.lv-P.level>=3?'#ff5a4a':t.lv-P.level<=-4?'#aaa':t.lv>P.level?'#ffb347':'#fff';
@@ -9022,7 +9185,7 @@ function updHUD(dt){
   else H.tframe.classList.add('hidden');
   if(hudAcc>0.2){hudAcc=0;
     H.pname.innerHTML=`${esc(P.name)}${titleHtml()}${xpLockHtml()}${restHtml()} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
-    let b='';for(const bf of P.buffs){const left=bf.until-T;b+=`<span class="bf${left<20?' low':''}" title="${esc(bf.name)}: ${Object.keys(bf.mods).map(k=>'+'+bf.mods[k]+' '+SHORT[k]).join(' ')}">${bf.icon}<b>${fmtT(left)}</b></span>`;}
+    let b='';{const u=mxUsed();if(u){const c=mxCap();b+=`<span class="bf wvmxc${u>c*0.9?' low':''}" title="Matrix: running buff Weaves use ${u} of ${c}">◇<b>${u}/${c}</b></span>`;}}for(const bf of P.buffs){const left=bf.until-T;b+=`<span class="bf${left<20?' low':''}" title="${esc(bf.name)}: ${Object.keys(bf.mods).map(k=>'+'+bf.mods[k]+' '+SHORT[k]).join(' ')}">${bf.icon}<b>${fmtT(left)}</b></span>`;}
     if(T<P.bulwarkUntil)b+=`<span class="bf">🛡️<b>${Math.ceil(P.bulwarkUntil-T)}s</b></span>`;if(P.hot)b+=`<span class="bf">❋<b>${Math.ceil(P.hot.until-T)}s</b></span>`;b+=stage2Chips()+profKChips();if(T<(P.slowUntil||0))b+=`<span class="bf slow">🐌<b>${Math.ceil(P.slowUntil-T)}s</b></span>`;if(inTown(P.pos))b+='<span class="bf safe">🏠 Safe</span>';H.buffs.innerHTML=b;
     $('#bSk').classList.toggle('pts',P.sp>0);$('#spBadge').textContent=P.sp>0?P.sp:'';
     const stk=storyTrack();const qt=questTrackHtml();let mt;if(DUN){mt=dunTrack()+hmTrackHtml();}else if(ASSAULT){mt=assaultTrack();}else if(qt){mt=stk+qt;}else mt=stk||(inTown(P.pos)?'<b>Tip</b><br>Visit the 📟 terminal for contracts':'');if(H.mtrack._h!==mt){H.mtrack._h=mt;H.mtrack.innerHTML=mt;}
@@ -9180,7 +9343,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

@@ -34,6 +34,8 @@ function simChar(prof,lv,rar,id,name){const c={v:2,id:id||('sim_'+prof),name:nam
   const raise=(s,to)=>{const o=ATTRS.includes(s)?c.ab:c.sb;while(pts>=costOf(s)&&(base(s)+(o[s]||0))<Math.min(to,cap(s))){o[s]=(o[s]||0)+1;pts-=costOf(s);}};
   const pri=[[pr.dmgSkill,0.6],['body',0.25],['evade',0.15]];
   for(const s in need)raise(s,Math.round(need[s]*0.85));
+  // Build W1: Weaves need their requirements to be CAST, so top up whatever gear/implants/attributes don't cover
+  c.wv={v:1,gf:[],pg:0,s2:[],lo:[],cur:0};for(let it=0;it<3;it++){const E=statsFor(c).E;let any=false;for(const s in need){const d=need[s]-(E[s]||0);if(d>0){const o=ATTRS.includes(s)?c.ab:c.sb;let k=0;while(k<d&&pts>=costOf(s)&&(o[s]||0)<cap(s)){o[s]=(o[s]||0)+1;pts-=costOf(s);k++;}if(k)any=true;}}if(!any)break;}
   let guard=0;while(pts>0&&guard++<4000){let did=false;for(const [s,w] of pri){const o=c.sb;const before=pts;raise(s,base(s)+(o[s]||0)+Math.max(1,Math.round(8*w)));if(pts<before)did=true;}if(!did)break;}
   P.level=lvSave;P.prof=profSave;
   c.known=ws.map(w=>w.id);c.slots=simBar(ws,prof);while(c.slots.length<NSLOTS)c.slots.push(null);

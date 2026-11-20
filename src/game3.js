@@ -342,7 +342,7 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
   else if(a==='learn'){learnDisk(b.dataset.id);openBook();}
   else if(a==='bsel'){bookSel=b.dataset.w===bookSel?null:b.dataset.w;openBook();}
   else if(a==='slot'){const i=+b.dataset.i;if(bookSel){assignSlot(i,bookSel);bookSel=null;}openBook();}
-  else if(a==='clrslot'){P.slots[+b.dataset.i]=null;setupHud();save();openBook();}
+  else if(a==='clrslot'){wvClrSlot(+b.dataset.i);openBook();}
   else if(a==='mdiff'){const mp=mprefs();mp.diff=clamp((mp.diff|0)+(+b.dataset.d),0,4);missionOffers=[];save();openTerminal();}
   else if(a==='mpref'){mprefs().pref=b.dataset.p;missionOffers=[];save();openTerminal();}
   else if(a==='travel'){closePanel();conduitTravel(b.dataset.id);}

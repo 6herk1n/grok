@@ -23,7 +23,7 @@ const MORPH_AB={
   m_revert:{name:'Revert',icon:'↩️',cost:0,cd:0,range:0,needTarget:false,kind:'unmorph',desc:'Return to your normal form (normal Weaves and weapon swaps come back).'}};
 for(const k in MORPH_AB){const a=MORPH_AB[k];a.id=k;a.mab=true;a.prof='wild';}
 const abDef=id=>id?(WEAVES[id]||MORPH_AB[id]||PERK_AB[id]||null):null;
-function barIds(){if(P.morph&&MORPHS[P.morph.id]){const a=MORPHS[P.morph.id].abs.concat(['m_revert']);while(a.length<NSLOTS)a.push(null);return a;}return P.slots||[];}
+function barIds(){if(P.morph&&MORPHS[P.morph.id]){const a=MORPHS[P.morph.id].abs.concat(['m_revert']);while(a.length<NSLOTS)a.push(null);return a;}return (P.wv&&P.wv.pg===1&&P.wv.s2?P.wv.s2:P.slots)||[];}
 KIND.morph=(t,a)=>startMorph(a.morph,a);
 KIND.unmorph=()=>endMorph();
 KIND.mbite=(t,a)=>{faceTarget(t);P.atkAnim=0.35;dmgEnemy(t,a.mult);if(!t.dead){t.dot={until:T+a.dur,next:T+1,mult:a.dot,en:0};floatText(entChest(t,tmpV),'Bleeding','info');}ringFx(t.pos.x,t.pos.z,0xff5a4a,1.4,0.3);nz(0.1,0.08,2500);};
