@@ -44,7 +44,7 @@ function dmgPlayer(amt,src,noDodge,pure){if(P.dead)return;P.hurtT=T;
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
   ringFx(e.pos.x,e.pos.z,0xffb347,3,0.5);
-  const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));{const xt=teamXpAdj(xp,e);gainXp(xt);teamShareXp(xt,e);}campOnKill(e,xp);
+  const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));{const xt=teamXpAdj(xp,e);const rb=restUse(xt);gainXp(xt+rb);teamShareXp(xt,e);if(rb)floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1.3,e.pos.z),'+'+rb+' rested','xp');}campOnKill(e,xp);
   const cr=randi(2,6)*e.lv;P.credits+=cr;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.6,e.pos.z),'+'+xp+' XP  +'+cr+'¢','xp');SFX.coin();P.kills++;
   if(Math.random()<(e.type==='raider'?0.45:0.32)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
   if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}

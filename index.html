@@ -338,10 +338,10 @@ html.notouch #joy{display:none}
 .rmstat{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;margin:0 0 8px}
 .rmrr{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}.obadge.rmb{background:#1f5a66}
 </style>
-<meta name="dr-build" content="20261119T233019-29b93e9a">
+<meta name="dr-build" content="20261119T234821-fcba6051">
 <script>
 (function(){
-var BUILD='20261119T233019-29b93e9a';window.DR_BUILD=BUILD;
+var BUILD='20261119T234821-fcba6051';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1728,7 +1728,7 @@ function dmgPlayer(amt,src,noDodge,pure){if(P.dead)return;P.hurtT=T;
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
   ringFx(e.pos.x,e.pos.z,0xffb347,3,0.5);
-  const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));{const xt=teamXpAdj(xp,e);gainXp(xt);teamShareXp(xt,e);}campOnKill(e,xp);
+  const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));{const xt=teamXpAdj(xp,e);const rb=restUse(xt);gainXp(xt+rb);teamShareXp(xt,e);if(rb)floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1.3,e.pos.z),'+'+rb+' rested','xp');}campOnKill(e,xp);
   const cr=randi(2,6)*e.lv;P.credits+=cr;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.6,e.pos.z),'+'+xp+' XP  +'+cr+'¢','xp');SFX.coin();P.kills++;
   if(Math.random()<(e.type==='raider'?0.45:0.32)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
   if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}
@@ -2393,7 +2393,7 @@ function dunOnKill(e){if(!DUN)return;const D=DUN.D;if(DUN.mode&&DUN.mode.hm)hmOn
     keys.forEach((k,i)=>{const it=hmItem(makeUnique(k,DUN.mode&&DUN.mode.vet));it.dropBy=e.T.name;const a=i/keys.length*6.28;dropLoot(e.pos.x+Math.cos(a)*1.8,e.pos.z+Math.sin(a)*1.8,it);});
     P.credits+=40*e.lv;if(DUN.mode&&DUN.mode.team)teamBossLoot(e);
     if(e.boss.final&&Math.random()<VEIL_RATE.dungeonFinal){const v=mythicDisk(DUN.id==='vault'||DUN.id==='choir'||DUN.id==='stillvault'?'veil2':'veil1');v.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z-2.5,v);}
-    if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);if(DUN.mode&&DUN.mode.hm)hmClear(e);}
+    if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);if(DUN.mode&&DUN.mode.hm)hmClear(e);aptBossDrop(e);}
     else banner(e.T.name.toUpperCase()+' DEFEATED','The way deeper is open');}
   else{if(e.eliteD)dunEliteLoot(e);if(Math.random()<D.loot.trashP){const pool=[...new Set(Object.values(D.loot).filter(x=>x&&x.items).flatMap(x=>x.items))];const it=makeUnique(pick(pool));it.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z,it);}}}
 const teleGeo=new THREE.CircleGeometry(1,32);teleGeo.rotateX(-Math.PI/2);const teleRing=new THREE.RingGeometry(0.93,1,40);teleRing.rotateX(-Math.PI/2);
@@ -2431,7 +2431,7 @@ function updDungeon(dt){const d=DUN;d.plight.position.set(P.pos.x,P.pos.y+4.5,P.
       d.group.remove(t.g);t.g.children.forEach(m=>m.material.dispose());d.tele.splice(i,1);}}}
 function dunRespawn(){const d=DUN;clearTele();for(const e of enemies.slice()){if(e.addOf){removeEnemy(e);continue;}if(!e.dead){e.state='idle';e.hp=e.maxHp;e.pos.set(e.home.x,0,e.home.z);e.dot=null;e.stunUntil=e.rootUntil=0;e.hexUntil=0;}if(e.boss)resetBoss(e);}
   P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;P.pos.set(d.entry.x,heightAt(d.entry.x,d.entry.z),d.entry.z);P.rotY=Math.PI;camS.yaw=0;camS.cur=null;P.target=null;P.autoAtk=false;$('#death').classList.add('hidden');ringFx(d.entry.x,d.entry.z,0x6dff8a,4,1);SFX.heal();banner('CHECKPOINT',d.sun?'Team revived at checkpoint '+(sunRec().stage|0)+' of '+SUN_STAGES.length+' · the boss resets':'Revived at the '+d.D.name+' entrance');if(d.sun)d.sun.wipes=(d.sun.wipes||0)+1;if(d.D.raid)raidRez();save();}
-function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&!(d.mode&&d.mode.team)&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> ${d.mode&&d.mode.story?'<span style="color:#ffd25a">· 📜 Story run (scaled to you)</span>':`<span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span>`}<br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>Locker · Mirror · Workbench · Decor · exit by the door';const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
+function dunTrack(){const d=DUN;if(d.D.raid)return raidTrack();if(!d.apt&&!(d.mode&&d.mode.team)&&P.level>d.D.cap)return `<b>${esc(d.D.name)}</b> ${d.mode&&d.mode.story?'<span style="color:#ffd25a">· 📜 Story run (scaled to you)</span>':`<span style="color:#ff9a8a">· over cap ${d.D.cap}: last run</span>`}<br>Bosses ${d.bosses.filter(e=>e.dead).length}/${d.bosses.length}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':''}`;if(d.apt)return '<b>🏠 Your Apartment</b><br>🏠 Home table · 🏆 Trophies · Locker · Mirror · Workbench'+(P.home&&P.home.pool?' · 💤 '+P.home.pool+' rested XP':'');const tot=d.bosses.length,k=d.bosses.filter(e=>e.dead).length;return `<b>${esc(d.D.name)}</b><br>Bosses ${k}/${tot}${d.cleared?' · <span style="color:#6dff8a">Cleared! Take the exit portal</span>':' · exit portal at the entrance'}`;}
 function dunWaypoint(){const d=DUN;if(d.apt)return null;if(d.cleared){const q=d.portals[d.portals.length-1];return {x:q.x,z:q.z,label:'Exit'};}const b=d.bosses.find(e=>!e.dead);return b?{x:b.home.x,z:b.home.z,label:b.T.name}:null;}
 function dunMini(c,tf,sc){if(DUN.areas)return dunMini2(c,tf,sc);c.fillStyle='rgba(120,100,90,0.45)';c.strokeStyle='rgba(230,215,190,0.7)';c.lineWidth=2;
   for(const r of DUN.rects){const a=tf(r[0],r[1]),b=tf(r[0]+r[2],r[1]),e=tf(r[0]+r[2],r[1]+r[3]),f=tf(r[0],r[1]+r[3]);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(e[0],e[1]);c.lineTo(f[0],f[1]);c.closePath();c.fill();c.stroke();}
@@ -2582,7 +2582,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s),...hmFields(s)};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s),...hmFields(s),...homeFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -3139,7 +3139,7 @@ const DECOR={
   bot:{n:'Scrapper Bot Statue',ic:'🤖',pr:120,b:g=>{part(g,geoBox,M(0x6d6f72),0,0.15,0,0.7,0.3,0.7);part(g,geoBox,M(0x8a7432),0,0.65,0,0.5,0.6,0.4);part(g,geoBox,M(0x8a7432),0,1.1,0,0.34,0.3,0.34);part(g,geoBox,MB(0xffa040),0,1.12,0.18,0.24,0.08,0.02);}},
   banner:{n:'Faction Banner',ic:'🚩',pr:100,b:g=>{const f=P.faction&&P.faction.side;const col=f==='combine'?0x3f6fb0:f==='ashborn'?0x8a3a22:0x8a8a8a;part(g,geoBox,M(0x3a3a3a),0,1.2,0,0.08,2.4,0.08);part(g,geoBox,M(col),0.45,1.8,0,0.8,1.1,0.04);part(g,geoBox,MB(0xffc85a),0.45,1.9,0.03,0.3,0.3,0.02);}}};
 const DECO_MAX=16;
-const APT={locker:{x:-5,z:-4.9},mirror:{x:4.6,z:-5.0},bench:{x:-5.6,z:0.6},decor:{x:5.6,z:0.4}};
+const APT={locker:{x:-5,z:-4.9},mirror:{x:4.6,z:-5.0},bench:{x:-5.6,z:0.6},decor:{x:5.6,z:0.4},troph:{x:5.3,z:-2.4},home:{x:0,z:-1.2}};
 function enterApartment(){if(DUN||P.dead)return false;if(inCombat()){warn('You can\'t go home in combat');return false;}
   if(P.mount)dismount();cancelCast();P.target=null;P.autoAtk=false;for(const p of projs)scene.remove(p.m);projs.length=0;for(const r of rings)scene.remove(r.m);rings.length=0;clearFx();
   const hidden=[];const keep=new Set([PM.g,pShadow]);for(const a of allies){keep.add(a.R.g);keep.add(a.shadow);}for(const o of scene.children)if(o.visible&&!keep.has(o)){o.visible=false;hidden.push(o);}
@@ -3147,7 +3147,7 @@ function enterApartment(){if(DUN||P.dead)return false;if(inCombat()){warn('You c
     saved:{c:circles.splice(0),b:boxes.splice(0),o:camOcc.splice(0)},fog0:scene.fog,bg0:scene.background,group:new THREE.Group(),rects:[[-7,-6,14,12]],portals:[],bosses:[],tele:[],cleared:false,t0:T,boxesAdd:[]};
   FLAT=true;scene.add(d.group);buildApartment(d);scene.fog=new THREE.Fog(0x1a1410,30,90);scene.background=new THREE.Color(0x1a1410);
   d.entry={x:0,z:3.8};P.pos.set(0,0,3.8);P.rotY=Math.PI;camS.yaw=0;camS.pitch=0.8;camS.dist=10;camS.cur=null;for(const a of allies){a.pos.set(1.6,0,4.2);a.target=null;}
-  banner('🏠 HOME','Your apartment · locker, mirror, workbench and decor');log('Home sweet home. The <b>locker</b> is shared by all your characters.');SFX.quest();save();return true;}
+  banner('🏠 HOME','Your apartment · 🏠 Home table: furniture, trophies, rest');log('Home sweet home. The <b>locker</b> is shared by all your characters.');SFX.quest();save();return true;}
 function buildApartment(d){const G=d.group;const L=[];const wall=(x,z,sx,sz,h,col)=>{L.push([x,h/2,z,sx,h,sz,col||0x8a7a68]);d.boxesAdd.push({x0:x-sx/2,x1:x+sx/2,z0:z-sz/2,z1:z+sz/2,y0:0,y1:Math.min(h,2.2)});};
   L.push([0,-0.25,0,16,0.5,14,0x6a5040]);for(let i=-6;i<=6;i+=2)L.push([0,0.005,i,14,0.01,0.06,0x5a4232]);
   wall(0,-6.5,16,1,3.2);wall(-7.5,0,1,14,3.2);wall(7.5,0,1,14,3.2);wall(-4.6,6.5,6.2,1,1.2,0x7a6a58);wall(4.6,6.5,6.2,1,1.2,0x7a6a58);
@@ -3165,12 +3165,12 @@ function buildApartment(d){const G=d.group;const L=[];const wall=(x,z,sx,sz,h,co
   part(G,geoBox,MB(0x5ff2ff),-5,2.45,-5.34,1.5,0.08,0.02);part(G,geoBox,MB(0xb8d8e8),4.6,1.45,-5.83,1.2,2.1,0.02);part(G,geoBox,MB(0x5ff2ff),6.04,0.95,0.4,0.04,0.5,1.0);part(G,geoBox,MB(0xffd9a0),-5.95,1.3,-0.4,0.25,0.25,0.25);
   G.add(new THREE.HemisphereLight(0xffe2c0,0x40302a,0.85));const pl=new THREE.PointLight(0xffc890,1.1,26,1.4);pl.position.set(0,4.5,0);G.add(pl);d.plight=new THREE.PointLight(0xffd9a0,0.5,12,1.6);G.add(d.plight);
   addPortal(d,0,5.6,'Leave');d.portals[0].sw.material=MB(0xffc85a);d.portals[0].pl.material.color.set(0xffc85a);
-  boxes.push(...d.boxesAdd);d.decoG=new THREE.Group();G.add(d.decoG);drawDecor();}
+  boxes.push(...d.boxesAdd);d.decoG=new THREE.Group();G.add(d.decoG);drawDecor();aptBuildT(d);}
 function drawDecor(){const d=DUN;if(!d||!d.apt)return;while(d.decoG.children.length)d.decoG.remove(d.decoG.children[0]);const B=loadBank();
   for(const x of B.deco){const g=new THREE.Group();g.position.set(x.x,0,x.z);g.rotation.y=x.r||0;DECOR[x.d].b(g);d.decoG.add(g);}}
 function aptInteract(p){const d=DUN;for(const q of d.portals)if(Math.hypot(p.x-q.x,p.z-q.z)<2.6)return {k:'dexit',label:'🚪 Leave apartment'};
   if(Math.hypot(p.x-APT.locker.x,p.z-APT.locker.z)<2.4)return {k:'locker',label:'🗄 Locker'};if(Math.hypot(p.x-APT.mirror.x,p.z-APT.mirror.z)<2.4)return {k:'mirror',label:'🪞 Mirror'};
-  if(Math.hypot(p.x-APT.bench.x,p.z-APT.bench.z)<2.4)return {k:'bench',label:'🛠 Workbench'};if(Math.hypot(p.x-APT.decor.x,p.z-APT.decor.z)<2.4)return {k:'decor',label:'🪴 Decor'};return null;}
+  if(Math.hypot(p.x-APT.bench.x,p.z-APT.bench.z)<2.4)return {k:'bench',label:'🛠 Workbench'};if(Math.hypot(p.x-APT.decor.x,p.z-APT.decor.z)<2.4)return {k:'decor',label:'🪴 Decor'};if(Math.hypot(p.x-APT.troph.x,p.z-APT.troph.z)<2.0)return {k:'trophy',label:'🏆 Trophy wall'};if(Math.hypot(p.x-APT.home.x,p.z-APT.home.z)<2.0)return {k:'home',label:'🏠 Home'};return null;}
 
 /* ---------- shared locker (bank across all characters) ---------- */
 const BANK_KEY='dustreach_bank_v1',BANK_CAP=120;
@@ -3222,13 +3222,14 @@ function openHelp(){const S_=(t,b,open)=>`<details class="help"${open?' open':''
   S_('⛏ Gathering &amp; crafting','Glowing <b>ore veins</b> 🪨, <b>duskpetal blooms</b> 🌺 and <b>salvage heaps</b> 🔩 grow in the wilds. Walk up and tap ⛏ (or press F/E) to gather; a node regrows about 8 minutes later. Materials go into your 🧰 parts bag, not your pack.<br><br>Open 🛠 Tradeskills (<b>J</b>, or ⋯ → Tradeskills) and use <b>📜 Recipes</b>: <b>⚗️ Distilling</b> makes stims, gels and 10-minute elixirs; <b>🔨 Forging</b> makes Uncommon gear at up to your level (Rare with an 🔥 Emberheart Core from bosses). <b>♻️ Salvage</b> breaks spare pack gear into parts. Each tradeskill has a rank (1-100) that rises as you use it; recipe colours show your chance to rank up. More schematics are sold in Halden\'s Rest and the outposts, and bosses drop rare ones.')+
   S_('🎲 Random missions, writs, daily &amp; weekly','Every 📟 terminal shows a <b>mission board</b> with 3 generated missions at your level (the difficulty slider moves it up or down): <b>Eliminate</b> a named elite, <b>Clear</b> a site and its boss, <b>Retrieve</b> a guarded item, <b>Survey</b> three posts, <b>Escort</b> someone through ambushes, <b>Hold the line</b> against waves, or a <b>Supply run</b> that takes gathered materials from your 🧰 parts bag. Pick a <b>reward focus</b> (balanced, credits, XP or gear) and switch on <b>⏱ Timed</b> for +25%. Objectives show on the map and as cyan diamonds on the minimap; finished missions are claimed at any terminal.<br><br>Every finished mission or contract pays <b>✦ writs</b>. Your <b>first mission each day</b> pays +50% and +3 ✦, and <b>10 missions a week</b> complete the weekly contract (Rare gear, credits, XP and 15 ✦; resets Monday 00:00). Spend writs in the <b>✦ Writ exchange</b> tab or to reroll the board (rerolling also works for credits). Abandoning a mission costs a small fee.')+
   S_('⚔ Hard modes, weekly twists &amp; titles','Every dungeon door, team version and raid panel has a <b>⚔ Difficulty</b> picker: <b>Normal</b>, <b>Hard</b> and <b>Nightmare</b>, and solo dungeon doors add five <b>Ascent</b> tiers (I–V); team versions and raids stop at Nightmare. Clear Normal once to unlock Hard, clear Hard to unlock Nightmare, and beat the timer one tier below to unlock each Ascent tier. Higher tiers raise enemy HP and damage, give uniques extra item power (tagged with the tier), and raise the extra-drop and Relic chances. On Hard or Nightmare, each Sunless Throne boss has a 20% or 40% chance of an extra <b>Sunforged</b> piece. <b>Weekly twists</b> (Nightmare: one; Ascent II and up: two; raids on Nightmare: one mechanic twist) change with the game week, the same clock as the Sunless lockout: 🛡 Bulwark, 👑 Warlord, 💥 Volatile, 📯 Rallying, 🔥 Brimstone and 😡 Frenzy. The picker shows this week\'s twists, tips and the next few weeks. Dungeons have a <b>⏱ timer</b> (shown under the tracker). Clear the final boss in time for a <b>Bonus Cache</b> (extra boss loot and credits); late clears still count. Raids keep their checkpoints, so they have no timer; instead a hard raid clear gives bonus Sigils, and the Sun-Eater\'s Total Eclipse comes later to match its extra HP. Titles: «the Unyielding» (Hard), «Nightwalker» (Nightmare), «Ascendant» (Ascent III timed), «Peakbreaker» (Ascent V timed), «Throneshaker» and «Bastionbreaker» (raids on Nightmare). Show a title from any difficulty panel. Tuned for you plus AI teammates in short runs; story runs are never scaled.')+
+  S_('🏠 Apartment upgrades, trophies &amp; rested XP','Your apartment (north-west of Halden\'s Rest) now has a <b>🏠 Home table</b> in the middle of the room. <b>Furniture</b>: buy pieces with credits or mission writs ✦, craft some with Forging 🔨 or Distilling ⚗️ (schematics sold at hubs), and find rare pieces from dungeon and raid final bosses (more on hard modes). New pieces go into storage; in 🛋 Furnish, tap a slot, then tap a piece. Floor pieces go in floor slots, wall pieces on walls. <b>Upgrades</b>: Bunk Room (8 slots) → Settled Quarters (13) → Homestead Suite (18), paid in credits and writs. Each also adds trophy plaques. <b>🏆 Trophy wall</b> (right-hand wall): plaques for your raid clears, hard-mode bests, team clears, dungeon bosses and titles; pin your favourites. <b>💤 Rested XP</b>: while you are logged out, bonus XP builds up (8% of a level per hour if you log out at home, 2% elsewhere; staying in the apartment counts too), up to 1.5 levels. Kills give <b>double XP</b> until it is used up; it shows as the blue part of the XP bar and a 💤 by your name. <b>Comfort</b> from placed furniture raises the rate (up to +60%) and the cap (up to 2 levels). The apartment and furniture are shared by all your characters; trophies and rested XP are per character.')+
   S_('🏦 Bank','Bank terminals (gold 🏦 <b>B</b> squares on the minimap and Conduit map) stand by the mission terminal in Halden\'s Rest, and at Cinderwell Post and Glassreach Camp once the story unlocks them. Your apartment locker opens the same Bank. Walk up and tap 🏦 Bank (or press F/E).<br><br>It holds <b>'+BANK_CAP+' items</b> plus unlimited 🧰 parts (they stack by type and QL) and credits, and it is <b>account-wide</b>: every character on this device shares it, so it is also how you pass gear to alts. Tap an item to store or take it. The bar at the top stays put while you scroll: <b>Store junk</b> moves every item tagged <b>Junk</b> (Common gear and implants, plus anything you tag) from your pack, <b>Store all parts</b> / <b>Take all</b> move every part stack, and you can search by name, filter by type and sort by newest, rarity, level or name.')+
   S_('🏠 Apartment &amp; locker','The green-lit door on the north-west building in Halden\'s Rest is your apartment. Inside: a <b>locker</b> that opens your 🏦 Bank, a <b>mirror</b> for clothes, dyes and hair, a <b>workbench</b> for tradeskills and a <b>decor</b> console to buy and place furniture.'),'help');}
 
 /* ---------- hooks ---------- */
 function stage3Interact(p){const bk=bankNear(p);if(bk)return {k:'bank',label:'🏦 Bank'};const rk=raidNear(p);if(rk)return {k:'raid',id:rk,label:'⚔ '+RAIDS[rk].name};if(Math.hypot(p.x-TAILOR.x,p.z-TAILOR.z)<3.2)return {k:'tailor',label:'👕 Ossory Threads'};if(Math.hypot(p.x-APT_DOOR.x,p.z-(APT_DOOR.z-1.2))<2.6)return {k:'apt',label:'🏠 Apartment'};return null;}
-function stage3Do(n){const k=n.k;if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
-function stage3Act(a,b){const D=b.dataset;if(hmAct(a,b))return true;if(qAct(a,b))return true;if(rmAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
+function stage3Do(n){const k=n.k;if(k==='home'||k==='trophy'){openHome(k==='trophy'?'trophies':null);return;}if(k==='raid')openRaid(n.id);else if(k==='tailor')openTailor();else if(k==='apt')enterApartment();else if(k==='locker'||k==='bank')openBank();else if(k==='mirror')openWardrobe(true);else if(k==='bench')openCraft();else if(k==='decor')openDecor();else return false;return true;}
+function stage3Act(a,b){const D=b.dataset;if(hmAct(a,b))return true;if(homeAct(a,b))return true;if(qAct(a,b))return true;if(rmAct(a,b))return true;if(bankAct(a,b))return true;if(a==='rename'){openRename(activeId);return true;}if(a==='gfx'){setGfx(b.dataset.g);openMenu();return true;}if(a==='camfollow'){setCamFollow(!CAMP.follow);openMenu();return true;}if(a==='fps30'){setFps30(!GFXC.fps30);openMenu();return true;}if(a==='svexp'){closePanel();openSaveTools('export');return true;}if(a==='svimp'){closePanel();openSaveTools('import');return true;}if(raidAct(a,b))return true;if(teamAct(a,b))return true;if(questAct(a,b))return true;
   if(a==='ctab')openCraft(D.t);else if(a==='crec'){CR.rec=D.r;CR.tgt=null;openCraft();}else if(a==='ctgt'){CR.tgt=D.id;openCraft();}else if(a==='cq'){CR.q=+D.q;openCraft();}else if(a==='cstat'){CR.stat=D.s;openCraft();}
   else if(a==='cfab'){doFab();openCraft();}else if(a==='cblank'){CR.blank=D.id;openCraft();}else if(a==='cslot'){CR.slot=D.s;openCraft();}else if(a==='cclu'){CR.sel[D.t]=D.id||null;openCraft();}else if(a==='cbuild'){doAssemble();openCraft();}
   else if(a==='buyts'){buyTs(+D.i);openVendor();}
@@ -7739,6 +7740,7 @@ function qCraft(id,roll){const c=qCheck(id);const r=c.r;if(!c.ok){warn(c.known?'
   else if(r.out.c){P.consum[r.out.c]=(P.consum[r.out.c]||0)+r.out.n;msg='+'+r.out.n+' '+CONSUM[r.out.c].name;res={c:r.out.c,n:r.out.n};}
   else if(r.out.gear){const slot=r.out.gear==='weapon'?'weapon':(QARM.includes(CRQ.slot)?CRQ.slot:'armor');const it=genItem(c.lvl,slot,r.out.r);
     it.crafted=P.name;it.value=Math.max(1,Math.round(it.value*0.4));P.inv.push(it);msg=it.name+' ('+RAR[it.r].n+', Lv '+it.lvl+')';res=it;}
+  else if(r.out.furn){aptGain(r.out.furn,'craft');msg=FURN[r.out.furn].n+' (sent to your apartment)';res={furn:r.out.furn};}
   qc().n++;qSkillUp(r.ts,c.req,roll);SFX.loot();toast(r.ic+' '+r.n+': '+msg);log(r.ic+' Crafted <b>'+esc(r.n)+'</b>: '+esc(msg));save();return res;}
 function qInHub(){if(DUN||FLAT)return false;const g=regionAt(P.pos.x,P.pos.z);return g.id==='town'||OUTPOSTS.some(o=>o.id===g.id);}
 function qLearn(id,free){const r=qRec(id);if(qKnows(r.id))return false;if(!free){if(r.src!=='vendor'){warn('Found on dungeon bosses');return false;}if(!qInHub()){warn('Schematics are sold in Halden\'s Rest and the outposts');return false;}
@@ -7803,7 +7805,7 @@ function gatherDo(n){if(n.k!=='gather')return false;if(inCombat&&inCombat()){war
 function qRankBar(ts){const r=qRank(ts);return `<div class="qrk"><span>${QTS[ts].ic} <b>${QTS[ts].n}</b> ${r}/${QMAX}</span><span class="qbar"><i style="width:${r}%"></i></span></div>`;}
 function qRecRow(r){const k=qKnows(r.id);const rank=qRank(r.ts);const col=k?qColor(rank,r.rk):'grey';const sub=k?(rank<r.rk?'Needs rank '+r.rk:'Rank '+r.rk+' · '+r.mats.map(([m,n])=>n+'× '+MATS[m].n).join(' + ')):(r.src==='vendor'?'🔒 Learn at a hub · '+qPrice(r)+'¢':'🔒 Dungeon boss drop');
   return `<button class="item${r.id===CRQ.rec?' sel':''}" data-act="qrec" data-r="${r.id}"><span class="ico">${r.ic}</span><span><div class="nm" style="color:${k?QCOL[col]:'#9a8f84'}">${esc(r.n)}</div><div class="st">${sub}</div></span></button>`;}
-function qOutText(r){if(r.out.stims)return r.out.stims+' Med-stims (heal in a fight: 🧪 quick button or Q)';if(r.out.c){const C=CONSUM[r.out.c];const m=C.mods(P.level);return r.out.n+'× '+C.icon+' '+C.name+': '+Object.keys(m).map(x=>'+'+m[x]+(x==='crit'||x==='power'||x==='dr'?'%':'')+' '+(x==='dr'?'damage reduction':STATN[x]||x)).join(' · ')+' for '+Math.round(C.dur/60)+' min';}
+function qOutText(r){if(r.out.furn){const F=FURN[r.out.furn];return F.ic+' '+F.n+': '+F.k+' furniture, comfort +'+F.cf+'. Goes to your apartment storage; place it from the 🏠 Home table.';}if(r.out.stims)return r.out.stims+' Med-stims (heal in a fight: 🧪 quick button or Q)';if(r.out.c){const C=CONSUM[r.out.c];const m=C.mods(P.level);return r.out.n+'× '+C.icon+' '+C.name+': '+Object.keys(m).map(x=>'+'+m[x]+(x==='crit'||x==='power'||x==='dr'?'%':'')+' '+(x==='dr'?'damage reduction':STATN[x]||x)).join(' · ')+' for '+Math.round(C.dur/60)+' min';}
   return (r.out.r===2?'Rare':'Uncommon')+' '+(r.out.gear==='weapon'?'weapon for your profession':'armour piece')+' at up to your level. Crafted gear never beats dungeon, team or raid rewards.';}
 function qRecHtml(){const r=qRec(CRQ.rec);const c=qCheck(r.id);
   let left=qRankBar('field')+qRankBar('distill')+qRankBar('forge');
@@ -8135,6 +8137,190 @@ function hmAct(a,b){const D=b.dataset;
   return false;}
 function hmExports(){return {HM_VER,HM_TIERS,HM_TEAM,HM_RAID,HM_AFF,HM_A1,HM_A2,HM_TITLES,normHm,hmFields,hmi,hmWeek,hmAffixes,hmBest,hmUnlocked,hmSel,hmSet,hmForce,hmMode,hmOn,hmPar,hmFmt,hmItem,hmBonus,hmTick,hmEnrageK,hmClear,hmTitleCheck,hmTrackHtml,hmPickHtml,hmAct};}
 
+/* game39.js — Build T: APARTMENT UPGRADES (furniture slots, trophy wall, rested XP, apartment tiers).
+   Builds on the Build-era apartment in game8 (shared by all characters; free-placed DECOR stays as it was).
+   - Shared apartment state (all characters): localStorage 'dustreach_apt_v1' = {v:1,tier,slots:{slotId:furnKey},own:{furnKey:n}}
+     read through aptLoad() (normalizes junk) and written by aptWrite().
+   - Furniture (FURN): bought with credits or mission writs (P.rmis.writs), crafted via Forging/Distilling (QREC recipes
+     with out:{furn}, schematics sold at hubs), or dropped by dungeon/raid final bosses. Pieces go into fixed SLOTS
+     (floor or wall); tiers unlock more slots: Bunk Room 8, Settled Quarters 13, Homestead Suite 18.
+     The 🏠 Home panel (table in the middle of the room) has a touch grid: tap a slot, then tap a piece.
+   - Trophy wall (right-hand wall): plaques built from the character's own records (dungeon clears, team clears, raid clears,
+     hard-mode bests, titles). Pins in P.home.pin choose which ones get a plaque; the rest fill in automatically.
+   - Rested XP (per character, P.home): a pool of bonus XP that builds while logged out (faster when you log out at home)
+     and while you stay in the apartment. Kills give double XP until the pool is used up. Cap 1.5 levels of XP
+     (+ up to 0.5 more from comfort); rate per real hour: 8% of a level at home, 2% elsewhere, comfort adds up to +60%.
+     Shown as a blue segment on the XP bar and a 💤 next to your name.
+   - Save: P.home={v:1,pool,t,at,pin} via futureFields (homeFields); old saves start with an empty pool. */
+const APT_KEY='dustreach_apt_v1',APT_VER=1,HOME_VER=1;
+const APT_TIERS=[
+  {n:'Bunk Room',cr:0,wr:0,lvl:1,troph:6,d:'Your starter flat in Halden\'s Rest.'},
+  {n:'Settled Quarters',cr:2500,wr:10,lvl:12,troph:10,d:'Knock through to the store room: +5 furniture slots, +4 trophy plaques.'},
+  {n:'Homestead Suite',cr:8000,wr:30,lvl:30,troph:14,d:'The whole floor is yours: +5 furniture slots, +4 trophy plaques.'}];
+// slots: k floor|wall, t = tier needed (0-based), position, wall facing
+const SLOTS=[
+  {id:'A',k:'floor',t:0,x:-3,z:-4.3,n:'Window corner'},{id:'B',k:'floor',t:0,x:2.6,z:-4.3,n:'By the mirror'},{id:'C',k:'floor',t:0,x:-2.4,z:1.8,n:'Left of the door'},
+  {id:'D',k:'floor',t:0,x:2.4,z:1.8,n:'Right of the door'},{id:'E',k:'floor',t:0,x:-3.4,z:-1.6,n:'By the workbench'},{id:'F',k:'floor',t:0,x:3.4,z:-1.6,n:'By the trophies'},
+  {id:'W1',k:'wall',t:0,x:-6.38,z:-2.6,r:Math.PI/2,n:'Left wall'},{id:'W2',k:'wall',t:0,x:-3.2,z:5.93,r:Math.PI,n:'Door wall, left'},
+  {id:'G',k:'floor',t:1,x:-3.4,z:4.0,n:'Foot of the bed'},{id:'H',k:'floor',t:1,x:3.6,z:4.0,n:'Store-room corner'},{id:'I',k:'floor',t:1,x:0,z:-3.6,n:'Under the windows'},
+  {id:'W3',k:'wall',t:1,x:3.2,z:5.93,r:Math.PI,n:'Door wall, right'},{id:'W4',k:'wall',t:1,x:-6.38,z:3.4,r:Math.PI/2,n:'Above the bed'},
+  {id:'J',k:'floor',t:2,x:-1.5,z:3.7,n:'Hall, left'},{id:'K',k:'floor',t:2,x:1.5,z:3.7,n:'Hall, right'},{id:'L',k:'floor',t:2,x:4.6,z:2.8,n:'Suite corner'},
+  {id:'W5',k:'wall',t:2,x:-1.5,z:-5.93,r:0,n:'Between the windows, left'},{id:'W6',k:'wall',t:2,x:1.5,z:-5.93,r:0,n:'Between the windows, right'}];
+const TROPHY_POS=[];for(const y of [1.25,2.05])for(const z of [-4.6,-3.6,-2.6,-1.6,2.2,3.2,4.2])TROPHY_POS.push({x:6.36,y,z});
+// furniture catalogue: k floor|wall, cf comfort, buy {cr}|{wr}, craft (QREC id) or drop
+const FURN_B={
+  rug:g=>{part(g,geoBox,M(0xb07a3a),0,0.02,0,2.4,0.03,1.6);part(g,geoBox,M(0x6a3a22),0,0.035,0,2.0,0.03,0.2);part(g,geoBox,M(0x6a3a22),0,0.035,0,0.2,0.03,1.2);},
+  chair:g=>{part(g,geoBox,M(0x7a5a3a),0,0.35,0,0.9,0.3,0.85);part(g,geoBox,M(0x6a4a2a),0,0.85,-0.35,0.9,0.75,0.16);part(g,geoBox,M(0x5a6a70),-0.42,0.6,0,0.14,0.3,0.8);part(g,geoBox,M(0x5a6a70),0.42,0.6,0,0.14,0.3,0.8);},
+  glamp:g=>{part(g,geoBox,M(0x3a3a3a),0,0.7,0,0.08,1.4,0.08);part(g,geoBox,M(0x2a2a2a),0,0.04,0,0.45,0.08,0.45);part(g,geoSphere,MB(0x9fffd0),0,1.5,0,0.28,0.2,0.28);},
+  planter:g=>{part(g,geoBox,M(0x5a6470),0,0.3,0,0.8,0.6,0.5);part(g,geoBox,MB(0x5ff2ff),0,0.62,0,0.7,0.04,0.4);for(let i=0;i<4;i++)part(g,geoCone,M(0x5a8a32),-0.27+i*0.18,0.95,0,0.1,0.6,0.1);},
+  daybed:g=>{part(g,geoBox,M(0x5a3a2a),0,0.25,0,1.0,0.4,2.0);part(g,geoBox,M(0xd8cfb8),0,0.5,0,0.95,0.14,1.9);part(g,geoBox,M(0x8a4a3a),0,0.62,-0.7,0.8,0.14,0.4);},
+  table:g=>{part(g,geoBox,M(0x8a9098),0,0.72,0,1.4,0.08,0.9);for(const a of [[-0.6,-0.35],[0.6,-0.35],[-0.6,0.35],[0.6,0.35]])part(g,geoBox,M(0x4a4a4a),a[0],0.36,a[1],0.08,0.72,0.08);},
+  shelf:g=>{part(g,geoBox,M(0x6a4a32),0,1.0,0,1.4,2.0,0.4);for(const y of [0.45,1.0,1.55])for(let i=0;i<5;i++)part(g,geoBox,M([0x8a3a3a,0x3a5a8a,0x8a7a3a,0x3a7a4a,0x6a3a7a][i]),-0.5+i*0.24,y+0.18,0.05,0.16,0.34,0.26);},
+  hearth:g=>{part(g,geoBox,M(0x5a4a44),0,0.6,0,1.6,1.2,0.7);part(g,geoBox,M(0x2a1a14),0,0.45,0.2,0.9,0.6,0.4);part(g,geoCone,MB(0xff8a3a),0,0.45,0.25,0.25,0.5,0.25);part(g,geoBox,M(0x6a5a50),0,1.25,0,1.8,0.1,0.8);},
+  brazier:g=>{part(g,geoBox,M(0x3a3a3a),0,0.35,0,0.12,0.7,0.12);part(g,geoBox,M(0x4a3a30),0,0.75,0,0.7,0.18,0.7);part(g,geoCone,MB(0xff6a2a),0,1.0,0,0.22,0.4,0.22);},
+  bench:g=>{part(g,geoBox,M(0x7a6a5a),0,0.45,0,1.6,0.1,0.5);part(g,geoBox,M(0x4a4a4a),-0.65,0.22,0,0.1,0.44,0.45);part(g,geoBox,M(0x4a4a4a),0.65,0.22,0,0.1,0.44,0.45);},
+  diffuser:g=>{part(g,geoBox,M(0x6a4a5a),0,0.4,0,0.4,0.8,0.4);part(g,geoSphere,MB(0xff9ad8),0,0.95,0,0.22,0.22,0.22);},
+  still:g=>{part(g,geoBox,M(0xb8743a),0,0.45,0,0.6,0.9,0.6);part(g,geoBox,M(0xb8743a),0.35,1.0,0,0.5,0.08,0.08);part(g,geoSphere,M(0xc8844a),0,1.0,0,0.3,0.25,0.3);},
+  orb:g=>{part(g,geoBox,M(0x3a3a44),0,0.45,0,0.4,0.9,0.4);part(g,geoSphere,MB(0x8ab8ff),0,1.15,0,0.3,0.3,0.3);},
+  sculpt:g=>{part(g,geoBox,M(0x4a4440),0,0.15,0,0.7,0.3,0.7);part(g,geoIco,M(0x7a6a5a),0,0.75,0,0.4,0.5,0.35);part(g,geoCone,MB(0xffb03a),0.1,1.2,0,0.08,0.4,0.08);},
+  pennant:g=>{part(g,geoBox,M(0x3a3a3a),0,1.1,0,0.08,2.2,0.08);part(g,geoBox,M(0xc8402a),0.4,1.75,0,0.7,0.9,0.04);part(g,geoBox,MB(0xffd27a),0.4,1.8,0.03,0.25,0.25,0.02);},
+  tapestry:g=>{part(g,geoBox,M(0x8a6a3a),0,1.7,0,1.6,1.1,0.05);part(g,geoBox,M(0x4a6a3a),-0.3,1.75,0.03,0.5,0.4,0.02);part(g,geoBox,M(0x3a5a8a),0.35,1.6,0.03,0.4,0.3,0.02);},
+  poster:g=>{part(g,geoBox,M(0xd8c89a),0,1.7,0,0.8,1.1,0.04);part(g,geoBox,M(0x8a3a2a),0,1.95,0.03,0.6,0.25,0.02);},
+  lanterns:g=>{part(g,geoBox,M(0x3a3a3a),0,2.3,0,1.8,0.03,0.03);for(let i=0;i<5;i++)part(g,geoSphere,MB([0xffb03a,0xff6a3a,0x9fffd0][i%3]),-0.8+i*0.4,2.15,0.05,0.1,0.13,0.1);},
+  chart:g=>{part(g,geoBox,M(0x1a2440),0,1.7,0,1.2,1.0,0.04);for(let i=0;i<7;i++)part(g,geoBox,MB(0xfff0b0),-0.45+((i*37)%9)/9,1.3+((i*53)%8)/10,0.03,0.05,0.05,0.02);},
+  shield:g=>{part(g,geoBox,M(0x6a6a70),0,1.7,0,0.8,1.0,0.08);part(g,geoBox,M(0xb8743a),0,1.7,0.05,0.2,0.9,0.04);part(g,geoBox,M(0xb8743a),0,1.8,0.05,0.7,0.2,0.04);},
+  mask:g=>{part(g,geoBox,M(0x4a3a30),0,1.7,0,0.6,0.7,0.04);part(g,geoBox,M(0x8a7a6a),0,1.72,0.06,0.42,0.5,0.1);part(g,geoBox,MB(0xff4a2a),-0.1,1.8,0.12,0.08,0.05,0.02);part(g,geoBox,MB(0xff4a2a),0.1,1.8,0.12,0.08,0.05,0.02);}};
+const FURN={
+  rug:{n:'Dune-weave Rug',ic:'🟫',k:'floor',cf:1,buy:{cr:150}},
+  poster:{n:'Faded Caravan Poster',ic:'📜',k:'wall',cf:0,buy:{cr:120}},
+  glamp:{n:'Glowcap Lamp',ic:'💡',k:'floor',cf:1,buy:{cr:250}},
+  tapestry:{n:'Reach Map Tapestry',ic:'🗺️',k:'wall',cf:1,buy:{cr:350}},
+  planter:{n:'Still-water Planter',ic:'🪴',k:'floor',cf:1,buy:{cr:400}},
+  table:{n:'Skiff-plate Table',ic:'🪵',k:'floor',cf:1,buy:{cr:450}},
+  chair:{n:'Salvage Armchair',ic:'🪑',k:'floor',cf:2,buy:{cr:700}},
+  daybed:{n:'Settler\'s Day Bed',ic:'🛏️',k:'floor',cf:3,buy:{cr:1400}},
+  lanterns:{n:'Signal Lantern String',ic:'🏮',k:'wall',cf:1,buy:{wr:4}},
+  shelf:{n:'Courier\'s Bookshelf',ic:'📚',k:'floor',cf:2,buy:{wr:6}},
+  chart:{n:'Starfall Chart',ic:'✨',k:'wall',cf:2,buy:{wr:8}},
+  hearth:{n:'Ember Hearth',ic:'🔥',k:'floor',cf:3,buy:{wr:12}},
+  bench:{n:'Riveted Bench',ic:'🔩',k:'floor',cf:1,craft:'h_bench'},
+  brazier:{n:'Cinder Brazier',ic:'🏺',k:'floor',cf:2,craft:'h_brazier'},
+  shield:{n:'Forged Wall Shield',ic:'🛡️',k:'wall',cf:1,craft:'h_shield'},
+  diffuser:{n:'Duskpetal Diffuser',ic:'🌸',k:'floor',cf:2,craft:'h_diffuser'},
+  still:{n:'Copper Still',ic:'⚗️',k:'floor',cf:1,craft:'h_still'},
+  orb:{n:'Storm-glass Orb',ic:'🔮',k:'floor',cf:2,drop:'dungeon'},
+  sculpt:{n:'Veinstone Sculpture',ic:'🗿',k:'floor',cf:1,drop:'dungeon'},
+  mask:{n:'Mounted Raider Mask',ic:'👺',k:'wall',cf:1,drop:'dungeon'},
+  pennant:{n:'Victor\'s Pennant',ic:'🚩',k:'floor',cf:1,drop:'hard'}};
+// crafted furniture: schematics sold at hubs (src vendor), like the other tradeskill recipes
+QREC.push(
+  {id:'h_bench',ts:'forge',n:'Riveted Bench (furniture)',ic:'🔩',rk:5,mats:[['ore',2],['scrap',2]],out:{furn:'bench'},src:'vendor'},
+  {id:'h_brazier',ts:'forge',n:'Cinder Brazier (furniture)',ic:'🏺',rk:15,mats:[['ore',3],['scrap',2]],out:{furn:'brazier'},src:'vendor'},
+  {id:'h_shield',ts:'forge',n:'Forged Wall Shield (furniture)',ic:'🛡️',rk:25,mats:[['ore',3],['shard',1]],out:{furn:'shield'},src:'vendor'},
+  {id:'h_diffuser',ts:'distill',n:'Duskpetal Diffuser (furniture)',ic:'🌸',rk:8,mats:[['bloom',3],['ore',1]],out:{furn:'diffuser'},src:'vendor'},
+  {id:'h_still',ts:'distill',n:'Copper Still (furniture)',ic:'⚗️',rk:18,mats:[['bloom',2],['circuit',1],['ore',1]],out:{furn:'still'},src:'vendor'});
+/* ---------- shared apartment state ---------- */
+function aptLoad(){let a=null;try{a=JSON.parse(localStorage.getItem(APT_KEY)||'null');}catch(e){}if(!a||typeof a!=='object')a={};
+  const tier=Math.max(0,Math.min(APT_TIERS.length-1,Math.floor(+a.tier||0)));const own={},slots={};
+  const O=a.own&&typeof a.own==='object'?a.own:{};for(const k in O)if(FURN[k]){const n=Math.max(0,Math.min(99,Math.floor(+O[k]||0)));if(n)own[k]=n;}
+  const S0=a.slots&&typeof a.slots==='object'?a.slots:{};const used={};
+  for(const s of SLOTS){const k=S0[s.id];if(FURN[k]&&FURN[k].k===s.k&&s.t<=tier&&(used[k]|0)<(own[k]|0)){slots[s.id]=k;used[k]=(used[k]|0)+1;}}
+  return {v:APT_VER,tier,slots,own};}
+function aptWrite(a){lsSet(APT_KEY,JSON.stringify(a));}
+function aptPlaced(a,k){return Object.values(a.slots).filter(x=>x===k).length;}
+function aptFree(a,k){return (a.own[k]|0)-aptPlaced(a,k);}
+function aptGain(k,why){if(!FURN[k])return false;const a=aptLoad();a.own[k]=Math.min(99,(a.own[k]|0)+1);aptWrite(a);
+  log('🛋 '+(why==='drop'?'Furniture found':why==='craft'?'Furniture made':'Furniture bought')+': <b>'+FURN[k].ic+' '+FURN[k].n+'</b> (in your apartment\'s storage; place it from the 🏠 Home table).');if(inLocker())drawFurn();return true;}
+function aptBuy(k){const F=FURN[k];if(!F||!F.buy)return false;if(!inLocker()){warn('Buy furniture at the 🏠 Home table in your apartment');return false;}
+  if(F.buy.cr){if(P.credits<F.buy.cr){warn('Not enough credits');return false;}P.credits-=F.buy.cr;}
+  else if(F.buy.wr){const r=rmi();if((r.writs|0)<F.buy.wr){warn('Not enough writs (✦ from random missions)');return false;}r.writs-=F.buy.wr;}
+  aptGain(k,'buy');SFX.coin();save();return true;}
+function aptPlace(slotId,k){const a=aptLoad();const s=SLOTS.find(x=>x.id===slotId);if(!s||s.t>a.tier)return false;
+  if(!k){delete a.slots[slotId];aptWrite(a);drawFurn();return true;}
+  const F=FURN[k];if(!F||F.k!==s.k)return false;const cur=a.slots[slotId];if(cur===k)return true;if(aptFree(a,k)<1)return false;a.slots[slotId]=k;aptWrite(a);drawFurn();SFX.loot&&SFX.loot();return true;}
+function aptUpgrade(){const a=aptLoad();const nx=APT_TIERS[a.tier+1];if(!nx)return false;if(P.level<nx.lvl){warn('Needs level '+nx.lvl);return false;}
+  const r=rmi();if(P.credits<nx.cr||(r.writs|0)<nx.wr){warn('Needs '+nx.cr+'¢ and '+nx.wr+' ✦ writs');return false;}
+  P.credits-=nx.cr;r.writs-=nx.wr;a.tier++;aptWrite(a);save();if(inLocker()){drawFurn();drawTrophies();}banner('🏠 '+nx.n.toUpperCase(),nx.d);SFX.level();return true;}
+function aptComfort(a){a=a||aptLoad();let c=0;for(const k of Object.values(a.slots))c+=FURN[k].cf;
+  let old=0;try{old=Math.min(4,loadBank().deco.length*0.5);}catch(e){}return Math.min(20,c+old);}
+// drops: dungeon final bosses (more on hard modes), raid final bosses
+function aptBossDrop(e){if(!DUN||DUN.apt||!e.boss||!e.boss.final)return;const h=typeof hmOn==='function'?hmOn():null;const t=h?h.tier:0;
+  const p=DUN.D.raid?0.25:0.05+0.03*t;if(Math.random()>=p)return;const a=aptLoad();
+  let pool=Object.keys(FURN).filter(k=>FURN[k].drop==='dungeon'||(t>=1&&FURN[k].drop==='hard'));const fresh=pool.filter(k=>!a.own[k]);if(fresh.length)pool=fresh;aptGain(pick(pool),'drop');}
+/* ---------- per-character: rested XP + trophy pins ---------- */
+function normHome(o){o=o&&typeof o==='object'?o:{};const pin=(Array.isArray(o.pin)?o.pin:[]).filter(x=>typeof x==='string'&&x.length<60).slice(0,14);
+  return {v:HOME_VER,pool:Math.max(0,Math.floor(+o.pool||0)),t:Math.max(0,Math.floor(+o.t||0)),at:o.at?1:0,pin};}
+function homeFields(s){return {home:normHome(s.home)};}
+const homi=()=>P.home||(P.home=normHome(null));
+function restCap(c){if(P.level>=MAXLVL)return 0;c=c==null?aptComfort():c;return Math.round((1.5+Math.min(0.5,0.025*c))*xpNeed(P.level));}
+function restRate(home,c){c=c==null?aptComfort():c;return (home?0.08:0.02)*(1+Math.min(0.6,0.03*c));}// fraction of a level per real hour
+let restAcc=0;
+function restTick(force){const h=homi(),now=Date.now();if(!force&&now-restAcc<1000)return;restAcc=now;
+  if(!h.t){h.t=now;h.at=inLocker()?1:0;return;}const hrs=Math.max(0,(now-h.t)/3.6e6);const away=hrs>2/60;const home=away?!!h.at:inLocker();
+  if((away||home)&&P.level<MAXLVL){const c=aptComfort(),cap=restCap(c);const add=Math.floor(restRate(home,c)*hrs*xpNeed(P.level));
+    if(add>0&&h.pool<cap){const was=h.pool;h.pool=Math.min(cap,h.pool+add);if(away&&h.pool-was>0)log('💤 Rested while away'+(home?' (at home)':'')+': <b>+'+(h.pool-was)+' bonus XP</b> pooled. Kills give double XP until it runs out.');}}
+  h.t=now;h.at=inLocker()?1:0;}
+function restUse(n){const h=homi();if(!h.pool||n<=0||P.xpLock||P.level>=MAXLVL)return 0;if(typeof bandCapOf==='function'&&P.level>=Math.min(MAXLVL,bandCapOf(P)))return 0;const b=Math.min(h.pool,Math.round(n));h.pool-=b;return b;}
+function restBar(){restTick();const bar=bars&&bars.xp;if(!bar)return;let el=bar.querySelector('.rbar');if(!el){el=document.createElement('b');el.className='rbar';el.style.cssText='position:absolute;top:0;bottom:0;background:rgba(90,170,255,.55);pointer-events:none;border-radius:inherit';if(getComputedStyle(bar).position==='static')bar.style.position='relative';bar.appendChild(el);}
+  const h=homi();const need=xpNeed(P.level);const f0=P.level>=MAXLVL?1:Math.min(1,P.xp/need);const w=P.level>=MAXLVL?0:Math.min(1-f0,h.pool/need);el.style.left=(f0*100)+'%';el.style.width=(w*100)+'%';el.style.display=w>0?'':'none';
+  bar.title=h.pool?'Rested: '+h.pool+' bonus XP (kills give double XP)':'';}
+function restHtml(){const h=P.home;return h&&h.pool>0&&P.level<MAXLVL?' <span class="rzz" title="Rested: kills give double XP">💤</span>':'';}
+/* ---------- trophies (from the character's records) ---------- */
+function trophies(){const L=[];const add=(id,ic,n,sub,c)=>L.push({id,ic,n,sub,c});
+  for(const id in (P.raidClears||{}))if(P.raidClears[id]>0&&RAIDS[id])add('r:'+id,'⚔',RAIDS[id].name,'Raid cleared ×'+P.raidClears[id],'#b46aff');
+  const B=(P.hm&&P.hm.best)||{};for(const k in B){const b=B[k];if(!b.c)continue;const id=k.slice(2);const nm=k[0]==='r'?(RAIDS[id]||{}).name:(DUNGEONS[id]||{}).name;if(!nm)continue;const tab=hmTab(k);const t=tab[Math.min(b.c,tab.length-1)];
+    add('h:'+k,'🏅',nm+(k[0]==='t'?' (team)':''),t.n+' clear'+(b.tm&&k[0]!=='r'?' · timed '+tab[Math.min(b.tm,tab.length-1)].n:''),t.c);}
+  const tn=(typeof tgOf==='function'?tgOf(P).n:null)||{};for(const id in tn)if(tn[id]&&DUNGEONS[id])add('t:'+id,'👥',DUNGEONS[id].name,'Team version cleared','#ff5fd2');
+  for(const id in (P.dunClears||{})){const D=DUNGEONS[id];if(!D||!(P.dunClears[id]>0))continue;const fr=D.rooms.filter(r=>r.boss).pop();const B2=fr&&BOSSES[fr.boss];
+    add('d:'+id,'💀',B2?ETYPES[B2.etype].name:D.name,D.name+' cleared ×'+P.dunClears[id],'#ff9a2a');}
+  for(const t of (P.titles||[]))add('ti:'+t,'🎖','«'+t+'»','Title earned','#ffd27a');
+  return L;}
+function trophyShown(){const L=trophies(),h=homi(),n=APT_TIERS[aptLoad().tier].troph;const by=Object.fromEntries(L.map(x=>[x.id,x]));const out=h.pin.filter(id=>by[id]).map(id=>by[id]);
+  for(const x of L){if(out.length>=n)break;if(!out.includes(x))out.push(x);}return out.slice(0,n);}
+function trophyPin(id){const h=homi();const i=h.pin.indexOf(id);if(i>=0)h.pin.splice(i,1);else{const n=APT_TIERS[aptLoad().tier].troph;if(h.pin.length>=n){warn('All '+n+' plaques are pinned. Unpin one first.');return false;}h.pin.push(id);}save();if(inLocker())drawTrophies();return true;}
+/* ---------- 3D: furniture + trophy plaques ---------- */
+function drawFurn(){const d=DUN;if(!d||!d.apt)return;if(!d.furnG){d.furnG=new THREE.Group();d.group.add(d.furnG);}const G=d.furnG;while(G.children.length)G.remove(G.children[0]);const a=aptLoad();
+  for(const s of SLOTS){if(s.t>a.tier)continue;const k=a.slots[s.id];const g=new THREE.Group();g.position.set(s.x,0,s.z);g.rotation.y=s.k==='wall'?s.r:Math.atan2(-s.x,-s.z);
+    if(k)FURN_B[k](g);else if(s.k==='floor'){const m=part(g,geoBox,new THREE.MeshBasicMaterial({color:0xffc85a,transparent:true,opacity:0.18,depthWrite:false}),0,0.01,0,1.0,0.01,1.0);m.renderOrder=1;}G.add(g);}}
+function drawTrophies(){const d=DUN;if(!d||!d.apt)return;if(!d.trophG){d.trophG=new THREE.Group();d.group.add(d.trophG);}const G=d.trophG;while(G.children.length)G.remove(G.children[0]);const a=aptLoad();const n=APT_TIERS[a.tier].troph;const S=trophyShown();
+  for(let i=0;i<n;i++){const p=TROPHY_POS[i];const g=new THREE.Group();g.position.set(p.x,p.y,p.z);g.rotation.y=-Math.PI/2;part(g,geoBox,M(0x4a3426),0,0,0,0.8,0.6,0.06);part(g,geoBox,M(0x3a2a20),0,-0.36,0.12,0.8,0.06,0.3);
+    const t=S[i];if(t){const col=new THREE.Color(t.c).getHex();part(g,geoBox,MB(col),0,0.05,0.05,0.42,0.3,0.04);part(g,geoIco,MB(col),0,-0.18,0.16,0.12,0.14,0.12);}G.add(g);}}
+function aptBuildT(d){drawFurn();drawTrophies();}
+/* ---------- 🏠 Home panel ---------- */
+const HP={tab:'furnish',slot:null};
+function openHome(tab){if(tab)HP.tab=tab;const a=aptLoad(),T0=APT_TIERS[a.tier],t=HP.tab,home=inLocker();const r=rmi();const c=aptComfort(a);
+  let h=`<div class="craftbar"><span class="cbi">🏠</span><span class="cbn"><b>${esc(T0.n)}</b><small>Comfort ${c} · ${P.credits}¢ · ${r.writs|0} ✦ writs · 💤 ${homi().pool} rested XP</small></span></div>`;
+  h+=`<div class="tabs">${[['furnish','🛋 Furnish'],['shop','🛒 Furniture'],['trophies','🏆 Trophies'],['rest','💤 Rest'],['upgrade','🏗 Upgrade']].map(([k,n])=>`<button data-act="htab" data-t="${k}" class="${t===k?'on':''}" style="min-height:44px">${n}</button>`).join('')}</div>`;
+  const bs='min-height:44px;min-width:44px;margin:3px;padding:4px 8px';
+  if(t==='furnish'){const sel=SLOTS.find(s=>s.id===HP.slot&&s.t<=a.tier);
+    h+=`<div style="font-size:13px;opacity:.85;margin:4px 0">Tap a slot, then tap a piece to put there. Floor pieces go in floor slots, wall pieces on walls. ${SLOTS.filter(s=>s.t<=a.tier).length}/${SLOTS.length} slots unlocked.</div><div class="hgrid" id="homeGrid" style="display:flex;flex-wrap:wrap">`+
+      SLOTS.map(s=>{const lk=s.t>a.tier,k=a.slots[s.id];return `<button class="sbtn${lk?' locked':''}" data-act="${lk?'hslotlk':'hslot'}" data-s="${s.id}" style="${bs};width:96px;${!lk?(sel===s?'outline:2px solid #ffc85a;background:#5a4424;color:#fff3d6;':'background:#241c16;color:#f0e6d0;'):''}"><div style="font-size:18px">${lk?'🔒':k?FURN[k].ic:s.k==='wall'?'🖼':'⬜'}</div><div style="font-size:11px;line-height:1.1">${s.id} · ${esc(lk?APT_TIERS[s.t].n:k?FURN[k].n:s.n)}</div></button>`;}).join('')+`</div>`;
+    if(sel){const opts=Object.keys(FURN).filter(k=>FURN[k].k===sel.k&&(a.own[k]|0)>0);
+      h+=`<div class="h4">Slot ${sel.id} · ${esc(sel.n)} (${sel.k})</div>`+(a.slots[sel.id]?`<button class="sbtn" data-act="hclear" data-s="${sel.id}" style="${bs}">✖ Clear slot (${esc(FURN[a.slots[sel.id]].n)} back to storage)</button>`:'')+
+        (opts.length?opts.map(k=>{const f=aptFree(a,k),on=a.slots[sel.id]===k;return `<button class="item${on?' sel':''}" data-act="hput" data-s="${sel.id}" data-k="${k}" style="min-height:44px${!on&&f<1?';opacity:.5':''}"><span class="ico">${FURN[k].ic}</span><span><div class="nm">${esc(FURN[k].n)}</div><div class="sub">Comfort +${FURN[k].cf} · ${on?'here now':f+' in storage'}</div></span></button>`;}).join(''):`<div style="opacity:.75;font-size:13px">No ${sel.k} pieces yet. Get some in 🛒 Furniture.</div>`);}}
+  else if(t==='shop'){h+=`<div style="font-size:13px;opacity:.85;margin:4px 0">${home?'Buy here; pieces go to storage.':'Buying works at the 🏠 Home table in your apartment.'} Crafted pieces need a schematic (sold at hubs) and Forging or Distilling. Some pieces only drop from dungeon and raid final bosses (more on hard modes).</div>`+
+    Object.keys(FURN).map(k=>{const F=FURN[k];const how=F.buy?(F.buy.cr?F.buy.cr+'¢':F.buy.wr+' ✦ writs'):F.craft?(()=>{const R=QREC.find(x=>x.id===F.craft);return 'Craft: '+QTS[R.ts].ic+' '+QTS[R.ts].n+' rank '+R.rk;})():F.drop==='hard'?'Drop: hard-mode final bosses':'Drop: dungeon & raid final bosses';
+      return `<div class="item" style="min-height:44px"><span class="ico">${F.ic}</span><span style="flex:1"><div class="nm">${esc(F.n)}</div><div class="sub">${F.k} · comfort +${F.cf} · ${how} · owned ${a.own[k]|0}</div></span>${F.buy?`<button class="sbtn${home?'':' locked'}" data-act="hbuy" data-k="${k}" style="${bs}">Buy</button>`:''}</div>`;}).join('');}
+  else if(t==='trophies'){const L=trophies(),S=new Set(trophyShown().map(x=>x.id)),pin=homi().pin;
+    h+=`<div style="font-size:13px;opacity:.85;margin:4px 0">Your trophy wall has <b>${T0.troph}</b> plaques (more with upgrades). Pinned trophies always get a plaque; the rest fill in by rank: raids, hard modes, team clears, dungeons, titles.</div>`+
+      (L.length?L.map(x=>`<button class="item${S.has(x.id)?' sel':''}" data-act="hpin" data-id="${esc(x.id)}" style="min-height:44px"><span class="ico" style="color:${x.c}">${x.ic}</span><span><div class="nm">${esc(x.n)}</div><div class="sub">${esc(x.sub)} · ${pin.includes(x.id)?'📌 pinned':S.has(x.id)?'on the wall':'in the cabinet'}</div></span></button>`).join(''):'<div style="opacity:.75">No trophies yet: clear a dungeon, a raid or a hard mode.</div>');}
+  else if(t==='rest'){const hh=homi(),cap=restCap(c),need=xpNeed(P.level);
+    h+=`<div class="mis"><b>💤 Rested XP</b>: ${hh.pool} / ${cap} bonus XP (${(hh.pool/need).toFixed(2)} of ${(cap/need).toFixed(2)} levels).<div style="font-size:13px;margin-top:4px">While you're logged out, rested XP builds up (<b>${Math.round(restRate(true,c)*100)}%</b> of a level per hour if you log out <b>at home</b>, ${Math.round(restRate(false,c)*100)}% elsewhere). It also builds while you stay in the apartment. Kills give <b>double XP</b> until the pool runs out (quests and missions don't use it). The blue part of the XP bar shows it.</div></div>
+      <div class="mis"><b>Comfort ${c}</b> / 20: furniture in slots adds comfort (old decor counts half, up to 4). Comfort raises the rest rate by up to +60% and the cap by up to +0.5 levels (now +${Math.round(Math.min(0.6,0.03*c)*100)}% rate, +${Math.min(0.5,0.025*c).toFixed(2)} levels).</div>`;}
+  else if(t==='upgrade'){h+=APT_TIERS.map((x,i)=>`<div class="mis" style="border-color:${i<=a.tier?'#6dff8a':'#ffc85a'}"><b>${i+1}. ${esc(x.n)}</b> ${i<=a.tier?'✔':''}<div style="font-size:13px">${esc(x.d)} · ${SLOTS.filter(s=>s.t<=i).length} furniture slots · ${x.troph} trophy plaques${i?' · costs '+x.cr+'¢ + '+x.wr+' ✦ writs · level '+x.lvl+'+':''}</div>${i===a.tier+1?`<button class="sbtn" data-act="hupg" style="${bs}">🏗 Upgrade (${x.cr}¢ + ${x.wr} ✦)</button>`:''}</div>`).join('')+`<div style="font-size:12px;opacity:.75">The apartment and its furniture are shared by all your characters; trophies and rested XP are per character.</div>`;}
+  openPanel('🏠 HOME',h,'home');}
+function homeAct(a,b){const D=b.dataset;
+  if(a==='htab'){openHome(D.t);return true;}
+  if(a==='hslot'){HP.slot=HP.slot===D.s?null:D.s;openHome('furnish');return true;}
+  if(a==='hslotlk'){const s=SLOTS.find(x=>x.id===D.s);warn('🔒 Upgrade to '+APT_TIERS[s.t].n+' to unlock this slot');return true;}
+  if(a==='hput'){if(!aptPlace(D.s,D.k))warn('No spare '+FURN[D.k].n+' in storage');openHome('furnish');return true;}
+  if(a==='hclear'){aptPlace(D.s,null);openHome('furnish');return true;}
+  if(a==='hbuy'){aptBuy(D.k);openHome('shop');return true;}
+  if(a==='hpin'){trophyPin(D.id);openHome('trophies');return true;}
+  if(a==='hupg'){aptUpgrade();openHome('upgrade');return true;}
+  return false;}
+function homeExports(){return {APT_KEY,APT_TIERS,SLOTS,FURN,aptLoad,aptWrite,aptGain,aptBuy,aptPlace,aptUpgrade,aptComfort,aptFree,aptBossDrop,normHome,homeFields,homi,restCap,restRate,restTick,restUse,restBar,restHtml,trophies,trophyShown,trophyPin,openHome,homeAct,drawFurn,drawTrophies};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -8300,7 +8486,7 @@ let hudAcc=0;const wpEl=H.wp,wpArr=wpEl.querySelector('.arr'),wpTxt=wpEl.querySe
 function updHUD(dt){
   hudAcc+=dt;
   setBar(bars.hp,P.hp,S.maxHp,Math.ceil(P.hp)+' / '+S.maxHp);setBar(bars.en,P.en,S.maxEn,Math.floor(P.en)+' / '+S.maxEn);
-  setBar(bars.xp,P.level>=MAXLVL?1:P.xp,P.level>=MAXLVL?1:xpNeed(P.level));
+  setBar(bars.xp,P.level>=MAXLVL?1:P.xp,P.level>=MAXLVL?1:xpNeed(P.level));restBar();
   const pr=PROFS[P.prof];{const bi=barIds();abBtns.forEach((el,i)=>{const w=abDef(bi[i]);if(w)cdUI(el,w.id,w.cd||0.01,w.cost);else{el.querySelector('.ct').textContent='';el.querySelector('.cd').style.height='0';}});}cdUI(stimBtn,'stim',15);
   stimBtn.querySelector('.cnt').textContent=P.stims;atkBtn.classList.toggle('on',P.autoAtk);
   const t=validTarget();
@@ -8309,7 +8495,7 @@ function updHUD(dt){
     H.tstate.textContent=(t.enraged?'ENRAGED ':'')+(t.boss?'Boss · ':'')+(T<t.stunUntil?'Stunned ':'')+(T<t.rootUntil?'Rooted ':'')+(t.dot?(t.dot.en?'Leeched ':'Searing '):'')+(T<(t.hexUntil||0)?'Hexed ':'')+(t.state==='return'?'Evading':'')+' · '+Math.round(dist2D(t.pos,P.pos))+'m';}
   else H.tframe.classList.add('hidden');
   if(hudAcc>0.2){hudAcc=0;
-    H.pname.innerHTML=`${esc(P.name)}${titleHtml()}${xpLockHtml()} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
+    H.pname.innerHTML=`${esc(P.name)}${titleHtml()}${xpLockHtml()}${restHtml()} <em>Lv ${P.level} ${pr.name}</em>`;H.credits.textContent=P.credits+' ¢';
     let b='';for(const bf of P.buffs){const left=bf.until-T;b+=`<span class="bf${left<20?' low':''}" title="${esc(bf.name)}: ${Object.keys(bf.mods).map(k=>'+'+bf.mods[k]+' '+SHORT[k]).join(' ')}">${bf.icon}<b>${fmtT(left)}</b></span>`;}
     if(T<P.bulwarkUntil)b+=`<span class="bf">🛡️<b>${Math.ceil(P.bulwarkUntil-T)}s</b></span>`;if(P.hot)b+=`<span class="bf">❋<b>${Math.ceil(P.hot.until-T)}s</b></span>`;b+=stage2Chips()+profKChips();if(T<(P.slowUntil||0))b+=`<span class="bf slow">🐌<b>${Math.ceil(P.slowUntil-T)}s</b></span>`;if(inTown(P.pos))b+='<span class="bf safe">🏠 Safe</span>';H.buffs.innerHTML=b;
     $('#bSk').classList.toggle('pts',P.sp>0);$('#spBadge').textContent=P.sp>0?P.sp:'';
@@ -8468,7 +8654,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

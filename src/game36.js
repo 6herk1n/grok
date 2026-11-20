@@ -76,6 +76,7 @@ function qCraft(id,roll){const c=qCheck(id);const r=c.r;if(!c.ok){warn(c.known?'
   else if(r.out.c){P.consum[r.out.c]=(P.consum[r.out.c]||0)+r.out.n;msg='+'+r.out.n+' '+CONSUM[r.out.c].name;res={c:r.out.c,n:r.out.n};}
   else if(r.out.gear){const slot=r.out.gear==='weapon'?'weapon':(QARM.includes(CRQ.slot)?CRQ.slot:'armor');const it=genItem(c.lvl,slot,r.out.r);
     it.crafted=P.name;it.value=Math.max(1,Math.round(it.value*0.4));P.inv.push(it);msg=it.name+' ('+RAR[it.r].n+', Lv '+it.lvl+')';res=it;}
+  else if(r.out.furn){aptGain(r.out.furn,'craft');msg=FURN[r.out.furn].n+' (sent to your apartment)';res={furn:r.out.furn};}
   qc().n++;qSkillUp(r.ts,c.req,roll);SFX.loot();toast(r.ic+' '+r.n+': '+msg);log(r.ic+' Crafted <b>'+esc(r.n)+'</b>: '+esc(msg));save();return res;}
 function qInHub(){if(DUN||FLAT)return false;const g=regionAt(P.pos.x,P.pos.z);return g.id==='town'||OUTPOSTS.some(o=>o.id===g.id);}
 function qLearn(id,free){const r=qRec(id);if(qKnows(r.id))return false;if(!free){if(r.src!=='vendor'){warn('Found on dungeon bosses');return false;}if(!qInHub()){warn('Schematics are sold in Halden\'s Rest and the outposts');return false;}
@@ -140,7 +141,7 @@ function gatherDo(n){if(n.k!=='gather')return false;if(inCombat&&inCombat()){war
 function qRankBar(ts){const r=qRank(ts);return `<div class="qrk"><span>${QTS[ts].ic} <b>${QTS[ts].n}</b> ${r}/${QMAX}</span><span class="qbar"><i style="width:${r}%"></i></span></div>`;}
 function qRecRow(r){const k=qKnows(r.id);const rank=qRank(r.ts);const col=k?qColor(rank,r.rk):'grey';const sub=k?(rank<r.rk?'Needs rank '+r.rk:'Rank '+r.rk+' · '+r.mats.map(([m,n])=>n+'× '+MATS[m].n).join(' + ')):(r.src==='vendor'?'🔒 Learn at a hub · '+qPrice(r)+'¢':'🔒 Dungeon boss drop');
   return `<button class="item${r.id===CRQ.rec?' sel':''}" data-act="qrec" data-r="${r.id}"><span class="ico">${r.ic}</span><span><div class="nm" style="color:${k?QCOL[col]:'#9a8f84'}">${esc(r.n)}</div><div class="st">${sub}</div></span></button>`;}
-function qOutText(r){if(r.out.stims)return r.out.stims+' Med-stims (heal in a fight: 🧪 quick button or Q)';if(r.out.c){const C=CONSUM[r.out.c];const m=C.mods(P.level);return r.out.n+'× '+C.icon+' '+C.name+': '+Object.keys(m).map(x=>'+'+m[x]+(x==='crit'||x==='power'||x==='dr'?'%':'')+' '+(x==='dr'?'damage reduction':STATN[x]||x)).join(' · ')+' for '+Math.round(C.dur/60)+' min';}
+function qOutText(r){if(r.out.furn){const F=FURN[r.out.furn];return F.ic+' '+F.n+': '+F.k+' furniture, comfort +'+F.cf+'. Goes to your apartment storage; place it from the 🏠 Home table.';}if(r.out.stims)return r.out.stims+' Med-stims (heal in a fight: 🧪 quick button or Q)';if(r.out.c){const C=CONSUM[r.out.c];const m=C.mods(P.level);return r.out.n+'× '+C.icon+' '+C.name+': '+Object.keys(m).map(x=>'+'+m[x]+(x==='crit'||x==='power'||x==='dr'?'%':'')+' '+(x==='dr'?'damage reduction':STATN[x]||x)).join(' · ')+' for '+Math.round(C.dur/60)+' min';}
   return (r.out.r===2?'Rare':'Uncommon')+' '+(r.out.gear==='weapon'?'weapon for your profession':'armour piece')+' at up to your level. Crafted gear never beats dungeon, team or raid rewards.';}
 function qRecHtml(){const r=qRec(CRQ.rec);const c=qCheck(r.id);
   let left=qRankBar('field')+qRankBar('distill')+qRankBar('forge');

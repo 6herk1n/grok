@@ -191,6 +191,27 @@ async def main():
         await page.evaluate("() => { const d = window.__dr; if (d.DUN) d.exitDungeon(true); d.closePanel(); }")
         print("  ok  hard modes" if not any(x.startswith("[hard modes]") for x in problems) else "  FAIL hard modes")
 
+        # Build T apartment: go home, buy a rug and place it in slot A with the Home panel's own buttons, then check
+        # rested XP shows on the XP bar. Polls for every state change (slow CI: dt capped at 0.05 s).
+        where[0] = "apartment"
+        try:
+            await page.evaluate("() => { const d = window.__dr; if (d.DUN) d.exitDungeon(true); d.closePanel(); d.P.credits = Math.max(d.P.credits, 2000); d.enterApartment(); }")
+            await page.wait_for_function("() => { const d = window.__dr; return !!(d.DUN && d.DUN.apt); }", timeout=15000)
+            await page.evaluate("() => window.__dr.openHome('shop')")
+            await page.click('#pbody [data-act="hbuy"][data-k="rug"]', timeout=8000)
+            await page.wait_for_function("() => (window.__dr.aptLoad().own.rug | 0) >= 1", timeout=8000)
+            await page.click('#pbody [data-act="htab"][data-t="furnish"]', timeout=8000)
+            await page.click('#pbody [data-act="hslot"][data-s="A"]', timeout=8000)
+            await page.click('#pbody [data-act="hput"][data-s="A"][data-k="rug"]', timeout=8000)
+            await page.wait_for_function("() => window.__dr.aptLoad().slots.A === 'rug'", timeout=8000)
+            await page.evaluate("() => { const d = window.__dr, h = d.homi(); h.t = Date.now() - 2 * 3600e3; h.at = 1; d.restTick(true); }")
+            await page.wait_for_function("""() => { const d = window.__dr, el = document.querySelector('.bar.xp .rbar');
+                return d.homi().pool > 0 && !!el && el.style.display !== 'none' && parseFloat(el.style.width) > 0; }""", timeout=10000)
+        except Exception as e:
+            problems.append(f"[apartment] Home panel / rested XP failed: {str(e)[:200]}")
+        await page.evaluate("() => { const d = window.__dr; d.closePanel(); if (d.DUN) d.exitDungeon(true); }")
+        print("  ok  apartment" if not any(x.startswith("[apartment]") for x in problems) else "  FAIL apartment")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)
