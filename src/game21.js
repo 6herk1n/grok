@@ -5,7 +5,8 @@ function quickOpen(on){if(on==null)on=!document.body.classList.contains('qopen')
 function hudDeclutterInit(){
   btn('#bMore',()=>moreOpen());btn('#bQuick',()=>quickOpen());
   // picking an entry closes the drop-down (the entry's own handler runs first)
-  $('#moreDrop').addEventListener('pointerup',()=>setTimeout(()=>moreOpen(false),0));
+  // the drop hides on pointerup, so the browser's trailing click would land on whatever is underneath (e.g. the panel that just opened); swallow it
+  $('#moreDrop').addEventListener('pointerup',()=>{const t0=performance.now();const g=e=>{document.removeEventListener('click',g,true);if(performance.now()-t0<700){e.stopPropagation();e.preventDefault();}};document.addEventListener('click',g,true);setTimeout(()=>document.removeEventListener('click',g,true),700);setTimeout(()=>moreOpen(false),0);});
   canvas.addEventListener('pointerdown',()=>{if(!$('#moreDrop').classList.contains('hidden'))moreOpen(false);},true);}
 let qdAcc=0;
 function updDeclutter(dt){qdAcc+=dt;if(qdAcc<0.2)return;qdAcc=0;

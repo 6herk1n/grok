@@ -95,7 +95,7 @@ function qSalvage(id,roll){const it=P.inv.find(x=>x.id===id);if(!qSalvOk(it)){wa
 /* ---------- boss drops: Emberheart Cores and drop-only schematics ---------- */
 function qOnKill(e){if(SIMP||!e||!(e.boss||e.dyna)||e.isCore)return;
   if(Math.random()<0.5){const q=clamp(e.lv*5,1,IMPQL_MAX());bagAdd({kind:'mat',mt:'core',ql:q},1);log('🔥 Salvaged an <b>Emberheart Core</b> (QL '+q+')');}
-  const un=QREC.filter(r=>r.src==='drop'&&!qKnows(r.id)&&r.rk<=Math.max(40,(e.lv||1)+10));if(un.length&&Math.random()<0.2){const r=pick(un);qLearn(r.id,true);banner('📜 SCHEMATIC FOUND',r.n+' · '+QTS[r.ts].n+' rank '+r.rk);}}
+  const un=QREC.filter(r=>r.src==='drop'&&!qKnows(r.id)&&r.rk<=Math.max(40,(e.lv||1)+10));if(un.length&&Math.random()<0.2){const r=pick(un);qLearn(r.id,true);if(bannerT>0)log('📜 Schematic found: <b>'+esc(r.n)+'</b> · '+QTS[r.ts].n+' rank '+r.rk);else banner('📜 SCHEMATIC FOUND',r.n+' · '+QTS[r.ts].n+' rank '+r.rk);}}
 
 /* ---------- gathering nodes ---------- */
 const QNODE={ore:{n:'Rustvein Ore',sh:'Ore',verb:'Mine',ic:'🪨',mt:['ore']},bloom:{n:'Duskpetal',sh:'Bloom',verb:'Pick',ic:'🌺',mt:['bloom']},heap:{n:'Salvage Heap',sh:'Heap',verb:'Search',ic:'🔩',mt:['scrap','circuit']}};

@@ -312,7 +312,7 @@ function dunOnKill(e){if(!DUN)return;const D=DUN.D;if(DUN.mode&&DUN.mode.hm)hmOn
     keys.forEach((k,i)=>{const it=hmItem(makeUnique(k,DUN.mode&&DUN.mode.vet));it.dropBy=e.T.name;const a=i/keys.length*6.28;dropLoot(e.pos.x+Math.cos(a)*1.8,e.pos.z+Math.sin(a)*1.8,it);});
     P.credits+=40*e.lv;if(DUN.mode&&DUN.mode.team)teamBossLoot(e);
     if(e.boss.final&&Math.random()<VEIL_RATE.dungeonFinal){const v=mythicDisk(DUN.id==='vault'||DUN.id==='choir'||DUN.id==='stillvault'?'veil2':'veil1');v.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z-2.5,v);}
-    if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);if(DUN.mode&&DUN.mode.hm)hmClear(e);aptBossDrop(e);}
+    if(e.boss.final){DUN.cleared=true;P.dunClears[DUN.id]=(P.dunClears[DUN.id]||0)+1;const r=e.boss.room;addPortal(DUN,0,r.cz+r.d/2-4,'Exit');SFX.level();setTimeout(()=>banner(D.raid?'RAID CLEARED':'DUNGEON CLEARED',D.name+' · an exit portal has opened'),1200);if(DUN.mode&&DUN.mode.hm)hmClear(e);aptBossDrop(e);achClear(e);}
     else banner(e.T.name.toUpperCase()+' DEFEATED','The way deeper is open');}
   else{if(e.eliteD)dunEliteLoot(e);if(Math.random()<D.loot.trashP){const pool=[...new Set(Object.values(D.loot).filter(x=>x&&x.items).flatMap(x=>x.items))];const it=makeUnique(pick(pool));it.dropBy=e.T.name;dropLoot(e.pos.x,e.pos.z,it);}}}
 const teleGeo=new THREE.CircleGeometry(1,32);teleGeo.rotateX(-Math.PI/2);const teleRing=new THREE.RingGeometry(0.93,1,40);teleRing.rotateX(-Math.PI/2);

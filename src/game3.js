@@ -135,7 +135,7 @@ function useConsum(k){const c=CONSUM[k];if(!c||!(P.consum[k]>0)){warn('You have 
 function pressAttack(){if(P.dead)return;let t=validTarget();if(!t){t=autoTarget(30);if(!t){warn('No enemies nearby');return;}P.target=t;}P.autoAtk=true;useAbility(-1);}
 function useStim(){if(P.dead)return;if(P.stims<=0){warn('No med-stims. Buy some from the trader');return;}if((P.cds.stim||0)>T){warn('Stim recharging');return;}
   P.stims--;P.cds.stim=T+15;healPlayer(S.maxHp*0.4);SFX.heal();}
-function playerDie(){if(SIMST)SIMST.pd++;P.dead=true;P.autoAtk=false;P.target=null;SFX.death();for(const e of enemies)if(e.state==='chase')e.state='return';
+function playerDie(){if(SIMST)SIMST.pd++;if(DUN)DUN.pd=(DUN.pd|0)+1;P.dead=true;P.autoAtk=false;P.target=null;SFX.death();for(const e of enemies)if(e.state==='chase')e.state='return';
   const fee=Math.floor(P.credits*0.05);P.credits-=fee;const loss=applyXpLoss();const spn=savePointName();
   $('#deathTxt').textContent=(loss.unsaved>0?'Unsaved XP since your last Save Point: '+loss.unsaved+'. You lost '+loss.lost+' XP. ':'Your XP was saved: nothing lost. ')+(DUN?'You\'ll be revived at the '+DUN.D.name+' entrance checkpoint. Bosses reset to full health.':'Respawning at your Save Point: '+spn+'.')+(fee?' Recovery fee: '+fee+'¢.':'');
   $('#bRespawn').textContent=DUN?'Revive at dungeon entrance':'Respawn at '+spn;

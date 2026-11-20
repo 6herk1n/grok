@@ -77,7 +77,7 @@ function dyOnKill(k,L){const D=DYNAS[k],e=L.boss;dySeen(k);
   else{DY.st[k].until=dyNow()+rand(600,1200)*1000;
     const n=Math.random()<0.4?2:1;for(let i=0;i<n;i++){const it=genItem(D.lv,null,D.lv>=12&&Math.random()<0.25?ASC:Math.max(2,rollRarity(35)));it.dropBy=D.name;dropLoot(e.pos.x+i*1.5,e.pos.z+1.5,it);}
     if(Math.random()<(D.lv>=12?0.22:0.18)){const u=makeUnique(D.uniq);u.dropBy=D.name;dropLoot(e.pos.x-1.5,e.pos.z,u);}
-    P.credits+=60*D.lv;banner('💀 '+D.name.toUpperCase()+' DEFEATED','It will be back in 10–20 minutes');log('💀 <b>'+esc(D.name)+'</b> defeated (+'+(60*D.lv)+'¢). Dyna back in 10–20 min.');questOnDyna(k);}
+    P.credits+=60*D.lv;banner('💀 '+D.name.toUpperCase()+' DEFEATED','It will be back in 10–20 minutes');log('💀 <b>'+esc(D.name)+'</b> defeated (+'+(60*D.lv)+'¢). Dyna back in 10–20 min.');questOnDyna(k);achDyna(k);}
   clearWTele(e);dySave();save();}
 function updDyna(dt){updWTele();if(state!=='play'||DUN){return;}DY.acc+=dt;const tick=DY.acc>=0.5;if(tick)DY.acc=0;
   for(const k in DYNAS){const D=DYNAS[k];const L=DY.live[k];const d=Math.hypot(P.pos.x-D.x,P.pos.z-D.z);

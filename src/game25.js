@@ -325,7 +325,7 @@ function enemyPresent(e,dP){const R=e.R;if(e.boss&&!R.aura)bossDress(e);rigLod(R
 /* ---------- player gear visuals (shape by armour family, colour by family/rarity) ---------- */
 var HAIRC={black:{n:'Black',c:0x161210},brown:{n:'Brown',c:0x4a2e1a},auburn:{n:'Auburn',c:0x7a3a1e},blonde:{n:'Blonde',c:0xc8a060},grey:{n:'Grey',c:0x8a8a90},white:{n:'White',c:0xe8e4dc}};
 function hairCol(k){return k&&HAIRC[k]?HAIRC[k].c:k&&typeof DYES!=='undefined'&&DYES[k]?DYES[k].c:0x2a1d14;}
-function refreshGearVisual(){if(!PM)return;clearVeil();if(PM.gear){PM.gear.forEach(m=>m.parent&&m.parent.remove(m));}PM.gear=[];const eq=P.eq||{},G=cq(),b=PM.bulk||1;
+function refreshGearVisual(){if(!PM)return;clearVeil();if(PM.gear){PM.gear.forEach(m=>m.parent&&m.parent.remove(m));}PM.gear=[];const eq=xmogEq(P.eq||{}),G=cq(),b=PM.bulk||1;
   const add=(par,geo,m,x,y,z,sx,sy,sz)=>{const o=part(par,geo,m,x,y,z,sx,sy,sz);PM.gear.push(o);return o;};
   const ring=(par,m,y,rx,rz,th)=>{const o=add(par,G.ring,m,0,y,0,rx,rz,th);o.rotation.x=Math.PI/2;return o;};
   const famC=it=>it.r>=4?RAR[it.r].h:(AFAM[it.fam||'medium']||AFAM.medium).col,trimM=it=>it.r>=3?MB(RAR[it.r].h):MS(RAR[it.r]?RAR[it.r].h:0x888888);

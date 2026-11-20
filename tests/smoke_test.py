@@ -212,6 +212,28 @@ async def main():
         await page.evaluate("() => { const d = window.__dr; d.closePanel(); if (d.DUN) d.exitDungeon(true); }")
         print("  ok  apartment" if not any(x.startswith("[apartment]") for x in problems) else "  FAIL apartment")
 
+        # Build U achievements: open the 🏅 panel with O, earn "Thousand Cuts" (1,000 kills) and check its popup, then open the
+        # Collection (boss drop grid) and Wardrobe tabs with their own buttons. Polls (slow CI; achievements are checked every ~2 s).
+        where[0] = "achievements"
+        try:
+            await page.evaluate("() => { const d = window.__dr; if (d.DUN) d.exitDungeon(true); d.closePanel(); }")
+            await page.keyboard.press("o")
+            await page.wait_for_selector('#pbody [data-act="atab"][data-t="coll"]', timeout=10000)
+            await page.evaluate("() => { window.__dr.P.kills = Math.max(window.__dr.P.kills | 0, 1000); }")
+            await page.wait_for_function("""() => { const d = window.__dr, el = document.getElementById('achPop');
+                return !!(d.P.ach && d.P.ach.got.k1k) && !!el && /Thousand Cuts/.test(el.textContent); }""", timeout=20000)
+            await page.click('#pbody [data-act="atab"][data-t="coll"]', timeout=8000)
+            await page.click('#pbody [data-act="asub"][data-s="boss"]', timeout=8000)
+            await page.wait_for_selector('#pbody [data-act="acell"]', timeout=8000)
+            await page.click('#pbody [data-act="atab"][data-t="ward"]', timeout=8000)
+            await page.wait_for_selector('#pbody [data-act="aslot"][data-s="weapon"]', timeout=8000)
+            if await page.evaluate("() => window.__dr.achPts() < 10"):
+                problems.append("[achievements] no points after earning Thousand Cuts")
+        except Exception as e:
+            problems.append(f"[achievements] achievements panel / popup failed: {str(e)[:200]}")
+        await page.evaluate("() => window.__dr.closePanel()")
+        print("  ok  achievements" if not any(x.startswith("[achievements]") for x in problems) else "  FAIL achievements")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)
