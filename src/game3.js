@@ -26,7 +26,7 @@ function dmgEnemy(e,mult,silentAggro){if(e.dead||fzSkip(e))return;
   if(e.state==='return'){floatText(entChest(e,tmpV),'Evade','info');return;}
   if(e.immune&&e.immune()){floatText(entChest(e,tmpV),'Shielded','info');P.lastCombat=T;if(e.state!=='chase')aggro(e);return;}
   if(e.foe&&T>(e.tauntUntil||0)&&Math.random()<0.25)e.foe=null;
-  const r=rollDmg(mult*(T<(e.hexUntil||0)?(e.hexAmp||1.3):1)*(T<(e.wardUntil||0)?WARD_MUL:1));e.hp-=r.v;e.hitT=0.15;floatText(entChest(e,tmpV),r.v+(r.crit?'!':''),r.crit?'crit':'hit');SFX.hit();
+  const r=rollDmg(mult*(T<(e.hexUntil||0)?(e.hexAmp||1.3):1)*(T<(e.wardUntil||0)?WARD_MUL:1)*vgOut(e));e.hp-=r.v;e.hitT=0.15;floatText(entChest(e,tmpV),r.v+(r.crit?'!':''),r.crit?'crit':'hit');SFX.hit();
   P.lastCombat=T;if(e.state!=='chase')aggro(e);if(e.hp<=0)killEnemy(e);}
 function aggro(e){if(e.dead||P.dead)return;e.state='chase';e.nextAtk=Math.max(e.nextAtk,T+0.5);
   for(const o of enemies)if(o!==e&&!o.dead&&o.state==='idle'&&((e.pack&&o.pack===e.pack)||(o.type===e.type&&dist2D(o.pos,e.pos)<9))){o.state='chase';o.nextAtk=T+0.8;}}
@@ -38,16 +38,16 @@ function dmgPlayer(amt,src,noDodge,pure){if(P.dead)return;P.hurtT=T;
   if(P.mount)dismount('Knocked off your '+VEHICLES[P.mount].name);
   if(src&&src.T&&src.T.slow)applySlow(src.T.slow.mul,src.T.slow.dur,src.T.slow.name);
   if(src&&src.T&&src.T.ai==='chill')addChill(1,src);
-  let a=amt*rand(0.9,1.1)*(pure?1:(armC(src)/(armC(src)+S.armor))*(1-(S.dr||0)/100));if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn();a=Math.max(1,Math.round(a));
+  let a=amt*rand(0.9,1.1)*(pure?1:(armC(src)/(armC(src)+S.armor))*(1-(S.dr||0)/100));if(T<P.bulwarkUntil)a*=1-(P.drAmt||0.5);a*=profKDmgIn()*vgIn();a=Math.max(1,Math.round(a));
   P.hp-=a;if(SIMST)SIMST.pt+=a;profKHurt(a,src);P.lastCombat=T;floatText(tmpV.set(P.pos.x,P.pos.y+2,P.pos.z),'-'+a,'phit');SFX.hurt();$('#vignette').style.opacity=0.55;setTimeout(()=>$('#vignette').style.opacity=0,180);
-  if(!validTarget()&&src)P.target=src;if(P.hp<=0){P.hp=0;playerDie();}}
+  if(!validTarget()&&src)P.target=src;vgThorns(a,src);if(P.hp<=0&&!vgSave()){P.hp=0;playerDie();}}
 function killEnemy(e){if(e.guard){e.dead=false;e.hp=e.maxHp;return;}e.dead=true;dieStart(e);e.shadow.visible=false;e.respawnAt=T+25;e.dot=null;
   if(e.T.split&&!e.isShard)splitOnDeath(e);
   ringFx(e.pos.x,e.pos.z,0xffb347,3,0.5);
   const diff=e.lv-P.level;const xp=Math.round((12*e.lv+8)*e.T.xp*clamp(1+0.15*diff,0.1,1.5)*packXpMul(e));{const xt=teamXpAdj(xp,e);const rb=restUse(xt);gainXp(xt+rb);teamShareXp(xt,e);if(rb)floatText(tmpV.set(e.pos.x,e.pos.y+e.h+1.3,e.pos.z),'+'+rb+' rested','xp');}campOnKill(e,xp);
   const cr=randi(2,6)*e.lv;P.credits+=cr;floatText(tmpV.set(e.pos.x,e.pos.y+e.h+0.6,e.pos.z),'+'+xp+' XP  +'+cr+'¢','xp');SFX.coin();P.kills++;
-  if(Math.random()<(e.type==='raider'?0.45:0.32)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
-  if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}
+  if(Math.random()<(e.type==='raider'?0.45:0.32)*(e.vg?0.35:1)){const gl=clamp(e.lv+randi(-1,0),1,MAXLVL);dropLoot(e.pos.x,e.pos.z,genItem(gl,null,rollRarityL(gl,(e.elite?20:0)+(e.T.hi?5:0))));}
+  if(Math.random()<(e.type==='skitter'?0.07:e.type==='raider'?0.12:0.16)*(e.vg?0.35:1)){const d=genDiskForLevel(e.lv+(e.type==='mauler'?1:0));if(d)dropLoot(e.pos.x+1,e.pos.z+0.5,d);}
   questOnKill(e);fzOnKill(e);
   if(e.night&&Math.random()<0.35)dropLoot(e.pos.x-1,e.pos.z,genItem(clamp(e.lv,1,MAXLVL),null,Math.max(1,rollRarityL(e.lv,20))));
   if(!e.dun){const v=rollVeil(e);if(v)dropLoot(e.pos.x,e.pos.z-1.2,v);}
@@ -135,12 +135,12 @@ function useConsum(k){const c=CONSUM[k];if(!c||!(P.consum[k]>0)){warn('You have 
 function pressAttack(){if(P.dead)return;let t=validTarget();if(!t){t=autoTarget(30);if(!t){warn('No enemies nearby');return;}P.target=t;}P.autoAtk=true;useAbility(-1);}
 function useStim(){if(P.dead)return;if(P.stims<=0){warn('No med-stims. Buy some from the trader');return;}if((P.cds.stim||0)>T){warn('Stim recharging');return;}
   P.stims--;P.cds.stim=T+15;healPlayer(S.maxHp*0.4);SFX.heal();}
-function playerDie(){if(SIMST)SIMST.pd++;if(DUN)DUN.pd=(DUN.pd|0)+1;P.dead=true;P.autoAtk=false;P.target=null;SFX.death();for(const e of enemies)if(e.state==='chase')e.state='return';
+function playerDie(){if(SIMST)SIMST.pd++;if(DUN)DUN.pd=(DUN.pd|0)+1;if(DUN&&DUN.vg){vgDie();return;}P.dead=true;P.autoAtk=false;P.target=null;SFX.death();for(const e of enemies)if(e.state==='chase')e.state='return';
   const fee=Math.floor(P.credits*0.05);P.credits-=fee;const loss=applyXpLoss();const spn=savePointName();
   $('#deathTxt').textContent=(loss.unsaved>0?'Unsaved XP since your last Save Point: '+loss.unsaved+'. You lost '+loss.lost+' XP. ':'Your XP was saved: nothing lost. ')+(DUN?'You\'ll be revived at the '+DUN.D.name+' entrance checkpoint. Bosses reset to full health.':'Respawning at your Save Point: '+spn+'.')+(fee?' Recovery fee: '+fee+'¢.':'');
   $('#bRespawn').textContent=DUN?'Revive at dungeon entrance':'Respawn at '+spn;
   setTimeout(()=>{if(P.dead)$('#death').classList.remove('hidden');},1200);save();}
-function respawnPlayer(){if(DUN){dunRespawn();return;}P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;const sp=savePointPos();P.pos.set(sp.x,0,sp.z);P.rotY=Math.PI;camS.yaw=0;$('#death').classList.add('hidden');ringFx(P.pos.x,P.pos.z,0x6dff8a,4,1);SFX.heal();banner('SAVE POINT',savePointName());save();}
+function respawnPlayer(){if(DUN){if(DUN.vg){vgLeave(true);return;}dunRespawn();return;}P.dead=false;P.hp=S.maxHp;P.en=S.maxEn;const sp=savePointPos();P.pos.set(sp.x,0,sp.z);P.rotY=Math.PI;camS.yaw=0;$('#death').classList.add('hidden');ringFx(P.pos.x,P.pos.z,0x6dff8a,4,1);SFX.heal();banner('SAVE POINT',savePointName());save();}
 
 /* ---------------- loot ---------------- */
 const lootGeo=new THREE.OctahedronGeometry(0.35,0);

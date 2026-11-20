@@ -21,6 +21,7 @@ function cmpBuild(id){const C=COMPS[id];const g=new THREE.Group();const b=new TH
   else if(id==='beetle'){part(b,geoSphere,M(c),0,0.14,0,0.22,0.14,0.28);part(b,geoSphere,M(0x3a2a14),0,0.12,0.26,0.12,0.1,0.1);for(const s of [-1,1])for(const z of [-0.12,0,0.12])part(b,geoBox,M(0x2a2a2a),s*0.22,0.05,z,0.14,0.03,0.03);}
   else if(id==='sprite'){part(b,geoIco,MB(c),0,0,0,0.16,0.16,0.16);part(b,geoSphere,new THREE.MeshBasicMaterial({color:0x9fe6ff,transparent:true,opacity:0.35,depthWrite:false}),0,0,0,0.3,0.3,0.3);}
   else if(id==='owlet'){part(b,geoSphere,M(c),0,0,0,0.2,0.24,0.2);part(b,geoSphere,MB(0xffd25a),-0.07,0.08,0.17,0.05,0.05,0.03);part(b,geoSphere,MB(0xffd25a),0.07,0.08,0.17,0.05,0.05,0.03);for(const s of [-1,1]){const w=part(b,geoBox,M(0x4a3a6a),s*0.22,0,0,0.2,0.03,0.18);w.userData.wing=s;}}
+  else if(C.b)C.b(b,c);
   else{part(b,geoIco,MB(c),0,0,0,0.18,0.18,0.18);const r=part(b,geoBox,MB(0xffb03a),0,0,0,0.5,0.02,0.02);r.userData.spin=1;}
   return {g,b,id};}
 let CMP=null;

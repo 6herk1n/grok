@@ -234,6 +234,32 @@ async def main():
         await page.evaluate("() => window.__dr.closePanel()")
         print("  ok  achievements" if not any(x.startswith("[achievements]") for x in problems) else "  FAIL achievements")
 
+        # Build V Vigil Stair: press U, start at floor 1 with the panel's button, clear the floor's waves, pick a boon with the
+        # boon panel's own button, check floor 2 begins, then leave and check the record and marks. Polls (slow CI).
+        where[0] = "vigil stair"
+        try:
+            await page.evaluate("() => { const d = window.__dr; if (d.DUN) d.exitDungeon(true); d.closePanel(); if (d.P.level < 10) d.P.level = 10; }")
+            await page.keyboard.press("u")
+            await page.click('#pbody [data-act="vgstart"][data-f="1"]', timeout=10000)
+            await page.wait_for_function("() => { const d = window.__dr, r = d.vgRun; return !!r && r.phase === 'fight' && d.enemies.some(e => !e.dead); }", timeout=30000)
+            for _ in range(60):
+                ph = await page.evaluate("""() => { const d = window.__dr, r = d.vgRun; if (!r) return 'gone'; if (r.phase === 'pick') return 'pick';
+                    for (const e of d.enemies) if (!e.dead) { e.hp = 0; d.killEnemy(e); } return r.phase; }""")
+                if ph in ("pick", "gone"):
+                    break
+                await page.wait_for_timeout(500)
+            await page.wait_for_selector('#pbody [data-act="vgpick"]', timeout=15000)
+            await page.click('#pbody [data-act="vgpick"]', timeout=8000)
+            await page.wait_for_function("() => { const r = window.__dr.vgRun; return !!r && r.f === 2 && (r.phase === 'count' || r.phase === 'fight'); }", timeout=15000)
+            res = await page.evaluate("""() => { const d = window.__dr; if ((d.P.vg.best | 0) < 1) return 'floor 1 not recorded'; if (!(d.P.vg.mk > 0)) return 'no Vigil Marks';
+                d.vgLeave(false); return d.DUN ? 'could not leave' : 'ok'; }""")
+            if res != "ok":
+                problems.append(f"[vigil stair] {res}")
+        except Exception as e:
+            problems.append(f"[vigil stair] tower run failed: {str(e)[:200]}")
+        await page.evaluate("() => { const d = window.__dr; d.closePanel(); if (d.vgRun) d.vgLeave(false); else if (d.DUN) d.exitDungeon(true); }")
+        print("  ok  vigil stair" if not any(x.startswith("[vigil stair]") for x in problems) else "  FAIL vigil stair")
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)
