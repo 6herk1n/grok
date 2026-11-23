@@ -19,6 +19,7 @@ const DEVICE_ONLY={
   dustreach_lastexport_v1:'when this device last exported (save reminder)',
   dustreach_firstseen_v1:'when this device first ran the game (save reminder)',
   dustreach_exportnag_v1:'save reminder snooze on this device',
+  dustreach_cloud_v1:'this device\'s cloud backup code (must never go into an export file)',
 };
 
 const files=fs.readdirSync(SRC).filter(f=>/^game\d+\.js$/.test(f));
