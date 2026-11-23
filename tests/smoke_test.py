@@ -394,6 +394,22 @@ async def main():
         print("  ok  research" if not any(x.startswith("[research]") for x in problems) else "  FAIL research")
         await ctx.close()
 
+        # init & aggdef (game48): the stance buttons in the Skills summary change Init and damage reduction
+        where[0] = "aggdef"
+        ctx, pg = await fresh()
+        await pg.click("#bNew"); await pg.fill("#nameIn", "Smoke agg"); await pg.click("#bDeploy")
+        try:
+            await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
+            await pg.keyboard.press("KeyK")
+            await pg.click('#pbody [data-act="aggdef"][data-v="2"]')
+            r = await pg.evaluate("({ag:window.__dr.P.aggdef,init:window.__dr.S.init,dr:window.__dr.S.dr})")
+            if r["ag"] != 2 or not (r["init"] >= 12) or r["dr"] != -8:
+                problems.append(f"[aggdef] Aggressive++ not applied: {r}")
+        except Exception as e:
+            problems.append(f"[aggdef] {str(e)[:200]}")
+        print("  ok  aggdef" if not any(x.startswith("[aggdef]") for x in problems) else "  FAIL aggdef")
+        await ctx.close()
+
         for (w, h) in PHONE_VIEWS:
             where[0] = f"phone {w}x{h}"
             ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2,
