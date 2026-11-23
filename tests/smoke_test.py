@@ -358,6 +358,23 @@ async def main():
         print("  ok  symbiants" if not any(x.startswith("[symbiants]") for x in problems) else "  FAIL symbiants")
         await ctx.close()
 
+        # invasions (game46): force one at Cinderwell, clear 3 waves and the General, check it pays out
+        where[0] = "invasions"
+        ctx, pg = await fresh()
+        await pg.click("#bNew"); await pg.fill("#nameIn", "Smoke inv"); await pg.click("#bDeploy")
+        try:
+            await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
+            r = await pg.evaluate("""(()=>{const d=window.__dr;d.startGame(d.simChar('vanguard',12,2,undefined,'Smoke inv'));
+              if(!d.invStart('cinderwell'))return 'did not start';const E=d.INV.ev;d.P.pos.set(E.x+20,d.P.pos.y,E.z);
+              for(let k=0;k<400&&d.INV.ev;k++){d.invTick();const V=d.INV.ev;if(!V)break;for(const e of V.live.concat(V.gen?[V.gen]:[]))if(!e.dead){e.hp=1;d.killEnemy(e);}d.simStep(0.5);}
+              return d.INV.ev?'still running':(d.P.inva.won===1?'ok':'not won');})()""")
+            if r != "ok":
+                problems.append(f"[invasions] {r}")
+        except Exception as e:
+            problems.append(f"[invasions] {str(e)[:200]}")
+        print("  ok  invasions" if not any(x.startswith("[invasions]") for x in problems) else "  FAIL invasions")
+        await ctx.close()
+
         for (w, h) in PHONE_VIEWS:
             where[0] = f"phone {w}x{h}"
             ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2,

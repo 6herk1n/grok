@@ -1,7 +1,7 @@
 /* DUSTREACH service worker: lets the Home Screen app open offline.
    The cache name carries the build number, so every new build installs a fresh cache and deletes the old one.
    Pages (index.html) are network-first, so the in-game "New version" prompt keeps working; the cached copy is used when offline. */
-const BUILD='20261123T173515-fb585d39';
+const BUILD='20261123T175522-178a20ea';
 const CACHE='dustreach-'+BUILD;
 const CORE=['./','./index.html','./three.min.js?v=r150-340df128'];
 const EXTRA=['./manifest.webmanifest','./icon-180.png','./icon-512.png'];
