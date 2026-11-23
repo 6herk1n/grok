@@ -109,8 +109,11 @@ var PET_K=0.6;
    bring survival and team value; the solo floor keeps every role able to clear solo dungeons). */
 var PROF_DMGK={vanguard:[0.78,0.74,0.84],siege:[0.56,0.51,0.72],mender:[1.55,2.06,3.44],weaver:[0.65,0.62,0.54],mind:[1.61,1.74,1.16],harm:[1.52,1.4,2.06],exact:[0.87,0.77,0.53],flux:[0.74,0.52,0.41],runner:[1.62,1.81,1.37],wild:[1.11,1.03,0.92],fist:[1.03,0.9,1.04],shade:[0.67,0.73,0.68],wright:[1.27,1.62,2.45],binder:[1.41,1.18,1.19]};// [Lv 10, Lv 40, Lv 85] anchors, linear between, flat outside
 function profDmgK(p,lv){if(!balOn())return 1;const k=PROF_DMGK&&PROF_DMGK[p];if(!k)return 1;lv=lv||P.level;return lv<=10?k[0]:lv<=40?k[0]+(k[1]-k[0])*(lv-10)/30:lv<=85?k[1]+(k[2]-k[1])*(lv-40)/45:k[2];}
+/* 2026-11-23 (Claude): "vault" (Vault Theta-9) was missing from both SOLO tables, so its solo bosses ran untuned at x1 - the outlier in a
+   14-profession sim sweep (Lv 10, Rare gear: Ascent V 10/14 kills, 4x max HP taken). 0.8 HP / 0.6 dmg puts it beside the Mine and Stillvault
+   (Uncommon Normal ~58 s, 0.9x HP taken; Rare Ascent V 14/14 kills). */
 /* boss health per dungeon after eHpK, from the sim (simBossK.js): solo bosses target ~65s median kill time (45-90s band), team bosses ~100s (60-150s) */
-var SOLO_BK={"mine":0.766,"choir":0.36,"stillvault":0.143,"foundry":0.45,"heartforge":0.501,"oxidevault":0.417,"briarsepulchre":0.37,"galecrown":0.316,"sunossuary":0.18,"riftvestibule":0.109};
+var SOLO_BK={"mine":0.766,"vault":0.8,"choir":0.36,"stillvault":0.143,"foundry":0.45,"heartforge":0.501,"oxidevault":0.417,"briarsepulchre":0.37,"galecrown":0.316,"sunossuary":0.18,"riftvestibule":0.109};
 var TEAM_BK={"vault":0.7,"choir":0.19,"stillvault":0.23,"foundry":0.16,"heartforge":0.26,"oxidevault":0.25,"briarsepulchre":0.15,"galecrown":0.128,"sunossuary":0.118};
 var RAID_K={sunless:[0.025,1]},RAID_BOSS_K={ozmarath:0.68};// [boss hp, boss dmg] on top of the raid mode (bosses only)
 // Build O: adds a boss summons (and their splits) get the same solo/team HP factor as the boss. SOLO_BK shrinks bosses (e.g. Vael x0.048) but left
@@ -125,7 +128,7 @@ function armC(src){if(!balOn())return 100;const lv=(src&&src.lv)||P.level||1;ret
 // in-combat energy regen: 3.5 + 1.2%/s starved low-level casters (30-60% of a fight energy-blocked at Lv 6-36); 6 + 1.5%/s
 function enRegenC(){return balOn()?6+S.maxEn*0.015:3.5+S.maxEn*0.012;}
 // boss damage per dungeon (after the armour fix): solo boss fights should cost ~1.2x your max health in total (heals/stims needed, deaths rare)
-var SOLO_BD={mine:0.58,choir:0.81,stillvault:0.89,foundry:1.41,heartforge:1.7,oxidevault:1.89,briarsepulchre:1.84,galecrown:1.63,sunossuary:1.26,riftvestibule:1.08};
+var SOLO_BD={mine:0.58,vault:0.6,choir:0.81,stillvault:0.89,foundry:1.41,heartforge:1.7,oxidevault:1.89,briarsepulchre:1.84,galecrown:1.63,sunossuary:1.26,riftvestibule:1.08};
 var TEAM_BD={"vault":0.36,"choir":0.6,"stillvault":0.6,"foundry":0.3,"heartforge":0.55,"oxidevault":0.55,"briarsepulchre":0.45,"galecrown":0.55,"sunossuary":0.4};
 /* ---------- XP lock (per character): farm dungeons for sets without levelling ----------
    P.xpLock / sheet.xpLock: no XP from any source (gainXp for the active character, sheetGainXp for companion shares). Loot, credits, perk-point

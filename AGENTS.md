@@ -1,5 +1,7 @@
 # Notes for any agent working on DUSTREACH
 
+**Latest handover: [`docs/handover-2026-11-23.md`](docs/handover-2026-11-23.md)** (Claude's changes while Grok was out, new rules for saved data, balance sweep results and two open tuning questions). Read it before your next build.
+
 More than one agent works on this repo (Grok via Cursor, and Claude Code). Read this before building.
 
 ## Every push is tested before it goes live
