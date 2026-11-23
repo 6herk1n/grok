@@ -339,6 +339,25 @@ async def main():
         print("  ok  hd look" if not any(x.startswith("[hd look]") for x in problems) else "  FAIL hd look")
         await ctx.close()
 
+        # symbiants (game45): pieces drop, assemble in the panel, summon at the Cinderwell shrine, the pocket boss drops a symbiant
+        where[0] = "symbiants"
+        ctx, pg = await fresh()
+        await pg.click("#bNew"); await pg.fill("#nameIn", "Smoke sym"); await pg.click("#bDeploy")
+        try:
+            await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
+            await pg.evaluate("""(()=>{const d=window.__dr;const c=d.simChar('vanguard',12,2,undefined,'Smoke sym');d.startGame(c);
+              for(let i=0;i<300;i++)d.symOnKill({lv:12,boss:true});d.openSym('pat');})()""")
+            await pg.click('#pbody [data-act="symasm"][data-id="hesk"]')
+            await pg.evaluate("""(()=>{const d=window.__dr;d.closePanel();const s=d.SYM.shrines.find(q=>q.id==='hesk');d.P.pos.set(s.x+1.5,d.P.pos.y,s.z);d.openSym('pat','hesk');})()""")
+            await pg.click('#symSum')
+            await pg.wait_for_function("window.__dr.SYM.live && window.__dr.SYM.live.e", timeout=10000)
+            await pg.evaluate("(()=>{const d=window.__dr,e=d.SYM.live.e;d.P.pos.set(e.pos.x+4,d.P.pos.y,e.pos.z);e.hp=1;d.killEnemy(e);})()")
+            await pg.wait_for_function("(window.__dr.P.sym.kills.hesk|0)>=1 && (window.__dr.loots||[]).some(l=>l.item&&l.item.sym)", timeout=30000)
+        except Exception as e:
+            problems.append(f"[symbiants] {str(e)[:200]}")
+        print("  ok  symbiants" if not any(x.startswith("[symbiants]") for x in problems) else "  FAIL symbiants")
+        await ctx.close()
+
         for (w, h) in PHONE_VIEWS:
             where[0] = f"phone {w}x{h}"
             ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2,

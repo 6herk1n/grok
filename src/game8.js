@@ -6,16 +6,16 @@ const CTIER={major:{n:'Keystone',ic:'🔷',mul:1.5,minq:0.85,col:'#ffc85a',d:'ma
 const CTIERS=['major','minor','trace'];
 const CLUSTATS=['str','agi','sta','int','psy','sen','wpn','weave','treat','body','pool','run'];
 const TSMOD={reinf:'Reinforced',tune:'Tuned',infuse:'Vyre-infused'};
-const BAGK=['mat','clu','blank'];
+const BAGK=['mat','clu','blank','pat'];// pat = symbiant pattern pieces / patterns (game45)
 const bag=()=>P.bag||(P.bag=[]);
 const bagKey=o=>o.kind+'|'+(o.mt||'')+'|'+(o.tier||'')+'|'+(o.s||'')+'|'+o.ql;
 function bagAdd(o,n,to){to=to||bag();n=n||1;const k=bagKey(o);const ex=to.find(x=>bagKey(x)===k);if(ex){ex.n+=n;return ex;}
   const c={id:uid(),kind:o.kind,ql:o.ql,n};if(o.mt)c.mt=o.mt;if(o.tier){c.tier=o.tier;c.s=o.s;}to.push(c);return c;}
 function bagTake(id,n,from){from=from||bag();const i=from.findIndex(x=>x.id===id);if(i<0||from[i].n<n)return false;from[i].n-=n;if(from[i].n<=0)from.splice(i,1);return true;}
-function bagName(o){return o.kind==='mat'?MATS[o.mt].n:o.kind==='clu'?CTIER[o.tier].n+' Cluster · '+STATN[o.s]:'Basic Implant';}
-function bagIco(o){return o.kind==='mat'?MATS[o.mt].ic:o.kind==='clu'?CTIER[o.tier].ic:'⚪';}
-function bagSort(L){const ko={mat:0,clu:1,blank:2};return L.slice().sort((a,b)=>ko[a.kind]-ko[b.kind]||(a.mt||a.tier||'').localeCompare(b.mt||b.tier||'')||(a.s||'').localeCompare(b.s||'')||a.ql-b.ql);}
-function normBag(b){return Array.isArray(b)?b.filter(o=>o&&BAGK.includes(o.kind)&&o.ql>0&&o.n>0&&(o.kind!=='mat'||MATS[o.mt])&&(o.kind!=='clu'||(CTIER[o.tier]&&CLUSTATS.includes(o.s)))).map(o=>Object.assign({},o,{id:o.id||uid(),ql:Math.round(o.ql),n:Math.round(o.n)})):[];}
+function bagName(o){return o.kind==='pat'?patName(o):o.kind==='mat'?MATS[o.mt].n:o.kind==='clu'?CTIER[o.tier].n+' Cluster · '+STATN[o.s]:'Basic Implant';}
+function bagIco(o){return o.kind==='pat'?patIco(o):o.kind==='mat'?MATS[o.mt].ic:o.kind==='clu'?CTIER[o.tier].ic:'⚪';}
+function bagSort(L){const ko={mat:0,clu:1,blank:2,pat:3};return L.slice().sort((a,b)=>ko[a.kind]-ko[b.kind]||(a.mt||a.tier||'').localeCompare(b.mt||b.tier||'')||(a.s||'').localeCompare(b.s||'')||a.ql-b.ql);}
+function normBag(b){return Array.isArray(b)?b.filter(o=>o&&BAGK.includes(o.kind)&&o.ql>0&&o.n>0&&(o.kind!=='mat'||MATS[o.mt])&&(o.kind!=='pat'||/^[a-z]+:[A-DP]$/.test(o.mt||''))&&(o.kind!=='clu'||(CTIER[o.tier]&&CLUSTATS.includes(o.s)))).map(o=>Object.assign({},o,{id:o.id||uid(),ql:Math.round(o.ql),n:Math.round(o.n)})):[];}
 function bagRow(o,act,extra){return `<button class="item" data-act="${act||'noop'}" data-id="${o.id}"><span class="ico">${bagIco(o)}</span><span><div class="nm" style="color:${o.kind==='clu'?CTIER[o.tier].col:'#f3e6d3'}">${esc(bagName(o))}</div><div class="st">QL ${o.ql} · ×${o.n}${o.kind==='clu'?' · fits '+IMPSLOTS.filter(s=>IMPDEF[s].pool.includes(o.s)).map(s=>IMPDEF[s].n).join(', '):''}</div></span>${extra||''}</button>`;}
 
 /* ---------- drops ---------- */
