@@ -1,8 +1,10 @@
 /* ================= SAVE PROTECTION: export / import, rolling backup, persistent storage =================
-   Export = one JSON file with every DUSTREACH key (characters, bank, towers, dynas, story-seen, clock, legacy save).
+   Export = one JSON file with every DUSTREACH key (characters, bank, apartment, towers, dynas, story-seen, clock, legacy save).
    Import validates, asks before overwriting, and first copies the current data to 'dustreach_preimport_v1' (undo).
    A rolling last-good copy of the roster lives in 'dustreach_roster_bak_v1' and is used if the main key is missing or corrupt. */
-const EXP_KEYS=['dustreach_roster_v1','dustreach_bank_v1','dustreach_towers_v1','dustreach_dyna_v1','dustreach_story_seen','dustreach_clock','dustreach_save_v1'];
+const EXP_KEYS=['dustreach_roster_v1','dustreach_bank_v1','dustreach_towers_v1','dustreach_dyna_v1','dustreach_story_seen','dustreach_clock','dustreach_save_v1','dustreach_apt_v1'];
+// keys added after the first export format: an older save file without them leaves the current value alone on import
+const EXP_OPT=new Set(['dustreach_apt_v1']);
 const BAK_KEY='dustreach_roster_bak_v1',PREIMP_KEY='dustreach_preimport_v1';
 const SVX={lastBak:0,persist:null};
 function rosterBackup(j,force){const now=Date.now();if(!force&&now-SVX.lastBak<120000&&localStorage.getItem(BAK_KEY))return;SVX.lastBak=now;
@@ -46,7 +48,7 @@ function parseImport(text){let o;try{o=JSON.parse(String(text||'').trim());}catc
   let r;try{r=JSON.parse(out['dustreach_roster_v1']||'null');}catch(e){r=null;}
   if(!r||!Array.isArray(r.chars))return {ok:false,msg:'The save has no character list.'};
   const good=r.chars.filter(c=>c&&typeof c==='object'&&PROFS[c.prof]);if(good.length!==r.chars.length)return {ok:false,msg:'The save contains damaged characters.'};
-  for(const k of ['dustreach_bank_v1','dustreach_towers_v1','dustreach_dyna_v1','dustreach_story_seen'])if(out[k]!=null){try{JSON.parse(out[k]);}catch(e){return {ok:false,msg:'The save is damaged ('+k+').'};}}
+  for(const k of ['dustreach_bank_v1','dustreach_towers_v1','dustreach_dyna_v1','dustreach_story_seen','dustreach_apt_v1'])if(out[k]!=null){try{JSON.parse(out[k]);}catch(e){return {ok:false,msg:'The save is damaged ('+k+').'};}}
   return {ok:true,data:out,chars:good.map(c=>({name:c.name||'Contractor',level:c.level||1,prof:c.prof})),when:o.exported||'',build:o.build||''};}
 function applyImport(p,skipConfirm){if(!p||!p.ok)return false;
   const cur=(roster&&roster.chars)||[];const msg='Replace your current '+cur.length+' character'+(cur.length===1?'':'s')+' with '+p.chars.length+' from this save ('+p.chars.map(c=>c.name+' Lv '+c.level).join(', ')+')?\n\nYour current data is backed up first, and "Undo last import" brings it back.';
@@ -54,7 +56,7 @@ function applyImport(p,skipConfirm){if(!p||!p.ok)return false;
   if(state==='play'){try{save();}catch(e){}}
   const bak={};for(const k of EXP_KEYS){const v=localStorage.getItem(k);if(v!=null)bak[k]=v;}
   if(!lsSet(PREIMP_KEY,JSON.stringify({t:Date.now(),data:bak}))){svMsg('Could not back up the current save, so nothing was changed.');return false;}
-  for(const k of EXP_KEYS){if(p.data[k]!=null){if(!lsSet(k,p.data[k]))return false;}else localStorage.removeItem(k);}
+  for(const k of EXP_KEYS){if(p.data[k]!=null){if(!lsSet(k,p.data[k]))return false;}else if(!EXP_OPT.has(k))localStorage.removeItem(k);}
   try{const r=JSON.parse(p.data['dustreach_roster_v1']);if(r.chars.length)rosterBackup(p.data['dustreach_roster_v1'],true);}catch(e){}
   svReload('📥 Save imported');return true;}
 function undoImport(){let b;try{b=JSON.parse(localStorage.getItem(PREIMP_KEY)||'null');}catch(e){b=null;}if(!b||!b.data)return false;
@@ -68,7 +70,7 @@ function openSaveTools(tab){const box=$('#saveBox');box.classList.remove('hidden
   const bak=(()=>{try{return JSON.parse(localStorage.getItem(BAK_KEY)||'null');}catch(e){return null;}})();const pre=!!localStorage.getItem(PREIMP_KEY);
   const pers=SVX.persist===true?'✔ protected (persistent storage granted)':SVX.persist===false?'not guaranteed: the browser may clear it if space runs low, so export now and then':'unknown on this browser';
   b.innerHTML=`<div class="tabs" style="justify-content:center"><button data-sv="tab" data-t="export" class="${tab!=='import'?'on':''}">💾 Export</button><button data-sv="tab" data-t="import" class="${tab==='import'?'on':''}">📥 Import</button></div>`+
-  (tab!=='import'?`<p>Saves all ${chars} character${chars===1?'':'s'}, your shared bank, towers, dynas and story progress in one file.</p>
+  (tab!=='import'?`<p>Saves all ${chars} character${chars===1?'':'s'}, your shared bank, apartment, towers, dynas and story progress in one file.</p>
     <div class="svbtns"><button class="btn" data-sv="dl">⬇ Download file</button>${navigator.canShare?'<button class="btn alt" data-sv="share">📤 Save to Files…</button>':''}<button class="btn alt" data-sv="copy">📋 Copy text</button></div>`
   :`<p>Load a save you exported before. You will be asked before anything is replaced, and your current save is backed up first.</p>
     <div class="svbtns"><label class="btn" for="svFile">📂 Choose file…</label><input type="file" id="svFile" accept=".json,application/json,text/plain" class="hidden"></div>
