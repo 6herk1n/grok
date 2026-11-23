@@ -1,0 +1,11 @@
+<!doctype html><html><body><script type="importmap">{"imports":{"three":"./three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';import {FBXLoader} from './jsm/loaders/FBXLoader.js';import {GLTFExporter} from './jsm/exporters/GLTFExporter.js';
+window.conv=async(name)=>{const obj=await new FBXLoader().loadAsync('fbx/'+name+'.fbx');
+  obj.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(obj);const size=box.getSize(new THREE.Vector3());
+  obj.traverse(o=>{if(o.isMesh){const ms=Array.isArray(o.material)?o.material:[o.material];o.material=ms.map(m=>new THREE.MeshStandardMaterial({color:m.color,name:m.name,roughness:0.6,metalness:0.2,map:m.map||null}));if(o.material.length===1)o.material=o.material[0];}});
+  const buf=await new GLTFExporter().parseAsync(obj,{binary:true,animations:[]});
+  let s='';const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));
+  return {b64:btoa(s),size:size.toArray(),min:box.min.toArray()};};
+window.ready=true;
+</script></body></html>

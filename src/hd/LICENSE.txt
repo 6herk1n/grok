@@ -1,0 +1,11 @@
+HD look assets (hd/*.glb), used in DUSTREACH only
+
+All models by Quaternius (https://quaternius.com):
+  - Universal Base Characters (Standard), Modular Character Outfits - Fantasy (Standard),
+    Universal Animation Library (Standard): downloaded 2026-11-23, licence file in the packs: CC0 1.0
+  - weapons.glb: Sci-Fi Guns (May 2018), Animated FPS Guns (Jun 2018), Medieval Weapons (Sept 2018),
+    RPG Asset Pack (May 2017) free packs, converted from FBX with three.js FBXLoader + GLTFExporter
+Quaternius's current licence (Quaternius Asset License v1.0) also allows use in games, free, no credit required,
+but not re-distributing the models as an asset pack. These files are part of the game: please don't extract
+them for reuse; get them from quaternius.com instead.
+Packed by tools/hd/pack.mjs and tools/hd/weapons.mjs (textures resized to JPEG, meshes quantised, animations trimmed).

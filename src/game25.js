@@ -376,16 +376,17 @@ function clothVisual(){if(!PM)return;if(PM.cloth)PM.cloth.forEach(m=>m.parent&&m
     if(c.st==='goggles'){for(const s of [-1,1]){const l=P_(PM.head,G.disc,m,s*0.075,0.1,0.185,0.062,0.04,0.062);l.rotation.x=Math.PI/2;}ring(PM.head,MS(0x3a2a1a),0.1,0.2,0.21,0.14);}
     else P_(PM.head,G.band,m,0,0.1,0,0.204,0.066,0.214);}}
 /* ---------- character creation: look picker + live preview ---------- */
-var selHair='crop',selHairC=null,prevCam=null,selFace='steady',prevFaceT=0;
-function renderLook(){const hr=$('#hairRow'),cr=$('#hairCRow');if(!hr||!cr)return;const fr=$('#faceRow'),FD=faceDefs();
+var selBody='m',selHair='crop',selHairC=null,prevCam=null,selFace='steady',prevFaceT=0;
+function renderLook(){const hr=$('#hairRow'),cr=$('#hairCRow');if(!hr||!cr)return;const br=$('#bodyRow');if(br)br.innerHTML=[['m','Male'],['f','Female']].map(([k,n])=>`<button data-bs="${k}" class="${k===selBody?'on':''}">${n}</button>`).join('');const fr=$('#faceRow'),FD=faceDefs();
   if(fr)fr.innerHTML=Object.keys(FD).map(k=>`<button data-fs="${k}" class="${k===selFace?'on':''}" title="${FD[k].n}">${FD[k].icon} ${FD[k].n}</button>`).join('');
   hr.innerHTML=Object.keys(HAIR).map(k=>`<button data-hs="${k}" class="${k===selHair?'on':''}">${HAIR[k]}</button>`).join('');
   cr.innerHTML=[['',0x2a1d14,'Dark']].concat(Object.keys(HAIRC).map(k=>[k,HAIRC[k].c,HAIRC[k].n])).map(([k,c,n])=>`<button data-hc="${k}" class="hc${(selHairC||'')===k?' on':''}" title="${n}" aria-label="${n}"><span class="sw" style="background:#${c.toString(16).padStart(6,'0')}"></span></button>`).join('');}
 function lookInit(){const hr=$('#hairRow'),cr=$('#hairCRow');if(!hr||hr.dataset.wired)return;hr.dataset.wired=1;
+  {const br=$('#bodyRow');if(br)br.addEventListener('click',e=>{const b=e.target.closest('[data-bs]');if(!b)return;selBody=b.dataset.bs==='f'?'f':'m';SFX.ui();renderLook();previewProf();});}
   hr.addEventListener('click',e=>{const b=e.target.closest('[data-hs]');if(!b)return;selHair=b.dataset.hs;SFX.ui();renderLook();previewProf();});
   cr.addEventListener('click',e=>{const b=e.target.closest('[data-hc]');if(!b)return;selHairC=b.dataset.hc||null;SFX.ui();renderLook();previewProf();});
   const fr=$('#faceRow');if(fr)fr.addEventListener('click',e=>{const b=e.target.closest('[data-fs]');if(!b)return;selFace=faceKey(b.dataset.fs);prevFaceT=performance.now()+2600;SFX.ui();renderLook();previewProf();});}
-function previewProf(){P.prof=selProf;P.breed=selBreed;P.clothing=normCloth({hair:selHair,hairc:selHairC,face:selFace});
+function previewProf(){P.prof=selProf;P.breed=selBreed;P.clothing=normCloth({body:selBody,hair:selHair,hairc:selHairC,face:selFace});
   try{const w=genItem(1,'weapon',0,{wt:PROF_WT[selProf]}),a=genItem(1,'armor',0,{fam:PROF_FAM[selProf]});P.eq={weapon:w,armor:a};}catch(err){}
   buildPlayerModel();lookInit();renderLook();}
 function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().length||getComputedStyle(cv).display==='none')return;const ctx=cv.getContext('2d');if(!ctx)return;
@@ -396,3 +397,7 @@ function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().
   renderer.setScissorTest(true);renderer.setScissor(0,0,cw,ch);renderer.setViewport(0,0,cw,ch);renderer.render(scene,prevCam);
   try{ctx.clearRect(0,0,W,Hh);ctx.drawImage(renderer.domElement,0,sz.y-ch*pr,cw*pr,ch*pr,0,0,W,Hh);}catch(err){}
   renderer.setScissorTest(false);const s2=renderer.getSize(new THREE.Vector2());renderer.setViewport(0,0,s2.x,s2.y);renderer.setScissor(0,0,s2.x,s2.y);}
+// HD look (game44.js): NPC humanoids ({npc:1}) register at build time so the HD look can upgrade them near the player later.
+// This hook sits here (not in game44) because the world's NPCs are built by files that load before game44.
+var HD_NPCS=[];
+{const _bh=buildHumanoid;buildHumanoid=function(body,accent,visor,skin,o){const R=_bh(body,accent,visor,skin,o);if(o&&o.npc&&!o.robot)try{hdNpcReg(R,body,accent,visor,o);}catch(e){}return R;};}

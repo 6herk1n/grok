@@ -296,6 +296,40 @@ async def main():
             problems.append("[save/reload] no Continue button after reload - the save didn't stick")
         await ctx.close()
 
+        # HD look (game44.js): models load from hd/, the player and nearby NPCs get skinned bodies, Classic restores the rigs
+        where[0] = "hd look"
+        ctx = await browser.new_context(viewport={"width": 1180, "height": 820}, has_touch=True)
+        await ctx.add_init_script("try{localStorage.setItem('dustreach_look_v1','hd')}catch(e){}")
+        pg = await ctx.new_page()
+        pg.on("pageerror", lambda e: bad("page error", str(e)))
+        pg.on("console", lambda m: bad("console error", m.text) if m.type == "error" else None)
+        pg.on("dialog", lambda d: asyncio.ensure_future(d.accept()))
+        await pg.goto(URL)
+        await pg.wait_for_selector("#bNew", timeout=30000)
+        await pg.click("#bNew")
+        await pg.click('#profCards .card[data-p="shade"]')
+        await pg.click('#bodyRow [data-bs="f"]')
+        await pg.fill("#nameIn", "Smoke hd")
+        await pg.click("#bDeploy")
+        try:
+            await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
+            await pg.wait_for_function("window.__dr && window.__dr.HD && (window.__dr.HD.state==='ready'||window.__dr.HD.state==='error') && window.__dr.hdPlayer", timeout=60000)
+            await pg.keyboard.down("KeyW"); await pg.wait_for_timeout(1200); await pg.keyboard.up("KeyW")
+            await pg.evaluate("window.__dr.P.atkAnim=0.35"); await pg.wait_for_timeout(600)
+            st = await pg.evaluate("""(()=>{const d=window.__dr,H=d.hdPlayer;return {state:d.HD.state,err:d.HD.err,sex:H&&H.sex,
+              gun:!!(H&&H.gun&&H.gun.userData.wt==='blade'),npcs:d.HD_NPCS.filter(R=>R.hd).length};})()""")
+            if st["state"] != "ready" or st["sex"] != "f" or not st["gun"]:
+                problems.append(f"[hd look] HD player not set up: {st}")
+            elif st["npcs"] < 1:
+                problems.append(f"[hd look] no NPC near Halden's Rest got an HD body: {st}")
+            await pg.evaluate("window.__dr.setLook('classic')"); await pg.wait_for_timeout(500)
+            if await pg.evaluate("!!window.__dr.hdPlayer || window.__dr.HD_NPCS.some(R=>R.hd)"):
+                problems.append("[hd look] switching to Classic left HD bodies behind")
+        except Exception as e:
+            problems.append(f"[hd look] {str(e)[:200]}")
+        print("  ok  hd look" if not any(x.startswith("[hd look]") for x in problems) else "  FAIL hd look")
+        await ctx.close()
+
         for (w, h) in PHONE_VIEWS:
             where[0] = f"phone {w}x{h}"
             ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2,

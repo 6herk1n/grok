@@ -353,10 +353,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261123T154217-a841c71b">
+<meta name="dr-build" content="20261123T164421-0bd48e0e">
 <script>
 (function(){
-var BUILD='20261123T154217-a841c71b';window.DR_BUILD=BUILD;
+var BUILD='20261123T164421-0bd48e0e';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -417,7 +417,7 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
   <h2>NEW CONTRACTOR</h2>
   <div class="namerow"><input id="nameIn" maxlength="16" placeholder="Character name" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" inputmode="text" aria-label="Character name"><button class="sbtn alt" id="bNameRnd" title="Random name">🎲</button></div><div class="nameerr" id="nameErr"></div><div class="namehint">2–16 letters, numbers, spaces, - or '</div>
   <div class="row" id="profCards"></div><div id="profInfo"></div>
-  <canvas id="cPrev" width="264" height="336" aria-label="Character preview"></canvas><div id="createOpts"><div id="cLook"><span class="h5">Look</span><div class="seg" id="hairRow"></div><div class="seg" id="hairCRow"></div><div class="seg" id="faceRow"></div></div><div class="h4">Breed</div><div class="seg" id="breedRow"></div><div class="btxt" id="breedTxt"></div><div class="h4">Faction</div><div class="seg" id="facRow"></div><div class="btxt" id="facTxt"></div></div>
+  <canvas id="cPrev" width="264" height="336" aria-label="Character preview"></canvas><div id="createOpts"><div id="cLook"><span class="h5">Look</span><div class="seg" id="bodyRow" title="Body (shown with the HD look)"></div><div class="seg" id="hairRow"></div><div class="seg" id="hairCRow"></div><div class="seg" id="faceRow"></div></div><div class="h4">Breed</div><div class="seg" id="breedRow"></div><div class="btxt" id="breedTxt"></div><div class="h4">Faction</div><div class="seg" id="facRow"></div><div class="btxt" id="facTxt"></div></div>
   <div class="crbtns"><button class="btn alt" id="bBack">Back</button><button class="btn" id="bDeploy">DEPLOY TO HALDEN'S REST</button></div>
 </div>
 <div id="renameBox" class="screen hidden"><div class="renbox"><h2>RENAME</h2><div class="namehint">Currently: <b id="renOld"></b></div><div class="namerow"><input id="renIn" maxlength="16" placeholder="New name" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" inputmode="text" aria-label="New name"><button class="sbtn alt" id="bRenRnd" title="Random name">🎲</button></div><div class="nameerr" id="renErr"></div><div class="namehint">2–16 letters, numbers, spaces, - or ' · must differ from your other characters</div><div class="renbtns"><button class="btn" id="bRenOk">SAVE NAME</button><button class="btn alt" id="bRenNo">Cancel</button></div></div></div>
@@ -426,7 +426,7 @@ window.addEventListener('pageshow',function(){check();});setInterval(check,10*60
 <div id="saveWarn" class="hidden"></div>
 <div id="death" class="screen hidden"><h2>DOWNED</h2><div id="deathTxt" style="margin-bottom:18px;opacity:.85">A Combine med-drone is on its way.</div><button class="btn" id="bRespawn">Respawn at Halden's Rest</button></div>
 <div id="panel" class="hidden"><div class="pbox"><div class="phead"><span id="ptitle"></span><button id="pclose">✕</button></div><div id="pbody"></div></div></div>
-<script src="three.min.js?v=r150-a4240da3"></script>
+<script src="three.min.js?v=r150-340df128"></script>
 <script>(function(){
 'use strict';
 const V3=THREE.Vector3;
@@ -1167,16 +1167,17 @@ function clothVisual(){if(!PM)return;if(PM.cloth)PM.cloth.forEach(m=>m.parent&&m
     if(c.st==='goggles'){for(const s of [-1,1]){const l=P_(PM.head,G.disc,m,s*0.075,0.1,0.185,0.062,0.04,0.062);l.rotation.x=Math.PI/2;}ring(PM.head,MS(0x3a2a1a),0.1,0.2,0.21,0.14);}
     else P_(PM.head,G.band,m,0,0.1,0,0.204,0.066,0.214);}}
 /* ---------- character creation: look picker + live preview ---------- */
-var selHair='crop',selHairC=null,prevCam=null,selFace='steady',prevFaceT=0;
-function renderLook(){const hr=$('#hairRow'),cr=$('#hairCRow');if(!hr||!cr)return;const fr=$('#faceRow'),FD=faceDefs();
+var selBody='m',selHair='crop',selHairC=null,prevCam=null,selFace='steady',prevFaceT=0;
+function renderLook(){const hr=$('#hairRow'),cr=$('#hairCRow');if(!hr||!cr)return;const br=$('#bodyRow');if(br)br.innerHTML=[['m','Male'],['f','Female']].map(([k,n])=>`<button data-bs="${k}" class="${k===selBody?'on':''}">${n}</button>`).join('');const fr=$('#faceRow'),FD=faceDefs();
   if(fr)fr.innerHTML=Object.keys(FD).map(k=>`<button data-fs="${k}" class="${k===selFace?'on':''}" title="${FD[k].n}">${FD[k].icon} ${FD[k].n}</button>`).join('');
   hr.innerHTML=Object.keys(HAIR).map(k=>`<button data-hs="${k}" class="${k===selHair?'on':''}">${HAIR[k]}</button>`).join('');
   cr.innerHTML=[['',0x2a1d14,'Dark']].concat(Object.keys(HAIRC).map(k=>[k,HAIRC[k].c,HAIRC[k].n])).map(([k,c,n])=>`<button data-hc="${k}" class="hc${(selHairC||'')===k?' on':''}" title="${n}" aria-label="${n}"><span class="sw" style="background:#${c.toString(16).padStart(6,'0')}"></span></button>`).join('');}
 function lookInit(){const hr=$('#hairRow'),cr=$('#hairCRow');if(!hr||hr.dataset.wired)return;hr.dataset.wired=1;
+  {const br=$('#bodyRow');if(br)br.addEventListener('click',e=>{const b=e.target.closest('[data-bs]');if(!b)return;selBody=b.dataset.bs==='f'?'f':'m';SFX.ui();renderLook();previewProf();});}
   hr.addEventListener('click',e=>{const b=e.target.closest('[data-hs]');if(!b)return;selHair=b.dataset.hs;SFX.ui();renderLook();previewProf();});
   cr.addEventListener('click',e=>{const b=e.target.closest('[data-hc]');if(!b)return;selHairC=b.dataset.hc||null;SFX.ui();renderLook();previewProf();});
   const fr=$('#faceRow');if(fr)fr.addEventListener('click',e=>{const b=e.target.closest('[data-fs]');if(!b)return;selFace=faceKey(b.dataset.fs);prevFaceT=performance.now()+2600;SFX.ui();renderLook();previewProf();});}
-function previewProf(){P.prof=selProf;P.breed=selBreed;P.clothing=normCloth({hair:selHair,hairc:selHairC,face:selFace});
+function previewProf(){P.prof=selProf;P.breed=selBreed;P.clothing=normCloth({body:selBody,hair:selHair,hairc:selHairC,face:selFace});
   try{const w=genItem(1,'weapon',0,{wt:PROF_WT[selProf]}),a=genItem(1,'armor',0,{fam:PROF_FAM[selProf]});P.eq={weapon:w,armor:a};}catch(err){}
   buildPlayerModel();lookInit();renderLook();}
 function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().length||getComputedStyle(cv).display==='none')return;const ctx=cv.getContext('2d');if(!ctx)return;
@@ -1187,6 +1188,10 @@ function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().
   renderer.setScissorTest(true);renderer.setScissor(0,0,cw,ch);renderer.setViewport(0,0,cw,ch);renderer.render(scene,prevCam);
   try{ctx.clearRect(0,0,W,Hh);ctx.drawImage(renderer.domElement,0,sz.y-ch*pr,cw*pr,ch*pr,0,0,W,Hh);}catch(err){}
   renderer.setScissorTest(false);const s2=renderer.getSize(new THREE.Vector2());renderer.setViewport(0,0,s2.x,s2.y);renderer.setScissor(0,0,s2.x,s2.y);}
+// HD look (game44.js): NPC humanoids ({npc:1}) register at build time so the HD look can upgrade them near the player later.
+// This hook sits here (not in game44) because the world's NPCs are built by files that load before game44.
+var HD_NPCS=[];
+{const _bh=buildHumanoid;buildHumanoid=function(body,accent,visor,skin,o){const R=_bh(body,accent,visor,skin,o);if(o&&o.npc&&!o.robot)try{hdNpcReg(R,body,accent,visor,o);}catch(e){}return R;};}
 
 /* ---------------- models ---------------- */
 function buildHumanoid_v1(body,accent,visor,skin){
@@ -3073,7 +3078,7 @@ const CLOTH={
 const DYES={sand:{n:'Sand',c:0xc9a46a,pr:25},rust:{n:'Rust',c:0x9c4a2a,pr:25},bone:{n:'Bone',c:0xe6dcc6,pr:30},ash:{n:'Ash',c:0x4a4a4a,pr:30},moss:{n:'Moss',c:0x5a6a32,pr:40},teal:{n:'Teal',c:0x2f8f8a,pr:40},
   midnight:{n:'Midnight',c:0x232a4a,pr:50},crimson:{n:'Crimson',c:0x9a1f2a,pr:50},violet:{n:'Violet',c:0x6a3a8a,pr:60},gold:{n:'Gold',c:0xd4a020,pr:90},vyre:{n:'Vyre Glow',c:0x5ff2ff,glow:true,pr:300}};
 const HAIR={none:'Shaved',crop:'Crop',ridge:'Ridge',long:'Long',knot:'Topknot'};
-function normCloth(c){c=c&&typeof c==='object'?c:{};const o={own:(Array.isArray(c.own)?c.own:[]).filter(k=>CLOTH[k]),dyes:(Array.isArray(c.dyes)?c.dyes:[]).filter(k=>DYES[k]),wear:{},dye:{},over:c.over!==false,hair:HAIR[c.hair]?c.hair:'crop',hairc:DYES[c.hairc]||HAIRC[c.hairc]?c.hairc:null,face:faceKey(c.face)};
+function normCloth(c){c=c&&typeof c==='object'?c:{};const o={own:(Array.isArray(c.own)?c.own:[]).filter(k=>CLOTH[k]),dyes:(Array.isArray(c.dyes)?c.dyes:[]).filter(k=>DYES[k]),wear:{},dye:{},over:c.over!==false,hair:HAIR[c.hair]?c.hair:'crop',body:c.body==='f'?'f':'m',hairc:DYES[c.hairc]||HAIRC[c.hairc]?c.hairc:null,face:faceKey(c.face)};
   CSLOTS.forEach(s=>{const w=c.wear&&c.wear[s];o.wear[s]=w&&CLOTH[w]&&CLOTH[w].slot===s&&o.own.includes(w)?w:null;const d=c.dye&&c.dye[s];o.dye[s]=d&&o.dyes.includes(d)?d:null;});return o;}
 const cl=()=>P.clothing&&P.clothing.wear?P.clothing:(P.clothing=normCloth(P.clothing));
 function clothHides(slot){const C=P.clothing;if(!C||!C.wear||!C.over)return false;return slot==='head'?!!C.wear.hat:!!(C.wear.shirt||C.wear.jacket);}
@@ -3126,7 +3131,7 @@ function openWardrobe(mirror){if(mirror!=null)wardMirror=mirror;const C=cl();con
     h+=`<div class="h4" style="margin-top:6px">${CSLOTN[s]}${hid?' <span style="color:#ff9a8a;text-transform:none">(hidden by armour)</span>':''}</div><div class="chips"><button class="chip${!C.wear[s]?' on':''}" data-act="cwear" data-s="${s}" data-c="">None</button>${own.map(k=>`<button class="chip${C.wear[s]===k?' on':''}" data-act="cwear" data-s="${s}" data-c="${k}">${CLOTH[k].ic} ${CLOTH[k].n}</button>`).join('')}</div>`;
     if(C.wear[s])h+=`<div class="chips">${dyeChip(null,!C.dye[s],'cdye',`data-s="${s}"`)}${C.dyes.map(d=>dyeChip(d,C.dye[s]===d,'cdye',`data-s="${s}"`)).join('')}</div>`;}
   h+='</div><div>';
-  if(wardMirror){h+=`<div class="h4">Hair</div><div class="chips">${Object.keys(HAIR).map(k=>`<button class="chip${C.hair===k?' on':''}" data-act="chair" data-h="${k}">${HAIR[k]}</button>`).join('')}</div><div class="h4">Hair colour</div><div class="chips">${dyeChip(null,!C.hairc,'chairc')}${Object.keys(HAIRC).map(k=>`<button class="chip${C.hairc===k?' on':''}" data-act="chairc" data-d="${k}"><span class="sw" style="background:#${HAIRC[k].c.toString(16).padStart(6,'0')}"></span>${HAIRC[k].n}</button>`).join('')}${C.dyes.map(d=>dyeChip(d,C.hairc===d,'chairc')).join('')}</div><div class="h4">Face</div><div class="chips" id="faceChips">${Object.entries(faceDefs()).map(([k,F])=>`<button class="chip${C.face===k?' on':''}" data-act="cface" data-f="${k}">${F.icon} ${F.n}</button>`).join('')}</div>`;}
+  if(wardMirror){h+=`<div class="h4">Body <small style="text-transform:none;opacity:.7">(HD look)</small></div><div class="chips">${[['m','Male'],['f','Female']].map(([k,n])=>`<button class="chip${(C.body||'m')===k?' on':''}" data-act="cbody" data-b="${k}">${n}</button>`).join('')}</div><div class="h4">Hair</div><div class="chips">${Object.keys(HAIR).map(k=>`<button class="chip${C.hair===k?' on':''}" data-act="chair" data-h="${k}">${HAIR[k]}</button>`).join('')}</div><div class="h4">Hair colour</div><div class="chips">${dyeChip(null,!C.hairc,'chairc')}${Object.keys(HAIRC).map(k=>`<button class="chip${C.hairc===k?' on':''}" data-act="chairc" data-d="${k}"><span class="sw" style="background:#${HAIRC[k].c.toString(16).padStart(6,'0')}"></span>${HAIRC[k].n}</button>`).join('')}${C.dyes.map(d=>dyeChip(d,C.hairc===d,'chairc')).join('')}</div><div class="h4">Face</div><div class="chips" id="faceChips">${Object.entries(faceDefs()).map(([k,F])=>`<button class="chip${C.face===k?' on':''}" data-act="cface" data-f="${k}">${F.icon} ${F.n}</button>`).join('')}</div>`;}
   const packs=P.inv.filter(x=>x.kind==='cloth');if(packs.length)h+=`<div class="h4">In your pack</div>`+packs.map(it=>itemRow(it,'<span class="pr">Add</span>',false,'cadd')).join('');
   if(C.own.length)h+=`<div class="h4" style="margin-top:8px">Pack a piece up (to give it to an alt via the locker)</div><div class="chips">${C.own.map(k=>`<button class="chip" data-act="cpack" data-c="${k}">📦 ${CLOTH[k].n}</button>`).join('')}</div>`;
   else h+='<div style="opacity:.6;margin-top:8px">No clothes yet. Visit Ossory Threads in Halden\'s Rest.</div>';
@@ -3262,7 +3267,7 @@ function stage3Act(a,b){const D=b.dataset;if(hmAct(a,b))return true;if(homeAct(a
   else if(a==='buyts'){buyTs(+D.i);openVendor();}
   else if(a==='ttab')openTailor(D.t);else if(a==='cbuy'){buyCloth(D.c);openTailor('buy');}else if(a==='dbuy'){buyDye(D.k);openTailor('dye');}else if(a==='ward')openWardrobe(false);
   else if(a==='cwear'){wearCloth(D.s,D.c||null);openWardrobe();}else if(a==='cdye'){setDye(D.s,D.d||null);openWardrobe();}else if(a==='cover'){toggleOver();openWardrobe();}
-  else if(a==='chair'){setHair(D.h);openWardrobe();}else if(a==='chairc'){setHair(null,D.d||null);openWardrobe();}else if(a==='cface'){setFace(D.f);openWardrobe();}else if(a==='cadd'){addToWardrobe(D.id);if(panelOpen==='inv')openInventory();else openWardrobe();}else if(a==='cpack'){packCloth(D.c);openWardrobe();}
+  else if(a==='chair'){setHair(D.h);openWardrobe();}else if(a==='cbody'){const C=cl();C.body=D.b==='f'?'f':'m';buildPlayerModel();save();openWardrobe();}else if(a==='chairc'){setHair(null,D.d||null);openWardrobe();}else if(a==='cface'){setFace(D.f);openWardrobe();}else if(a==='cadd'){addToWardrobe(D.id);if(panelOpen==='inv')openInventory();else openWardrobe();}else if(a==='cpack'){packCloth(D.c);openWardrobe();}
   else if(a==='ltab')openLocker(D.t);else if(a==='bdep'){bankDeposit(D.id);openLocker();}else if(a==='bwd'){bankWithdraw(D.id);openLocker();}else if(a==='bdepm'){bankDepositStack(D.id);openLocker();}else if(a==='bwdm'){bankWithdrawStack(D.id);openLocker();}else if(a==='bcr'){bankCredits(+D.n);openLocker();}
   else if(a==='dplace'){placeDecor(D.k,false);openDecor();}else if(a==='dstore'){placeDecor(D.k,true);openDecor();}else if(a==='dpick'){pickupDecor(+D.i);openDecor();}
   else if(a==='help')openHelp();else if(a==='craft')openCraft();else if(a==='noop'){}
@@ -9126,6 +9131,172 @@ $('#saveBox').addEventListener('click',e=>{const b=e.target.closest('[data-cl]')
   else if(a==='restore')cloudRestore(b.dataset.id);});
 function cloudExports(){return {CLOUD_KEY,CL,cloudGet,cloudSet,cloudPush,cloudLink,cloudLoadList,cloudRestore,cloudHash};}
 
+/* ================= HD LOOK (beta, 2026-11-23, Claude): skinned, animated characters =================
+   A per-device graphics option (Settings → Graphics → Look: Classic / HD). Classic stays the default and is untouched.
+   Assets: hd/*.glb (Quaternius Universal Base Characters + Modular Character Outfits - Fantasy + Universal Animation Library,
+   all CC0; packed by tools/hd/pack.mjs). Loaded on demand by THREE.GLTFLoader (src/vendor/three-gltf.js), cached by sw.js
+   in its own 'dustreach-hd' cache so a game update doesn't re-download them. URLs carry ?v=2cc728e0 (hash of the files).
+   How it plugs in: the classic rig (PM) is still built and still drives everything that reads PM.* (gear, veil, mounts,
+   emotes...), but its meshes are hidden every frame and an HD body is parented to PM.g. PM.anim is wrapped: the HD mixer
+   picks clips from the same inputs (moving, atkAnim, hurt) plus P.cast / P.mount / P.dead.
+   Two animation layers: lower body (root, pelvis, legs) = locomotion; upper body = attack / cast / locomotion. Each clip
+   is split once into _U and _L halves (hdSplit) so you can shoot while running.
+   Outfit by gear slot: armour family light -> Peasant, medium -> Ranger, heavy -> Ranger + pauldrons (steel tint);
+   an empty slot shows the Peasant piece. Rarity tints the outfit slightly. Head armour shows the hood (hides hair).
+   Body type (Male/Female frame) is P.clothing.body ('m'/'f'), chosen at creation or at the apartment mirror.
+   Device setting: localStorage 'dustreach_look_v1' ('hd' | 'classic'). */
+const LOOK_KEY='dustreach_look_v1',HDV='2cc728e0';
+const HD={state:'off',gl:{},clips:null,err:'',want:false};
+const HD_FILES={anims:'anims',m_head:'m_head',f_head:'f_head',m_ranger:'m_ranger',m_peasant:'m_peasant',f_ranger:'f_ranger',f_peasant:'f_peasant',
+  hair_buzzed:'hair_buzzed',hair_buzzedfemale:'hair_buzzedfemale',hair_long:'hair_long',hair_buns:'hair_buns',hair_simpleparted:'hair_simpleparted',hair_beard:'hair_beard',weapons:'weapons'};
+// weapon models (Quaternius Sci-Fi Guns / Medieval Weapons / RPG packs): node in weapons.glb, length in metres, source axis, grip point along the length (0 = back end)
+const HD_WPN={rifle:{n:'sf_rifle',L:0.95,ax:'-z',grip:0.32},shotgun:{n:'fps_shotgun',L:0.85,ax:'-z',grip:0.3},pistol:{n:'sf_pistol',L:0.32,ax:'-z',grip:0.18},smg:{n:'sf_longpistol',L:0.4,ax:'-z',grip:0.15},
+  emitter:{n:'sf_raygun',L:0.45,ax:'-z',grip:0.2},cannon:{n:'sf_lightning',L:0.95,ax:'-z',grip:0.35},blade:{n:'md_sword',L:1.0,ax:'y',grip:0.12},bow:{n:'md_bow',L:1.15,ax:'y',grip:0.5},rod:{n:'rpg_staff',L:1.35,ax:'y',grip:0.35}};
+const HD_HAIR={crop:['hair_buzzed','hair_buzzedfemale'],ridge:['hair_simpleparted','hair_simpleparted'],long:['hair_long','hair_long'],knot:['hair_buns','hair_buns'],none:[null,null]};
+const HD_SCALE=1.1;// Quaternius bodies are ~1.8 m; the classic figures stand a little taller
+const HD_LOWER=new Set(['root','pelvis','thigh_l','calf_l','foot_l','ball_l','ball_leaf_l','thigh_r','calf_r','foot_r','ball_r','ball_leaf_r']);
+function lookGet(){try{return localStorage.getItem(LOOK_KEY)==='hd'?'hd':'classic';}catch(e){return 'classic';}}
+function hdOn(){return HD.want;}
+function hdUrl(f){return 'hd/'+f+'.glb?v='+HDV;}
+function hdSplit(clips){const out={};for(const c of clips){
+    const U=[],L=[];for(const t of c.tracks){const bone=t.name.split('.')[0];(HD_LOWER.has(bone)?L:U).push(t);}
+    out[c.name]={full:c,U:new THREE.AnimationClip(c.name+'_U',c.duration,U),L:new THREE.AnimationClip(c.name+'_L',c.duration,L)};}
+  return out;}
+function hdLoad(){if(HD.state==='loading'||HD.state==='ready')return;HD.state='loading';const L=new THREE.GLTFLoader();
+  const keys=Object.keys(HD_FILES);let n=0;
+  Promise.all(keys.map(k=>new Promise((res,rej)=>L.load(hdUrl(HD_FILES[k]),g=>{n++;res([k,g]);},null,rej)))).then(list=>{
+    for(const [k,g] of list){HD.gl[k]=g;g.scene.traverse(o=>{if(!o.isMesh)return;o.frustumCulled=false;const m=o.material;
+      // the classic world renders linear colours: treat textures as-is so the HD bodies match its brightness
+      for(const t of ['map','normalMap'])if(m[t]){m[t].encoding=THREE.LinearEncoding;m[t].anisotropy=2;}m.needsUpdate=true;});}
+    HD.clips=hdSplit(HD.gl.anims.animations);HD.wpn=hdWeapons(HD.gl.weapons);HD.state='ready';
+    try{if(state==='play'&&PM)buildPlayerModel();}catch(e){}
+    try{if(typeof toast==='function'&&HD.announce)toast('✨ HD look loaded');}catch(e){}
+  }).catch(e=>{HD.state='error';HD.err=String(e&&e.message||e).slice(0,120);try{warn('HD look could not load ('+HD.err+'). Using Classic.');}catch(_){}});}
+function setLook(v,announce){v=v==='hd'?'hd':'classic';try{localStorage.setItem(LOOK_KEY,v);}catch(e){}HD.want=v==='hd';HD.announce=!!announce;
+  if(HD.want){if(HD.state==='ready'){try{if(PM)buildPlayerModel();}catch(e){}}else hdLoad();}else{try{hdNpcClear();if(PM)buildPlayerModel();}catch(e){}}}
+// skinned meshes from separate files share one skeleton by bone name (all Quaternius assets use the same UE-style rig)
+function hdRebind(mesh,byName){const bones=mesh.skeleton.bones.map(b=>byName[b.name]||b);mesh.bind(new THREE.Skeleton(bones,mesh.skeleton.boneInverses),mesh.bindMatrix);}
+function hdTake(key,byName,parent){const g=HD.gl[key];if(!g)return [];const src=THREE.SkeletonUtils.clone(g.scene);const out=[];
+  src.traverse(o=>{if(o.isSkinnedMesh){o.material=o.material.clone();out.push(o);}});
+  for(const m of out){hdRebind(m,byName);parent.add(m);}return out;}
+function hdBuild(o){const sex=o.sex==='f'?'f':'m';const g=new THREE.Group();g.name='hdChar';
+  const base=THREE.SkeletonUtils.clone(HD.gl[sex+'_head'].scene);g.add(base);let skel=null;base.traverse(c=>{if(c.isSkinnedMesh){c.material=c.material.clone();if(!skel)skel=c.skeleton;}});
+  const byName={};skel.bones.forEach(b=>byName[b.name]=b);
+  const H={g,base,sex,byName,parts:{},hair:null,beard:null,mixer:new THREE.AnimationMixer(base),act:{},cur:{U:'',L:''},oneshot:null,t:0,lastT:null,dead:false};
+  // outfit pieces: both outfits are loaded, the visible set is chosen by hdDress()
+  for(const kit of ['peasant','ranger'])for(const m of hdTake(sex+'_'+kit,byName,base)){const nm=m.name.replace(/^(Fem|M)ale_(Peasant|Ranger)_/,'').replace(/_\d+$/,'');
+    const k=kit+':'+nm;(H.parts[k]=H.parts[k]||[]).push(m);m.visible=false;m.userData.base=m.material.color.getHex();}
+  const hk=(HD_HAIR[o.hair]||HD_HAIR.crop)[sex==='f'?1:0];if(hk){H.hair=hdTake(hk,byName,base);H.hair.forEach(m=>m.material.color.setHex(o.hairc||0x2a1d14));}
+  if(o.beard&&sex==='m'){H.beard=hdTake('hair_beard',byName,base);H.beard.forEach(m=>m.material.color.setHex(o.hairc||0x2a1d14));}
+  // weapon: a copy of the classic gun mesh, parented to the right hand
+  H.hand=byName.hand_r;H.gun=null;
+  hdPlay(H,'Idle_Loop','U');hdPlay(H,'Idle_Loop','L');H.mixer.update(0.01);
+  return H;}
+function hdTint(meshes,hex,k){for(const m of meshes||[]){const c=new THREE.Color(m.userData.base);if(hex!=null)c.lerp(new THREE.Color(hex),k);m.material.color.copy(c);}}
+// show one outfit per slot from the equipped (or transmogged) gear
+function hdDress(H,eq){if(!H)return;eq=eq||{};for(const k in H.parts)H.parts[k].forEach(m=>m.visible=false);
+  const show=(kit,names,it)=>{for(const nm of names){const ms=H.parts[kit+':'+nm];if(!ms)continue;ms.forEach(m=>m.visible=true);
+      const heavy=it&&it.fam==='heavy';hdTint(ms,it?(heavy?0x8a96a8:RAR[it.r]?RAR[it.r].h:null):null,it?(heavy?0.45:0.18):0);}};
+  const kitOf=it=>!it?'peasant':it.fam==='light'?'peasant':'ranger';
+  const body=eq.armor;show(kitOf(body),['Body','Body_Belt'],body);if(body&&body.fam==='heavy')show('ranger',['Acc_Pauldron','Acc_Pauldrons'],body);
+  const hands=eq.hands;show(kitOf(hands),['Arms'],hands);if(hands&&kitOf(hands)==='ranger')show('ranger',['Arms_Bracer'],hands);
+  show(kitOf(eq.legs),['Legs'],eq.legs);show(kitOf(eq.feet),['Feet','Feet_Boots'],eq.feet);
+  const hood=!!(eq.head&&eq.head.fam!=='light');if(hood)show('ranger',['Head_Hood'],eq.head);
+  (H.hair||[]).forEach(m=>m.visible=!hood);}
+function hdPlay(H,name,layer,once){const C=HD.clips[name];if(!C)return;const key=name+'_'+layer;let a=H.act[key];
+  if(!a){a=H.act[key]=H.mixer.clipAction(C[layer]);}
+  const prev=H.act[H.cur[layer]+'_'+layer];
+  if(once){a.reset();a.setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;}else a.setLoop(THREE.LoopRepeat,Infinity);
+  if(prev===a&&!once)return;a.enabled=true;a.setEffectiveWeight(1);a.play();if(prev&&prev!==a)prev.crossFadeTo(a,once?0.08:0.22,false);H.cur[layer]=name;}
+function hdWeaponKind(){const w=P.eq&&P.eq.weapon,W=w&&WTYPES[w.wt];if(!W)return 'gun';if(w.wt==='fist')return 'fist';if(W.melee)return 'blade';if(W.sk==='weave')return 'rod';return 'gun';}
+function hdAnimate(H,mv,atk,hurt){const now=T,dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
+  if(P.dead){if(!H.dead){H.dead=true;hdPlay(H,'Death01','U',true);hdPlay(H,'Death01','L',true);}H.mixer.update(dt);return;}
+  if(H.dead){H.dead=false;H.cur={U:'',L:''};}
+  const wk=hdWeaponKind();
+  if(P.mount){hdPlay(H,'Driving_Loop','U');hdPlay(H,'Driving_Loop','L');H.mixer.update(dt);return;}
+  const loco=mv>0.05?(mv>0.75?'Jog_Fwd_Loop':'Walk_Loop'):null;
+  const fight=!!(P.autoAtk||P.target&&!P.target.dead&&P.target.state==='chase');
+  const idleU=wk==='blade'||wk==='fist'?(fight?'Sword_Idle':'Idle_Loop'):wk==='rod'?(fight?'Spell_Simple_Idle_Loop':'Idle_Loop'):(fight?'Pistol_Idle_Loop':'Idle_Loop');
+  // attack: P.atkAnim is set to 0.2-0.4 on each swing/shot and counts down; fire a one-shot on the rising edge
+  if(atk>0&&!(H.lastAtk>0)){const a=wk==='blade'?'Sword_Attack':wk==='fist'?((H.jab=!H.jab)?'Punch_Jab':'Punch_Cross'):wk==='rod'?'Spell_Simple_Shoot':'Pistol_Shoot';H.oneshot={n:a,until:now+Math.min(0.9,HD.clips[a].full.duration)};hdPlay(H,a,'U',true);}
+  H.lastAtk=atk;
+  const casting=P.cast&&!P.cast.done;
+  if(H.oneshot&&now<H.oneshot.until){}else{H.oneshot=null;hdPlay(H,casting?'Spell_Simple_Idle_Loop':loco||idleU,'U');}
+  hdPlay(H,loco||(casting?'Spell_Simple_Idle_Loop':idleU),'L');
+  if(loco){const a=H.act[loco+'_L'];if(a)a.timeScale=loco==='Jog_Fwd_Loop'?Math.max(0.8,Math.min(1.3,(P.speedNow||7)/7)):1;}
+  H.mixer.update(dt);}
+// normalise each weapon model: points along +Z, grip at the origin, real-world length
+function hdWeapons(g){const out={};if(!g)return out;g.scene.updateMatrixWorld(true);
+  for(const wt in HD_WPN){const c=HD_WPN[wt];const src=g.scene.getObjectByName(c.n);if(!src)continue;const inner=src.clone(true);inner.position.set(0,0,0);
+    inner.traverse(o=>{if(o.isMesh){o.castShadow=false;o.frustumCulled=false;}});
+    const pivot=new THREE.Group();pivot.add(inner);if(c.ax==='-z')inner.rotation.y=Math.PI;else if(c.ax==='y')inner.rotation.x=Math.PI/2;
+    pivot.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(pivot),sz=b.getSize(new THREE.Vector3());const k=c.L/Math.max(sz.z,1e-6);
+    inner.scale.multiplyScalar(k);pivot.updateMatrixWorld(true);const b2=new THREE.Box3().setFromObject(pivot);
+    inner.position.set(-(b2.min.x+b2.max.x)/2,-(b2.min.y+b2.max.y)/2,-(b2.min.z+(b2.max.z-b2.min.z)*c.grip));
+    out[wt]=pivot;}
+  return out;}
+// keep the HD weapon in step with the classic gun mesh (shape/colour/scale are set by refreshGearVisual)
+function hdSyncGun(H){const src=PM&&PM.gun;if(!src||!H.hand)return;const w=P.eq&&P.eq.weapon,wt=w&&w.wt,model=HD.wpn&&HD.wpn[wt];
+  if(model){if(!H.gun||H.gun.userData.wt!==wt){if(H.gun)H.gun.parent&&H.gun.parent.remove(H.gun);H.gun=model.clone(true);H.gun.userData.wt=wt;H.hand.add(H.gun);}
+    H.gun.scale.setScalar(1/Math.max(0.001,PM.g.scale.y||1));H.gun.position.set(0,0.09,0.02);H.gun.rotation.set(Math.PI/2,0,0);H.gun.visible=!P.mount;return;}
+  if(!H.gun||H.gun.userData.src!==src.geometry){if(H.gun)H.gun.parent&&H.gun.parent.remove(H.gun);H.gun=new THREE.Mesh(src.geometry,src.material);H.gun.userData.src=src.geometry;H.hand.add(H.gun);}
+  H.gun.material=src.material;const wk=hdWeaponKind();
+  // the hand bone's local axes: +Y runs along the fingers; weapons point forward out of the fist
+  const s=1/Math.max(0.001,(PM.g.scale.y||1));H.gun.scale.set(src.scale.x*s,src.scale.y*s,src.scale.z*s);
+  H.gun.position.set(0,0.08,wk==='blade'?0.03:0);H.gun.rotation.set(Math.PI/2,0,0);H.gun.visible=wk!=='fist'&&!P.mount;}
+// hide every classic mesh under PM.g except the HD body (gear code keeps adding meshes, so this runs each frame)
+function hdHideClassic(R){const keep=R.hd&&R.hd.g;R.g.traverse(o=>{if(o===keep)return;if(o.isMesh||o.isSkinnedMesh){let p=o.parent,inHd=false;while(p){if(p===keep){inHd=true;break;}p=p.parent;}if(!inHd)o.visible=false;}});}
+function hdAttachPlayer(){if(!PM||!hdOn()||HD.state!=='ready'||PM.hd)return;
+  const CL=P.clothing||{};const hc=hairCol(CL.hairc);
+  let H;try{H=hdBuild({sex:CL.body,hair:CL.hair,hairc:hc,beard:CL.face==='grizzled'||CL.face==='weathered'});}catch(e){HD.state='error';HD.err=String(e).slice(0,120);return;}
+  PM.hd=H;PM.g.add(H.g);H.g.rotation.y=0;H.g.scale.setScalar(HD_SCALE);
+  hdDress(H,typeof xmogEq==='function'?xmogEq(P.eq):P.eq);
+  const a0=PM.anim;PM.anim=(t,mv,atk,hurt)=>{a0(t,mv,atk,hurt);try{hdNpcTick();}catch(e){}if(!PM.hd)return;hdHideClassic(PM);hdSyncGun(PM.hd);
+    // the classic death tips PM.g over; the HD death animation does its own fall
+    if(P.dead){PM.hd.g.rotation.set(-PM.g.rotation.x,0,-PM.g.rotation.z);}else PM.hd.g.rotation.set(0,0,0);
+    hdAnimate(PM.hd,mv,atk,hurt);};}
+const _buildPlayerModelHd=buildPlayerModel;
+buildPlayerModel=function(){_buildPlayerModelHd();try{hdAttachPlayer();}catch(e){HD.state='error';HD.err=String(e).slice(0,120);}};
+const _refreshGearVisualHd=refreshGearVisual;
+refreshGearVisual=function(){_refreshGearVisualHd.apply(this,arguments);try{if(PM&&PM.hd)hdDress(PM.hd,typeof xmogEq==='function'?xmogEq(P.eq):P.eq);}catch(e){}};
+HD.want=lookGet()==='hd';if(HD.want)setTimeout(()=>{try{hdLoad();}catch(e){}},300);
+function hdExports(){return {HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
+// Settings → Graphics: the Look switch
+const _gfxMenuHtmlHd=gfxMenuHtml;
+gfxMenuHtml=function(){const v=lookGet(),st=HD.state==='loading'?' (loading…)':HD.state==='error'?' (failed: '+esc(HD.err)+')':'';
+  return _gfxMenuHtmlHd()+`<div class="h4" style="margin-top:14px">🧍 Look <small style="text-transform:none;opacity:.7">beta</small></div><div class="tabs" style="margin:0"><button data-act="look" data-l="classic" class="${v==='classic'?'on':''}">Classic</button><button data-act="look" data-l="hd" class="${v==='hd'?'on':''}">HD${v==='hd'?st:''}</button></div>
+  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 8 MB, downloaded once and kept for offline play). Pick Male or Female at the apartment mirror. Other characters are unchanged for now.</div>`;};
+const _stage3ActHd=stage3Act;
+stage3Act=function(a,b){if(a==='look'){setLook(b.dataset.l,true);openMenu();return true;}return _stage3ActHd(a,b);};
+/* ---- HD townspeople: NPC humanoids ({npc:1}: quest givers, vendors, escorts, faction officers, AI teammates) ----
+   Registered at build time; within HD_NPC_R of the player they get an HD body (lazy, once) and their classic rig is hidden.
+   Sex/outfit/hair come from a hash of their colours, so the same NPC always looks the same. Markers added after the build
+   (quest "!" octahedrons etc.) stay visible: only the rig's own meshes and anything under its limb groups are hidden. */
+const HD_NPC_R=60;// HD_NPCS lives in game25 (registered by the buildHumanoid hook there, which runs before the world's NPCs are built)
+function hdNpcReg(R,body,accent,visor,o){const rig=new Set();R.g.traverse(c=>{if(c.isMesh)rig.add(c);});
+  R.hdSeed={h:hash32((body|0)*7+(accent|0)*13+(visor|0)),body,o:Object.assign({},o)};R.hdRig=rig;HD_NPCS.push(R);
+  const a0=R.anim;if(a0)R.anim=(t,mv,atk,hit)=>{a0(t,mv,atk,hit);R.hdIn={mv:mv||0,atk:atk||0,t:T};};}
+function hdNpcBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':'m';
+  const hair=o.hair||(o.helm||o.hood?'crop':['crop','long','knot','ridge','crop','none'][(h>>>3)%6]);
+  const H=hdBuild({sex,hair,hairc:o.hairc||[0x2a1d14,0x5a3a22,0xb89060,0x161210,0x8a8a90,0x7a3a1e][(h>>>7)%6],beard:sex==='m'&&(h>>>9)%3===0});
+  const fam=o.armed||o.helm||o.cape||o.heavy?'medium':'light';const r=(h>>>11)%3;
+  hdDress(H,{armor:{fam,r},hands:{fam,r},legs:{fam:'light',r:0},feet:{fam,r:0},head:o.helm||o.hood?{fam:'medium',r}:null});
+  // a touch of the NPC's own colour on the outfit, so vendors and officers keep their identity
+  for(const k in H.parts)if(/Body|Arms/.test(k))H.parts[k].forEach(m=>{if(m.visible)m.material.color.lerp(new THREE.Color(s.body),0.35);});
+  H.g.scale.setScalar(HD_SCALE);R.g.add(H.g);R.hd=H;H.npc=true;return H;}
+function hdHideRig(R){const limbs=[R.torso,R.head,R.armL,R.armR,R.legL,R.legR,R.hips].filter(Boolean);
+  R.g.traverse(c=>{if(!c.isMesh||c.visible===false)return;if(R.hdRig.has(c)){c.visible=false;return;}let p=c.parent;while(p&&p!==R.g){if(limbs.includes(p)){c.visible=false;return;}p=p.parent;}});}
+function hdNpcTick(){if(!hdOn()||HD.state!=='ready'||!P||!P.pos)return;const px=P.pos.x,pz=P.pos.z,now=T;let built=0;
+  for(let i=HD_NPCS.length-1;i>=0;i--){const R=HD_NPCS[i];const g=R.g;if(!g.parent){if(R.gone==null)R.gone=now;else if(now-R.gone>30)HD_NPCS.splice(i,1);continue;}R.gone=null;
+    if(!g.visible)continue;g.getWorldPosition(tmpV);if(Math.abs(tmpV.x-px)>HD_NPC_R||Math.abs(tmpV.z-pz)>HD_NPC_R)continue;
+    if(!R.hd){if(built>=2)continue;try{hdNpcBuild(R);built++;}catch(e){HD_NPCS.splice(i,1);continue;}}
+    hdHideRig(R);const H=R.hd,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
+    if(inp.atk>0&&!(H.lastAtk>0)){const a=R.melee?'Sword_Attack':'Pistol_Shoot';H.oneshot={n:a,until:now+0.8};hdPlay(H,a,'U',true);}H.lastAtk=inp.atk;
+    const loco=inp.mv>0.05?(inp.mv>0.75?'Jog_Fwd_Loop':'Walk_Loop'):null;const idle=(R.hdSeed.h>>>13)%4===0?'Idle_Talking_Loop':'Idle_Loop';
+    if(!(H.oneshot&&now<H.oneshot.until)){H.oneshot=null;hdPlay(H,loco||idle,'U');}hdPlay(H,loco||idle,'L');H.mixer.update(dt);}}
+// classic look again: drop the HD bodies and show the rigs
+function hdNpcClear(){for(const R of HD_NPCS)if(R.hd){R.g.remove(R.hd.g);R.hd=null;R.g.traverse(c=>{if(R.hdRig.has(c))c.visible=true;});}}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -9437,7 +9608,7 @@ $('#bBack').onclick=()=>{SFX.ui();toTitle();};
 $('#bDeploy').onclick=()=>{audioInit();const ck=showNameErr($('#nameIn'),$('#nameErr'),null);if(!ck.ok){SFX.err();toast(ck.msg);try{$('#nameIn').focus();}catch(e){}return;}SFX.quest();const name=ck.name;$('#nameIn').value='';delete $('#nameIn').dataset.touched;P.prof=selProf;
   const w=genItem(1,'weapon',0,{wt:PROF_WT[selProf]});const a=genItem(1,'armor',0,{fam:PROF_FAM[selProf]});w.name='Outpost-issue '+WTYPES[PROF_WT[selProf]].names[0];a.name='Worn '+AFAM[PROF_FAM[selProf]].pre[0]+' '+AFAM[PROF_FAM[selProf]].names.armor[0];w.req=[];a.req=[];w.bonus=[];a.bonus=[];
   const i1=genImplant(3,'eyes',0),i2=genImplant(8,'head',1);
-  startGame({v:2,id:newCharId(),created:Date.now(),name,prof:selProf,breed:selBreed,faction:{side:selFac,rep:{combine:0,ashborn:0}},level:1,xp:0,credits:25,inv:[i1,i2].concat(selProf==='wild'?[genDisk('morph_wolf')]:[]),eq:{weapon:w,armor:a},clothing:{hair:selHair,hairc:selHairC,face:selFace},imps:{},ab:{},sb:{},sp:SP_START,consum:{focus:1},stims:3,story:newStory()});
+  startGame({v:2,id:newCharId(),created:Date.now(),name,prof:selProf,breed:selBreed,faction:{side:selFac,rep:{combine:0,ashborn:0}},level:1,xp:0,credits:25,inv:[i1,i2].concat(selProf==='wild'?[genDisk('morph_wolf')]:[]),eq:{weapon:w,armor:a},clothing:{body:selBody,hair:selHair,hairc:selHairC,face:selFace},imps:{},ab:{},sb:{},sp:SP_START,consum:{focus:1},stims:3,story:newStory()});
   if(selProf==='wild')setTimeout(()=>log('🐺 Wildshifter: your first Morph disk (<b>Dune Wolf</b>) is in your 🎒 pack. Use it to learn the morph, then slot it in the 📖 Weave Book.'),3200);
   setTimeout(()=>log('Tip: open 📈 <b>Skills</b> to spend points. In 🎒 <b>Implants</b>, a Focus Stim lets you install the QL 8 Cortex implant early.'),2500);};
 $('#bRespawn').onclick=()=>{SFX.ui();respawnPlayer();};
@@ -9461,7 +9632,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports,cloudExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports,cloudExports,hdExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

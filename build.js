@@ -14,14 +14,20 @@ const sha8=s=>crypto.createHash('sha1').update(s).digest('hex').slice(0,8);
 // Three.js: drop the r150 "build/three.min.js is deprecated" console.warn (it would show in every player's console)
 let three=rd('vendor/three.min.js').replace(/console\.warn\( 'Scripts "build\/three\.js"[^;]*?\);/,'');
 if(/<\/script/i.test(three))throw new Error('three.min.js contains </script');
+// HD look: GLTFLoader + SkeletonUtils (three r150 examples, converted to a plain script by tools/hd/three-conv.js) ride in the same file
+three+='\n'+rd('vendor/three-gltf.js');
+if(/<\/script/i.test(three))throw new Error('three-gltf.js contains </script');
 const THREE_V='r'+rd('vendor/THREE_VERSION').trim().split('.')[1]+'-'+sha8(three);
 const THREE_URL='three.min.js?v='+THREE_V;   // versioned URL: a game update re-downloads only index.html
 
 // Game code: these files are concatenated IN THIS ORDER into one <script> (later files patch earlier ones; game4 boots the game last)
 const ORDER=['game1','game25','game2','game3','game5','game6','game7','game8','game9','game10','game11','game12','game13','game14','game15','game16',
   'game17','game18','game19','game20','game21','game22','game23','game24','game26','game27','game28','game29','game30','game31','game32','game33',
-  'game34','game35','game36','game37','game38','game39','game40','game41','game42','game43','game4'];
-const game=ORDER.map(f=>rd(f+'.js')).join('\n');
+  'game34','game35','game36','game37','game38','game39','game40','game41','game42','game43','game44','game4'];
+// HD look assets: src/hd/* are copied to hd/; their URLs carry ?v=<hash of all of them> (__HDV__ in game44.js)
+const HD_FILES=fs.readdirSync(path.join(SRC,'hd')).filter(f=>/\.(glb|txt)$/.test(f)).sort();
+const HDV=sha8(Buffer.concat(HD_FILES.map(f=>fs.readFileSync(path.join(SRC,'hd',f)))));
+const game=ORDER.map(f=>rd(f+'.js')).join('\n').split('__HDV__').join(HDV);
 const BUILD=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'-'+sha8(game);
 
 let html=rd('template.html');
@@ -40,4 +46,5 @@ w('manifest.webmanifest',JSON.stringify({name:'Dustreach — Kessra Frontier',sh
   icons:[{src:'icon-180.png',sizes:'180x180',type:'image/png',purpose:'any'},{src:'icon-512.png',sizes:'512x512',type:'image/png',purpose:'any'}]},null,1));
 w('icon-180.png',Buffer.from(rd('icon.b64').trim(),'base64'));
 fs.copyFileSync(path.join(SRC,'icon-512.png'),path.join(OUT,'icon-512.png'));
+fs.mkdirSync(path.join(OUT,'hd'),{recursive:true});for(const f of HD_FILES)fs.copyFileSync(path.join(SRC,'hd',f),path.join(OUT,'hd',f));
 console.log('DUSTREACH build',BUILD,'->',OUT,'| index.html',fs.statSync(path.join(OUT,'index.html')).size,'bytes |',THREE_URL);

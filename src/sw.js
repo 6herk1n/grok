@@ -8,7 +8,8 @@ const EXTRA=['./manifest.webmanifest','./icon-180.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>Promise.all([
   ...CORE.map(u=>fetch(u,{cache:'reload'}).then(r=>{if(!r.ok)throw new Error(u+' '+r.status);return c.put(u,r);})),
   ...EXTRA.map(u=>fetch(u,{cache:'reload'}).then(r=>r.ok?c.put(u,r):null).catch(()=>null))])).then(()=>self.skipWaiting()));});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('dustreach-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+const HDC='dustreach-hd';// HD look models (hd/*.glb?v=hash): own cache, kept across builds, old versions dropped when a new one is stored
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('dustreach-')&&k!==CACHE&&k!==HDC).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 function isPage(req,url){return req.mode==='navigate'||/\/(index\.html)?$/.test(url.pathname);}
 self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==location.origin)return;
   if(isPage(req,url)){
@@ -18,6 +19,7 @@ self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')retu
       fetch(req).then(r=>{if(r.ok&&r.type==='basic'&&!url.search){const cp=r.clone();caches.open(CACHE).then(c=>c.put('./index.html',cp));}clearTimeout(t);if(!done){done=true;resolve(r);}})
       .catch(()=>{clearTimeout(t);fallback().then(r=>{if(!done){done=true;resolve(r||new Response('DUSTREACH is offline and not cached yet. Open it once while online.',{status:503,headers:{'Content-Type':'text/plain'}}));}});});}));
     return;}
+  if(/\/hd\/[^/]+$/.test(url.pathname)){e.respondWith(caches.open(HDC).then(c=>c.match(req).then(hit=>hit||fetch(req).then(r=>{if(r.ok&&r.type==='basic'){c.put(req,r.clone());c.keys().then(ks=>ks.forEach(k=>{const u=new URL(k.url);if(u.pathname===url.pathname&&u.search!==url.search)c.delete(k);}));}return r;}))));return;}
   // other same-origin files (three.min.js?v=…, manifest, icons): exact cache hit first, then network, then any cached copy when offline
   e.respondWith(caches.open(CACHE).then(c=>c.match(req).then(hit=>hit||fetch(req).then(r=>{if(r.ok&&r.type==='basic')c.put(req,r.clone());return r;})
     .catch(err=>c.match(req,{ignoreSearch:true}).then(h=>h||caches.match(req,{ignoreSearch:true})).then(h=>{if(h)return h;throw err;})))));});
