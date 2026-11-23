@@ -29,6 +29,10 @@ jobs:
       - name: Built files match src/
         run: node tests/check_build.js
 
+      # Fails if the game stores anything in localStorage that Export save would leave behind
+      - name: Every save key is exported
+        run: node tests/check_save_keys.js
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

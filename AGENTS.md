@@ -44,6 +44,7 @@ Each build gets a stamp `<UTC yyyymmddThhmmss>-<sha1 of the game code, 8 hex>`. 
 ### Tests
 
 - `tests/check_build.js` (Node, no dependencies): also a deploy gate, run first by `pages.yml`. Rebuilds `src/` into a temp folder and fails if the committed root files differ (only the time part of the build stamp is ignored). If it fails, you edited a built file or forgot to rebuild: fix `src/`, run `node build.js`, commit both.
+- `tests/check_save_keys.js` (Node, no dependencies): also a deploy gate. Every `'dustreach_*'` localStorage key in `src/` must be in `EXP_KEYS` (`src/game20.js`) so Export/Import carry it, or in the test's `DEVICE_ONLY` list with a reason (settings, backups, reminders). **If you add a new saved key, add it to `EXP_KEYS` and `EXP_OPT`** (`EXP_OPT` = keys an older save file may not have; import leaves those alone instead of wiping them). Keys must be fixed literals or `*_KEY` constants, never built at run time.
 - `tests/smoke_test.py` (Python Playwright): the deploy gate run by `pages.yml`. Run it before every push (see above).
 - `tests/smoke.js` (Node Playwright, `npm install` first): the builder's quick pre-publish check (iPad-sized touch viewport, save/reload).
 - `tests/ci_smoke.mjs` (Node Playwright): info only, not run by CI. `SMOKE_ONLY=desktop|ipad|phone` runs one pass (phone = 750x342 with the HUD-overlap check; the same check now gates deploys via `smoke_test.py`).
