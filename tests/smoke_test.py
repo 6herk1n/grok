@@ -315,14 +315,23 @@ async def main():
             await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
             await pg.wait_for_function("window.__dr && window.__dr.HD && (window.__dr.HD.state==='ready'||window.__dr.HD.state==='error') && window.__dr.hdPlayer", timeout=60000)
             await pg.keyboard.down("KeyW"); await pg.wait_for_timeout(1200); await pg.keyboard.up("KeyW")
-            await pg.evaluate("window.__dr.P.atkAnim=0.35"); await pg.wait_for_timeout(600)
+            await pg.evaluate("window.__dr.P.atkAnim=0.35")
+            # the weapon model attaches on the next animated frame; CI frames are slow, so poll for it
+            try:
+                await pg.wait_for_function("(()=>{const H=window.__dr.hdPlayer;return !!(H&&H.gun&&H.gun.userData.wt)})()", timeout=30000)
+            except Exception:
+                pass
             st = await pg.evaluate("""(()=>{const d=window.__dr,H=d.hdPlayer;return {state:d.HD.state,err:d.HD.err,sex:H&&H.sex,
               gun:!!(H&&H.gun&&H.gun.userData.wt==='blade'),npcs:d.HD_NPCS.filter(R=>R.hd).length};})()""")
             if st["state"] != "ready" or st["sex"] != "f" or not st["gun"]:
                 problems.append(f"[hd look] HD player not set up: {st}")
             elif st["npcs"] < 1:
                 problems.append(f"[hd look] no NPC near Halden's Rest got an HD body: {st}")
-            await pg.evaluate("window.__dr.setLook('classic')"); await pg.wait_for_timeout(500)
+            await pg.evaluate("window.__dr.setLook('classic')")
+            try:
+                await pg.wait_for_function("!window.__dr.hdPlayer && !window.__dr.HD_NPCS.some(R=>R.hd)", timeout=15000)
+            except Exception:
+                pass
             if await pg.evaluate("!!window.__dr.hdPlayer || window.__dr.HD_NPCS.some(R=>R.hd)"):
                 problems.append("[hd look] switching to Classic left HD bodies behind")
         except Exception as e:
