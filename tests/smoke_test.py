@@ -375,6 +375,25 @@ async def main():
         print("  ok  invasions" if not any(x.startswith("[invasions]") for x in problems) else "  FAIL invasions")
         await ctx.close()
 
+        # research (game47): at the level cap XP becomes research ranks; the panel's XP split buttons work
+        where[0] = "research"
+        ctx, pg = await fresh()
+        await pg.click("#bNew"); await pg.fill("#nameIn", "Smoke rs"); await pg.click("#bDeploy")
+        try:
+            await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
+            r = await pg.evaluate("""(()=>{const d=window.__dr;d.startGame(d.simChar('weaver',100,2,undefined,'Smoke rs'));const hp0=d.S.maxHp;
+              d.rschi().sel='hp';d.gainXp(d.rschCost(1)+5);return {rank:d.rschRank('hp'),grew:d.S.maxHp>hp0};})()""")
+            if r["rank"] != 1 or not r["grew"]:
+                problems.append(f"[research] level-cap XP did not become a Constitution rank: {r}")
+            await pg.evaluate("window.__dr.startGame(window.__dr.simChar('mender',30,2,undefined,'Smoke rs2'));window.__dr.openResearch()")
+            await pg.click('#pbody [data-act="rspct"][data-p="50"]')
+            if await pg.evaluate("window.__dr.rschi().pct") != 50:
+                problems.append("[research] the 50% button did not set the XP split")
+        except Exception as e:
+            problems.append(f"[research] {str(e)[:200]}")
+        print("  ok  research" if not any(x.startswith("[research]") for x in problems) else "  FAIL research")
+        await ctx.close()
+
         for (w, h) in PHONE_VIEWS:
             where[0] = f"phone {w}x{h}"
             ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2,
