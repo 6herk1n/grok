@@ -351,10 +351,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261120T161456-0ddf8473">
+<meta name="dr-build" content="20261123T075102-da7ae477">
 <script>
 (function(){
-var BUILD='20261120T161456-0ddf8473';window.DR_BUILD=BUILD;
+var BUILD='20261123T075102-da7ae477';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -3188,7 +3188,7 @@ function aptInteract(p){const d=DUN;for(const q of d.portals)if(Math.hypot(p.x-q
   if(Math.hypot(p.x-APT.bench.x,p.z-APT.bench.z)<2.4)return {k:'bench',label:'🛠 Workbench'};if(Math.hypot(p.x-APT.decor.x,p.z-APT.decor.z)<2.4)return {k:'decor',label:'🪴 Decor'};if(Math.hypot(p.x-APT.troph.x,p.z-APT.troph.z)<2.0)return {k:'trophy',label:'🏆 Trophy wall'};if(Math.hypot(p.x-APT.home.x,p.z-APT.home.z)<2.0)return {k:'home',label:'🏠 Home'};return null;}
 
 /* ---------- shared locker (bank across all characters) ---------- */
-const BANK_KEY='dustreach_bank_v1',BANK_CAP=120;
+const BANK_KEY='dustreach_bank_v1',BANK_CAP=400;
 function loadBank(){let b=null;try{b=JSON.parse(localStorage.getItem(BANK_KEY)||'null');}catch(e){}if(!b||typeof b!=='object')b={};
   return {v:1,items:(Array.isArray(b.items)?b.items:[]).map(migrateItem).filter(Boolean),bag:normBag(b.bag),credits:Math.max(0,Math.floor(+b.credits||0)),deco:(Array.isArray(b.deco)?b.deco:[]).filter(x=>x&&DECOR[x.d]),decoStore:(Array.isArray(b.decoStore)?b.decoStore:[]).filter(k=>DECOR[k])};}
 function writeBank(b){lsSet(BANK_KEY,JSON.stringify(b));}

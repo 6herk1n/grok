@@ -271,7 +271,7 @@ function aptInteract(p){const d=DUN;for(const q of d.portals)if(Math.hypot(p.x-q
   if(Math.hypot(p.x-APT.bench.x,p.z-APT.bench.z)<2.4)return {k:'bench',label:'🛠 Workbench'};if(Math.hypot(p.x-APT.decor.x,p.z-APT.decor.z)<2.4)return {k:'decor',label:'🪴 Decor'};if(Math.hypot(p.x-APT.troph.x,p.z-APT.troph.z)<2.0)return {k:'trophy',label:'🏆 Trophy wall'};if(Math.hypot(p.x-APT.home.x,p.z-APT.home.z)<2.0)return {k:'home',label:'🏠 Home'};return null;}
 
 /* ---------- shared locker (bank across all characters) ---------- */
-const BANK_KEY='dustreach_bank_v1',BANK_CAP=120;
+const BANK_KEY='dustreach_bank_v1',BANK_CAP=400;
 function loadBank(){let b=null;try{b=JSON.parse(localStorage.getItem(BANK_KEY)||'null');}catch(e){}if(!b||typeof b!=='object')b={};
   return {v:1,items:(Array.isArray(b.items)?b.items:[]).map(migrateItem).filter(Boolean),bag:normBag(b.bag),credits:Math.max(0,Math.floor(+b.credits||0)),deco:(Array.isArray(b.deco)?b.deco:[]).filter(x=>x&&DECOR[x.d]),decoStore:(Array.isArray(b.decoStore)?b.decoStore:[]).filter(k=>DECOR[k])};}
 function writeBank(b){lsSet(BANK_KEY,JSON.stringify(b));}
