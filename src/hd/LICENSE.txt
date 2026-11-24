@@ -5,6 +5,8 @@ All models by Quaternius (https://quaternius.com):
     Universal Animation Library (Standard): downloaded 2026-11-23, licence file in the packs: CC0 1.0
   - weapons.glb: Sci-Fi Guns (May 2018), Animated FPS Guns (Jun 2018), Medieval Weapons (Sept 2018),
     RPG Asset Pack (May 2017) free packs, converted from FBX with three.js FBXLoader + GLTFExporter
+  - mech.glb: Animated Mech Pack (Mar 2021, CC0): Stan, Mike, Leela; wolf.glb: Ultimate Animated Animals (CC0): Wolf
+    (downloaded 2026-11-24, packed by tools/hd/beasts.mjs)
   - ship.glb: LowPoly Spaceships (Jan 2018) free pack, Spaceship5, converted the same way (downloaded 2026-11-24)
 Quaternius's current licence (Quaternius Asset License v1.0) also allows use in games, free, no credit required,
 but not re-distributing the models as an asset pack. These files are part of the game: please don't extract

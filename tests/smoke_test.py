@@ -336,6 +336,19 @@ async def main():
             except Exception as e:
                 st2 = await pg.evaluate("(()=>{const e=window.__hdE;return {reg:!!e.R.hdSeed,hd:!!e.R.hd,dead:e.dead}})()")
                 problems.append(f"[hd look] HD enemy not built/animated: {st2} {str(e)[:120]}")
+            # HD robots and hounds: a Combine Sentry (mech) and an Ash Hound (wolf) get their models at a sane size; the hound dies with its Death clip
+            await pg.evaluate("(()=>{const d=window.__dr;window.__hdB=[d.makeEnemy('sentry',d.P.pos.x-4,d.P.pos.z+4,5,true),d.makeEnemy('ashhound',d.P.pos.x+3,d.P.pos.z-4,5,true)];})()")
+            try:
+                await pg.wait_for_function("window.__hdB.every(e=>e.R.hd&&e.R.hd.beast)", timeout=30000)
+                # posed height (measured from the skinned vertices) times the applied scale must land on the type's target height
+                hs = await pg.evaluate("window.__hdB.map(e=>{const B=e.R.hdB,D=window.__dr.HD_BEAST_DIM[B.n];return D?+(D.h*e.R.hd.o.scale.y/B.h).toFixed(2):0;})")
+                if not all(0.9 < h < 1.1 for h in hs):
+                    problems.append(f"[hd look] HD robot/hound size off (height / target {hs})")
+                await pg.evaluate("(()=>{const d=window.__dr,e=window.__hdB[1];e.hp=1;d.killEnemy(e);})()")
+                await pg.wait_for_function("(()=>{const H=window.__hdB[1].R.hd;return H&&H.dead&&H.cur==='Death'})()", timeout=20000)
+            except Exception as e:
+                st3 = await pg.evaluate("window.__hdB.map(e=>({reg:!!e.R.hdB,hd:!!e.R.hd,dead:e.dead,cur:e.R.hd&&e.R.hd.cur}))")
+                problems.append(f"[hd look] HD robot/hound not built/animated: {st3} {str(e)[:120]}")
             await pg.evaluate("window.__dr.setLook('classic')")
             try:
                 await pg.wait_for_function("!window.__dr.hdPlayer && !window.__dr.HD_NPCS.some(R=>R.hd)", timeout=15000)
