@@ -134,9 +134,18 @@ function vgDie(){const R=vgRun();if(!R)return;R.over=true;R.phase='over';P.dead=
   if(!SIMP)setTimeout(()=>{if(P.dead)$('#death').classList.remove('hidden');},1200);}
 /* ---------- floors ---------- */
 function vgParty(){return allies.filter(a=>a.comp&&!a.dead).length;}
+// 2026-11-24 (Claude): floor-21 cliff fix. Each band's mob HP is scaled down to the first two bands' average base HP (never up),
+// and the floor elite is never a warding type (Frostward Sentinel / Riftwarder: a x3 HP elite shielding the whole floor at -60%)
+// or a splitting one (Glacier Shambler etc.: the band's heaviest body, x3, then shardlings). From floor 21 a wave has 5 mobs
+// instead of 4: each gets 4/5 of the HP and damage so the wave's totals stay the same (more bodies, not a bigger wave).
+let VG_HPN=null;
+function vgBandHpK(B){if(!VG_HPN){const av=b=>{const h=b.mobs.map(k=>ETYPES[k]&&ETYPES[k].hp).filter(Boolean);return h.length?h.reduce((x,y)=>x+y,0)/h.length:1;};
+  const ref=(av(VG_BANDS[0])+av(VG_BANDS[1]))/2;VG_HPN=VG_BANDS.map(b=>Math.min(1,ref/av(b)));}return VG_HPN[VG_BANDS.indexOf(B)]||1;}
+function vgCount(f){return Math.min(5,3+Math.floor((Math.max(1,f)-1)/10));}
+function vgEliteType(B,f){for(let i=1;i<=B.mobs.length;i++){const t=B.mobs[(f+i)%B.mobs.length];if(!ETYPES[t]||ETYPES[t].ai!=='ward'&&ETYPES[t].ai!=='split')return t;}return B.mobs[(f+1)%B.mobs.length];}
 function vgMob(t,x,z,o){o=o||{};const R=vgRun(),f=R.f,lv=vgLv();const e=o.elite?makeElite(t,x,z,lv,o.name,o.col,o.eo):makeEnemy(t,x,z,lv,true);e.dun=true;e.vg=1;e.T=Object.assign({},e.T);
   const n=vgParty(),af=vgAffixes(f);let hk=vgHpK(f)*(1+0.32*n),dk=vgDmgK(f)*(1+0.05*n);
-  if(o.guard){if(af.includes('warlord')){hk*=1.15;dk*=1.1;}}else if(af.includes('bulwark'))hk*=1.25;
+  if(o.guard){if(af.includes('warlord')){hk*=1.15;dk*=1.1;}}else{const nk=Math.min(1,4/vgCount(f));hk*=vgBandHpK(vgBand(f))*nk;dk*=nk;if(af.includes('bulwark'))hk*=1.25;}
   e.maxHp=e.hp=Math.max(1,Math.round(e.maxHp*hk));e.dmg*=dk;e.baseVgDmg=e.dmg;e.leash=90;e.wr=1.5;e.home.set(x,0,z);
   ringFx(x,z,vgBand(f).glow,2.2,0.5);aggro(e);return e;}
 function vgSpot(i,n){const a=-Math.PI/2+((i+0.5)/n-0.5)*2.6;const r=10.5+(i%2)*1.5;return [Math.cos(a)*r,-1+Math.sin(a)*r];}
@@ -148,8 +157,8 @@ function vgWave(){const R=vgRun(),f=R.f,B=vgBand(f);R.wave++;
     e.vgG={big,slam:T+5,pools:T+8,brim:T+10,adds:{},enr:false};R.gd=e;
     if(f>=10)for(let i=0;i<2;i++){const s=vgSpot(i*3,4);vgMob(B.mobs[i%B.mobs.length],s[0],s[1]);}
     banner(G.n.toUpperCase(),big?'Landing Guardian of floor '+f:'Guardian of floor '+f);return;}
-  const n=Math.min(5,3+Math.floor((f-1)/10));for(let i=0;i<n;i++){const s=vgSpot(i,n);vgMob(B.mobs[(i+R.wave+f)%B.mobs.length],s[0],s[1]);}
-  if(R.wave===R.waves&&f>=3){const t=B.mobs[(f+1)%B.mobs.length];vgMob(t,0,-8,{elite:1,name:'Stairbound '+(ETYPES[t]?ETYPES[t].name:'Elite'),col:B.glow,eo:{hp:3,dmg:1.25,scale:1.35,xp:3}});}
+  const n=vgCount(f);for(let i=0;i<n;i++){const s=vgSpot(i,n);vgMob(B.mobs[(i+R.wave+f)%B.mobs.length],s[0],s[1]);}
+  if(R.wave===R.waves&&f>=3){const t=vgEliteType(B,f);vgMob(t,0,-8,{elite:1,name:'Stairbound '+(ETYPES[t]?ETYPES[t].name:'Elite'),col:B.glow,eo:{hp:3,dmg:1.25,scale:1.35,xp:3}});}
   if(R.wave>1)toast('🗼 Wave '+R.wave+'/'+R.waves);}
 function vgGuardTick(){const R=vgRun(),e=R&&R.gd;if(!e||e.dead||!e.vgG)return;const g=e.vgG;if(e.state!=='chase'&&!P.dead)aggro(e);const f=R.f,hpF=e.hp/e.maxHp;
   if(T>=g.slam&&T>=(e.stunUntil||0)){g.slam=T+9;e.rootUntil=T+1.7;telegraph(e,e.pos.x,e.pos.z,4.2,1.7,e.dmg*2.2,'Stair Quake');toast('⚠ Stair Quake: get out of the circle!');tone(220,0.5,'sawtooth',0.05,300);}
@@ -258,4 +267,4 @@ function vgSimClimb(start,maxF,maxT){if(!vgEnter(start||1))return {err:'enter fa
     const t=+(T-ft0).toFixed(1);rows.push({f,t,hp0:+hp0.toFixed(2),hp1:+(P.hp/S.maxHp).toFixed(2),takenPct:+(taken/S.maxHp).toFixed(2)});
     if(P.dead||R.over){res='death';break;}if(R.phase==='fight'){res='timeout';break;}if(R.phase!=='count'){res='stuck:'+R.phase;break;}}
   const out={res,reached:R.f,cleared:res==='max'?R.f-1:R.f-1,boons:Object.assign({},R.boons),marks:R.marks,rows,simT:Math.round(T-R.t0)};vgLeave(P.dead);return out;}
-function vgExports(){return {VG_POS,VG_USE,VG_BANDS,VG_GUARD,VG_BOONS,VG_SHOP,VG_WEEKLY,normVg,vgFields,vgi,vgAffixes,vgHpK,vgDmgK,vgMarks,vgEnter,vgLeave,vgPick,vgRoll,vgApply,vgClear,vgBuy,openVg,vgToggle,vgCanEnter,vgWeekBest,vgWeekMask,vgSimClimb,vgOut,vgIn,vgDo,vgInteract,get vgRun(){return vgRun();}};}
+function vgExports(){return {VG_POS,VG_USE,VG_BANDS,VG_GUARD,VG_BOONS,VG_SHOP,VG_WEEKLY,normVg,vgFields,vgi,vgAffixes,vgHpK,vgDmgK,vgMarks,vgEnter,vgLeave,vgPick,vgRoll,vgApply,vgClear,vgBuy,openVg,vgToggle,vgCanEnter,vgWeekBest,vgWeekMask,vgSimClimb,vgBandHpK,vgEliteType,vgOut,vgIn,vgDo,vgInteract,get vgRun(){return vgRun();}};}
