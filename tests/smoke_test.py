@@ -327,6 +327,15 @@ async def main():
                 problems.append(f"[hd look] HD player not set up: {st}")
             elif st["npcs"] < 1:
                 problems.append(f"[hd look] no NPC near Halden's Rest got an HD body: {st}")
+            # HD enemies: a raider next to the player gets an HD body with a rifle, and dies with the Death01 clip
+            await pg.evaluate("(()=>{const d=window.__dr;window.__hdE=d.makeEnemy('raider',d.P.pos.x+4,d.P.pos.z+4,5,true);})()")
+            try:
+                await pg.wait_for_function("(()=>{const e=window.__hdE;return !!(e.R.hd&&e.R.hd.gun)})()", timeout=30000)
+                await pg.evaluate("(()=>{const d=window.__dr,e=window.__hdE;e.hp=1;d.killEnemy(e);})()")
+                await pg.wait_for_function("(()=>{const H=window.__hdE.R.hd;return H&&H.dead&&H.cur.U==='Death01'})()", timeout=20000)
+            except Exception as e:
+                st2 = await pg.evaluate("(()=>{const e=window.__hdE;return {reg:!!e.R.hdSeed,hd:!!e.R.hd,dead:e.dead}})()")
+                problems.append(f"[hd look] HD enemy not built/animated: {st2} {str(e)[:120]}")
             await pg.evaluate("window.__dr.setLook('classic')")
             try:
                 await pg.wait_for_function("!window.__dr.hdPlayer && !window.__dr.HD_NPCS.some(R=>R.hd)", timeout=15000)
@@ -353,6 +362,12 @@ async def main():
             await pg.wait_for_function("window.__dr.SYM.live && window.__dr.SYM.live.e", timeout=10000)
             await pg.evaluate("(()=>{const d=window.__dr,e=d.SYM.live.e;d.P.pos.set(e.pos.x+4,d.P.pos.y,e.pos.z);e.hp=1;d.killEnemy(e);})()")
             await pg.wait_for_function("(window.__dr.P.sym.kills.hesk|0)>=1 && (window.__dr.loots||[]).some(l=>l.item&&l.item.sym)", timeout=30000)
+            # Collection log page: hold the dropped symbiant, scan, the sym sub-tab shows the boss and the symbiant as collected
+            await pg.evaluate("(()=>{const d=window.__dr;const l=d.loots.find(l=>l.item&&l.item.sym);d.P.inv.push(l.item);d.colScan(false);d.openAch('coll');})()")
+            await pg.click('#pbody [data-act="asub"][data-s="sym"]')
+            got = await pg.evaluate("(()=>{const t=document.querySelector('#pbody').innerText;return /POCKET BOSSES 1\\/10/i.test(t)&&Object.keys(window.__dr.P.sym.got).length===1;})()")
+            if not got:
+                problems.append("[symbiants] Collection log page doesn't show the kill / collected symbiant")
         except Exception as e:
             problems.append(f"[symbiants] {str(e)[:200]}")
         print("  ok  symbiants" if not any(x.startswith("[symbiants]") for x in problems) else "  FAIL symbiants")

@@ -353,10 +353,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261124T081729-35b54edc">
+<meta name="dr-build" content="20261124T083932-7ce74c2e">
 <script>
 (function(){
-var BUILD='20261124T081729-35b54edc';window.DR_BUILD=BUILD;
+var BUILD='20261124T083932-7ce74c2e';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1191,7 +1191,9 @@ function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().
 // HD look (game44.js): NPC humanoids ({npc:1}) register at build time so the HD look can upgrade them near the player later.
 // This hook sits here (not in game44) because the world's NPCs are built by files that load before game44.
 var HD_NPCS=[];
-{const _bh=buildHumanoid;buildHumanoid=function(body,accent,visor,skin,o){const R=_bh(body,accent,visor,skin,o);if(o&&o.npc&&!o.robot)try{hdNpcReg(R,body,accent,visor,o);}catch(e){}return R;};}
+// Enemies (no npc flag) only keep their colours/options here: they register in a makeEnemy wrapper (game44) once bakeRig has merged them.
+{const _bh=buildHumanoid;buildHumanoid=function(body,accent,visor,skin,o){const R=_bh(body,accent,visor,skin,o);if(o&&o.npc&&!o.robot)try{hdNpcReg(R,body,accent,visor,o);}catch(e){}
+  else R.hdArgs={body,accent,visor,o:Object.assign({},o||{})};return R;};}
 
 /* ---------------- models ---------------- */
 function buildHumanoid_v1(body,accent,visor,skin){
@@ -8603,7 +8605,7 @@ function openAch(tab){if(tab)AP.tab=tab;colScan(true);if(AP.tab==='ach')achTick(
 function cell(got,ic,name,sub,c){return `<button class="sbtn" data-act="acell" data-n="${esc(name)}" data-s="${esc(sub)}" title="${esc(name)}" style="width:48px;height:48px;min-width:44px;margin:2px;padding:0;font-size:20px;${got?'background:#2a2016;border:2px solid '+c:'background:#16120e;border:2px dashed #4a4038;opacity:.6'}">${got?ic:'❔'}</button>`;}
 function uIc(u){return u.kind==='disk'?'💿':u.kind==='imp'?'🔩':u.slot==='weapon'?(WTYPES[u.wt]?WTYPES[u.wt].ic:'⚔'):({head:'⛑',armor:'🦺',hands:'🧤',legs:'👖',feet:'🥾'})[u.slot]||'◆';}
 function uCell(k){const u=UNIQUES[k];if(!u)return '';const r=u.rar||(u.relic?5:4);return cell(!!colli().u[k],uIc(u),u.name,(RAR[r]||RAR[4]).n+(u.d&&DUNGEONS[u.d]?' · '+DUNGEONS[u.d].name:''),RAR[r].c);}
-function collHtml(){const C=colli();let h='<div style="display:flex;flex-wrap:wrap">'+[['boss','💀 Boss drops'],['sun','☀ Sunforged & Relics'],['dyna','💀 Dyna drops'],['rare','✦ Rare spawns'],['furn','🛋 Furniture'],['titles','🎖 Titles'],['schem','📐 Schematics']].map(([k,n])=>chip('asub','s',k,n,AP.sub===k)).join('')+'</div>';
+function collHtml(){const C=colli();let h='<div style="display:flex;flex-wrap:wrap">'+[['boss','💀 Boss drops'],['sun','☀ Sunforged & Relics'],['dyna','💀 Dyna drops'],['rare','✦ Rare spawns'],['furn','🛋 Furniture'],['titles','🎖 Titles'],['schem','📐 Schematics'],['sym','🧩 Symbiants']].map(([k,n])=>chip('asub','s',k,n,AP.sub===k)).join('')+'</div>';
   h+=`<div id="acellInfo" style="font-size:13px;min-height:20px;margin:4px 0;color:#ffd27a">${AP.sel?esc(AP.sel):'Tap a square to see what it is. Coloured = collected (held, worn, banked or learned), ❔ = still missing.'}</div>`;const s=AP.sub;
   if(s==='boss'){const L=[...DUNL(),...Object.keys(RAIDS).filter(k=>RAIDS[k].loot&&Object.keys(RAIDS[k].loot).some(b=>RAIDS[k].loot[b]&&RAIDS[k].loot[b].items))];if(!AP.dun||!L.includes(AP.dun))AP.dun=L[0];
     h+='<div style="display:flex;flex-wrap:wrap">'+L.map(k=>{const D=DUNGEONS[k]||RAIDS[k];const ids=new Set();for(const b in D.loot){const t=D.loot[b];if(t&&t.items){t.items.forEach(x=>ids.add(x));if(t.relic)ids.add(t.relic);if(t.disk)ids.add(t.disk);}}const g=[...ids].filter(x=>C.u[x]).length;return chip('adun','k',k,esc(D.name)+' <small>'+g+'/'+ids.size+'</small>',AP.dun===k);}).join('')+'</div>';
@@ -8619,6 +8621,7 @@ function collHtml(){const C=colli();let h='<div style="display:flex;flex-wrap:wr
   else if(s==='furn'){const a=aptLoad();h+='<div style="display:flex;flex-wrap:wrap">'+Object.keys(FURN).map(k=>{const F=FURN[k];return cell((a.own[k]|0)>0,F.ic,F.n,F.buy?'Bought':F.craft?'Crafted':F.ach?'Achievement: '+F.ach:F.drop==='hard'?'Hard-mode drop':'Boss drop','#ffc85a');}).join('')+'</div>';}
   else if(s==='titles'){const all=[...new Set([...HM_TITLES.map(t=>t.n),'Sunbreaker',...ACH_TITLES,...(P.titles||[])])];
     h+=`<div style="font-size:13px;opacity:.85">Tap a title you've earned to show it by your name (tap again to hide).</div>`+all.map(n=>{const got=(P.titles||[]).includes(n);return `<button class="sbtn${got?'':' locked'}" data-act="atitle" data-n="${esc(n)}" style="${bs44}">${P.title===n?'✔ ':''}${got?'':'🔒 '}«${esc(n)}»</button>`;}).join('');}
+  else if(s==='sym'&&typeof symCollHtml==='function')h+=symCollHtml(cell);
   else if(s==='schem'){const kn=(P.craft&&P.craft.known)||[];h+='<div style="display:flex;flex-wrap:wrap">'+QREC.map(r=>cell(kn.includes(r.id),r.ic||'📐',r.n,QTS[r.ts].n+' rank '+r.rk+' · '+(r.src==='start'?'starter':r.src==='vendor'?'sold at hubs':'boss drop'),'#9fe6ff')).join('')+'</div>';}
   return h;}
 function wardHtml(){const C=colli(),eq=P.eq||{};let h=`<div style="font-size:13px;opacity:.85;margin:4px 0">Every piece of gear you hold, wear or bank unlocks its <b>look</b> (armour family + rarity colour, or weapon type). Pick a look to show over what you wear; stats never change. Weapons can only take a look of the same kind (melee or ranged). Social clothing is in the 🪞 mirror and Ossory Threads (${((P.clothing&&P.clothing.own)||[]).length}/${Object.keys(CLOTH).length} owned).</div>`;
@@ -9144,7 +9147,7 @@ function cloudExports(){return {CLOUD_KEY,CL,cloudGet,cloudSet,cloudPush,cloudLi
    A per-device graphics option (Settings → Graphics → Look: Classic / HD). Classic stays the default and is untouched.
    Assets: hd/*.glb (Quaternius Universal Base Characters + Modular Character Outfits - Fantasy + Universal Animation Library,
    all CC0; packed by tools/hd/pack.mjs). Loaded on demand by THREE.GLTFLoader (src/vendor/three-gltf.js), cached by sw.js
-   in its own 'dustreach-hd' cache so a game update doesn't re-download them. URLs carry ?v=2cc728e0 (hash of the files).
+   in its own 'dustreach-hd' cache so a game update doesn't re-download them. URLs carry ?v=b29b241f (hash of the files).
    How it plugs in: the classic rig (PM) is still built and still drives everything that reads PM.* (gear, veil, mounts,
    emotes...), but its meshes are hidden every frame and an HD body is parented to PM.g. PM.anim is wrapped: the HD mixer
    picks clips from the same inputs (moving, atkAnim, hurt) plus P.cast / P.mount / P.dead.
@@ -9154,7 +9157,7 @@ function cloudExports(){return {CLOUD_KEY,CL,cloudGet,cloudSet,cloudPush,cloudLi
    an empty slot shows the Peasant piece. Rarity tints the outfit slightly. Head armour shows the hood (hides hair).
    Body type (Male/Female frame) is P.clothing.body ('m'/'f'), chosen at creation or at the apartment mirror.
    Device setting: localStorage 'dustreach_look_v1' ('hd' | 'classic'). */
-const LOOK_KEY='dustreach_look_v1',HDV='2cc728e0';
+const LOOK_KEY='dustreach_look_v1',HDV='b29b241f';
 const HD={state:'off',gl:{},clips:null,err:'',want:false};
 const HD_FILES={anims:'anims',m_head:'m_head',f_head:'f_head',m_ranger:'m_ranger',m_peasant:'m_peasant',f_ranger:'f_ranger',f_peasant:'f_peasant',
   hair_buzzed:'hair_buzzed',hair_buzzedfemale:'hair_buzzedfemale',hair_long:'hair_long',hair_buns:'hair_buns',hair_simpleparted:'hair_simpleparted',hair_beard:'hair_beard',weapons:'weapons'};
@@ -9269,12 +9272,12 @@ buildPlayerModel=function(){_buildPlayerModelHd();try{hdAttachPlayer();}catch(e)
 const _refreshGearVisualHd=refreshGearVisual;
 refreshGearVisual=function(){_refreshGearVisualHd.apply(this,arguments);try{if(PM&&PM.hd)hdDress(PM.hd,typeof xmogEq==='function'?xmogEq(P.eq):P.eq);}catch(e){}};
 HD.want=lookGet()==='hd';if(HD.want)setTimeout(()=>{try{hdLoad();}catch(e){}},300);
-function hdExports(){return {HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
+function hdExports(){return {HD_ENEMY_MAX,HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
 // Settings → Graphics: the Look switch
 const _gfxMenuHtmlHd=gfxMenuHtml;
 gfxMenuHtml=function(){const v=lookGet(),st=HD.state==='loading'?' (loading…)':HD.state==='error'?' (failed: '+esc(HD.err)+')':'';
   return _gfxMenuHtmlHd()+`<div class="h4" style="margin-top:14px">🧍 Look <small style="text-transform:none;opacity:.7">beta</small></div><div class="tabs" style="margin:0"><button data-act="look" data-l="classic" class="${v==='classic'?'on':''}">Classic</button><button data-act="look" data-l="hd" class="${v==='hd'?'on':''}">HD${v==='hd'?st:''}</button></div>
-  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 8 MB, downloaded once and kept for offline play). Pick Male or Female at the apartment mirror. Other characters are unchanged for now.</div>`;};
+  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 8 MB, downloaded once and kept for offline play). Townspeople and human enemies near you get HD bodies too. Pick Male or Female at the apartment mirror.</div>`;};
 const _stage3ActHd=stage3Act;
 stage3Act=function(a,b){if(a==='look'){setLook(b.dataset.l,true);openMenu();return true;}return _stage3ActHd(a,b);};
 /* ---- HD townspeople: NPC humanoids ({npc:1}: quest givers, vendors, escorts, faction officers, AI teammates) ----
@@ -9285,7 +9288,7 @@ const HD_NPC_R=60;// HD_NPCS lives in game25 (registered by the buildHumanoid ho
 function hdNpcReg(R,body,accent,visor,o){const rig=new Set();R.g.traverse(c=>{if(c.isMesh)rig.add(c);});
   R.hdSeed={h:hash32((body|0)*7+(accent|0)*13+(visor|0)),body,o:Object.assign({},o)};R.hdRig=rig;HD_NPCS.push(R);
   const a0=R.anim;if(a0)R.anim=(t,mv,atk,hit)=>{a0(t,mv,atk,hit);R.hdIn={mv:mv||0,atk:atk||0,t:T};};}
-function hdNpcBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':'m';
+function hdNpcBuild(R){if(R.hdE)return hdEnemyBuild(R);const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':'m';
   const hair=o.hair||(o.helm||o.hood?'crop':['crop','long','knot','ridge','crop','none'][(h>>>3)%6]);
   const H=hdBuild({sex,hair,hairc:o.hairc||[0x2a1d14,0x5a3a22,0xb89060,0x161210,0x8a8a90,0x7a3a1e][(h>>>7)%6],beard:sex==='m'&&(h>>>9)%3===0});
   const fam=o.armed||o.helm||o.cape||o.heavy?'medium':'light';const r=(h>>>11)%3;
@@ -9295,16 +9298,44 @@ function hdNpcBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':
   H.g.scale.setScalar(HD_SCALE);R.g.add(H.g);R.hd=H;H.npc=true;return H;}
 function hdHideRig(R){const limbs=[R.torso,R.head,R.armL,R.armR,R.legL,R.legR,R.hips].filter(Boolean);
   R.g.traverse(c=>{if(!c.isMesh||c.visible===false)return;if(R.hdRig.has(c)){c.visible=false;return;}let p=c.parent;while(p&&p!==R.g){if(limbs.includes(p)){c.visible=false;return;}p=p.parent;}});}
-function hdNpcTick(){if(!hdOn()||HD.state!=='ready'||!P||!P.pos)return;const px=P.pos.x,pz=P.pos.z,now=T;let built=0;
+function hdNpcTick(){if(!hdOn()||HD.state!=='ready'||!P||!P.pos)return;const px=P.pos.x,pz=P.pos.z,now=T;let built=0,nE=0;
   for(let i=HD_NPCS.length-1;i>=0;i--){const R=HD_NPCS[i];const g=R.g;if(!g.parent){if(R.gone==null)R.gone=now;else if(now-R.gone>30)HD_NPCS.splice(i,1);continue;}R.gone=null;
     if(!g.visible)continue;g.getWorldPosition(tmpV);if(Math.abs(tmpV.x-px)>HD_NPC_R||Math.abs(tmpV.z-pz)>HD_NPC_R)continue;
-    if(!R.hd){if(built>=2)continue;try{hdNpcBuild(R);built++;}catch(e){HD_NPCS.splice(i,1);continue;}}
-    hdHideRig(R);const H=R.hd,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
+    if(!R.hd){if(built>=2||R.hdE&&(R.hdE.boss||nE>=HD_ENEMY_MAX))continue;try{hdNpcBuild(R);built++;}catch(e){HD_NPCS.splice(i,1);continue;}}
+    hdHideRig(R);if(R.hdE){nE++;hdEnemyTick(R,now);continue;}const H=R.hd,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
     if(inp.atk>0&&!(H.lastAtk>0)){const a=R.melee?'Sword_Attack':'Pistol_Shoot';H.oneshot={n:a,until:now+0.8};hdPlay(H,a,'U',true);}H.lastAtk=inp.atk;
     const loco=inp.mv>0.05?(inp.mv>0.75?'Jog_Fwd_Loop':'Walk_Loop'):null;const idle=(R.hdSeed.h>>>13)%4===0?'Idle_Talking_Loop':'Idle_Loop';
     if(!(H.oneshot&&now<H.oneshot.until)){H.oneshot=null;hdPlay(H,loco||idle,'U');}hdPlay(H,loco||idle,'L');H.mixer.update(dt);}}
 // classic look again: drop the HD bodies and show the rigs
 function hdNpcClear(){for(const R of HD_NPCS)if(R.hd){R.g.remove(R.hd.g);R.hd=null;R.g.traverse(c=>{if(R.hdRig.has(c))c.visible=true;});}}
+/* ---- HD enemies (2026-11-24): humanoid enemies (raiders, enforcers, casters, wardens...) get HD bodies too ----
+   buildHumanoid (game25) keeps each enemy's colours/options on R.hdArgs; makeEnemy (wrapped here) registers them after bakeRig.
+   Robots (sentries, wardens) and bosses stay classic. At most HD_ENEMY_MAX HD enemies at once (nearest first, by build order).
+   Outfit: robes -> light kit, heavy -> ranger + pauldrons, otherwise ranger; hood with a hood/helm; tinted with the enemy's colour
+   (elites a little purple). Weapon by role: melee -> sword, robed casters -> staff, ranged -> rifle. Dying enemies play Death01
+   while the classic corpse tilt (dieStep) is counter-rotated. */
+const HD_ENEMY_MAX=12;
+const _makeEnemyHd=makeEnemy;
+makeEnemy=function(type,x,z,lv,temp){const e=_makeEnemyHd.apply(this,arguments);try{const R=e&&e.R,A=R&&R.hdArgs;
+  if(A&&R.kind==='hum'&&!A.o.robot&&!R.hdSeed){hdNpcReg(R,A.body,A.accent,A.visor,A.o);R.hdE=e;}}catch(err){}return e;};
+function hdEnemyBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0,e=R.hdE;const sex=(h>>>5)%2?'f':'m';
+  const H=hdBuild({sex,hair:o.hair||(o.hood||o.helm?'crop':['crop','crop','ridge','long'][(h>>>3)%4]),hairc:o.hairc||[0x161210,0x2a1d14,0x5a3a22,0x3a2a2a][(h>>>7)%4],beard:sex==='m'&&(h>>>9)%2===0});
+  const fam=o.robe?'light':o.heavy?'heavy':'medium',r=e&&e.elite?3:0,top={fam,r};
+  hdDress(H,{armor:top,hands:top,legs:{fam:o.robe?'light':'medium',r:0},feet:{fam:'medium',r:0},head:o.hood||o.helm?{fam:'medium',r}:null});
+  for(const k in H.parts){const ms=H.parts[k];if(/Body|Arms|Pauldron|Hood/.test(k))ms.forEach(m=>{if(m.visible)m.material.color.lerp(new THREE.Color(o.robe||o.hood||s.body),0.78);});
+    else if(/Legs/.test(k))ms.forEach(m=>{if(m.visible)m.material.color.lerp(new THREE.Color(o.legc||s.accent),0.6);});}
+  const wk=R.melee?'blade':o.robe?'rod':'rifle';const W=HD.wpn&&HD.wpn[wk];
+  if(W&&H.hand){H.gun=W.clone(true);H.hand.add(H.gun);H.gun.position.set(0,0.09,0.02);H.gun.rotation.set(Math.PI/2,0,0);}
+  H.wk=wk;H.g.scale.setScalar(HD_SCALE);R.g.add(H.g);R.hd=H;H.npc=true;return H;}
+function hdEnemyTick(R,now){const H=R.hd,e=R.hdE,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
+  if(e.dead){if(!H.dead){H.dead=true;H.oneshot=null;hdPlay(H,'Death01','U',true);hdPlay(H,'Death01','L',true);}
+    const g=R.g;H.g.rotation.set(-g.rotation.x,0,-g.rotation.z);H.mixer.update(dt);return;}
+  if(H.dead){H.dead=false;H.cur={U:'',L:''};H.g.rotation.set(0,0,0);}
+  if(inp.atk>0&&!(H.lastAtk>0)){const a=H.wk==='blade'?'Sword_Attack':H.wk==='rod'?'Spell_Simple_Shoot':'Pistol_Shoot';H.oneshot={n:a,until:now+0.8};hdPlay(H,a,'U',true);}H.lastAtk=inp.atk;
+  const loco=inp.mv>0.05?(inp.mv>0.75||e.state==='chase'?'Jog_Fwd_Loop':'Walk_Loop'):null;const fight=e.state==='chase';
+  const idle=fight?(H.wk==='blade'?'Sword_Idle':H.wk==='rod'?'Spell_Simple_Idle_Loop':'Pistol_Idle_Loop'):'Idle_Loop';
+  if(!(H.oneshot&&now<H.oneshot.until)){H.oneshot=null;hdPlay(H,loco||idle,'U');}hdPlay(H,loco||idle,'L');H.mixer.update(dt);}
+
 
 /* ================= SYMBIANTS & POCKET BOSSES (2026-11-23, Claude; AO-inspired, own names) =================
    - Pattern pieces: any kill of an enemy Lv 8+ can drop a piece (parts bag kind 'pat', mt '<boss>:<A-D>', ql = band level).
@@ -9339,8 +9370,9 @@ const POCKETS=[
   {id:'nihl',hp:3.3,dmg:3.4,n:'Nihl the Unlit',lv:100,bank:'lastlight',t:'scarbehemoth',col:0x2a2236,glow:0xb46aff}].filter(p=>ETYPES[p.t]||(p.t='brute'));
 const POCKET=Object.fromEntries(POCKETS.map(p=>[p.id,p]));
 const SYM={live:null,shrines:[],tab:'pat'};
-function symi(){const s=P.sym||(P.sym={});s.v=SYM_VER;s.kills=s.kills||{};s.made=s.made|0;s.sum=s.sum|0;return s;}
-function normSym(o){o=o&&typeof o==='object'?o:{};const k={};for(const id in o.kills||{})if(POCKET[id])k[id]=Math.max(0,o.kills[id]|0);return {v:SYM_VER,kills:k,made:Math.max(0,o.made|0),sum:Math.max(0,o.sum|0)};}
+function symi(){const s=P.sym||(P.sym={});s.v=SYM_VER;s.kills=s.kills||{};s.got=s.got||{};s.made=s.made|0;s.sum=s.sum|0;return s;}
+function normSym(o){o=o&&typeof o==='object'?o:{};const k={};for(const id in o.kills||{})if(POCKET[id])k[id]=Math.max(0,o.kills[id]|0);const got={};for(const g in o.got||{}){const [l,sl]=g.split('|');if(SYM_LINES[l]&&IMPSLOTS.includes(sl))got[g]=1;}
+  return {v:SYM_VER,kills:k,made:Math.max(0,o.made|0),sum:Math.max(0,o.sum|0),got};}
 function symFields(s){return {sym:normSym(s.sym)};}
 function symBand(lv){return clamp(Math.floor(lv/10)*10,10,100);}
 function patName(o){const[id,k]=String(o.mt||'').split(':');const p=POCKET[id];if(!p)return 'Pattern piece';return k==='P'?'Pattern of '+p.n:p.n.split(' ')[0]+'\'s '+(SYM_PIECES[k]||'Piece');}
@@ -9418,6 +9450,20 @@ stage3Act=function(a,b){const D=b.dataset;if(a==='symtab'){openSym(D.t);return t
   if(a==='symsum'){if(symSummon(D.id))closePanel();else openSym();return true;}return _stage3ActSym(a,b);};
 try{btn('#bSym',()=>openSym());}catch(e){}
 function symExports(){return {SYM,POCKETS,POCKET,SYM_LINES,symi,symGive,symSummon,symAssemble,openSym,symOnKill,symLineFor,patCount,shrineNear,symFields};}
+/* ---------- Collection log page (game40 'sym' sub-tab, 2026-11-24) ----------
+   P.sym.got {'line|slot':1} is filled by a colScan wrapper from symbiants you hold, wear (P.imps) or bank, like the rest of the log. */
+const _colScanSym=colScan;
+colScan=function(bank){_colScanSym(bank);const g=symi().got;const see=it=>{if(it&&it.kind==='imp'&&it.sym&&SYM_LINES[it.sym]&&IMPSLOTS.includes(it.slot))g[it.sym+'|'+it.slot]=1;};
+  (P.inv||[]).forEach(see);Object.values(P.imps||{}).forEach(see);if(bank){try{loadBank().items.forEach(see);}catch(e){}}};
+function symCollHtml(cell){const S0=symi(),g=S0.got,lines=Object.keys(SYM_LINES);const kills=S0.kills||{};
+  let h=`<div style="font-size:13px;opacity:.85">Pocket bosses are summoned at the ◈ Echo Shrines beside hub banks with an assembled pattern (⋯ → 🧩 Symbiants). Each drops a symbiant.</div>`;
+  h+=`<div class="h4" style="margin-top:6px">Pocket bosses <small>${POCKETS.filter(p=>kills[p.id]).length}/${POCKETS.length}</small></div><div style="display:flex;flex-wrap:wrap">`+
+    POCKETS.map(p=>cell(!!kills[p.id],'👁',p.n,'Lv '+p.lv+' · shrine by the '+(BANKS.find(b=>b.id===p.bank)||{name:p.bank}).name+(kills[p.id]?' · defeated ×'+kills[p.id]:''),'#'+p.glow.toString(16).padStart(6,'0'))).join('')+'</div>';
+  for(const l of lines){const L=SYM_LINES[l];const n=IMPSLOTS.filter(sl=>g[l+'|'+sl]).length;
+    h+=`<div class="h4" style="margin-top:6px">${L.ic} ${esc(L.n)} line <small>${n}/${IMPSLOTS.length}</small></div><div style="display:flex;flex-wrap:wrap">`+
+      IMPSLOTS.map(sl=>cell(!!g[l+'|'+sl],L.ic,L.n+' '+(IMPDEF[sl]?IMPDEF[sl].n:sl)+' Symbiant',(g[l+'|'+sl]?'Collected':'Not found yet')+' · '+L.stats.map(s=>STATN&&STATN[s]?STATN[s]:s).join(', '),'#c86bff')).join('')+'</div>';}
+  return h;}
+
 
 /* ================= INVASIONS (2026-11-23, Claude; AO alien-invasion style world event, own fiction) =================
    Every 20-35 minutes of play (first one 8-15 minutes into a session) a Hollow Legion dropship attacks a hub outpost you
@@ -9441,7 +9487,24 @@ function invPickSite(){const L=P.level|0;const open=BANKS.filter(b=>INV_SITES[b.
 function invShip(x,z,col){const g=new THREE.Group();const hull=M(0x2a2236),trim=M(col),glow=MB(0xb46bff);
   part(g,geoBox,hull,0,0,0,3.2,1.2,7.5);part(g,geoBox,trim,0,0.7,0.8,2.2,0.7,3.2);part(g,geoBox,hull,0,-0.1,-2.6,7.5,0.35,2.2);
   for(const s of [-1,1]){part(g,geoBox,glow,s*1.2,-0.4,-3.9,0.6,0.6,0.3);part(g,geoBox,trim,s*3.6,0.1,-2.6,0.4,1.0,1.6);}
-  part(g,geoBox,glow,0,-0.65,0,2.6,0.08,5.5);g.position.set(x,heightAt(x,z)+42,z);scene.add(g);return g;}
+  part(g,geoBox,glow,0,-0.65,0,2.6,0.08,5.5);g.position.set(x,heightAt(x,z)+42,z);scene.add(g);
+  // 2026-11-24: the real dropship model (hd/ship.glb, 23 KB, loaded in either Look) replaces the boxes once it's in;
+  // thruster flames and a landing beam are added either way (invShipFx, animated in invTick)
+  invShipFx(g);invShipModel(g);return g;}
+const INV_SHIP={g:null,state:''};
+function invShipModel(g){if(INV_SHIP.g){invShipSwap(g);return;}if(INV_SHIP.state)return;if(typeof THREE.GLTFLoader!=='function'||typeof hdUrl!=='function')return;INV_SHIP.state='loading';
+  new THREE.GLTFLoader().load(hdUrl('ship'),gl=>{const o=gl.scene;const hull=new THREE.MeshLambertMaterial({color:0x2a2236,flatShading:true}),glass=new THREE.MeshBasicMaterial({color:0xb46bff});
+    o.traverse(m=>{if(m.isMesh){const ms=Array.isArray(m.material)?m.material:[m.material];const r=ms.map(x=>/black/i.test(x.name||'')?glass:hull);m.material=r.length===1?r[0]:r;}});
+    const b=new THREE.Box3().setFromObject(o),sz=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3()),k=9.5/Math.max(sz.x,sz.z);
+    o.scale.setScalar(k);o.position.set(-c.x*k,-c.y*k,-c.z*k);const w=new THREE.Group();w.add(o);w.userData.h=sz.y*k;INV_SHIP.g=w;INV_SHIP.state='ready';
+    for(const E of [INV.ev,INV.leaving])if(E&&E.ship)invShipSwap(E.ship);},null,()=>{INV_SHIP.state='failed';});}
+function invShipSwap(g){if(g.userData.model||!INV_SHIP.g)return;for(const c of g.children.slice())if(!c.userData.fx)g.remove(c);const m=INV_SHIP.g.clone();m.position.y=0.2;g.add(m);g.userData.model=m;}
+function invShipFx(g){const fl=new THREE.MeshBasicMaterial({color:0xc88aff,transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false});const flames=[];
+  for(const [fx,fz] of [[-2.2,-2.4],[2.2,-2.4],[-2.2,2.2],[2.2,2.2]]){const f=new THREE.Mesh(new THREE.ConeGeometry(0.55,2.4,8),fl);f.rotation.x=Math.PI;f.position.set(fx,-1.6,fz);f.userData.fx=1;g.add(f);flames.push(f);}
+  const bm=new THREE.MeshBasicMaterial({color:0xb46bff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(1.6,3.2,1,16,1,true),bm);beam.userData.fx=1;beam.visible=false;g.add(beam);g.userData.flames=flames;g.userData.beam=beam;}
+function invShipAnim(E,deploying){const g=E&&E.ship;if(!g||!g.userData.flames)return;const t=T*14;g.userData.flames.forEach((f,i)=>{const k=0.8+0.25*Math.sin(t+i*1.7);f.scale.set(1,k,1);});
+  const bm=g.userData.beam,gy=heightAt(E.x,E.z),h=Math.max(0.5,g.position.y-gy-0.6);bm.visible=!!deploying;if(deploying){bm.scale.set(1,h,1);bm.position.y=-0.6-h/2;bm.material.opacity=0.16+0.08*Math.sin(T*5);}}
 function invStart(siteId){if(INV.ev||state!=='play'||DUN||FLAT||P.dead)return false;const b=siteId?BANKS.find(k=>k.id===siteId):invPickSite();if(!b)return false;
   const o=OUTPOSTS.slice().sort((a,c)=>Math.hypot(a.x-b.x,a.z-b.z)-Math.hypot(c.x-b.x,c.z-b.z))[0];const base=INV_SITES[b.id]||P.level;
   let x=b.x,z=b.z;const a0=Math.random()*6.28;for(let i=0;i<24;i++){const a=a0+i*0.26,r=(o?o.r:12)+15;const cx=(o?o.x:b.x)+Math.cos(a)*r,cz=(o?o.z:b.z)+Math.sin(a)*r;
@@ -9463,12 +9526,13 @@ function invEnd(won){const E=INV.ev;if(!E)return;for(const e of E.live.concat(E.
     banner('⚠ INVASION REPELLED',E.name+' is safe');log('⚠ <b>'+esc(E.name)+' defended!</b> +'+cr+'¢, +3 ✦ writs, '+esc(it.name)+pc+'.');try{SFX.level();}catch(e){}}
   else log('⚠ The Hollow Legion withdraws from '+esc(E.name)+'.');save();}
 function invTick(){const now=Date.now();
-  if(INV.leaving){const L=INV.leaving;const k=(T-L.leaveT)/6;L.ship.position.y=heightAt(L.x,L.z)+6+k*40;L.ship.rotation.x=-0.15;if(k>1){scene.remove(L.ship);INV.leaving=null;}}
+  if(INV.leaving){const L=INV.leaving;const k=(T-L.leaveT)/6;L.ship.position.y=heightAt(L.x,L.z)+6+k*40;L.ship.rotation.x=-0.15;invShipAnim(L,false);if(k>1){scene.remove(L.ship);INV.leaving=null;}}
   if(INV.off||SIMP||SIMST||state!=='play'||!P||!P.pos)return;
   const E=INV.ev;
   if(!E){if(DUN||FLAT||P.dead)return;if(!INV.next)INV.next=INV.t0+rand(8,15)*60e3;if(now<INV.next)return;INV.next=now+60e3;if(!invStart())INV.next=now+5*60e3;return;}
   // ship descent and idle bob
   const gy=heightAt(E.x,E.z)+6,top=heightAt(E.x,E.z)+42;E.ship.position.y=Math.max(gy,top-(T-E.t0)*6)+(T-E.t0>6?Math.sin(T*1.4)*0.25:0);
+  invShipAnim(E,E.phase==='fight'&&(E.live.length>0||T<E.next+0.5)&&!E.gen);
   if(T-E.t0>720&&E.phase!=='fight'){invEnd(false);return;}
   if(DUN||FLAT)return;
   const d=Math.hypot(P.pos.x-E.x,P.pos.z-E.z);
@@ -9493,7 +9557,7 @@ A_('sym','symk10','Echo Hunter','Defeat 10 pocket bosses',20,()=>P.sym?Object.va
 A_('sym','symall','Every Echo','Defeat all ten different pocket bosses',40,()=>P.sym?Object.keys(P.sym.kills||{}).length:0,10,{title:'the Echoborn'});
 A_('sym','inv1','Holding the Line','Repel an invasion',10,()=>(P.inva&&P.inva.won)|0,1);
 A_('sym','inv10','Legion\'s Bane','Repel 10 invasions',25,()=>(P.inva&&P.inva.won)|0,10,{title:'Legion\'s Bane'});
-function invExports(){return {INV,INV_SITES,invStart,invTick,invEnd,invFields,invPickSite};}
+function invExports(){return {INV_SHIP,invShipSwap,INV,INV_SITES,invStart,invTick,invEnd,invFields,invPickSite};}
 
 /* ================= RESEARCH (2026-11-23, Claude; AO Lost-Eden-style research, own names) =================
    Six research lines, 10 ranks each. A slider diverts 0-100% of earned XP into the selected line (gainXp wrapper);

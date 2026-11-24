@@ -20,7 +20,24 @@ function invPickSite(){const L=P.level|0;const open=BANKS.filter(b=>INV_SITES[b.
 function invShip(x,z,col){const g=new THREE.Group();const hull=M(0x2a2236),trim=M(col),glow=MB(0xb46bff);
   part(g,geoBox,hull,0,0,0,3.2,1.2,7.5);part(g,geoBox,trim,0,0.7,0.8,2.2,0.7,3.2);part(g,geoBox,hull,0,-0.1,-2.6,7.5,0.35,2.2);
   for(const s of [-1,1]){part(g,geoBox,glow,s*1.2,-0.4,-3.9,0.6,0.6,0.3);part(g,geoBox,trim,s*3.6,0.1,-2.6,0.4,1.0,1.6);}
-  part(g,geoBox,glow,0,-0.65,0,2.6,0.08,5.5);g.position.set(x,heightAt(x,z)+42,z);scene.add(g);return g;}
+  part(g,geoBox,glow,0,-0.65,0,2.6,0.08,5.5);g.position.set(x,heightAt(x,z)+42,z);scene.add(g);
+  // 2026-11-24: the real dropship model (hd/ship.glb, 23 KB, loaded in either Look) replaces the boxes once it's in;
+  // thruster flames and a landing beam are added either way (invShipFx, animated in invTick)
+  invShipFx(g);invShipModel(g);return g;}
+const INV_SHIP={g:null,state:''};
+function invShipModel(g){if(INV_SHIP.g){invShipSwap(g);return;}if(INV_SHIP.state)return;if(typeof THREE.GLTFLoader!=='function'||typeof hdUrl!=='function')return;INV_SHIP.state='loading';
+  new THREE.GLTFLoader().load(hdUrl('ship'),gl=>{const o=gl.scene;const hull=new THREE.MeshLambertMaterial({color:0x2a2236,flatShading:true}),glass=new THREE.MeshBasicMaterial({color:0xb46bff});
+    o.traverse(m=>{if(m.isMesh){const ms=Array.isArray(m.material)?m.material:[m.material];const r=ms.map(x=>/black/i.test(x.name||'')?glass:hull);m.material=r.length===1?r[0]:r;}});
+    const b=new THREE.Box3().setFromObject(o),sz=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3()),k=9.5/Math.max(sz.x,sz.z);
+    o.scale.setScalar(k);o.position.set(-c.x*k,-c.y*k,-c.z*k);const w=new THREE.Group();w.add(o);w.userData.h=sz.y*k;INV_SHIP.g=w;INV_SHIP.state='ready';
+    for(const E of [INV.ev,INV.leaving])if(E&&E.ship)invShipSwap(E.ship);},null,()=>{INV_SHIP.state='failed';});}
+function invShipSwap(g){if(g.userData.model||!INV_SHIP.g)return;for(const c of g.children.slice())if(!c.userData.fx)g.remove(c);const m=INV_SHIP.g.clone();m.position.y=0.2;g.add(m);g.userData.model=m;}
+function invShipFx(g){const fl=new THREE.MeshBasicMaterial({color:0xc88aff,transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false});const flames=[];
+  for(const [fx,fz] of [[-2.2,-2.4],[2.2,-2.4],[-2.2,2.2],[2.2,2.2]]){const f=new THREE.Mesh(new THREE.ConeGeometry(0.55,2.4,8),fl);f.rotation.x=Math.PI;f.position.set(fx,-1.6,fz);f.userData.fx=1;g.add(f);flames.push(f);}
+  const bm=new THREE.MeshBasicMaterial({color:0xb46bff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(1.6,3.2,1,16,1,true),bm);beam.userData.fx=1;beam.visible=false;g.add(beam);g.userData.flames=flames;g.userData.beam=beam;}
+function invShipAnim(E,deploying){const g=E&&E.ship;if(!g||!g.userData.flames)return;const t=T*14;g.userData.flames.forEach((f,i)=>{const k=0.8+0.25*Math.sin(t+i*1.7);f.scale.set(1,k,1);});
+  const bm=g.userData.beam,gy=heightAt(E.x,E.z),h=Math.max(0.5,g.position.y-gy-0.6);bm.visible=!!deploying;if(deploying){bm.scale.set(1,h,1);bm.position.y=-0.6-h/2;bm.material.opacity=0.16+0.08*Math.sin(T*5);}}
 function invStart(siteId){if(INV.ev||state!=='play'||DUN||FLAT||P.dead)return false;const b=siteId?BANKS.find(k=>k.id===siteId):invPickSite();if(!b)return false;
   const o=OUTPOSTS.slice().sort((a,c)=>Math.hypot(a.x-b.x,a.z-b.z)-Math.hypot(c.x-b.x,c.z-b.z))[0];const base=INV_SITES[b.id]||P.level;
   let x=b.x,z=b.z;const a0=Math.random()*6.28;for(let i=0;i<24;i++){const a=a0+i*0.26,r=(o?o.r:12)+15;const cx=(o?o.x:b.x)+Math.cos(a)*r,cz=(o?o.z:b.z)+Math.sin(a)*r;
@@ -42,12 +59,13 @@ function invEnd(won){const E=INV.ev;if(!E)return;for(const e of E.live.concat(E.
     banner('⚠ INVASION REPELLED',E.name+' is safe');log('⚠ <b>'+esc(E.name)+' defended!</b> +'+cr+'¢, +3 ✦ writs, '+esc(it.name)+pc+'.');try{SFX.level();}catch(e){}}
   else log('⚠ The Hollow Legion withdraws from '+esc(E.name)+'.');save();}
 function invTick(){const now=Date.now();
-  if(INV.leaving){const L=INV.leaving;const k=(T-L.leaveT)/6;L.ship.position.y=heightAt(L.x,L.z)+6+k*40;L.ship.rotation.x=-0.15;if(k>1){scene.remove(L.ship);INV.leaving=null;}}
+  if(INV.leaving){const L=INV.leaving;const k=(T-L.leaveT)/6;L.ship.position.y=heightAt(L.x,L.z)+6+k*40;L.ship.rotation.x=-0.15;invShipAnim(L,false);if(k>1){scene.remove(L.ship);INV.leaving=null;}}
   if(INV.off||SIMP||SIMST||state!=='play'||!P||!P.pos)return;
   const E=INV.ev;
   if(!E){if(DUN||FLAT||P.dead)return;if(!INV.next)INV.next=INV.t0+rand(8,15)*60e3;if(now<INV.next)return;INV.next=now+60e3;if(!invStart())INV.next=now+5*60e3;return;}
   // ship descent and idle bob
   const gy=heightAt(E.x,E.z)+6,top=heightAt(E.x,E.z)+42;E.ship.position.y=Math.max(gy,top-(T-E.t0)*6)+(T-E.t0>6?Math.sin(T*1.4)*0.25:0);
+  invShipAnim(E,E.phase==='fight'&&(E.live.length>0||T<E.next+0.5)&&!E.gen);
   if(T-E.t0>720&&E.phase!=='fight'){invEnd(false);return;}
   if(DUN||FLAT)return;
   const d=Math.hypot(P.pos.x-E.x,P.pos.z-E.z);
@@ -72,4 +90,4 @@ A_('sym','symk10','Echo Hunter','Defeat 10 pocket bosses',20,()=>P.sym?Object.va
 A_('sym','symall','Every Echo','Defeat all ten different pocket bosses',40,()=>P.sym?Object.keys(P.sym.kills||{}).length:0,10,{title:'the Echoborn'});
 A_('sym','inv1','Holding the Line','Repel an invasion',10,()=>(P.inva&&P.inva.won)|0,1);
 A_('sym','inv10','Legion\'s Bane','Repel 10 invasions',25,()=>(P.inva&&P.inva.won)|0,10,{title:'Legion\'s Bane'});
-function invExports(){return {INV,INV_SITES,invStart,invTick,invEnd,invFields,invPickSite};}
+function invExports(){return {INV_SHIP,invShipSwap,INV,INV_SITES,invStart,invTick,invEnd,invFields,invPickSite};}

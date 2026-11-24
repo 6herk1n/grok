@@ -31,8 +31,9 @@ const POCKETS=[
   {id:'nihl',hp:3.3,dmg:3.4,n:'Nihl the Unlit',lv:100,bank:'lastlight',t:'scarbehemoth',col:0x2a2236,glow:0xb46aff}].filter(p=>ETYPES[p.t]||(p.t='brute'));
 const POCKET=Object.fromEntries(POCKETS.map(p=>[p.id,p]));
 const SYM={live:null,shrines:[],tab:'pat'};
-function symi(){const s=P.sym||(P.sym={});s.v=SYM_VER;s.kills=s.kills||{};s.made=s.made|0;s.sum=s.sum|0;return s;}
-function normSym(o){o=o&&typeof o==='object'?o:{};const k={};for(const id in o.kills||{})if(POCKET[id])k[id]=Math.max(0,o.kills[id]|0);return {v:SYM_VER,kills:k,made:Math.max(0,o.made|0),sum:Math.max(0,o.sum|0)};}
+function symi(){const s=P.sym||(P.sym={});s.v=SYM_VER;s.kills=s.kills||{};s.got=s.got||{};s.made=s.made|0;s.sum=s.sum|0;return s;}
+function normSym(o){o=o&&typeof o==='object'?o:{};const k={};for(const id in o.kills||{})if(POCKET[id])k[id]=Math.max(0,o.kills[id]|0);const got={};for(const g in o.got||{}){const [l,sl]=g.split('|');if(SYM_LINES[l]&&IMPSLOTS.includes(sl))got[g]=1;}
+  return {v:SYM_VER,kills:k,made:Math.max(0,o.made|0),sum:Math.max(0,o.sum|0),got};}
 function symFields(s){return {sym:normSym(s.sym)};}
 function symBand(lv){return clamp(Math.floor(lv/10)*10,10,100);}
 function patName(o){const[id,k]=String(o.mt||'').split(':');const p=POCKET[id];if(!p)return 'Pattern piece';return k==='P'?'Pattern of '+p.n:p.n.split(' ')[0]+'\'s '+(SYM_PIECES[k]||'Piece');}
@@ -110,3 +111,17 @@ stage3Act=function(a,b){const D=b.dataset;if(a==='symtab'){openSym(D.t);return t
   if(a==='symsum'){if(symSummon(D.id))closePanel();else openSym();return true;}return _stage3ActSym(a,b);};
 try{btn('#bSym',()=>openSym());}catch(e){}
 function symExports(){return {SYM,POCKETS,POCKET,SYM_LINES,symi,symGive,symSummon,symAssemble,openSym,symOnKill,symLineFor,patCount,shrineNear,symFields};}
+/* ---------- Collection log page (game40 'sym' sub-tab, 2026-11-24) ----------
+   P.sym.got {'line|slot':1} is filled by a colScan wrapper from symbiants you hold, wear (P.imps) or bank, like the rest of the log. */
+const _colScanSym=colScan;
+colScan=function(bank){_colScanSym(bank);const g=symi().got;const see=it=>{if(it&&it.kind==='imp'&&it.sym&&SYM_LINES[it.sym]&&IMPSLOTS.includes(it.slot))g[it.sym+'|'+it.slot]=1;};
+  (P.inv||[]).forEach(see);Object.values(P.imps||{}).forEach(see);if(bank){try{loadBank().items.forEach(see);}catch(e){}}};
+function symCollHtml(cell){const S0=symi(),g=S0.got,lines=Object.keys(SYM_LINES);const kills=S0.kills||{};
+  let h=`<div style="font-size:13px;opacity:.85">Pocket bosses are summoned at the ◈ Echo Shrines beside hub banks with an assembled pattern (⋯ → 🧩 Symbiants). Each drops a symbiant.</div>`;
+  h+=`<div class="h4" style="margin-top:6px">Pocket bosses <small>${POCKETS.filter(p=>kills[p.id]).length}/${POCKETS.length}</small></div><div style="display:flex;flex-wrap:wrap">`+
+    POCKETS.map(p=>cell(!!kills[p.id],'👁',p.n,'Lv '+p.lv+' · shrine by the '+(BANKS.find(b=>b.id===p.bank)||{name:p.bank}).name+(kills[p.id]?' · defeated ×'+kills[p.id]:''),'#'+p.glow.toString(16).padStart(6,'0'))).join('')+'</div>';
+  for(const l of lines){const L=SYM_LINES[l];const n=IMPSLOTS.filter(sl=>g[l+'|'+sl]).length;
+    h+=`<div class="h4" style="margin-top:6px">${L.ic} ${esc(L.n)} line <small>${n}/${IMPSLOTS.length}</small></div><div style="display:flex;flex-wrap:wrap">`+
+      IMPSLOTS.map(sl=>cell(!!g[l+'|'+sl],L.ic,L.n+' '+(IMPDEF[sl]?IMPDEF[sl].n:sl)+' Symbiant',(g[l+'|'+sl]?'Collected':'Not found yet')+' · '+L.stats.map(s=>STATN&&STATN[s]?STATN[s]:s).join(', '),'#c86bff')).join('')+'</div>';}
+  return h;}
+

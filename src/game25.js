@@ -400,4 +400,6 @@ function createPreview(){const cv=$('#cPrev');if(!cv||!PM||!cv.getClientRects().
 // HD look (game44.js): NPC humanoids ({npc:1}) register at build time so the HD look can upgrade them near the player later.
 // This hook sits here (not in game44) because the world's NPCs are built by files that load before game44.
 var HD_NPCS=[];
-{const _bh=buildHumanoid;buildHumanoid=function(body,accent,visor,skin,o){const R=_bh(body,accent,visor,skin,o);if(o&&o.npc&&!o.robot)try{hdNpcReg(R,body,accent,visor,o);}catch(e){}return R;};}
+// Enemies (no npc flag) only keep their colours/options here: they register in a makeEnemy wrapper (game44) once bakeRig has merged them.
+{const _bh=buildHumanoid;buildHumanoid=function(body,accent,visor,skin,o){const R=_bh(body,accent,visor,skin,o);if(o&&o.npc&&!o.robot)try{hdNpcReg(R,body,accent,visor,o);}catch(e){}
+  else R.hdArgs={body,accent,visor,o:Object.assign({},o||{})};return R;};}

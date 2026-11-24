@@ -127,12 +127,12 @@ buildPlayerModel=function(){_buildPlayerModelHd();try{hdAttachPlayer();}catch(e)
 const _refreshGearVisualHd=refreshGearVisual;
 refreshGearVisual=function(){_refreshGearVisualHd.apply(this,arguments);try{if(PM&&PM.hd)hdDress(PM.hd,typeof xmogEq==='function'?xmogEq(P.eq):P.eq);}catch(e){}};
 HD.want=lookGet()==='hd';if(HD.want)setTimeout(()=>{try{hdLoad();}catch(e){}},300);
-function hdExports(){return {HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
+function hdExports(){return {HD_ENEMY_MAX,HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
 // Settings → Graphics: the Look switch
 const _gfxMenuHtmlHd=gfxMenuHtml;
 gfxMenuHtml=function(){const v=lookGet(),st=HD.state==='loading'?' (loading…)':HD.state==='error'?' (failed: '+esc(HD.err)+')':'';
   return _gfxMenuHtmlHd()+`<div class="h4" style="margin-top:14px">🧍 Look <small style="text-transform:none;opacity:.7">beta</small></div><div class="tabs" style="margin:0"><button data-act="look" data-l="classic" class="${v==='classic'?'on':''}">Classic</button><button data-act="look" data-l="hd" class="${v==='hd'?'on':''}">HD${v==='hd'?st:''}</button></div>
-  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 8 MB, downloaded once and kept for offline play). Pick Male or Female at the apartment mirror. Other characters are unchanged for now.</div>`;};
+  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 8 MB, downloaded once and kept for offline play). Townspeople and human enemies near you get HD bodies too. Pick Male or Female at the apartment mirror.</div>`;};
 const _stage3ActHd=stage3Act;
 stage3Act=function(a,b){if(a==='look'){setLook(b.dataset.l,true);openMenu();return true;}return _stage3ActHd(a,b);};
 /* ---- HD townspeople: NPC humanoids ({npc:1}: quest givers, vendors, escorts, faction officers, AI teammates) ----
@@ -143,7 +143,7 @@ const HD_NPC_R=60;// HD_NPCS lives in game25 (registered by the buildHumanoid ho
 function hdNpcReg(R,body,accent,visor,o){const rig=new Set();R.g.traverse(c=>{if(c.isMesh)rig.add(c);});
   R.hdSeed={h:hash32((body|0)*7+(accent|0)*13+(visor|0)),body,o:Object.assign({},o)};R.hdRig=rig;HD_NPCS.push(R);
   const a0=R.anim;if(a0)R.anim=(t,mv,atk,hit)=>{a0(t,mv,atk,hit);R.hdIn={mv:mv||0,atk:atk||0,t:T};};}
-function hdNpcBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':'m';
+function hdNpcBuild(R){if(R.hdE)return hdEnemyBuild(R);const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':'m';
   const hair=o.hair||(o.helm||o.hood?'crop':['crop','long','knot','ridge','crop','none'][(h>>>3)%6]);
   const H=hdBuild({sex,hair,hairc:o.hairc||[0x2a1d14,0x5a3a22,0xb89060,0x161210,0x8a8a90,0x7a3a1e][(h>>>7)%6],beard:sex==='m'&&(h>>>9)%3===0});
   const fam=o.armed||o.helm||o.cape||o.heavy?'medium':'light';const r=(h>>>11)%3;
@@ -153,13 +153,41 @@ function hdNpcBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0;const sex=(h>>>5)%2?'f':
   H.g.scale.setScalar(HD_SCALE);R.g.add(H.g);R.hd=H;H.npc=true;return H;}
 function hdHideRig(R){const limbs=[R.torso,R.head,R.armL,R.armR,R.legL,R.legR,R.hips].filter(Boolean);
   R.g.traverse(c=>{if(!c.isMesh||c.visible===false)return;if(R.hdRig.has(c)){c.visible=false;return;}let p=c.parent;while(p&&p!==R.g){if(limbs.includes(p)){c.visible=false;return;}p=p.parent;}});}
-function hdNpcTick(){if(!hdOn()||HD.state!=='ready'||!P||!P.pos)return;const px=P.pos.x,pz=P.pos.z,now=T;let built=0;
+function hdNpcTick(){if(!hdOn()||HD.state!=='ready'||!P||!P.pos)return;const px=P.pos.x,pz=P.pos.z,now=T;let built=0,nE=0;
   for(let i=HD_NPCS.length-1;i>=0;i--){const R=HD_NPCS[i];const g=R.g;if(!g.parent){if(R.gone==null)R.gone=now;else if(now-R.gone>30)HD_NPCS.splice(i,1);continue;}R.gone=null;
     if(!g.visible)continue;g.getWorldPosition(tmpV);if(Math.abs(tmpV.x-px)>HD_NPC_R||Math.abs(tmpV.z-pz)>HD_NPC_R)continue;
-    if(!R.hd){if(built>=2)continue;try{hdNpcBuild(R);built++;}catch(e){HD_NPCS.splice(i,1);continue;}}
-    hdHideRig(R);const H=R.hd,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
+    if(!R.hd){if(built>=2||R.hdE&&(R.hdE.boss||nE>=HD_ENEMY_MAX))continue;try{hdNpcBuild(R);built++;}catch(e){HD_NPCS.splice(i,1);continue;}}
+    hdHideRig(R);if(R.hdE){nE++;hdEnemyTick(R,now);continue;}const H=R.hd,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
     if(inp.atk>0&&!(H.lastAtk>0)){const a=R.melee?'Sword_Attack':'Pistol_Shoot';H.oneshot={n:a,until:now+0.8};hdPlay(H,a,'U',true);}H.lastAtk=inp.atk;
     const loco=inp.mv>0.05?(inp.mv>0.75?'Jog_Fwd_Loop':'Walk_Loop'):null;const idle=(R.hdSeed.h>>>13)%4===0?'Idle_Talking_Loop':'Idle_Loop';
     if(!(H.oneshot&&now<H.oneshot.until)){H.oneshot=null;hdPlay(H,loco||idle,'U');}hdPlay(H,loco||idle,'L');H.mixer.update(dt);}}
 // classic look again: drop the HD bodies and show the rigs
 function hdNpcClear(){for(const R of HD_NPCS)if(R.hd){R.g.remove(R.hd.g);R.hd=null;R.g.traverse(c=>{if(R.hdRig.has(c))c.visible=true;});}}
+/* ---- HD enemies (2026-11-24): humanoid enemies (raiders, enforcers, casters, wardens...) get HD bodies too ----
+   buildHumanoid (game25) keeps each enemy's colours/options on R.hdArgs; makeEnemy (wrapped here) registers them after bakeRig.
+   Robots (sentries, wardens) and bosses stay classic. At most HD_ENEMY_MAX HD enemies at once (nearest first, by build order).
+   Outfit: robes -> light kit, heavy -> ranger + pauldrons, otherwise ranger; hood with a hood/helm; tinted with the enemy's colour
+   (elites a little purple). Weapon by role: melee -> sword, robed casters -> staff, ranged -> rifle. Dying enemies play Death01
+   while the classic corpse tilt (dieStep) is counter-rotated. */
+const HD_ENEMY_MAX=12;
+const _makeEnemyHd=makeEnemy;
+makeEnemy=function(type,x,z,lv,temp){const e=_makeEnemyHd.apply(this,arguments);try{const R=e&&e.R,A=R&&R.hdArgs;
+  if(A&&R.kind==='hum'&&!A.o.robot&&!R.hdSeed){hdNpcReg(R,A.body,A.accent,A.visor,A.o);R.hdE=e;}}catch(err){}return e;};
+function hdEnemyBuild(R){const s=R.hdSeed,o=s.o,h=s.h>>>0,e=R.hdE;const sex=(h>>>5)%2?'f':'m';
+  const H=hdBuild({sex,hair:o.hair||(o.hood||o.helm?'crop':['crop','crop','ridge','long'][(h>>>3)%4]),hairc:o.hairc||[0x161210,0x2a1d14,0x5a3a22,0x3a2a2a][(h>>>7)%4],beard:sex==='m'&&(h>>>9)%2===0});
+  const fam=o.robe?'light':o.heavy?'heavy':'medium',r=e&&e.elite?3:0,top={fam,r};
+  hdDress(H,{armor:top,hands:top,legs:{fam:o.robe?'light':'medium',r:0},feet:{fam:'medium',r:0},head:o.hood||o.helm?{fam:'medium',r}:null});
+  for(const k in H.parts){const ms=H.parts[k];if(/Body|Arms|Pauldron|Hood/.test(k))ms.forEach(m=>{if(m.visible)m.material.color.lerp(new THREE.Color(o.robe||o.hood||s.body),0.78);});
+    else if(/Legs/.test(k))ms.forEach(m=>{if(m.visible)m.material.color.lerp(new THREE.Color(o.legc||s.accent),0.6);});}
+  const wk=R.melee?'blade':o.robe?'rod':'rifle';const W=HD.wpn&&HD.wpn[wk];
+  if(W&&H.hand){H.gun=W.clone(true);H.hand.add(H.gun);H.gun.position.set(0,0.09,0.02);H.gun.rotation.set(Math.PI/2,0,0);}
+  H.wk=wk;H.g.scale.setScalar(HD_SCALE);R.g.add(H.g);R.hd=H;H.npc=true;return H;}
+function hdEnemyTick(R,now){const H=R.hd,e=R.hdE,inp=R.hdIn&&now-R.hdIn.t<0.5?R.hdIn:{mv:0,atk:0};const dt=H.lastT==null?0.016:Math.min(0.1,Math.max(0,now-H.lastT));H.lastT=now;
+  if(e.dead){if(!H.dead){H.dead=true;H.oneshot=null;hdPlay(H,'Death01','U',true);hdPlay(H,'Death01','L',true);}
+    const g=R.g;H.g.rotation.set(-g.rotation.x,0,-g.rotation.z);H.mixer.update(dt);return;}
+  if(H.dead){H.dead=false;H.cur={U:'',L:''};H.g.rotation.set(0,0,0);}
+  if(inp.atk>0&&!(H.lastAtk>0)){const a=H.wk==='blade'?'Sword_Attack':H.wk==='rod'?'Spell_Simple_Shoot':'Pistol_Shoot';H.oneshot={n:a,until:now+0.8};hdPlay(H,a,'U',true);}H.lastAtk=inp.atk;
+  const loco=inp.mv>0.05?(inp.mv>0.75||e.state==='chase'?'Jog_Fwd_Loop':'Walk_Loop'):null;const fight=e.state==='chase';
+  const idle=fight?(H.wk==='blade'?'Sword_Idle':H.wk==='rod'?'Spell_Simple_Idle_Loop':'Pistol_Idle_Loop'):'Idle_Loop';
+  if(!(H.oneshot&&now<H.oneshot.until)){H.oneshot=null;hdPlay(H,loco||idle,'U');}hdPlay(H,loco||idle,'L');H.mixer.update(dt);}
+
