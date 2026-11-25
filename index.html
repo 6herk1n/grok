@@ -353,10 +353,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261125T080457-89284cf5">
+<meta name="dr-build" content="20261125T120628-b9a98a19">
 <script>
 (function(){
-var BUILD='20261125T080457-89284cf5';window.DR_BUILD=BUILD;
+var BUILD='20261125T120628-b9a98a19';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -9696,6 +9696,46 @@ const _enRegenCBal=enRegenC;
 enRegenC=function(){return _enRegenCBal()+(balOn()?profEnRegen(P):0);};
 function balExports(){return {PROF_ENR,profEnRegen,enRegenC:()=>enRegenC()};}
 
+/* ================= CONDUIT SPLICE (2026-11-25, Claude; AO Fixer grid-access nanos, own names) =================
+   Glintrunner Weaves (normal Weave Disk drops / trader) that reach the Conduit network from wherever you stand:
+   - Safe line 'splice' (Conduit Splice Lv 12, 45s cast / Conduit Phase Lv 35, 25s): out of combat only, no penalty.
+   - Emergency line 'jackin' (Reckless Jack-in Lv 20, 6s / Breakneck Jack-in Lv 45, 3s): works in combat and the cast is not
+     broken by damage, but you arrive on 1 health and 0 energy. 10-minute recharge.
+   Flow: cast -> the Conduit map opens from your position -> pick a node -> stand still while the cast runs (moving cancels;
+   the safe cast is also broken by damage) -> normal Conduit transit. Init% shortens the cast. Energy and the recharge are
+   spent only when the cast completes, so cancelling costs nothing. No separate team versions: allies already warp to you
+   when you travel (updAlly). Dungeons can't be reached. SPLICE = the pending splice (map open), cleared on close/travel. */
+const SPLICE_DEF={splice:{n:'Conduit Splice',lvl:12,cast:45,cost:30,cd:180},splice2:{n:'Conduit Phase',lvl:35,cast:25,cost:40,cd:180},
+  jackin:{n:'Reckless Jack-in',lvl:20,cast:6,cost:40,cd:600,em:1},jackin2:{n:'Breakneck Jack-in',lvl:45,cast:3,cost:50,cd:600,em:1}};
+for(const id in SPLICE_DEF){const d=SPLICE_DEF[id],line=d.em?'jackin':'splice';
+  WEAVES[id]={id,line,tier:id===line?1:2,prof:'runner',lvl:d.lvl,name:d.n,icon:d.em?'⚡':'🔀',cost:d.cost,cd:d.cd,range:0,needTarget:false,kind:'splice',fam:'util',cast:d.cast,em:!!d.em,
+    desc:d.em?`Emergency escape: a ${d.cast}s cast that works in combat and isn't broken by damage. Pick any discovered Conduit node; you arrive on 1 health and 0 energy. 10-minute recharge.`
+      :`Splice into the Conduit network from anywhere: pick any discovered node, then hold still for a ${d.cast}s cast (damage breaks it). Out of combat only, no penalty. 3-minute recharge.`};
+  WEAVES[id].req=wreq('runner',d.lvl);}
+let SPLICE=null;
+const _nodeByIdSplice=nodeById;
+nodeById=function(id){if(id==='__splice')return {id:'__splice',name:'Your position',x:P.pos.x,z:P.pos.z};return _nodeByIdSplice(id);};
+function spliceCastTime(ab){return Math.max(1,ab.cast*(1-clamp((S&&S.init)||0,-50,50)/100));}
+function spliceCan(ab){if(P.dead||state!=='play')return false;if(DUN){warn('The Conduit can\'t reach you in here');return false;}
+  if(!ab.em&&T-P.lastCombat<5){warn('Can\'t splice into the Conduit while in combat');return false;}if(P.transit)return false;
+  if((P.cds[ab.id]||0)>T){warn(ab.name+' is recharging');return false;}if(P.en<ab.cost){warn('Not enough Vyre energy');return false;}return true;}
+const _useAbilitySplice=useAbility;
+useAbility=function(idx){const ab=idx>=0?abDef(barIds()[idx]):null;if(!ab||ab.kind!=='splice')return _useAbilitySplice.apply(this,arguments);
+  if(syncLocked(ab)||!spliceCan(ab))return false;if(P.mount)dismount();if(P.cast)cancelCast();
+  SPLICE={id:ab.id};tone(520,0.25,'sine',0.04,1200);openConduit('__splice');return true;};
+function spliceGo(ab,id){const lc=P.lastCombat;if(ab.em)P.lastCombat=-1e9;const ok=conduitTravel(id);
+  if(!ok){P.lastCombat=lc;return false;}P.en=Math.max(0,P.en-ab.cost);P.cds[ab.id]=T+ab.cd;
+  if(ab.em)setTimeout(()=>{if(P.dead)return;P.hp=1;P.en=0;warn('⚡ Jacked in hard: 1 health, no energy');},720);return true;}
+const _conduitTravelSplice=conduitTravel;
+conduitTravel=function(id){const S_=SPLICE;if(!S_||id==='__splice')return _conduitTravelSplice.apply(this,arguments);SPLICE=null;const ab=abDef(S_.id);
+  const n=nodeById(id);if(!ab||!n||!knownNodes().includes(id)||!spliceCan(ab))return false;
+  ringFx(P.pos.x,P.pos.z,ab.em?0xffd25a:0x5ff2ff,2.5,0.5);
+  startCast((ab.em?'⚡ Jacking in → ':'🔀 Splicing → ')+n.name,spliceCastTime(ab),()=>{if(spliceCan(ab))spliceGo(ab,id);},{still:true});
+  if(ab.em&&P.cast)P.cast.fragile=false;return true;};
+const _closePanelSplice=closePanel;
+closePanel=function(){const r=_closePanelSplice.apply(this,arguments);if(SPLICE)setTimeout(()=>{if(panelOpen!=='conduit')SPLICE=null;},0);return r;};
+function spliceExports(){return {SPLICE_DEF,spliceCastTime,barIds:()=>barIds(),cancelCast:w=>cancelCast(w),nodeById:id=>nodeById(id),wvFam:w=>wvFam(w),get SPLICE(){return SPLICE;}};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -10031,7 +10071,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports,cloudExports,hdExports,symExports,invExports,rschExports,initExports,balExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports,cloudExports,hdExports,symExports,invExports,rschExports,initExports,balExports,spliceExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

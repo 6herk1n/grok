@@ -448,6 +448,26 @@ async def main():
         print("  ok  aggdef" if not any(x.startswith("[aggdef]") for x in problems) else "  FAIL aggdef")
         await ctx.close()
 
+        # conduit splice (game50): Glintrunner Weaves open the Conduit map from anywhere; picking a node starts a still cast;
+        # the emergency one works in combat and isn't broken by damage; cancelling spends nothing
+        where[0] = "conduit splice"
+        ctx, pg = await fresh()
+        await pg.click("#bNew"); await pg.fill("#nameIn", "Smoke splice"); await pg.click("#bDeploy")
+        try:
+            await pg.wait_for_selector("#hud:not(.hidden)", timeout=20000)
+            r = await pg.evaluate("""(()=>{const d=window.__dr,P=d.P,o={};for(const e of d.enemies.slice())d.removeEnemy(e);
+              o.w=['splice','splice2','jackin','jackin2'].every(id=>d.WEAVES[id]&&d.WEAVES[id].prof==='runner');
+              P.pos.set(60,P.pos.y,60);const bar=d.barIds();bar[0]='splice';P.lastCombat=-100;P.en=d.S.maxEn;
+              o.open=d.useAbility(0)&&d.panelOpen==='conduit';d.closePanel();d.conduitTravel('town');o.cast=!!(P.cast&&P.cast.still&&P.cast.fragile&&/Splicing/.test(P.cast.label));
+              d.cancelCast();o.free=!P.cds.splice;P.lastCombat=d.T;o.blocked=!d.useAbility(0);
+              bar[0]='jackin';o.em=d.useAbility(0);d.closePanel();d.conduitTravel('town');o.emCast=!!(P.cast&&!P.cast.fragile);d.cancelCast();return o;})()""")
+            if not all(r.values()):
+                problems.append(f"[conduit splice] {r}")
+        except Exception as e:
+            problems.append(f"[conduit splice] {str(e)[:200]}")
+        print("  ok  conduit splice" if not any(x.startswith("[conduit splice]") for x in problems) else "  FAIL conduit splice")
+        await ctx.close()
+
         for (w, h) in PHONE_VIEWS:
             where[0] = f"phone {w}x{h}"
             ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2,

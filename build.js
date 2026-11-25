@@ -23,7 +23,7 @@ const THREE_URL='three.min.js?v='+THREE_V;   // versioned URL: a game update re-
 // Game code: these files are concatenated IN THIS ORDER into one <script> (later files patch earlier ones; game4 boots the game last)
 const ORDER=['game1','game25','game2','game3','game5','game6','game7','game8','game9','game10','game11','game12','game13','game14','game15','game16',
   'game17','game18','game19','game20','game21','game22','game23','game24','game26','game27','game28','game29','game30','game31','game32','game33',
-  'game34','game35','game36','game37','game38','game39','game40','game41','game42','game43','game44','game45','game46','game47','game48','game49','game4'];
+  'game34','game35','game36','game37','game38','game39','game40','game41','game42','game43','game44','game45','game46','game47','game48','game49','game50','game4'];
 // HD look assets: src/hd/* are copied to hd/; their URLs carry ?v=<hash of all of them> (__HDV__ in game44.js)
 const HD_FILES=fs.readdirSync(path.join(SRC,'hd')).filter(f=>/\.(glb|txt)$/.test(f)).sort();
 const HDV=sha8(Buffer.concat(HD_FILES.map(f=>fs.readFileSync(path.join(SRC,'hd',f)))));
