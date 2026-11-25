@@ -353,10 +353,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261124T101508-d6a1a55e">
+<meta name="dr-build" content="20261125T075452-89284cf5">
 <script>
 (function(){
-var BUILD='20261124T101508-d6a1a55e';window.DR_BUILD=BUILD;
+var BUILD='20261125T075452-89284cf5';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -2475,14 +2475,24 @@ function rollVeil(e,rng){rng=rng||Math.random;if(!e||e.lv<5)return null;const p=
 /* ---------- Shimmerveil visual: glowing blue lattice over the body ---------- */
 const veilMat=new THREE.MeshBasicMaterial({color:0x3fb4ff,transparent:true,opacity:0.5,depthWrite:false});
 const veilWire=new THREE.MeshBasicMaterial({color:0x6fdcff,wireframe:true,transparent:true,opacity:0.7,depthWrite:false,blending:THREE.AdditiveBlending});
+// HD look: the HD body is skinned, so a plain scaled copy shows the raw rest pose. Skinned parts get a skinned copy on the
+// same skeleton instead, pushed out along the normals in the shader (VEIL_INF, in the mesh's own units).
+const VEIL_INF={value:0};
+function veilSkinMat(m){const c=m.clone();c.onBeforeCompile=sh=>{sh.uniforms.uVeilInf=VEIL_INF;
+  sh.vertexShader='uniform float uVeilInf;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed+=normalize(normal)*uVeilInf;');};
+  c.customProgramCacheKey=()=>'veilskin';return c;}
+const veilMatSk=veilSkinMat(veilMat),veilWireSk=veilSkinMat(veilWire);
 function veilActive(){const b=P.buffs.find(b=>b.id==='veil1'||b.id==='veil2');return b?b.id:null;}
 function updVeil(){if(!PM)return;const v=state==='play'?veilActive():null;
-  if(v&&(!PM.veil||PM.veilId!==v)){clearVeil();const ms=[];PM.g.traverse(o=>{if(o.isMesh&&!o.userData.veil)ms.push(o);});PM.veil=[];PM.veilId=v;const k=v==='veil2'?1.22:1.16;
-    for(const o of ms){const a=new THREE.Mesh(o.geometry,veilMat);a.scale.setScalar(k);a.userData.veil=1;o.add(a);const w=new THREE.Mesh(o.geometry,veilWire);w.scale.setScalar(k+0.03);w.userData.veil=1;o.add(w);PM.veil.push(a,w);}
-    PM.veilRing=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:0x59c8ff,transparent:true,opacity:0.6,depthWrite:false,side:THREE.DoubleSide}));PM.veilRing.scale.set(1.1,1,1.1);PM.veilRing.position.y=0.08;PM.g.add(PM.veilRing);PM.veil.push(PM.veilRing);}
+  if(v&&(!PM.veil||PM.veilId!==v||PM.veilHd!==(PM.hd||null))){clearVeil();const ms=[];PM.g.traverse(o=>{if(o.isMesh&&!o.userData.veil)ms.push(o);});PM.veil=[];PM.veilId=v;PM.veilHd=PM.hd||null;const k=v==='veil2'?1.22:1.16;
+    let R=0;for(const o of ms)if(o.isSkinnedMesh){if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();R=Math.max(R,o.geometry.boundingSphere.radius);}
+    VEIL_INF.value=R*(v==='veil2'?0.075:0.055);
+    for(const o of ms){if(o.isSkinnedMesh){for(const [mt,f] of [[veilMatSk,1],[veilWireSk,1.25]]){const a=new THREE.SkinnedMesh(o.geometry,mt);a.bind(o.skeleton,o.bindMatrix);a.userData.veil=1;a.frustumCulled=false;a.renderOrder=f;o.add(a);PM.veil.push(a);}continue;}
+      const a=new THREE.Mesh(o.geometry,veilMat);a.scale.setScalar(k);a.userData.veil=1;o.add(a);const w=new THREE.Mesh(o.geometry,veilWire);w.scale.setScalar(k+0.03);w.userData.veil=1;o.add(w);PM.veil.push(a,w);}
+    PM.veilRing=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:0x59c8ff,transparent:true,opacity:0.6,depthWrite:false,side:THREE.DoubleSide}));PM.veilRing.scale.set(1.1,1,1.1);PM.veilRing.userData.keepHd=1;PM.veilRing.position.y=0.08;PM.g.add(PM.veilRing);PM.veil.push(PM.veilRing);}
   else if(!v&&PM.veil)clearVeil();
-  if(PM.veil){const f=PM.veilId==='veil2'?1.35:1;veilMat.opacity=Math.min(0.75,(0.46+Math.sin(T*4)*0.1)*f);veilWire.opacity=(0.5+Math.sin(T*6+1)*0.2)*f;veilMat.color.setHex(PM.veilId==='veil2'?0x7fd8ff:0x59c8ff);PM.veilRing.rotation.y+=0.03;}}
-function clearVeil(){if(PM&&PM.veil){PM.veil.forEach(m=>m.parent&&m.parent.remove(m));PM.veil=null;PM.veilId=null;}}
+  if(PM.veil){const f=PM.veilId==='veil2'?1.35:1;veilMat.opacity=Math.min(0.75,(0.46+Math.sin(T*4)*0.1)*f);veilWire.opacity=(0.5+Math.sin(T*6+1)*0.2)*f;veilMat.color.setHex(PM.veilId==='veil2'?0x7fd8ff:0x59c8ff);veilMatSk.opacity=veilMat.opacity*0.42;veilMatSk.color.setHex(PM.veilId==='veil2'?0x3aa8ff:0x1f86e8);veilWireSk.opacity=veilWire.opacity*0.4;veilWireSk.color.setHex(PM.veilId==='veil2'?0x3a9cf0:0x2a78d0);PM.veilRing.rotation.y+=0.03;}}
+function clearVeil(){if(PM&&PM.veil){PM.veil.forEach(m=>m.parent&&m.parent.remove(m));PM.veil=null;PM.veilId=null;PM.veilHd=null;}}
 
 /* ---------- outposts, Save Points, Conduit nodes, teleporter pads ---------- */
 const SAVEPTS={town:{id:'town',name:"Halden's Rest",x:-12,z:-8,sx:0,sz:10}};
@@ -9257,7 +9267,7 @@ function hdSyncGun(H){const src=PM&&PM.gun;if(!src||!H.hand)return;const w=P.eq&
   const s=1/Math.max(0.001,(PM.g.scale.y||1));H.gun.scale.set(src.scale.x*s,src.scale.y*s,src.scale.z*s);
   H.gun.position.set(0,0.08,wk==='blade'?0.03:0);H.gun.rotation.set(Math.PI/2,0,0);H.gun.visible=wk!=='fist'&&!P.mount;}
 // hide every classic mesh under PM.g except the HD body (gear code keeps adding meshes, so this runs each frame)
-function hdHideClassic(R){const keep=R.hd&&R.hd.g;R.g.traverse(o=>{if(o===keep)return;if(o.isMesh||o.isSkinnedMesh){let p=o.parent,inHd=false;while(p){if(p===keep){inHd=true;break;}p=p.parent;}if(!inHd)o.visible=false;}});}
+function hdHideClassic(R){const keep=R.hd&&R.hd.g;R.g.traverse(o=>{if(o===keep||o.userData.keepHd)return;if(o.isMesh||o.isSkinnedMesh){let p=o.parent,inHd=false;while(p){if(p===keep){inHd=true;break;}p=p.parent;}if(!inHd)o.visible=false;}});}
 function hdAttachPlayer(){if(!PM||!hdOn()||HD.state!=='ready'||PM.hd)return;
   const CL=P.clothing||{};const hc=hairCol(CL.hairc);
   let H;try{H=hdBuild({sex:CL.body,hair:CL.hair,hairc:hc,beard:CL.face==='grizzled'||CL.face==='weathered'});}catch(e){HD.state='error';HD.err=String(e).slice(0,120);return;}

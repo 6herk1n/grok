@@ -112,7 +112,7 @@ function hdSyncGun(H){const src=PM&&PM.gun;if(!src||!H.hand)return;const w=P.eq&
   const s=1/Math.max(0.001,(PM.g.scale.y||1));H.gun.scale.set(src.scale.x*s,src.scale.y*s,src.scale.z*s);
   H.gun.position.set(0,0.08,wk==='blade'?0.03:0);H.gun.rotation.set(Math.PI/2,0,0);H.gun.visible=wk!=='fist'&&!P.mount;}
 // hide every classic mesh under PM.g except the HD body (gear code keeps adding meshes, so this runs each frame)
-function hdHideClassic(R){const keep=R.hd&&R.hd.g;R.g.traverse(o=>{if(o===keep)return;if(o.isMesh||o.isSkinnedMesh){let p=o.parent,inHd=false;while(p){if(p===keep){inHd=true;break;}p=p.parent;}if(!inHd)o.visible=false;}});}
+function hdHideClassic(R){const keep=R.hd&&R.hd.g;R.g.traverse(o=>{if(o===keep||o.userData.keepHd)return;if(o.isMesh||o.isSkinnedMesh){let p=o.parent,inHd=false;while(p){if(p===keep){inHd=true;break;}p=p.parent;}if(!inHd)o.visible=false;}});}
 function hdAttachPlayer(){if(!PM||!hdOn()||HD.state!=='ready'||PM.hd)return;
   const CL=P.clothing||{};const hc=hairCol(CL.hairc);
   let H;try{H=hdBuild({sex:CL.body,hair:CL.hair,hairc:hc,beard:CL.face==='grizzled'||CL.face==='weathered'});}catch(e){HD.state='error';HD.err=String(e).slice(0,120);return;}

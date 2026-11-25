@@ -349,6 +349,16 @@ async def main():
             except Exception as e:
                 st3 = await pg.evaluate("window.__hdB.map(e=>({reg:!!e.R.hdB,hd:!!e.R.hd,dead:e.dead,cur:e.R.hd&&e.R.hd.cur}))")
                 problems.append(f"[hd look] HD robot/hound not built/animated: {st3} {str(e)[:120]}")
+            # Shimmerveil on the HD body: the lattice must be skinned copies on the HD skeleton (not a rest-pose blob) and the ring visible
+            await pg.evaluate("(()=>{const d=window.__dr;d.P.buffs=d.P.buffs.filter(b=>b.id!=='veil1');d.addBuff('veil1','Shimmerveil','💠',60,{evade:80,dr:10});})()")
+            try:
+                await pg.wait_for_function("(()=>{const P=window.__dr.PM;return P.veil&&P.veilHd})()", timeout=10000)
+                vs = await pg.evaluate("(()=>{const PM=window.__dr.PM;const sk=PM.veil.filter(m=>m.isSkinnedMesh);return {sk:sk.length,bad:sk.filter(m=>m.skeleton!==m.parent.skeleton).length,ring:PM.veilRing.visible,dr:window.__dr.S.dr}})()")
+                if not vs["sk"] or vs["bad"] or not vs["ring"]:
+                    problems.append(f"[hd look] Shimmerveil not wrapped on the HD body: {vs}")
+            except Exception as e:
+                problems.append(f"[hd look] Shimmerveil never built on the HD body: {str(e)[:120]}")
+            await pg.evaluate("(()=>{const d=window.__dr;d.P.buffs=d.P.buffs.filter(b=>b.id!=='veil1');d.calcStats();})()")
             await pg.evaluate("window.__dr.setLook('classic')")
             try:
                 await pg.wait_for_function("!window.__dr.hdPlayer && !window.__dr.HD_NPCS.some(R=>R.hd)", timeout=15000)
