@@ -182,7 +182,7 @@ function abandonMission(id){const m=id?contracts().find(q=>q.id===id):contracts(
 // preferred reward: 75% chance to get the chosen kind; harder contracts roll better rarity
 function missionReward(m){const L=P.level,boost=15+(m.rar||0);let k=m.pref&&m.pref!=='any'&&Math.random()<0.75?m.pref:pick(['weapon','armour','implant','disk']);
   const rr=Math.max(1,rollRarity(boost));
-  if(k==='disk'){const d=genDiskForLevel(L+1+((m.diff|0)>=3?1:0));if(d)return d;k='implant';}
+  if(k==='disk'){const d=genDiskForLevel(L+1+((m.diff|0)>=3?1:0),'mission');if(d)return d;k='implant';}
   if(k==='implant')return genImplant(L*5+randi(0,4)+(m.diff|0)*2,null,rr);
   if(k==='weapon')return genItem(L+((m.diff|0)>=3?1:0),'weapon',rr);
   return genItem(L+((m.diff|0)>=3?1:0),pick(ASLOTS),rr);}
@@ -298,7 +298,7 @@ let vendConfirm=null;
 function openVendor(){
   const L=P.level;
   if(T-stockAt>120||stockLvl!==L||vendorStock.length===0||stockCtx!==VEND.ctx){vendorStock=[];stockCtx=VEND.ctx;
-    {const pool=Object.values(WEAVES).filter(w=>!w.starter&&!w.excl&&!w.rare&&w.lvl<=L+2&&(w.prof===P.prof||w.prof==='any')&&!P.known.includes(w.id)).sort(()=>Math.random()-0.5);pool.slice(0,3).forEach(w=>vendorStock.push(genDisk(w.id)));}vendorStock.push(genItem(L,'weapon',rollRarity(10),{wt:pick(wtAff(P.prof))}),genItem(L,'weapon',rollRarity(10)),genItem(L,pick(ASLOTS),rollRarity(10),{fam:PROF_FAM[P.prof]}),genItem(L,pick(ASLOTS),rollRarity(10)),genItem(L+1,'gear',rollRarity(10)));
+    {const pool=Object.values(WEAVES).filter(w=>!w.starter&&!w.excl&&!w.rare&&(typeof wvVend!=='function'||wvVend(w))&&w.lvl<=L+2&&(w.prof===P.prof||w.prof==='any')&&!P.known.includes(w.id)).sort(()=>Math.random()-0.5);pool.slice(0,3).forEach(w=>vendorStock.push(genDisk(w.id)));}vendorStock.push(genItem(L,'weapon',rollRarity(10),{wt:pick(wtAff(P.prof))}),genItem(L,'weapon',rollRarity(10)),genItem(L,pick(ASLOTS),rollRarity(10),{fam:PROF_FAM[P.prof]}),genItem(L,pick(ASLOTS),rollRarity(10)),genItem(L+1,'gear',rollRarity(10)));
     (L<=10?[Math.max(1,L*2),L*4+1,L*5+3,L*7+4,L*9+6]:[L*3,L*4,L*4+6,L*5-2,L*5]).forEach(q=>vendorStock.push(genImplant(q,null,rollRarity(10))));if(typeof hubStock==='function')hubStock(vendorStock,L);stockAt=T;stockLvl=L;}
   const price=it=>it.kind==='gear'?it.value*4:it.value*3;
   let h=`<div class="tabs"><button data-act="tab" data-t="buy" class="${vendTab==='buy'?'on':''}">Buy</button><button data-act="tab" data-t="sell" class="${vendTab==='sell'?'on':''}">Sell</button><span style="margin-left:auto;display:flex;gap:8px;align-items:center">${sellJunkBtn()}<span style="color:#ffc85a;font-weight:800">${P.credits}¢</span></span></div>`;

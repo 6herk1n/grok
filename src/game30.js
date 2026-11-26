@@ -139,7 +139,7 @@ const XHUBS=[];
     HUBS.push({id:d.id,o,vend:H.vend,term:H.term,vn:d.vn,tn:d.tn,title:d.title,
       stock(list,L){list.push(genItem(L+1,'weapon',3,{wt:pick(wtAff(P.prof))}),genItem(L+1,pick(ASLOTS),3,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5),null,3));
         if(L>=d.min)list.push(genItem(L,'weapon',ASC,{wt:pick(wtAff(P.prof))}),genItem(L,pick(ASLOTS),ASC,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5-2),null,ASC));
-        const ws=Object.values(WEAVES).filter(w=>w.lvl>=d.min&&w.lvl<=L+1&&(w.prof===P.prof||w.prof==='any')&&!w.excl&&!w.rare&&!w.starter);if(ws.length&&typeof genDisk==='function'){const dk=genDisk(pick(ws).id);if(dk)list.push(dk);}}});}})();
+        const ws=Object.values(WEAVES).filter(w=>w.lvl>=d.min&&w.lvl<=L+1&&(w.prof===P.prof||w.prof==='any')&&!w.excl&&!w.rare&&!w.starter&&(typeof wvVend!=='function'||wvVend(w)));if(ws.length&&typeof genDisk==='function'){const dk=genDisk(pick(ws).id);if(dk)list.push(dk);}}});}})();
 /* ---------- regions: camps, props and fen water ---------- */
 // camps (three per corner, six per region); level follows depth into the corner
 const XREG=[

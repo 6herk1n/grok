@@ -178,7 +178,7 @@ function completeStep(){const st=sto(),c=st.cur;if(!c)return;const s=STEP[c.id];
   const r=s.rew||{};gainXp(r.xp||0);P.credits+=r.cr||0;const got=[];if(r.xp)got.push('+'+r.xp+' XP');if(r.cr)got.push('+'+r.cr+'¢');
   const give=it=>{if(!it)return;if(P.inv.length<24)P.inv.push(it);else dropLoot(P.pos.x+1,P.pos.z,it);got.push(it.name);};
   if(r.gear)give(genItem(Math.max(1,s.lvl),r.gear==='weapon'?'weapon':'gear',2,r.gear==='weapon'?{wt:PROF_WT[P.prof]}:{fam:PROF_FAM[P.prof]}));
-  if(r.disk){const d=genDiskForLevel(Math.min(MAXLVL,s.lvl+1));if(d)give(d);}
+  if(r.disk){const d=genDiskForLevel(Math.min(MAXLVL,s.lvl+1),'mission');if(d)give(d);}
   SFX.level();markSeen(s.id+':out');log('📜 Story complete: <b style="color:#ffd25a">'+esc(s.n)+'</b> · '+got.map(esc).join(', '));refreshBarriers();
   showStoryPop(s,got);save();}
 // completion popup: rewards, outro, and any areas that just unlocked

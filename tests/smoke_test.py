@@ -284,12 +284,15 @@ async def main():
         await page.evaluate("() => { const d = window.__dr; d.closePanel(); d.wvFilt = 'all'; }")
         print("  ok  weave loadouts" if not any(x.startswith("[weave loadouts]") for x in problems) else "  FAIL weave loadouts")
 
-        # Build W2 Weave library + spell effects: the first 7 professions have 40-60 Weaves each, and a top-rank AoE effect
+        # Build W2/W3 Weave library + spell effects: the first 7 professions have 40-60 Weaves each, the other 7 have 50-60 (W3)
+        # and top-rank discs show a tough-content source, and a top-rank AoE effect
         # plays (pooled pieces appear) and clears again.
         where[0] = "spell effects"
         try:
             res = await page.evaluate("""() => { const d = window.__dr; const P = d.P;
                 for (const p of ['vanguard','weaver','mender','flux','runner','wright','wild']) { const n = d.wv2Count(p); if (n < 40 || n > 60) return p + ' has ' + n + ' Weaves'; }
+                for (const p of ['binder','mind','harm','exact','fist','shade','siege']) { const n = d.wv3Count(p); if (n < 50 || n > 60) return p + ' has ' + n + ' Weaves (W3)'; }
+                if (d.WEAVES.skyhammer3.src3 !== 'elite' || !/hard-mode/.test(d.WEAVES.skyhammer3.src)) return 'top-rank disc source missing';
                 d.fx2Demo('pyre4', P.pos.x, P.pos.z + 8); return d.fx2Live() > 0 ? 'ok' : 'no effect pieces spawned'; }""")
             if res != "ok":
                 problems.append(f"[spell effects] {res}")

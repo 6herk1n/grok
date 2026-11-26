@@ -203,7 +203,7 @@ const XMHUBS=[];
     HUBS.push({id:R.hub,o,vend:H.vend,term:H.term,vn:q[0],tn:R.hn+' Contracts',title:nm+' QUARTERMASTER',
       stock(list,L){list.push(genItem(L+1,'weapon',3,{wt:pick(wtAff(P.prof))}),genItem(L+1,pick(ASLOTS),3,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5),null,3));
         if(L>=min)list.push(genItem(L,'weapon',ASC,{wt:pick(wtAff(P.prof))}),genItem(L,pick(ASLOTS),ASC,{fam:PROF_FAM[P.prof]}),genImplant(Math.min(IMPQL_MAX(),L*5-2),null,ASC));
-        const ws=Object.values(WEAVES).filter(w=>w.lvl>=min&&w.lvl<=L+1&&(w.prof===P.prof||w.prof==='any')&&!w.excl&&!w.rare&&!w.starter);if(ws.length){const dk=genDisk(pick(ws).id);if(dk)list.push(dk);}}});});})();
+        const ws=Object.values(WEAVES).filter(w=>w.lvl>=min&&w.lvl<=L+1&&(w.prof===P.prof||w.prof==='any')&&!w.excl&&!w.rare&&!w.starter&&(typeof wvVend!=='function'||wvVend(w)));if(ws.length){const dk=genDisk(pick(ws).id);if(dk)list.push(dk);}}});});})();
 /* ---------- camps: six per region along the sector (offsets in degrees from the sector start, distance from the centre on the square ring) ---------- */
 const XMCAMP=[[[6,1000],[17,1075],[29,955],[40,1045],[58,985],[67,1080]],[[5,1050],[18,960],[30,1070],[41,990],[57,1060],[66,970]],[[7,995],[19,1080],[31,960],[42,1050],[58,1000],[66,1075]],
   [[6,1060],[18,985],[30,1075],[41,960],[57,1040],[67,990]],[[6,990],[18,1070],[29,965],[41,1055],[56,1000],[62,1060]]];
