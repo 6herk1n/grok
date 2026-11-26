@@ -353,10 +353,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261125T120628-b9a98a19">
+<meta name="dr-build" content="20261126T151837-94687161">
 <script>
 (function(){
-var BUILD='20261125T120628-b9a98a19';window.DR_BUILD=BUILD;
+var BUILD='20261126T151837-94687161';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -9157,7 +9157,7 @@ function cloudExports(){return {CLOUD_KEY,CL,cloudGet,cloudSet,cloudPush,cloudLi
    A per-device graphics option (Settings → Graphics → Look: Classic / HD). Classic stays the default and is untouched.
    Assets: hd/*.glb (Quaternius Universal Base Characters + Modular Character Outfits - Fantasy + Universal Animation Library,
    all CC0; packed by tools/hd/pack.mjs). Loaded on demand by THREE.GLTFLoader (src/vendor/three-gltf.js), cached by sw.js
-   in its own 'dustreach-hd' cache so a game update doesn't re-download them. URLs carry ?v=65d77f3d (hash of the files).
+   in its own 'dustreach-hd' cache so a game update doesn't re-download them. URLs carry ?v=90b42d45 (hash of the files).
    How it plugs in: the classic rig (PM) is still built and still drives everything that reads PM.* (gear, veil, mounts,
    emotes...), but its meshes are hidden every frame and an HD body is parented to PM.g. PM.anim is wrapped: the HD mixer
    picks clips from the same inputs (moving, atkAnim, hurt) plus P.cast / P.mount / P.dead.
@@ -9167,10 +9167,10 @@ function cloudExports(){return {CLOUD_KEY,CL,cloudGet,cloudSet,cloudPush,cloudLi
    an empty slot shows the Peasant piece. Rarity tints the outfit slightly. Head armour shows the hood (hides hair).
    Body type (Male/Female frame) is P.clothing.body ('m'/'f'), chosen at creation or at the apartment mirror.
    Device setting: localStorage 'dustreach_look_v1' ('hd' | 'classic'). */
-const LOOK_KEY='dustreach_look_v1',HDV='65d77f3d';
+const LOOK_KEY='dustreach_look_v1',HDV='90b42d45';
 const HD={state:'off',gl:{},clips:null,err:'',want:false};
 const HD_FILES={anims:'anims',m_head:'m_head',f_head:'f_head',m_ranger:'m_ranger',m_peasant:'m_peasant',f_ranger:'f_ranger',f_peasant:'f_peasant',
-  hair_buzzed:'hair_buzzed',hair_buzzedfemale:'hair_buzzedfemale',hair_long:'hair_long',hair_buns:'hair_buns',hair_simpleparted:'hair_simpleparted',hair_beard:'hair_beard',weapons:'weapons',mech:'mech',wolf:'wolf'};
+  hair_buzzed:'hair_buzzed',hair_buzzedfemale:'hair_buzzedfemale',hair_long:'hair_long',hair_buns:'hair_buns',hair_simpleparted:'hair_simpleparted',hair_beard:'hair_beard',weapons:'weapons',mech:'mech',wolf:'wolf',bestiary:'bestiary'};
 // weapon models (Quaternius Sci-Fi Guns / Medieval Weapons / RPG packs): node in weapons.glb, length in metres, source axis, grip point along the length (0 = back end)
 const HD_WPN={rifle:{n:'sf_rifle',L:0.95,ax:'-z',grip:0.32},shotgun:{n:'fps_shotgun',L:0.85,ax:'-z',grip:0.3},pistol:{n:'sf_pistol',L:0.32,ax:'-z',grip:0.18},smg:{n:'sf_longpistol',L:0.4,ax:'-z',grip:0.15},
   emitter:{n:'sf_raygun',L:0.45,ax:'-z',grip:0.2},cannon:{n:'sf_lightning',L:0.95,ax:'-z',grip:0.35},blade:{n:'md_sword',L:1.0,ax:'y',grip:0.12},bow:{n:'md_bow',L:1.15,ax:'y',grip:0.5},rod:{n:'rpg_staff',L:1.35,ax:'y',grip:0.35}};
@@ -9287,7 +9287,7 @@ function hdExports(){return {HD_BEAST_DIM,HD_BEAST,HD_ENEMY_MAX,HD_NPCS,hdNpcTic
 const _gfxMenuHtmlHd=gfxMenuHtml;
 gfxMenuHtml=function(){const v=lookGet(),st=HD.state==='loading'?' (loading…)':HD.state==='error'?' (failed: '+esc(HD.err)+')':'';
   return _gfxMenuHtmlHd()+`<div class="h4" style="margin-top:14px">🧍 Look <small style="text-transform:none;opacity:.7">beta</small></div><div class="tabs" style="margin:0"><button data-act="look" data-l="classic" class="${v==='classic'?'on':''}">Classic</button><button data-act="look" data-l="hd" class="${v==='hd'?'on':''}">HD${v==='hd'?st:''}</button></div>
-  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 8 MB, downloaded once and kept for offline play). Townspeople, human enemies, robots and hounds near you get HD bodies too. Pick Male or Female at the apartment mirror.</div>`;};
+  <div style="opacity:.75;font-size:12px;margin-top:4px">HD swaps your character for a detailed, animated model (about 11 MB, downloaded once and kept for offline play). Townspeople, human enemies, robots, hounds and monsters near you get HD bodies too. Pick Male or Female at the apartment mirror.</div>`;};
 const _stage3ActHd=stage3Act;
 stage3Act=function(a,b){if(a==='look'){setLook(b.dataset.l,true);openMenu();return true;}return _stage3ActHd(a,b);};
 /* ---- HD townspeople: NPC humanoids ({npc:1}: quest givers, vendors, escorts, faction officers, AI teammates) ----
@@ -9349,19 +9349,41 @@ function hdEnemyTick(R,now){if(R.hdB)return hdBeastTick(R,now);const H=R.hd,e=R.
 /* ---- HD robots and hounds (2026-11-24): Quaternius Animated Mech Pack + Ultimate Animated Animals (both CC0) ----
    hd/mech.glb holds Stan, Mike and Leela; hd/wolf.glb the Wolf (tools/hd/beasts.mjs). Each enemy type below gets that model at
    its classic height h (R.g's own level scale still applies), tinted toward col by k. Clips are '<Model>|<Clip>'.
-   Bosses stay classic (same rule as HD humans) and these count towards HD_ENEMY_MAX. */
+   Bosses stay classic (same rule as HD humans) and these count towards HD_ENEMY_MAX.
+   2026-11-26: the Bestiary monsters (f:'bestiary') join them for the beast-type enemies, using the humans' clips (hdMonClips). */
 const HD_BEAST={
   sentry:{f:'mech',n:'Stan',h:2.0},warden:{f:'mech',n:'Mike',h:1.8},
   custodian:{f:'mech',n:'Leela',h:2.7},oxidebrute:{f:'mech',n:'Leela',h:2.7,col:0x7a5a3a,k:0.35},thunderhulk:{f:'mech',n:'Leela',h:2.7,col:0x4a5a7a,k:0.35},
   ashhound:{f:'wolf',n:'Wolf',h:1.05,col:0x8a5434,k:0.65},stalker:{f:'wolf',n:'Wolf',h:1.1,col:0x8fb8d0,k:0.6},cinderwraith:{f:'wolf',n:'Wolf',h:1.1,col:0x3a1e16,k:0.7},
-  coilhound:{f:'wolf',n:'Wolf',h:1.1,col:0x3e7a6c,k:0.6},galehound:{f:'wolf',n:'Wolf',h:1.1,col:0x9aa8b8,k:0.55},voidhound:{f:'wolf',n:'Wolf',h:1.1,col:0x3a2a5a,k:0.7}};
-const HD_BEAST_CLIPS={mech:{idle:'Idle',walk:'Walk',run:'Run',melee:'Punch',ranged:'Shoot',death:'Death'},wolf:{idle:'Idle',walk:'Walk',run:'Gallop',melee:'Attack',ranged:'Attack',death:'Death'}};
+  coilhound:{f:'wolf',n:'Wolf',h:1.1,col:0x3e7a6c,k:0.6},galehound:{f:'wolf',n:'Wolf',h:1.1,col:0x9aa8b8,k:0.55},voidhound:{f:'wolf',n:'Wolf',h:1.1,col:0x3a2a5a,k:0.7},
+  // 2026-11-26: Quaternius Bestiary - Dungeon Monsters Kit (hd/bestiary.glb, tools/hd/bestiary.mjs), driven by the HD humans' clips
+  mauler:{f:'bestiary',n:'Lycan',h:2.6,col:0xa07a4a,k:0.3,melee:'Punch_Cross'},brute:{f:'bestiary',n:'Tidebreaker',h:2.6,col:0x7a7066,k:0.3},
+  bloomhulk:{f:'bestiary',n:'Tidebreaker',h:2.6,col:0x4a7a3a,k:0.4},shambler:{f:'bestiary',n:'Skeleton_A',h:2.4,col:0x9fd0ff,k:0.35},
+  ossuarch:{f:'bestiary',n:'Skeleton_B',h:2.4},bloatmaw:{f:'bestiary',n:'Puglin',h:2.2,col:0x6a8a4a,k:0.3},
+  voidmaw:{f:'bestiary',n:'Hellwarden',h:2.6,col:0x5a3a8a,k:0.35},ashspawn:{f:'bestiary',n:'Imp',h:1.3}};
+const HD_BEAST_CLIPS={mech:{idle:'Idle',walk:'Walk',run:'Run',melee:'Punch',ranged:'Shoot',death:'Death'},wolf:{idle:'Idle',walk:'Walk',run:'Gallop',melee:'Attack',ranged:'Attack',death:'Death'},
+  bestiary:{idle:'Idle_Loop',walk:'Walk_Loop',run:'Jog_Fwd_Loop',melee:'Sword_Attack',ranged:'Spell_Simple_Shoot',death:'Death01'}};
+// Bestiary monsters share the HD humans' rig (same bone names and axes) but not their rest posture or size. Each rotation key
+// is applied as a change from the human's rest pose on top of the monster's own (q = monRest * humRest^-1 * key), so a hunched
+// Lycan stays hunched. Bone names in the shared file carry loader suffixes (pelvis_2), so tracks are matched without them
+// and renamed to the monster's bones; root/pelvis translation is scaled by pelvis height; tracks for bones a monster lacks are dropped. Cached per model.
+const HD_MON_CLIPS={};
+function hdMonClips(n,o){if(HD_MON_CLIPS[n])return HD_MON_CLIPS[n];const mb={},hb={};HD.gl.m_head.scene.traverse(b=>{if(b.isBone)hb[b.name]=b;});o.traverse(b=>{if(b.isBone)mb[hb[b.name]?b.name:b.name.replace(/_\d+$/,'')]=b;});
+  const hp=hb.pelvis,mp=mb.pelvis;const k=hp&&mp?mp.position.length()/Math.max(1e-6,hp.position.length()):1;const out={},q=new THREE.Quaternion(),d=new THREE.Quaternion();
+  for(const name in HD.clips){const c=HD.clips[name].full;const tr=[];for(const t of c.tracks){const bone=t.name.split('.')[0],M=mb[bone],Hb=hb[bone];if(!M)continue;const tn=M.name+t.name.slice(bone.length);
+      if(/\.position$/.test(t.name)){const u=t.clone();u.name=tn;for(let i=0;i<u.values.length;i++)u.values[i]*=k;tr.push(u);}
+      else if(/\.quaternion$/.test(t.name)&&Hb){const u=t.clone();u.name=tn;const v=u.values,hi=Hb.quaternion.clone().invert();
+        for(let i=0;i<v.length;i+=4){d.fromArray(v,i);q.copy(M.quaternion).multiply(hi).multiply(d).toArray(v,i);}tr.push(u);}
+      else{const u=t.clone();u.name=tn;tr.push(u);}}
+    out[name]=new THREE.AnimationClip(c.name,c.duration,tr);}
+  return HD_MON_CLIPS[n]=out;}
 function hdBeastBuild(R){const B=R.hdB,gl=HD.gl[B.f],src=gl&&gl.scene.getObjectByName(B.n);if(!src)throw new Error('no '+B.n);
   const o=THREE.SkeletonUtils.clone(src);o.position.set(0,0,0);o.rotation.set(0,0,0);
   o.traverse(m=>{if(!m.isMesh)return;m.frustumCulled=false;const ms=Array.isArray(m.material)?m.material:[m.material];
     const r=ms.map(x=>{const c=x.clone();if(B.col!=null&&!/eye/i.test(x.name||''))c.color.lerp(new THREE.Color(B.col),B.k||0.5);return c;});m.material=r.length===1?r[0]:r;});
   const g=new THREE.Group();g.name='hdBeast';g.add(o);const H={g,o,mixer:new THREE.AnimationMixer(o),act:{},cur:'',beast:true,lastT:null,dead:false,C:HD_BEAST_CLIPS[B.f],clips:{}};
-  for(const c of gl.animations)if(c.name.startsWith(B.n+'|'))H.clips[c.name.slice(B.n.length+1)]=c;
+  if(B.f==='bestiary'){H.clips=hdMonClips(B.n,o);if(B.melee)H.C=Object.assign({},H.C,{melee:B.melee});}
+  else for(const c of gl.animations)if(c.name.startsWith(B.n+'|'))H.clips[c.name.slice(B.n.length+1)]=c;
   hdBeastPlay(H,H.C.idle);H.mixer.update(0.01);
   // size from the posed, skinned vertices (the bind-pose mesh box ignores the armature's scale and axes); cached per model
   const D=HD_BEAST_DIM[B.n]||(HD_BEAST_DIM[B.n]=hdBeastMeasure(o));const k=B.h/Math.max(0.01,D.h);

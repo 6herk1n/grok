@@ -349,6 +349,19 @@ async def main():
             except Exception as e:
                 st3 = await pg.evaluate("window.__hdB.map(e=>({reg:!!e.R.hdB,hd:!!e.R.hd,dead:e.dead,cur:e.R.hd&&e.R.hd.cur}))")
                 problems.append(f"[hd look] HD robot/hound not built/animated: {st3} {str(e)[:120]}")
+            # HD monsters (Bestiary): a Dune Mauler (Lycan) and an Ash Spawn (Imp) borrow the humans' clips; every clip must keep
+            # most of its tracks (bone names in the shared file carry loader suffixes) and the size must land on target
+            await pg.evaluate("(()=>{const d=window.__dr;window.__hdM=[d.makeEnemy('mauler',d.P.pos.x-5,d.P.pos.z-3,5,true),d.makeEnemy('ashspawn',d.P.pos.x+5,d.P.pos.z+2,5,true)];})()")
+            try:
+                await pg.wait_for_function("window.__hdM.every(e=>e.R.hd&&e.R.hd.beast)", timeout=30000)
+                ms = await pg.evaluate("window.__hdM.map(e=>{const H=e.R.hd,B=e.R.hdB,D=window.__dr.HD_BEAST_DIM[B.n];return {n:B.n,h:D?+(D.h*H.o.scale.y/B.h).toFixed(2):0,tr:Math.min(...Object.values(H.clips).map(c=>c.tracks.length))};})")
+                if not all(0.9 < m["h"] < 1.1 and m["tr"] >= 40 for m in ms):
+                    problems.append(f"[hd look] HD monster size or clips off: {ms}")
+                await pg.evaluate("(()=>{const d=window.__dr,e=window.__hdM[0];e.hp=1;d.killEnemy(e);})()")
+                await pg.wait_for_function("(()=>{const H=window.__hdM[0].R.hd;return H&&H.dead&&H.cur==='Death01'})()", timeout=20000)
+            except Exception as e:
+                st4 = await pg.evaluate("window.__hdM.map(e=>({reg:!!e.R.hdB,hd:!!e.R.hd,dead:e.dead,cur:e.R.hd&&e.R.hd.cur}))")
+                problems.append(f"[hd look] HD monster not built/animated: {st4} {str(e)[:120]}")
             # Shimmerveil on the HD body: the lattice must be skinned copies on the HD skeleton (not a rest-pose blob) and the ring visible
             await pg.evaluate("(()=>{const d=window.__dr;d.P.buffs=d.P.buffs.filter(b=>b.id!=='veil1');d.addBuff('veil1','Shimmerveil','💠',60,{evade:80,dr:10});})()")
             try:

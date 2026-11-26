@@ -8,6 +8,9 @@ All models by Quaternius (https://quaternius.com):
   - mech.glb: Animated Mech Pack (Mar 2021, CC0): Stan, Mike, Leela; wolf.glb: Ultimate Animated Animals (CC0): Wolf
     (downloaded 2026-11-24, packed by tools/hd/beasts.mjs)
   - ship.glb: LowPoly Spaceships (Jan 2018) free pack, Spaceship5, converted the same way (downloaded 2026-11-24)
+  - bestiary.glb: Bestiary - Dungeon Monsters Kit (Source tier, bought 2026-11-26, Quaternius Asset License v1.0):
+    Hellwarden, Imp, Lycan, Puglin, Skeleton_A, Skeleton_B, Tidebreaker (packed by tools/hd/bestiary.mjs). Paid assets:
+    the original pack (zip, .blend, full-size textures) is not in this repo and must not be added.
 Quaternius's current licence (Quaternius Asset License v1.0) also allows use in games, free, no credit required,
 but not re-distributing the models as an asset pack. These files are part of the game: please don't extract
 them for reuse; get them from quaternius.com instead.
