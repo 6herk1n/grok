@@ -284,6 +284,22 @@ async def main():
         await page.evaluate("() => { const d = window.__dr; d.closePanel(); d.wvFilt = 'all'; }")
         print("  ok  weave loadouts" if not any(x.startswith("[weave loadouts]") for x in problems) else "  FAIL weave loadouts")
 
+        # Build W2 Weave library + spell effects: the first 7 professions have 40-60 Weaves each, and a top-rank AoE effect
+        # plays (pooled pieces appear) and clears again.
+        where[0] = "spell effects"
+        try:
+            res = await page.evaluate("""() => { const d = window.__dr; const P = d.P;
+                for (const p of ['vanguard','weaver','mender','flux','runner','wright','wild']) { const n = d.wv2Count(p); if (n < 40 || n > 60) return p + ' has ' + n + ' Weaves'; }
+                d.fx2Demo('pyre4', P.pos.x, P.pos.z + 8); return d.fx2Live() > 0 ? 'ok' : 'no effect pieces spawned'; }""")
+            if res != "ok":
+                problems.append(f"[spell effects] {res}")
+            else:
+                await page.wait_for_function("() => window.__dr.fx2Live() === 0", timeout=15000)
+        except Exception as e:
+            problems.append(f"[spell effects] failed: {str(e)[:200]}")
+        print("  ok  spell effects" if not any(x.startswith("[spell effects]") for x in problems) else "  FAIL spell effects")
+
+
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
         await page.goto(URL)
