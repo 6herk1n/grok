@@ -11,6 +11,8 @@ All models by Quaternius (https://quaternius.com):
   - bestiary.glb: Bestiary - Dungeon Monsters Kit (Source tier, bought 2026-11-26, Quaternius Asset License v1.0):
     Hellwarden, Imp, Lycan, Puglin, Skeleton_A, Skeleton_B, Tidebreaker (packed by tools/hd/bestiary.mjs). Paid assets:
     the original pack (zip, .blend, full-size textures) is not in this repo and must not be added.
+  - scifi.glb: Modular Sci-Fi MegaKit (Source tier, bought 2026-11-26, Quaternius Asset License v1.0): 32 wall, floor,
+    column and prop pieces (packed by tools/hd/scifi.mjs). Paid assets: same rule, the original pack is not in this repo.
 Quaternius's current licence (Quaternius Asset License v1.0) also allows use in games, free, no credit required,
 but not re-distributing the models as an asset pack. These files are part of the game: please don't extract
 them for reuse; get them from quaternius.com instead.

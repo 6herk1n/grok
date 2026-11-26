@@ -127,7 +127,7 @@ buildPlayerModel=function(){_buildPlayerModelHd();try{hdAttachPlayer();}catch(e)
 const _refreshGearVisualHd=refreshGearVisual;
 refreshGearVisual=function(){_refreshGearVisualHd.apply(this,arguments);try{if(PM&&PM.hd)hdDress(PM.hd,typeof xmogEq==='function'?xmogEq(P.eq):P.eq);}catch(e){}};
 HD.want=lookGet()==='hd';if(HD.want)setTimeout(()=>{try{hdLoad();}catch(e){}},300);
-function hdExports(){return {HD_BEAST_DIM,HD_BEAST,HD_ENEMY_MAX,HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
+function hdExports(){return {HDK,hdDunDress,HD_BEAST_DIM,HD_BEAST,HD_ENEMY_MAX,HD_NPCS,hdNpcTick,HD,LOOK_KEY,lookGet,setLook,hdLoad,hdBuild,hdDress,hdOn,get hdPlayer(){return PM&&PM.hd;}};}
 // Settings → Graphics: the Look switch
 const _gfxMenuHtmlHd=gfxMenuHtml;
 gfxMenuHtml=function(){const v=lookGet(),st=HD.state==='loading'?' (loading…)':HD.state==='error'?' (failed: '+esc(HD.err)+')':'';
@@ -248,3 +248,109 @@ function hdBeastTick(R,now){const H=R.hd,e=R.hdE,C=H.C,inp=R.hdIn&&now-R.hdIn.t<
     const a=H.act[H.cur];if(a&&H.cur===C.run)a.timeScale=1.15;}
   H.mixer.update(dt);}
 
+/* ---- HD sci-fi dungeons (2026-11-26): Quaternius Modular Sci-Fi MegaKit (hd/scifi.glb, tools/hd/scifi.mjs) ----
+   In the HD look, the steel-panel dungeons (theme tex 'panel': Vault Theta-9, the Oxide Vault, the Drowned Foundry) are dressed
+   with the kit after buildDungeon: wall modules (+ a top module, stretched to the wall height) along every straight wall
+   segment, 4 m floor tiles on flat floors (not over pits or ramps), columns along room side walls and prop clusters beside
+   the walls (only where A.blocked() keeps the lanes clear; small collision circles, restored on exit like the chests').
+   The pieces are merged per area and material into a few meshes under A.g (area culling still applies), lit like the classic
+   walls, with the same dithered camera cut-away. Layout, wall/floor collision and mechanics are untouched, and the dressing
+   has its own RNG so the classic layout's random sequence is unchanged. The kit (~1 MB) loads the first time it's needed;
+   if it arrives after the dungeon is built, the dressing is added then. HDK.off=true disables it (tests/dev). */
+const HDK={state:'',p:{},mats:{},cbs:[],off:false};
+const HDK_PANEL=th=>th&&th.tex==='panel';
+function hdKitLoad(cb){if(HDK.state==='ready'){if(cb)cb();return;}if(cb)HDK.cbs.push(cb);if(HDK.state==='loading'||HDK.state==='failed')return;HDK.state='loading';
+  new THREE.GLTFLoader().load(hdUrl('scifi'),gl=>{try{hdKitPrep(gl);HDK.state='ready';}catch(e){HDK.state='failed';HDK.err=String(e).slice(0,120);}
+    const c=HDK.cbs;HDK.cbs=[];if(HDK.state==='ready')c.forEach(f=>{try{f();}catch(e){}});},null,()=>{HDK.state='failed';HDK.cbs=[];});}
+// each piece: its primitives in the piece's own space, the source material, and the posed bounds
+function hdKitPrep(gl){const s=gl.scene;s.updateMatrixWorld(true);const inv=new THREE.Matrix4();
+  for(const root of s.children){const parts=[];inv.copy(root.matrixWorld).invert();const box=new THREE.Box3();
+    root.traverse(o=>{if(!o.isMesh)return;const m=new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld);parts.push({g:o.geometry,m,src:o.material});
+      o.geometry.computeBoundingBox();box.union(o.geometry.boundingBox.clone().applyMatrix4(m));});
+    HDK.p[root.name]={parts,box};}}
+// kit materials per dungeon theme: Lambert like the classic walls, nudged toward the theme's wall colour, with the cut-away
+function hdKitMat(th,src,fl){const key=th.wall+'|'+(fl?'f|':'')+src.name;if(HDK.mats[key])return HDK.mats[key];const nm=src.name||'';
+  const m=new THREE.MeshLambertMaterial({color:0xffffff});
+  if(src.map){m.map=src.map;m.map.encoding=THREE.LinearEncoding;m.map.anisotropy=4;}
+  if(/Black/.test(nm))m.color.setHex(0x0a0a0c);else if(src.map){if(fl)m.color.lerp(new THREE.Color(th.floor),0.4).multiplyScalar(0.78);else m.color.lerp(new THREE.Color(th.wall),0.22);}else m.color.copy(src.color);
+  if(/Glass/.test(nm)){m.transparent=true;m.opacity=0.35;m.depthWrite=false;}
+  if(/Light/.test(nm)){m.emissive=new THREE.Color(th.acc);m.emissiveIntensity=0.9;}
+  if(src.alphaTest)m.alphaTest=src.alphaTest;if(src.transparent&&!m.transparent){m.transparent=true;m.depthWrite=false;}
+  m.onBeforeCompile=sh=>{sh.uniforms.uPl=DU.uPl;sh.uniforms.uCam=DU.uCam;
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWP=(modelMatrix*vec4(transformed,1.0)).xyz;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 uPl;uniform vec3 uCam;varying vec3 vWP;')
+      .replace('#include <clipping_planes_fragment>',`#include <clipping_planes_fragment>
+      {vec3 dd=uPl-uCam;float L=length(dd);vec3 n=dd/max(L,0.001);float tt=dot(vWP-uCam,n);
+        if(tt>0.2&&tt<L-0.8&&vWP.y>uPl.y+0.45){float r=length(vWP-(uCam+n*tt));float R=2.8+(1.0-tt/L)*10.0;if(r<R){float k=clamp((R-r)/1.4,0.0,1.0);vec2 f=mod(floor(gl_FragCoord.xy),2.0);float bay=(f.x*2.0+f.y*3.0-f.x*f.y*4.0)/4.0+0.125;if(k>bay)discard;}}}`);};
+  m.customProgramCacheKey=()=>'hdkit_cut';return HDK.mats[key]=m;}
+// buckets: merged geometry per material for one area
+const hdkM=new THREE.Matrix4(),hdkN=new THREE.Matrix3(),hdkV=new THREE.Vector3();
+function hdKitAdd(B,th,name,m4,fl){const P=HDK.p[name];if(!P)return;
+  for(const pt of P.parts){const mat=hdKitMat(th,pt.src,fl);const b=B.get(mat)||(B.set(mat,{pos:[],nor:[],uv:[],idx:[],n:0}),B.get(mat));
+    hdkM.multiplyMatrices(m4,pt.m);hdkN.getNormalMatrix(hdkM);const g=pt.g,pa=g.attributes.position,na=g.attributes.normal,ua=g.attributes.uv,base=b.n;
+    for(let i=0;i<pa.count;i++){hdkV.fromBufferAttribute(pa,i).applyMatrix4(hdkM);b.pos.push(hdkV.x,hdkV.y,hdkV.z);
+      if(na){hdkV.fromBufferAttribute(na,i).applyMatrix3(hdkN).normalize();b.nor.push(hdkV.x,hdkV.y,hdkV.z);}else b.nor.push(0,1,0);
+      if(ua)b.uv.push(ua.getX(i),ua.getY(i));else b.uv.push(0,0);}
+    const ix=g.index;if(ix)for(let i=0;i<ix.count;i++)b.idx.push(base+ix.getX(i));else for(let i=0;i<pa.count;i++)b.idx.push(base+i);b.n+=pa.count;}}
+function hdKitFlush(B,parent){let n=0;for(const [mat,b] of B){if(!b.n)continue;const g=new THREE.BufferGeometry();
+    g.setAttribute('position',new THREE.Float32BufferAttribute(b.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(b.nor,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(b.uv,2));
+    g.setIndex(b.n>65535?new THREE.Uint32BufferAttribute(b.idx,1):new THREE.Uint16BufferAttribute(b.idx,1));g.computeBoundingSphere();
+    const m=new THREE.Mesh(g,mat);m.userData.hdKit=1;parent.add(m);n++;}return n;}
+// place a piece: at (x,y,z), turned by yaw (local +x -> (cos,0,-sin)), scaled (sx,sy,sz)
+const hdkQ=new THREE.Quaternion(),hdkUp=new THREE.Vector3(0,1,0),hdkP=new THREE.Vector3(),hdkS=new THREE.Vector3(),hdkO=new THREE.Matrix4(),hdkT=new THREE.Matrix4();
+function hdKitAt(x,y,z,yaw,sx,sy,sz,ox,oy){hdkQ.setFromAxisAngle(hdkUp,yaw);hdkP.set(x,y,z);hdkS.set(sx,sy,sz);hdkT.compose(hdkP,hdkQ,hdkS);
+  return hdkO.makeTranslation(ox||0,oy||0,0).premultiply(hdkT);}
+const HDK_WALLS=['WallBand_Straight','WallWideBand_Straight','WallAstra_Straight','WallWideBand_Straight','WallPipe_Straight','WallBand_Straight','WallPadded_Straight'];
+const HDK_TOPS=['TopSimple_Straight','TopPlates_Straight','TopSimple_Straight','TopCables_Straight'];
+const HDK_SIDE={zp:{n:[0,-1],yaw:Math.PI/2},zm:{n:[0,1],yaw:-Math.PI/2},xp:{n:[-1,0],yaw:Math.PI},xm:{n:[1,0],yaw:0}};
+function hdDunDress(d){if(HDK.off||d.hdKit||!d.areas)return;const th=d.th;const RN=mulberry32(([...d.D.id].reduce((a,c)=>a*31+c.charCodeAt(0),7)>>>0)^0x5c1f1);
+  const rp=a=>a[Math.floor(RN()*a.length)];const H=th.wallH;let meshes=0,pieces=0;
+  const pitHit=(x0,z0,x1,z1)=>d.pits.some(p=>x1>p.x0&&x0<p.x1&&z1>p.z0&&z0<p.z1);
+  for(const A of d.areas){const B=new Map();const isConn=A.kind==='conn';
+    if(isConn&&A.ya!=null&&A.ya!==A.yb)continue;// ramps keep the classic look
+    const y=A.y;const isArena=A.s==='arena';
+    const wh=isConn?(A.t==='sc'?4.2:4.8):isArena?3.4:A.kind==='wing'?5:H;
+    const od=A.spec&&A.spec.outdoor;const vSide=od===1?'xp':od===-1?'xm':null;
+    // walls: the inner face of every straight segment between openings
+    for(const sd of A.walls||[]){if(sd===vSide)continue;const S=HDK_SIDE[sd];const along=sd==='zp'||sd==='zm';
+      const lo=along?A.x0:A.z0,hi=along?A.x1:A.z1,fix=sd==='zp'?A.z1:sd==='zm'?A.z0:sd==='xp'?A.x1:A.x0;
+      const ops=(A.open[sd]||[]).slice().sort((p,q)=>p[0]-q[0]);let cur=lo;const segs=[];
+      for(const [c,w] of ops){const a0=c-w/2-(isConn?0:0.95);if(a0>cur)segs.push([cur,a0]);cur=Math.max(cur,c+w/2+(isConn?0:0.95));}if(hi>cur)segs.push([cur,hi]);
+      for(const [p,q] of segs){const len=q-p;if(len<1.6)continue;const n=Math.max(1,Math.round(len/4)),w=len/n,sz=w/4,sy=wh/5;
+        for(let i=0;i<n;i++){const c=p+w*(i+0.5);const fx=along?c:fix+S.n[0]*0.03,fz=along?fix+S.n[1]*0.03:c;
+          hdKitAdd(B,th,rp(HDK_WALLS),hdKitAt(fx,y,fz,S.yaw,1,sy,sz,2,0));hdKitAdd(B,th,rp(HDK_TOPS),hdKitAt(fx,y,fz,S.yaw,1,sy,sz,2,0));pieces+=2;}}}
+    // floor tiles (flat floors only, not over pits)
+    if(A.t!=='bridge'){const nx=Math.max(1,Math.round(A.w/4)),nz=Math.max(1,Math.round(A.d/4)),tw=A.w/nx,td=A.d/nz;
+      for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){const x0=A.x0+ix*tw,z0=A.z0+iz*td;if(pitHit(x0,z0,x0+tw,z0+td))continue;
+        const cx=x0+tw/2,cz=z0+td/2;const spine=!isConn&&A.kind==='room'&&Math.abs(cx-A.cx)<tw*0.6;
+        const nm=isConn?'Platform_CenterPlate':spine?'Platform_Squares':((ix*7+iz*3)%5===0?'Platform_DarkPlates':'Platform_Metal');
+        hdKitAdd(B,th,nm,hdKitAt(cx,y+0.03,cz,0,tw/4,1,td/4),true);pieces++;}}
+    if(!isConn&&!isArena){
+      // columns down both side walls, clear of openings, ledges and balconies
+      const clearOf=(sd,z)=>!(A.open[sd]||[]).some(([c,w])=>Math.abs(z-c)<w/2+1.8);
+      const onRaised=(x,z)=>[A.ledge,A.bal].some(r=>r&&x>r.x0-1&&x<r.x1+1&&z>r.z0-1&&z<r.z1+9);
+      const col=rp(['Column_SimpleSquare','Column_Round','Column_Simple']);
+      for(const sd of ['xp','xm']){if(!(A.walls||[]).includes(sd)||sd===vSide)continue;const x=sd==='xp'?A.x1-0.55:A.x0+0.55;
+        for(let z=A.z0+4;z<=A.z1-3.5;z+=8){if(!clearOf(sd,z)||onRaised(x,z)||pitHit(x-0.6,z-0.6,x+0.6,z+0.6))continue;
+          hdKitAdd(B,th,col,hdKitAt(x,y,z,0,1,wh/5,1));circles.push({x,z,r:0.55});pieces++;}}
+      // prop clusters beside the walls
+      const nc=clamp(Math.round(A.w*A.d/110),2,12);let pods=0;
+      for(let t=0,made=0;t<nc*8&&made<nc;t++){const sd=rp(['xp','xm','zp','zm']);if(!(A.walls||[]).includes(sd)||sd===vSide)continue;const S=HDK_SIDE[sd];
+        const off=1.6+RN()*1.4,along=sd==='zp'||sd==='zm';const u=(along?A.x0:A.z0)+2+RN()*((along?A.w:A.d)-4);
+        const x=along?u:(sd==='xp'?A.x1-off:A.x0+off),z=along?(sd==='zp'?A.z1-off:A.z0+off):u;
+        if(A.blocked&&A.blocked(x,z,1.2))continue;if(onRaised(x,z))continue;made++;const face=S.yaw;
+        const kind=rp(['crates','crates','barrels','computer','lights','crates','vent',A.w*A.d>900&&pods<1?'pod':'barrels']);
+        const put=(nm,px,pz,yaw,s,yb)=>{const P=HDK.p[nm];if(!P)return;hdKitAdd(B,th,nm,hdKitAt(px,(yb||y)-P.box.min.y*s,pz,yaw,s,s,s));pieces++;};
+        if(kind==='crates'){const n=2+Math.floor(RN()*3);for(let i=0;i<n;i++){const nm=rp(['Prop_Crate1','Prop_Crate2','Prop_Crate3','Prop_Crate4']);const a=RN()*6.28,r=i?0.9+RN()*0.4:0;
+            put(nm,x+Math.cos(a)*r,z+Math.sin(a)*r,RN()*1.6,1.1);}
+          if(RN()<0.5)put(rp(['Prop_Crate1','Prop_Crate3']),x,z,RN()*1.6,0.9,y+1.1);circles.push({x,z,r:1.1});}
+        else if(kind==='barrels'){for(let i=0;i<3;i++){const a=i*2.1+RN(),r=i?0.55:0;put(RN()<0.5?'Prop_Barrel_Large':'Prop_Barrel_Small',x+Math.cos(a)*r,z+Math.sin(a)*r,RN()*6.28,1.15);}circles.push({x,z,r:0.9});}
+        else if(kind==='computer'){put('Prop_Computer',x,z,face+Math.PI/2,1.15);circles.push({x,z,r:0.5});}
+        else if(kind==='lights'){put('Prop_Light_Floor',x,z,face+Math.PI/2,1.3);put('Prop_Light_Floor',x+(along?1.8:0),z+(along?0:1.8),face+Math.PI/2,1.3);}
+        else if(kind==='vent')put('Prop_Vent_Big',x,z,face+Math.PI/2,1.4);
+        else if(kind==='pod'){pods++;put('Prop_Pod',x,z,face+Math.PI/2,1.0);circles.push({x,z,r:1.3});}}}
+    meshes+=hdKitFlush(B,A.g);}
+  d.hdKit={meshes,pieces};}
+const _buildDungeonHd=buildDungeon;
+buildDungeon=function(d){const r=_buildDungeonHd.apply(this,arguments);
+  try{if(hdOn()&&!HDK.off&&HDK_PANEL(d&&d.th))hdKitLoad(()=>{if(DUN===d&&hdOn())hdDunDress(d);});}catch(e){}return r;};

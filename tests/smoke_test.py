@@ -362,6 +362,23 @@ async def main():
             except Exception as e:
                 st4 = await pg.evaluate("window.__hdM.map(e=>({reg:!!e.R.hdB,hd:!!e.R.hd,dead:e.dead,cur:e.R.hd&&e.R.hd.cur}))")
                 problems.append(f"[hd look] HD monster not built/animated: {st4} {str(e)[:120]}")
+            # HD sci-fi dungeons: Vault Theta-9 (a steel-panel theme) gets the MegaKit dressing merged into a few meshes per area.
+            # Level/story are restored afterwards.
+            try:
+                kit = await pg.evaluate("""(()=>{const d=window.__dr,P=d.P,D=d.DUNGEONS.vault;window.__kitSave={lv:P.level,sd:(P.story.done||[]).slice()};
+                  for(const e of d.enemies.slice())d.removeEnemy(e);P.level=D.lvl[0]+1;P.story.done=[...new Set([...(P.story.done||[]),'vault'].concat(Array.from({length:40},(_,i)=>'s'+(i+1))))];return d.enterDungeon('vault',{});})()""")
+                if not kit:
+                    problems.append("[hd look] could not enter Vault Theta-9 for the HD kit check")
+                else:
+                    await pg.wait_for_function("!!(window.__dr.DUN&&window.__dr.DUN.hdKit)", timeout=90000)
+                    hk = await pg.evaluate("(()=>{const D=window.__dr.DUN;let m=0;for(const a of D.areas)a.g.traverse(o=>{if(o.userData.hdKit)m++;});return {m,k:D.hdKit};})()")
+                    if hk["m"] < 40 or hk["k"]["pieces"] < 300:
+                        problems.append(f"[hd look] HD sci-fi dungeon dressing too thin: {hk}")
+            except Exception as e:
+                st5 = await pg.evaluate("(()=>{const d=window.__dr;return {dun:!!d.DUN,st:d.HDK.state,err:d.HDK.err}})()")
+                problems.append(f"[hd look] HD sci-fi dungeon not dressed: {st5} {str(e)[:120]}")
+            finally:
+                await pg.evaluate("(()=>{const d=window.__dr;if(d.DUN)d.exitDungeon(true);const s=window.__kitSave;if(s){d.P.level=s.lv;d.P.story.done=s.sd;}})()")
             # Shimmerveil on the HD body: the lattice must be skinned copies on the HD skeleton (not a rest-pose blob) and the ring visible
             await pg.evaluate("(()=>{const d=window.__dr;d.P.buffs=d.P.buffs.filter(b=>b.id!=='veil1');d.addBuff('veil1','Shimmerveil','💠',60,{evade:80,dr:10});})()")
             try:
