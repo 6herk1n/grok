@@ -302,6 +302,34 @@ async def main():
             problems.append(f"[spell effects] failed: {str(e)[:200]}")
         print("  ok  spell effects" if not any(x.startswith("[spell effects]") for x in problems) else "  FAIL spell effects")
 
+        # Build X gear & implant depth: the Loadout Planner opens on every tab, a preset saves and re-applies, over-equip
+        # scales a weapon to 75%/50% below 80%/60% of its requirement (full power at 80%+, none while grandfathered), and
+        # an Alloy Glyph etches onto the weapon (bonus applied, old glyph lifted back on overwrite).
+        where[0] = "loadout planner"
+        try:
+            res = await page.evaluate("""() => { const d = window.__dr, P = d.P; const bx = d.bxi();
+                for (const t of ['pre','gap','glyph','help']) { d.openPlanner(t); if (!document.querySelector('#panel') || !/LOADOUT PLANNER/.test(document.body.innerHTML)) return 'planner tab ' + t + ' did not open'; }
+                const n0 = bx.pre.length; const i = d.bxSave(null, 'Smoke'); if (i < 0 || bx.pre.length !== n0 + 1) return 'preset not saved';
+                const r = d.bxApply(i); if (!r || r.miss.length || r.req.length) return 'preset apply reported problems';
+                const w = P.eq.weapon; if (!w) return 'no weapon';
+                const E = d.statsFor(P).E.wpn; const mk = k => Object.assign({}, P, { eq: Object.assign({}, P.eq, { weapon: Object.assign({}, w, { id: 'oe_smoke', req: [{ s: 'wpn', v: Math.ceil(E / k) }] }) }) });
+                const f = k => { const o = d.statsFor(mk(k)).oe.weapon; return o ? o.f : 1; };
+                if (f(0.9) !== 1 || f(0.7) !== 0.75 || f(0.5) !== 0.5) return 'OE factors wrong: ' + [f(0.9), f(0.7), f(0.5)];
+                const g = Object.assign({}, mk(0.5)); g.bx = Object.assign({}, bx, { gf: ['oe_smoke'] }); if (d.statsFor(g).oe.weapon) return 'grandfathered gear got OE';
+                const lv = w.lvl; w.lvl = Math.max(w.lvl || 1, 1); const h0 = d.statsFor(P).E.weave;
+                const b1 = d.glyGive('vyre', 1); if (!d.glyApply(w.id, b1.id)) return 'glyph not applied';
+                if (d.statsFor(P).E.weave < h0 + 5) return 'glyph bonus missing';
+                const b2 = d.glyGive('steady', 1); d.glyApply(w.id, b2.id);
+                if (!P.bag.some(o => o.kind === 'gly' && o.s === 'weave')) return 'overwritten glyph not returned';
+                if ((w.bonus || []).filter(b => b.gl).length !== 1) return 'more than one glyph bonus';
+                d.glyLift(w.id); bx.pre.splice(i, 1); return 'ok'; }""")
+            if res != "ok":
+                problems.append(f"[loadout planner] {res}")
+        except Exception as e:
+            problems.append(f"[loadout planner] failed: {str(e)[:200]}")
+        await page.evaluate("() => { const d = window.__dr; d.closePanel(); d.P.credits = Math.max(d.P.credits, 0); }")
+        print("  ok  loadout planner" if not any(x.startswith("[loadout planner]") for x in problems) else "  FAIL loadout planner")
+
 
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")
