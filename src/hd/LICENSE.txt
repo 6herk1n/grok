@@ -17,3 +17,17 @@ Quaternius's current licence (Quaternius Asset License v1.0) also allows use in 
 but not re-distributing the models as an asset pack. These files are part of the game: please don't extract
 them for reuse; get them from quaternius.com instead.
 Packed by tools/hd/pack.mjs and tools/hd/weapons.mjs (textures resized to JPEG, meshes quantised, animations trimmed).
+
+Build Y additions (all CC0 1.0 / public domain, downloaded 2026-11-27):
+  - critters.glb (packed by tools/hd/critters.mjs), Quaternius models from poly.pizza, each page shows
+    "Public Domain (CC0)":
+      Spider     <- "Spider" by Quaternius            https://poly.pizza/m/yRYJiAJyiM
+      Crab       <- "Crab Enemy" by Quaternius        https://poly.pizza/m/Gs3yfsV5lB
+      Snake      <- "Snake" by Quaternius             https://poly.pizza/m/x9x0viZs8V
+      Golem      <- "Yeti" (Ultimate Monsters) by Quaternius  https://poly.pizza/m/ceRHrn8HHE
+                    (Ultimate Monsters pack CC0: https://www.patreon.com/quaternius/posts/ultimate-50-73633148)
+  - kitworld.glb (packed by tools/hd/kitworld.mjs): Kenney "Space Kit" 2.0, https://kenney.nl/assets/space-kit,
+    License.txt in the pack: "Creative Commons Zero, CC0" (www.kenney.nl). Models: craft_speederA, craft_speederB,
+    craft_speederC, craft_speederD, craft_racer, hangar_largeA, hangar_largeB, hangar_smallA, hangar_smallB,
+    hangar_roundA, machine_generatorLarge, satelliteDish_large, machine_barrelLarge, barrels.
+    Kenney credit is not required but appreciated: thank you, Kenney (www.kenney.nl).

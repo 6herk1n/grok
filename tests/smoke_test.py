@@ -426,6 +426,19 @@ async def main():
                 problems.append(f"[hd look] HD sci-fi dungeon not dressed: {st5} {str(e)[:120]}")
             finally:
                 await pg.evaluate("(()=>{const d=window.__dr;if(d.DUN)d.exitDungeon(true);const s=window.__kitSave;if(s){d.P.level=s.lv;d.P.story.done=s.sd;}})()")
+            # Build Y (game54): HD critters (bugs/grubs/golems), Space Kit hubs and HD mount craft, lazily loaded
+            try:
+                await pg.evaluate("""(()=>{const d=window.__dr,P=d.P;for(const e of d.enemies.slice())d.removeEnemy(e);
+                  window.__hdY=['shardgolem','skitter','burrower','shardling'].map((t,i)=>{const e=d.makeEnemy(t,P.pos.x+4+i*3,P.pos.z+7,20,true);e.state='idle';return e;});})()""")
+                await pg.wait_for_function("window.__hdY.every(e=>e.R.hd)&&window.__dr.HDY.hub", timeout=60000)
+                P0 = await pg.evaluate("(()=>{const d=window.__dr;d.P.vehicles=[...new Set([...(d.P.vehicles||[]),'skiff'])];d.mountUp('skiff');return 1;})()")
+                await pg.wait_for_function("(()=>{const b=window.__dr.bikes.skiff;return b&&b.hdy&&b.hdy.visible&&!b.body.visible})()", timeout=30000)
+                hy = await pg.evaluate("(()=>{const d=window.__dr,H=d.HDY.hub;return {n:H.g.children.length,hid:H.hidden.length,cr:d.HDY.cr.state,kw:d.HDY.kw.state,keep:!!d.bikes.skiff.hdy.userData.keepHd}})()")
+                if hy["n"] < 20 or hy["hid"] < 6 or not hy["keep"]:
+                    problems.append(f"[hd look] Build Y hubs/mount thin: {hy}")
+            except Exception as e:
+                st6 = await pg.evaluate("(()=>{const d=window.__dr;return {hdy:{cr:d.HDY.cr.state,kw:d.HDY.kw.state,hub:!!d.HDY.hub},en:(window.__hdY||[]).map(e=>!!e.R.hd)}})()")
+                problems.append(f"[hd look] Build Y HD critters/hub/mount not built: {st6} {str(e)[:120]}")
             # Shimmerveil on the HD body: the lattice must be skinned copies on the HD skeleton (not a rest-pose blob) and the ring visible
             await pg.evaluate("(()=>{const d=window.__dr;d.P.buffs=d.P.buffs.filter(b=>b.id!=='veil1');d.addBuff('veil1','Shimmerveil','💠',60,{evade:80,dr:10});})()")
             try:
@@ -443,6 +456,10 @@ async def main():
                 pass
             if await pg.evaluate("!!window.__dr.hdPlayer || window.__dr.HD_NPCS.some(R=>R.hd)"):
                 problems.append("[hd look] switching to Classic left HD bodies behind")
+            cy = await pg.evaluate("(()=>{const d=window.__dr,b=d.bikes.skiff,H=d.HDY.hub;return {hub:!!H&&H.g.visible,body:!b||b.body.visible,craft:!!(b&&b.hdy&&b.hdy.visible)}})()")
+            if cy["hub"] or not cy["body"] or cy["craft"]:
+                problems.append(f"[hd look] switching to Classic left Build Y hubs/mount craft behind: {cy}")
+            await pg.evaluate("(()=>{const d=window.__dr;if(d.P.mount)d.dismount();for(const e of (window.__hdY||[]))if(!e.dead)d.removeEnemy(e);})()")
         except Exception as e:
             problems.append(f"[hd look] {str(e)[:200]}")
         print("  ok  hd look" if not any(x.startswith("[hd look]") for x in problems) else "  FAIL hd look")
