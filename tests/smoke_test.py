@@ -330,6 +330,49 @@ async def main():
         await page.evaluate("() => { const d = window.__dr; d.closePanel(); d.P.credits = Math.max(d.P.credits, 0); }")
         print("  ok  loadout planner" if not any(x.startswith("[loadout planner]") for x in problems) else "  FAIL loadout planner")
 
+        # Build Z (game55): Melee / Ranged split of Weapon Handling; old sheets keep both skills; Classic OE / wpn still work
+        where[0] = "melee/ranged skills"
+        try:
+            z = await page.evaluate("""()=>{const d=window.__dr;
+              const sk=d.SKILLS, fist=d.PROFS.fist, run=d.PROFS.runner, men=d.PROFS.mender, vag=d.PROFS.vanguard;
+              const W=d.WTYPES;
+              const old=d.normalizeChar?null:null;
+              const c=d.zNorm({prof:'vanguard',level:10,sb:{wpn:20,body:4},ab:{}});
+              const P=d.P,save={prof:P.prof,level:P.level,sb:Object.assign({},P.sb),ab:Object.assign({},P.ab),zWpn:P.zWpn,zBorn:P.zBorn};
+              /* stats on the migrated sheet without mutating the smoke character's flags permanently */
+              const E=d.statsFor(Object.assign({},P,{prof:'vanguard',level:10,sb:c.sb,ab:{},eq:{weapon:{id:'z',kind:'gear',slot:'weapon',wt:'rifle',dmg:10,req:[{s:'wpn',v:10}],bonus:[]}},imps:{},buffs:[],bx:P.bx})).E;
+              const born=d.zNorm({prof:'fist',level:10,sb:{},ab:{},zBorn:1});
+              const En=d.statsFor(Object.assign({},P,{prof:'fist',level:10,sb:{},ab:{},eq:{weapon:{id:'z2',kind:'gear',slot:'weapon',wt:'fist',dmg:8,req:[],bonus:[]}},imps:{},buffs:[],zWpn:born.zWpn})).E;
+              const tip=d.Z_TIP&&d.Z_TIP[d.zAff('fist')];
+              d.openSkills();
+              const html=document.getElementById('pbody')?document.getElementById('pbody').innerText:'';
+              d.closePanel();
+              return {sk,fist:{cm:fist.cost.melee,cr:fist.cost.ranged,capm:fist.meleeCap,capr:fist.rangedCap},
+                run:{cm:run.cost.melee,cr:run.cost.ranged},men:{cm:men.cost.melee,cr:men.cost.ranged},
+                wt:{blade:W.blade.sk,rifle:W.rifle.sk,rod:W.rod.sk},zWpn:c.zWpn&&c.zWpn.v,Em:E.melee,Er:E.ranged,Ew:E.wpn,
+                born:!!(born.zWpn&&born.zWpn.born),nMelee:En.melee,nRanged:En.ranged,tip:!!tip,
+                ui:html.includes('Melee')&&html.includes('Ranged')&&html.includes('weapon style')&&/Melee-strong|Ranged-strong|Balanced:/.test(html)};
+            }""")
+            bad=[]
+            if 'melee' not in z['sk'] or 'ranged' not in z['sk'] or 'wpn' in z['sk']:
+                bad.append('skills '+str(z['sk']))
+            if z['fist']['cm']!=1 or z['fist']['cr']!=3 or z['run']['cr']!=1 or z['run']['cm']!=3 or z['men']['cm']!=2 or z['men']['cr']!=2:
+                bad.append('costs '+str({k:z[k] for k in ('fist','run','men')}))
+            if z['wt']['blade']!='melee' or z['wt']['rifle']!='ranged' or z['wt']['rod']!='weave':
+                bad.append('weapons '+str(z['wt']))
+            if not z['zWpn'] or z['Em']<20 or z['Er']<20 or z['Ew']!=max(z['Em'],z['Er']):
+                bad.append('migrate '+str({k:z[k] for k in ('zWpn','Em','Er','Ew')}))
+            if not z['born'] or z['nRanged']>=z['nMelee']:
+                bad.append('new fist '+str({k:z[k] for k in ('born','nMelee','nRanged')}))
+            if not z['tip'] or not z['ui']:
+                bad.append('ui '+str({k:z[k] for k in ('tip','ui')}))
+            if bad:
+                problems.append("[melee/ranged skills] "+"; ".join(bad))
+        except Exception as e:
+            problems.append(f"[melee/ranged skills] {str(e)[:200]}")
+        print("  ok  melee/ranged skills" if not any(x.startswith("[melee/ranged skills]") for x in problems) else "  FAIL melee/ranged skills")
+
+
 
         where[0] = "save/reload"
         await page.evaluate("window.__drSave && window.__drSave()")

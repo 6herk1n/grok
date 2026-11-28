@@ -353,10 +353,10 @@ html.notouch #joy{display:none}
 /* Build U: the ⋯ menu has 7 entries; on short landscape phones show it as two columns (scrolls if still too tall) */
 @media (max-height:480px){#moreDrop{display:grid;grid-template-columns:auto auto;max-height:calc(100vh - 66px);overflow-y:auto}#moreDrop .mdi{min-width:140px;white-space:nowrap;font-size:15px}#moreDrop .mdi kbd{display:none}}
 </style>
-<meta name="dr-build" content="20261127T235649-ec3e36b2">
+<meta name="dr-build" content="20261128T031929-8dceadcc">
 <script>
 (function(){
-var BUILD='20261127T235649-ec3e36b2';window.DR_BUILD=BUILD;
+var BUILD='20261128T031929-8dceadcc';window.DR_BUILD=BUILD;
 try{if(/^https?:/.test(location.protocol)){var l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);
 if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){window.__drSW=r;}).catch(function(e){window.__drSWErr=String(e);});});}}}catch(e){}
 if(!/^https?:/.test(location.protocol))return;
@@ -1615,7 +1615,7 @@ const TIER_MAX=TIERS.length-1;
 function tierOfLv(l){let t=1;for(let i=1;i<=TIER_MAX;i++)if((l||1)>=TIERS[i].lv)t=i;return t;}
 const pTier=()=>tierOfLv(P.level);
 // breed scales the attribute cap; tiers add a flat bonus on top of the per-level cap
-const attrCap=s=>Math.round((2+2*P.level+TIERS[pTier()].a)*((s&&breedOf(P).cap[s])||1)),skillCap=s=>Math.round((5+5*P.level+TIERS[pTier()].s)*(s==='run'?(PROFS[P.prof].runCap||1):1));
+const attrCap=s=>Math.round((2+2*P.level+TIERS[pTier()].a)*((s&&breedOf(P).cap[s])||1)),skillCap=s=>Math.round((5+5*P.level+TIERS[pTier()].s)*(s==='run'?(PROFS[P.prof].runCap||1):s==='melee'?(PROFS[P.prof].meleeCap||1):s==='ranged'?(PROFS[P.prof].rangedCap||1):1));
 const costOf=s=>Math.max(1,PROFS[P.prof].cost[s]+(breedOf(P).cost[s]||0));
 function baseOf(s){const pr=PROFS[P.prof];return ATTRS.includes(s)?pr.attrs[s]+(breedOf(P).mods[s]||0):5+(pr.innate[s]||0)+(s==='run'?breedOf(P).run||0:0);}
 /* Run Speed -> % move speed: diminishing curve above a 12-point baseline, hard cap RUN_CAP. Legacy flat '% Run Speed' (spd) bonuses from old items/saves count as 2.5 Run Speed points per %. */
@@ -1646,6 +1646,9 @@ function statsFor(c){
   const hp=((80+15*(L-1))*pr.hpMul+E.body*2.5+E.sta*1.5)*br.hp+(bon.hp||0);
   const en=((60+8*(L-1))*pr.enMul+E.pool*2+E.psy)*br.en+(bon.en||0);
   const dodge=Math.round(80*E.evade/(E.evade+120)*10)/10;
+  if(E.melee!=null||E.ranged!=null){const wpnB=bon.wpn||0,sb=syn?scaleObj(c.sb,fS):(c.sb||{}),born=c.zBorn||(c.zWpn&&c.zWpn.born);
+    for(const s of ['melee','ranged']){E[s]=(E[s]||0)+wpnB+(born?0:Math.max(0,(sb.wpn||0)-(sb[s]||0)))+(typeof zMigInn==='function'?zMigInn(c,s):0);}
+    E.wpn=Math.max(E.melee||0,E.ranged||0);}
   return {runPct:runPctOf(E.run),wt,setCount:sc,towers:tn,dodge,dr:Math.min(60,bon.dr||0),maxHp:Math.round(hp),maxEn:Math.round(en),armor:Math.round(armor),dmg:Math.round(dmg),syncLv:syn?L:0,crit:5+Math.round(E.sen*0.15)+(bon.crit||0)+(pr.critB||0),power:bon.power||0,E,bon};
 }
 function calcStats(){S=statsFor(P);P.hp=Math.min(P.hp,S.maxHp);P.en=Math.min(P.en,S.maxEn);}
@@ -2617,7 +2620,7 @@ const FUTURE={
   clothing:{slots:['hat','coat','boots'],social:true},
   apartment:{storageSlots:40}
 };
-function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s),...hmFields(s),...homeFields(s),...achFields(s),...vgFields(s),...wvFields(s),...symFields(s),...invFields(s),...rschFields(s),...aggFields(s),...bxFields(s)};}
+function futureFields(s){return {tier:tierOfLv(s.level||1),perkMeta:normPerkMeta(s.perkMeta),fz:normFz(s.fz),lootF:normLootF(s.lootF),lootHint:!!s.lootHint,vsel:s.vsel||null,breed:BREEDS[s.breed]?s.breed:'settler',faction:s.faction||{side:null,rep:{}},vehicles:s.vehicles||[],pets:s.pets||[],tradeskills:s.tradeskills||{},clothing:normCloth(s.clothing),bag:normBag(s.bag),tsBonus:!!s.tsBonus||s.sp==null,apartment:s.apartment||{storage:[]},runSp:!!s.runSp,story:normStory(s),explored:typeof s.explored==='string'?s.explored:'',uwp:normWp(s.uwp),raidLock:normRaidLock(s.raidLock),sigils:Math.max(0,s.sigils|0),raidClears:s.raidClears&&typeof s.raidClears==='object'?s.raidClears:{},raidTeam:Array.isArray(s.raidTeam)?s.raidTeam.filter(x=>typeof x==='string').slice(0,5):null,team:normTeam(s.team),tg:normTG(s.tg,s.level||1),ppBonus:Math.max(0,s.ppBonus|0),quests:normQuests(s.quests,s.mission),qdone:s.qdone&&typeof s.qdone==='object'?s.qdone:{},qfocus:typeof s.qfocus==='string'?s.qfocus:null,qAutoWp:!!s.qAutoWp,dynaSeen:Array.isArray(s.dynaSeen)?s.dynaSeen.filter(x=>typeof x==='string'):[],...sunFields(s),...xpFields(s),...craftFields(s),...rmFields(s),...hmFields(s),...homeFields(s),...achFields(s),...vgFields(s),...wvFields(s),...symFields(s),...invFields(s),...rschFields(s),...aggFields(s),...bxFields(s),...zFields(s)};}
 
 /* ================= STAGE 2: breeds UI, factions + reputation, faction vendors, capturable towers + assaults,
    hover vehicles, ally/pet system (Dronewright bots, reusable for AI party members) ================= */
@@ -10518,6 +10521,93 @@ function hdyHubSync(){const want=hdOn()&&!HDY.off&&typeof DUN!=='undefined'&&!DU
 {const _slY=setLook;setLook=function(v){const r=_slY.apply(this,arguments);try{hdyHubSync();for(const id in bikes)hdyMountSync(id);}catch(e){}return r;};}
 function hdyExports(){return {HDY,HDY_BEAST,HDY_CRAFT,hdyCritLoad,hdyKitLoad,hdyHubSync,hdyMountSync,hdyHubBuild,bikes};}
 
+/* ================= Build Z (2026-11-28, GB-4): Melee and Ranged skills =================
+   Splits the old Weapon Handling skill (wpn) into Melee and Ranged. Each physical weapon
+   uses the matching skill for its requirement and (for weapon-primary professions) damage.
+   Focus weapons (rod, emitter) still use Weave Craft.
+   Affinity (from each profession's kit and starting gear, see Z_AFF): melee-strong, ranged-strong
+   or balanced. Strong skills are cheap and train further; the off skill costs more and caps lower;
+   balanced professions train both at a moderate cost so the player picks a route.
+   Migration (zWpn v1): copy trained wpn into both new skills and grant the old innate onto any
+   skill that would otherwise fall short, so each new skill is at least the old Weapon Handling.
+   No refund (nothing is taken away). Equipped gear is never stripped. Old s:'wpn' bonuses, buffs,
+   glyphs and requirements still work (bonuses apply to both; E.wpn / eff('wpn') = max of the two).
+   No new localStorage keys. */
+const Z_VER=1;
+const Z_OLD_INN={vanguard:5,runner:4,wild:4,fist:5,shade:5,siege:5};
+const Z_AFF={
+  fist:'melee',shade:'melee',
+  siege:'ranged',runner:'ranged',exact:'ranged',vanguard:'ranged',
+  wild:'both',mender:'both',weaver:'both',flux:'both',wright:'both',binder:'both',mind:'both',harm:'both'
+};
+const Z_TIP={
+  melee:'Melee-strong: Melee is cheap and trains further; Ranged costs more and caps lower.',
+  ranged:'Ranged-strong: Ranged is cheap and trains further; Melee costs more and caps lower.',
+  both:'Balanced: Melee and Ranged train at the same moderate cost, so you choose a route.'
+};
+const Z_WHY={
+  fist:'Unarmed kit: Palm Jab and strikers only.',
+  shade:'Assassin kit: Glass Knife and blades only.',
+  siege:'Heavy weapons: Cannon Shot, hand cannons, Hailfire.',
+  runner:'Skirmisher kit: Twin Pistols and Rattle Burst.',
+  exact:'Writ Pistol is the basic attack; pistols in the gear list.',
+  vanguard:'Gunner kit: Rifle Shot, Scatter Burst, Breach Round (blades are available, but the kit is guns).',
+  wild:'Hunting Bow and rifles out of morph; beast Morphs fight in melee — a real route choice.',
+  mender:'Pistol and blade both in the gear list; the medic kit does not force one.',
+  weaver:'Weave-primary (hexes). A physical weapon is a side route you can choose.',
+  flux:'Weave-primary (Flux Emitter). A physical weapon is a side route you can choose.',
+  wright:'Weave-primary (bots). Rivet Pistol is a sidearm, not the main damage.',
+  binder:'Weave-primary (constructs). A physical weapon is a side route you can choose.',
+  mind:'Weave-primary (mind-bending). A physical weapon is a side route you can choose.',
+  harm:'Weave-primary (anthems). A physical weapon is a side route you can choose.'
+};
+function zAff(prof){return Z_AFF[prof]||'both';}
+function zPri(prof){const a=zAff(prof);return a==='both'?'ranged':a;}
+function zWpnSk(wt){const W=wt&&WTYPES[wt];if(!W||W.sk==='weave')return null;return W.melee?'melee':'ranged';}
+function dmgSkillOf(c){const pr=PROFS[c.prof];if(!pr)return 'wpn';if(pr.dmgSkill==='weave')return 'weave';const sk=zWpnSk(c.eq&&c.eq.weapon&&c.eq.weapon.wt);return sk||zPri(c.prof);}
+function zMigInn(c,s){if(!c||!c.zWpn||c.zWpn.born)return 0;const pr=PROFS[c.prof];return Math.max(0,(Z_OLD_INN[c.prof]||0)-((pr&&pr.innate[s])||0));}
+function zNorm(s){if(!s)return s;if(s.zWpn&&s.zWpn.v>=Z_VER)return s;if(s.zBorn||(s.zWpn&&s.zWpn.born)){s.zWpn={v:Z_VER,born:1};return s;}
+  const sb=s.sb||(s.sb={});const w=sb.wpn||0;if(sb.melee==null)sb.melee=w;if(sb.ranged==null)sb.ranged=w;s.zWpn={v:Z_VER};return s;}
+function zFields(s){zNorm(s);return {zWpn:s.zWpn||null};}
+
+/* ---- tables: skills, names, trickle, weapons, profession costs / caps / innate ---- */
+{const i=SKILLS.indexOf('wpn');if(i>=0)SKILLS.splice(i,1,'melee','ranged');}
+STATN.melee='Melee';STATN.ranged='Ranged';
+SHORT.melee='MEL';SHORT.ranged='RNG';
+STATDESC.str='Feeds Melee and Ranged. Arm implant requirement.';
+STATDESC.agi='Feeds Melee, Ranged and Treatment. Hand and foot implant requirement.';
+STATDESC.wpn='Legacy name for Melee / Ranged (the higher of the two).';
+STATDESC.melee='Melee weapon damage. Needed to wield better blades and strikers.';
+STATDESC.ranged='Ranged weapon damage. Needed to wield better guns and bows.';
+TRICKLE.melee={agi:.5,str:.5};TRICKLE.ranged={agi:.5,str:.5};
+for(const k in WTYPES){const W=WTYPES[k];if(W.sk==='wpn')W.sk=W.melee?'melee':'ranged';}
+for(const k in PROFS){
+  const pr=PROFS[k],a=zAff(k),inn=Z_OLD_INN[k]||(pr.innate.wpn||0);
+  if(a==='melee'){pr.cost.melee=1;pr.cost.ranged=3;pr.meleeCap=1.4;pr.rangedCap=0.7;if(inn)pr.innate.melee=(pr.innate.melee||0)+inn;}
+  else if(a==='ranged'){pr.cost.ranged=1;pr.cost.melee=3;pr.rangedCap=1.4;pr.meleeCap=0.7;if(inn)pr.innate.ranged=(pr.innate.ranged||0)+inn;}
+  else{pr.cost.melee=2;pr.cost.ranged=2;pr.meleeCap=1;pr.rangedCap=1;if(inn){pr.innate.melee=(pr.innate.melee||0)+Math.ceil(inn/2);pr.innate.ranged=(pr.innate.ranged||0)+Math.floor(inn/2);}}
+  pr.cost.wpn=pr.cost[zPri(k)];pr.wpnCap=pr[zPri(k)+'Cap'];pr.wpnStyle=a;delete pr.innate.wpn;
+}
+
+/* ---- caps / costs / items / reqs (skillCap / costOf are const; caps and cost.wpn are set on PROFS above) ---- */
+{const _mi=migrateItem;migrateItem=function(it){it=_mi(it);if(it&&it.kind==='gear'&&it.slot==='weapon'&&it.req){const sk=zWpnSk(it.wt);if(sk)it.req.forEach(r=>{if(r&&r.s==='wpn')r.s=sk;});}return it;};}
+
+/* ---- stats, damage, UI, sims, planner ---- */
+{const _sk=skillF;skillF=function(){const s=dmgSkillOf(P);return 1+Math.max(-0.2,(eff(s)-12)/100);};}
+{const _os=openSkills;openSkills=function(){_os.apply(this,arguments);try{const a=zAff(P.prof),pr=PROFS[P.prof];
+    const col=[...document.querySelectorAll('#pbody .h4')].find(x=>x.textContent==='Skills');if(!col)return;
+    const d=document.createElement('div');d.className='stats';d.style.margin='0 0 8px';
+    d.innerHTML='<b>'+esc(pr.name)+' weapon style.</b> '+Z_TIP[a]+' '+Z_WHY[P.prof];
+    d.title=Z_TIP[a]+' '+Z_WHY[P.prof];col.after(d);
+  }catch(e){}};}
+{const _sc=simChar;simChar=function(prof){const pr=PROFS[prof],save=pr&&pr.dmgSkill;if(pr&&save==='wpn')pr.dmgSkill=zWpnSk(PROF_WT[prof])||zPri(prof);
+  try{const c=_sc.apply(this,arguments);if(c)c.zBorn=1;return c;}finally{if(pr)pr.dmgSkill=save;}};}
+{if(typeof bxBridges==='function'){const _br=bxBridges;bxBridges=function(s){const out=_br(s)||[];
+    if(s==='melee'||s==='ranged'){for(const b of (_br('wpn')||[]))if(!out.some(x=>x.n===b.n&&x.v===b.v))out.push(b);}
+    if(s==='wpn'){for(const t of ['melee','ranged'])for(const b of (_br(t)||[]))if(!out.some(x=>x.n===b.n&&x.v===b.v))out.push(b);}
+    return out.sort((a,b)=>b.v-a.v);};}}
+function zExports(){return {Z_VER,Z_AFF,Z_TIP,Z_WHY,zAff,zPri,zWpnSk,dmgSkillOf,zFields,zNorm,skillCap,costOf,statsFor,skillF,openSkills,simChar,bxBridges,migrateItem,SKILLS,STATN,WTYPES,PROFS};}
+
 /* ---------------- input ---------------- */
 const inp={pinch:null,lastDrag:0,jx:0,jy:0,joyId:null,ox:0,oy:0,camId:null,lx:0,ly:0,st:0,mv:0,keys:{}};
 const joyEl=$('#joy'),knob=$('#joyKnob');
@@ -10829,7 +10919,7 @@ $('#bBack').onclick=()=>{SFX.ui();toTitle();};
 $('#bDeploy').onclick=()=>{audioInit();const ck=showNameErr($('#nameIn'),$('#nameErr'),null);if(!ck.ok){SFX.err();toast(ck.msg);try{$('#nameIn').focus();}catch(e){}return;}SFX.quest();const name=ck.name;$('#nameIn').value='';delete $('#nameIn').dataset.touched;P.prof=selProf;
   const w=genItem(1,'weapon',0,{wt:PROF_WT[selProf]});const a=genItem(1,'armor',0,{fam:PROF_FAM[selProf]});w.name='Outpost-issue '+WTYPES[PROF_WT[selProf]].names[0];a.name='Worn '+AFAM[PROF_FAM[selProf]].pre[0]+' '+AFAM[PROF_FAM[selProf]].names.armor[0];w.req=[];a.req=[];w.bonus=[];a.bonus=[];
   const i1=genImplant(3,'eyes',0),i2=genImplant(8,'head',1);
-  startGame({v:2,id:newCharId(),created:Date.now(),name,prof:selProf,breed:selBreed,faction:{side:selFac,rep:{combine:0,ashborn:0}},level:1,xp:0,credits:25,inv:[i1,i2].concat(selProf==='wild'?[genDisk('morph_wolf')]:[]),eq:{weapon:w,armor:a},clothing:{body:selBody,hair:selHair,hairc:selHairC,face:selFace},imps:{},ab:{},sb:{},sp:SP_START,consum:{focus:1},stims:3,story:newStory()});
+  startGame({v:2,id:newCharId(),created:Date.now(),zBorn:1,name,prof:selProf,breed:selBreed,faction:{side:selFac,rep:{combine:0,ashborn:0}},level:1,xp:0,credits:25,inv:[i1,i2].concat(selProf==='wild'?[genDisk('morph_wolf')]:[]),eq:{weapon:w,armor:a},clothing:{body:selBody,hair:selHair,hairc:selHairC,face:selFace},imps:{},ab:{},sb:{},sp:SP_START,consum:{focus:1},stims:3,story:newStory()});
   if(selProf==='wild')setTimeout(()=>log('🐺 Wildshifter: your first Morph disk (<b>Dune Wolf</b>) is in your 🎒 pack. Use it to learn the morph, then slot it in the 📖 Weave Book.'),3200);
   setTimeout(()=>log('Tip: open 📈 <b>Skills</b> to spend points. In 🎒 <b>Implants</b>, a Focus Stim lets you install the QL 8 Cortex implant early.'),2500);};
 $('#bRespawn').onclick=()=>{SFX.ui();respawnPlayer();};
@@ -10853,7 +10943,7 @@ function frame(now){requestAnimationFrame(frame);if(SIMP){last=now;return;}if(GF
     if(state==='play'&&fps<45&&pixelRatio>1){slowT++;if(slowT>=3){pixelRatio=Math.max(1,pixelRatio-0.25);renderer.setPixelRatio(pixelRatio);onResize();slowT=0;}}else slowT=0;fpsAcc=0;fpsN=0;}
 }
 renderTitle();requestAnimationFrame(frame);
-window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports,cloudExports,hdExports,symExports,invExports,rschExports,initExports,balExports,spliceExports,w2Exports,w3Exports,bxExports,hdyExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
+window.__dr={aggro,partySnapshot,BREEDS,breedOf,attrCap,costOf,FACTIONS,REP_TIERS,fac,repTier,gainRep,joinFaction,openRegistrar,openFacVendor,facStock,FSTOCK,facBuy,facCanUse,facFlavour,TW,SITES,TSITES,activateSite,deactivateSite,startAssault,endAssault,get ASSAULT(){return ASSAULT;},plantTower,startPlant,towersHeld,openTowerInfo,VEHICLES,grantVehicle,buyVehicle,summonVehicle,mountUp,dismount,toggleMount,mountMul,allies,PETDEF,summonPet,activePet,petCmd,createAlly,spawnPartyMember,foeOf,NPCS,renderCreateOpts,get selBreed(){return selBreed;},set selBreed(v){selBreed=v;},get selFac(){return selFac;},set selFac(v){selFac=v;},closePanel,get panelOpen(){return panelOpen;},inCombat,setDayTime,dayInfo,get dayT(){return dayT;},WX,applySky,spawnNight,CONDUIT,PADS,SAVEPTS,OUTPOSTS,openConduit,conduitTravel,recordSavePoint,unsavedXp,totXp,applyXpLoss,rollVeil,mythicDisk,VEIL_RATE,veilActive,MDIFF,genMission,missionReward,dodgeRoll,dmgPlayer,mprefs,FUTURE,get PM(){return PM;},nameFits,gearName,rollBossLoot,BOSSES,get inv(){return P.inv;},DUNGEONS,UNIQUES,SETS,WTYPES,AFAM,makeUnique,enterDungeon,exitDungeon,get DUN(){return DUN;},get telegraphs(){return DUN?DUN.tele:[];},dunOnKill,dmgEnemy,killEnemy,playerDie,respawnPlayer,openDoor,get vendorStock(){return vendorStock;},genDiskForLevel,findInteract,refreshGearVisual,basicAb,get loots(){return loots;},updLoot,WEAVES,genDisk,learnDisk,assignSlot,openBook,setupHud,get fields(){return fields;},wipe(){activeId=null;roster={format:'dustreach-roster',v:1,active:null,maxSlots:MAX_SLOTS,chars:[],migratedOld:true};localStorage.clear();},get roster(){return roster;},partySnapshot,partyCandidates,statsFor,get activeId(){return activeId;},addBuff,updBuffs,useConsum,equip,unequip,openSkills,raise,genImplant,calcStats,eff,reqMet,get invTab(){return invTab;},set invTab(v){invTab=v;},set invSel(v){invSel=v;},P,enemies,get S(){return S;},useAbility,pressAttack,startGame,openInventory,openTerminal,openVendor,acceptMission,get missionOffers(){return missionOffers;},heightAt,camS,setTarget,get state(){return state;},dropLoot,genItem,get T(){return T;},interact,renderer,get pixelRatio(){return pixelRatio;}};Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(s3Exports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(storyExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(morphExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(runExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(campExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(bankExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(worldExports()));Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(raidExports()));for(const f of [teamExports,questExports,dynaExports,nameExports,gfxExports,saveExports,declutterExports,buildBExports,buildCExports,dunDExports,perkExports,lootExports,fzExports,tdExports,tierExports,profKExports,gfxLExports,capMExports,sunExports,simExports,xpLockExports,craftQExports,rmExports,hmExports,homeExports,achExports,vgExports,wvExports,cloudExports,hdExports,symExports,invExports,rschExports,initExports,balExports,spliceExports,w2Exports,w3Exports,bxExports,hdyExports,zExports])Object.defineProperties(window.__dr,Object.getOwnPropertyDescriptors(f()));
 Object.assign(window.__dr,{normCloth,RAR,ETYPES,respawnEnemy,save,cq,bakeRig,rigLod,dieStart,dieStep,HAIRC,hairCol,CORPSES,killEnemy,removeEnemy,dmgEnemy,dmgPlayer,makeHair,selLook:()=>({selHair,selHairC})});
 })();
 </script>

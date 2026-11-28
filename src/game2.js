@@ -418,7 +418,7 @@ const TIER_MAX=TIERS.length-1;
 function tierOfLv(l){let t=1;for(let i=1;i<=TIER_MAX;i++)if((l||1)>=TIERS[i].lv)t=i;return t;}
 const pTier=()=>tierOfLv(P.level);
 // breed scales the attribute cap; tiers add a flat bonus on top of the per-level cap
-const attrCap=s=>Math.round((2+2*P.level+TIERS[pTier()].a)*((s&&breedOf(P).cap[s])||1)),skillCap=s=>Math.round((5+5*P.level+TIERS[pTier()].s)*(s==='run'?(PROFS[P.prof].runCap||1):1));
+const attrCap=s=>Math.round((2+2*P.level+TIERS[pTier()].a)*((s&&breedOf(P).cap[s])||1)),skillCap=s=>Math.round((5+5*P.level+TIERS[pTier()].s)*(s==='run'?(PROFS[P.prof].runCap||1):s==='melee'?(PROFS[P.prof].meleeCap||1):s==='ranged'?(PROFS[P.prof].rangedCap||1):1));
 const costOf=s=>Math.max(1,PROFS[P.prof].cost[s]+(breedOf(P).cost[s]||0));
 function baseOf(s){const pr=PROFS[P.prof];return ATTRS.includes(s)?pr.attrs[s]+(breedOf(P).mods[s]||0):5+(pr.innate[s]||0)+(s==='run'?breedOf(P).run||0:0);}
 /* Run Speed -> % move speed: diminishing curve above a 12-point baseline, hard cap RUN_CAP. Legacy flat '% Run Speed' (spd) bonuses from old items/saves count as 2.5 Run Speed points per %. */
@@ -449,6 +449,9 @@ function statsFor(c){
   const hp=((80+15*(L-1))*pr.hpMul+E.body*2.5+E.sta*1.5)*br.hp+(bon.hp||0);
   const en=((60+8*(L-1))*pr.enMul+E.pool*2+E.psy)*br.en+(bon.en||0);
   const dodge=Math.round(80*E.evade/(E.evade+120)*10)/10;
+  if(E.melee!=null||E.ranged!=null){const wpnB=bon.wpn||0,sb=syn?scaleObj(c.sb,fS):(c.sb||{}),born=c.zBorn||(c.zWpn&&c.zWpn.born);
+    for(const s of ['melee','ranged']){E[s]=(E[s]||0)+wpnB+(born?0:Math.max(0,(sb.wpn||0)-(sb[s]||0)))+(typeof zMigInn==='function'?zMigInn(c,s):0);}
+    E.wpn=Math.max(E.melee||0,E.ranged||0);}
   return {runPct:runPctOf(E.run),wt,setCount:sc,towers:tn,dodge,dr:Math.min(60,bon.dr||0),maxHp:Math.round(hp),maxEn:Math.round(en),armor:Math.round(armor),dmg:Math.round(dmg),syncLv:syn?L:0,crit:5+Math.round(E.sen*0.15)+(bon.crit||0)+(pr.critB||0),power:bon.power||0,E,bon};
 }
 function calcStats(){S=statsFor(P);P.hp=Math.min(P.hp,S.maxHp);P.en=Math.min(P.en,S.maxEn);}
