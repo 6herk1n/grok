@@ -13,7 +13,7 @@ function lootDecide(it,f){f=f||lootF();if(f==='off')return 'leave';if(isDisk(it)
 /* Weave disks: never junk, never auto-sold; diskProf/diskUsable say who can learn one (generic 'any' disks fit everyone) */
 function diskProf(it){const w=it&&WEAVES[it.wid];return w?w.prof:null;}
 function diskUsable(it,prof){const p=diskProf(it);return !p||p==='any'||!PROFS[p]||p===(prof||P.prof);}
-function isJunkItem(it){if(!it||isDisk(it)||!sellableKind(it)||isEquipped(it))return false;if(it.junk===true)return true;if(it.junk===false)return false;return it.r===0&&!it.uniq&&!it.fac&&!it.quest;}
+function isJunkItem(it){if(!it||isDisk(it)||!sellableKind(it)||isEquipped(it)||isLocked(it))return false;if(it.junk===true)return true;if(it.junk===false)return false;return it.r===0&&!it.uniq&&!it.fac&&!it.quest;}
 function stackN(it){return Math.max(1,(it&&it.n)|0);}
 function stackKey(it){return it&&isDisk(it)?'d:'+it.wid+':'+it.r:null;}
 function invCan(it){const k=stackKey(it);return (k&&P.inv.some(x=>stackKey(x)===k))||P.inv.length<24;}

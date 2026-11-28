@@ -84,7 +84,7 @@ function qLearn(id,free){const r=qRec(id);if(qKnows(r.id))return false;if(!free)
   qc().known.push(r.id);SFX.quest();toast('📜 Learned: '+r.n);log('📜 Learned the <b>'+esc(r.n)+'</b> schematic ('+QTS[r.ts].n+')');save();return true;}
 
 /* ---------- salvage (pack loot -> parts) ---------- */
-const qSalvOk=it=>!!it&&(it.kind==='gear'||it.kind==='imp')&&!it.uniq&&!it.set&&!it.fac&&!isEquipped(it)&&P.inv.includes(it);
+const qSalvOk=it=>!!it&&(it.kind==='gear'||it.kind==='imp')&&!it.uniq&&!it.set&&!it.fac&&!isLocked(it)&&!isEquipped(it)&&P.inv.includes(it);
 function qSalvYield(it){const q=clamp(itemQL(it),1,IMPQL_MAX());const r=Math.min(it.r||0,3);const main=it.kind==='imp'||it.slot==='weapon'?'circuit':'scrap';
   const L=[[main,1+r]];if(r>=2)L.push(['shard',1]);return {q,L,core:r>=3?0.35:0};}
 function qSalvage(id,roll){const it=P.inv.find(x=>x.id===id);if(!qSalvOk(it)){warn('That item cannot be salvaged');return null;}const y=qSalvYield(it);
