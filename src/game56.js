@@ -51,7 +51,13 @@ function invcHtml(){const sel=findItem(invSel);let base=null;try{base=statsFor(P
   if(!invcIsChar()){_oi();const t=pbody.querySelector('.tabs');if(t)t.outerHTML=invcTabs();return;}
   invTab='char';stackInv();openPanel('INVENTORY',invcHtml(),'inv');};}
 {const _op=openPanel;openPanel=function(title,html,kind){_op(title,html,kind);$('#panel').classList.toggle('pw-inv',kind==='inv');};}
-{const _ir=itemRow;itemRow=function(it,extra,sel,act){const h=_ir(it,extra,sel,act);return it&&isLocked(it)?h.replace(/(<div class="nm"[^>]*>)/,'$1🔒 '):h;};}
+// bank (bwd/bdep) and trader (buy) rows get the same ▲ ◆ ▼ ✖ badge as the pack grid; one statsFor(P) per panel render
+let invcBase=null;
+function invcRowBadge(it){if(!invcCmpable(it)||isEquipped(it))return '';if(!reqMet(it))return '<span class="vb down ivrb" title="Requirements not met yet">✖</span>';
+  if(!invcBase){try{invcBase=statsFor(P);}catch(e){return '';}setTimeout(()=>{invcBase=null;},0);}
+  const v=invcVerdict(invcDiff(it,invcBase));return v&&v!=='same'?`<span class="vb ${v} ivrb" title="${VB[v][1]}">${VB[v][0]}</span>`:'';}
+{const _ir=itemRow;itemRow=function(it,extra,sel,act){let h=_ir(it,extra,sel,act);if(!it)return h;if(isLocked(it))h=h.replace(/(<div class="nm"[^>]*>)/,'$1🔒 ');
+  if(act==='bwd'||act==='bdep'||act==='buy'){const bd=invcRowBadge(it);if(bd)h=h.replace(/(<div class="nm"[^>]*>)/,'$1'+bd+' ');}return h;};}
 {const _s3=stage3Act;stage3Act=function(a,b){
   if(a==='ilock'){const it=findItem(invSel);if(it){it.locked=!isLocked(it);if(it.locked&&it.junk)it.junk=false;toast(it.locked?'🔒 Locked: it can\'t be sold, scrapped or salvaged':'🔓 Unlocked');save();}openInventory();return true;}
   if(a==='ifilt'){invF=b.dataset.f||'all';openInventory();return true;}
@@ -73,7 +79,7 @@ pbody.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b|
 .doll .ivt .il{position:absolute;left:0;right:0;top:1px;font-size:8.5px;opacity:.6;text-align:center;letter-spacing:.02em}.doll .ivt .ii{margin-top:7px}.doll .ivt .iq{display:none}
 .ivt.sel{box-shadow:0 0 0 2px #fff,0 0 12px var(--rc)}.ivt.junk{opacity:.5}
 .vb{display:inline-block;min-width:18px;height:18px;border-radius:9px;font-size:11px;font-weight:900;line-height:18px;text-align:center;padding:0 3px}
-.ivt .vb{position:absolute;right:-6px;top:-6px}.vb.up{background:#3ccf5a;color:#06210c}.vb.mix{background:#ffc85a;color:#2a1a02}.vb.down{background:#5c5c5c;color:#eee}
+.ivt .vb{position:absolute;right:-6px;top:-6px}.ivrb{margin-right:3px;vertical-align:1px;font-size:10px;min-width:16px;height:16px;line-height:16px}.vb.up{background:#3ccf5a;color:#06210c}.vb.mix{background:#ffc85a;color:#2a1a02}.vb.down{background:#5c5c5c;color:#eee}
 .ivt .xb{position:absolute;left:3px;top:1px;font-size:12px;color:#ff6a5a;font-weight:900;text-shadow:0 1px 2px #000}
 .pack{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.pack .ivt{aspect-ratio:1/1;height:auto}
 .ichips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 8px}.ichips .ltchip{min-height:34px;padding:0 12px}
